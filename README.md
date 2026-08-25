@@ -6,6 +6,8 @@ Custom Odoo 19 modules.
 
 - [`caldav_calendar/`](caldav_calendar/) - two-way calendar sync with any
   RFC 4791 CalDAV server (Nextcloud, Radicale, Baïkal, Fastmail, iCloud, ...).
+- [`auth_imap/`](auth_imap/) - authenticate existing Odoo users against an
+  IMAP mail server (mailbox password as a fallback login method).
 
 ## Testing
 

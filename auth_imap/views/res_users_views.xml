@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Single-user button, next to the existing password controls -->
+    <record id="view_users_form_auth_imap" model="ir.ui.view">
+        <field name="name">res.users.form.auth.imap</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='auth']" position="after">
+                <div name="auth_imap" class="d-flex mt-3">
+                    <div class="col-7 col-sm-6 col-lg-3 d-flex flex-column">
+                        <span class="o_form_label">
+                            IMAP Authentication
+                        </span>
+                        <span class="text-muted">
+                            Log in with the mailbox password instead.
+                        </span>
+                    </div>
+                    <button name="action_convert_to_imap_auth" type="object"
+                            string="Convert to IMAP Authentication"
+                            class="btn btn-secondary h-100 my-auto"
+                            groups="base.group_system"
+                            confirm="This clears the user's local Odoo password. From now on they'll log in with their IMAP mailbox password instead. Continue?"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Batch action: select several users in the list view, then
+         Action > Convert to IMAP Authentication -->
+    <record id="action_convert_to_imap_auth" model="ir.actions.server">
+        <field name="name">Convert to IMAP Authentication</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="binding_model_id" ref="base.model_res_users"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_convert_to_imap_auth()</field>
+    </record>
+
+</odoo>
