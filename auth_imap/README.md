@@ -34,6 +34,17 @@ There's no reverse "convert back" button: just set a new local Odoo
 password for the user (Security tab → Change Password, as an admin) and
 the local check will succeed again first, same as any other user.
 
+## Testing status
+
+Verified end-to-end against a real IMAP server (Dovecot-family, port 993
+implicit SSL): Test Connection, converting a real user, a full login with
+the correct mailbox password through the actual `_check_credentials`
+fallback chain (not stubbed), and rejection of a wrong password. Also
+confirmed against the same server that port 993 expects immediate TLS
+(`ssl` encryption) rather than a plaintext-then-`STARTTLS` upgrade -
+`STARTTLS` on that server works on port 143 instead. If your server's
+combination doesn't connect, that's the first thing to check.
+
 ## Known limitations
 
 - The Odoo login and the IMAP username must be the same string (typically
