@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="caldav_calendar_select_view_form" model="ir.ui.view">
+        <field name="name">caldav.calendar.select.form</field>
+        <field name="model">caldav.calendar.select</field>
+        <field name="arch" type="xml">
+            <form string="Select CalDAV Calendar">
+                <field name="user_id" invisible="1"/>
+                <field name="line_ids" invisible="1"/>
+                <p>Choose which calendar to sync with this Odoo user:</p>
+                <field name="selected_line_id" widget="radio"/>
+                <footer>
+                    <button string="Select" name="action_confirm" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

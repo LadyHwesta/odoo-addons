@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# testing/ - everything is a self-contained runtime state, not source
+testing/.venv/
+testing/.pgdata/
+testing/.sockets/
+testing/.logs/
+testing/.data/

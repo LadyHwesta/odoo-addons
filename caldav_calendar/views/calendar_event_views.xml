@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Read-only technical info, only shown in developer mode, to help debug sync issues -->
+    <record id="view_calendar_event_form_caldav" model="ir.ui.view">
+        <field name="name">calendar.event.form.caldav</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="CalDAV Sync (Technical)" name="caldav_technical" groups="base.group_no_one">
+                    <field name="caldav_sync_user_id" readonly="1"/>
+                    <field name="caldav_uid" readonly="1"/>
+                    <field name="caldav_href" readonly="1"/>
+                    <field name="caldav_etag" readonly="1"/>
+                    <field name="need_caldav_sync" readonly="1"/>
+                    <field name="caldav_recurrence_id_date" readonly="1"/>
+                    <field name="follow_recurrence" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
