@@ -9,9 +9,7 @@ from .caldav_service import (
     CalDAVAuthError,
     CalDAVClient,
     CalDAVError,
-    CalDAVNotFoundError,
     CalDAVPreconditionFailedError,
-    CalDAVSyncTokenInvalidError,
 )
 
 _logger = logging.getLogger(__name__)
@@ -204,10 +202,15 @@ class ResUsers(models.Model):
         Event = self.env['calendar.event'].sudo()
 
         try:
-            if not self.caldav_sync_token:
-                raise CalDAVSyncTokenInvalidError('no token yet')
-            changes, new_token = client.sync_collection(self.caldav_sync_token)
-        except CalDAVSyncTokenInvalidError:
+            # sync_collection(None) is a valid RFC 6578 bootstrap request (an
+            # empty <d:sync-token/>): it returns the full listing *and* a
+            # fresh token in one round-trip, so there's no reason to skip
+            # straight to the calendar-query fallback just because we don't
+            # have a stored token yet. Only fall back when the server
+            # actually rejects sync-collection outright (unsupported, or -
+            # on a later call - the stored token itself was rejected).
+            changes, new_token = client.sync_collection(self.caldav_sync_token or None)
+        except CalDAVError:
             changes, new_token = self._caldav_full_resync(client)
 
         deleted_hrefs = [c['href'] for c in changes if c['deleted']]

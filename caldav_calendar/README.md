@@ -107,14 +107,19 @@ EXDATE) plus one extra VEVENT per modified occurrence, each carrying a
   EXDATE multi-VEVENT shape, both timed and all-day) is covered by
   standalone round-trip tests against the real `vobject`/`lxml`/`requests`
   packages, independent of Odoo.
-- None of this has been run against a live Odoo + Postgres + real CalDAV
-  server, since this machine only has the Odoo source checked out, not a
-  runnable instance. The ORM orchestration (create/write/unlink overrides,
-  `_apply_recurrence` calls, dirty-flagging, conflict handling) is verified
-  by reading the source, not by executing it. Before relying on this for
-  real calendars, run a real end-to-end pass: create a series, edit one
-  occurrence, delete one occurrence, delete the whole series - both
-  directions.
+- Verified end-to-end against a real Odoo 19 + Postgres instance talking to
+  a real CalDAV server (OwnCloud/SabreDAV): connect, discover calendars,
+  push a plain event, push a recurring series, move+retitle one occurrence,
+  delete one occurrence, delete a whole series, and the reverse - an
+  external client creating/editing/deleting events that Odoo then pulls in.
+  Each push was independently re-fetched with a raw client and re-parsed to
+  confirm the server's own stored copy (not just what was sent) round-trips
+  correctly. This caught one real bug: `_caldav_pull` was skipping straight
+  to the inefficient full-listing fallback whenever there was no stored
+  sync-token yet, instead of first trying `sync_collection(None)` - a valid
+  RFC 6578 bootstrap request that returns the full listing *and* a fresh
+  token in one round-trip. Fixed; confirmed the incremental path now
+  actually engages on a compliant server.
 
 ## Files
 
