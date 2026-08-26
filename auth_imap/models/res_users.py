@@ -55,3 +55,15 @@ class ResUsers(models.Model):
             (self.id,),
         )
         self.invalidate_recordset(['password'])
+        # 'password' feeds _compute_session_token() (an ormcache'd method),
+        # so bypassing write() here would leave every worker process - not
+        # just this one - serving stale session tokens for this user until
+        # its cache happens to be evicted some other way. Concretely: an
+        # already-logged-in user would get bounced between "valid session"
+        # and "session expired" depending on which worker handles each
+        # request, flooding odoo.log with "Session expired" and hammering
+        # the client with re-auth retries. registry.clear_cache() busts the
+        # cache locally and signals every other worker to do the same, the
+        # same call core's own write() makes for this same field (see
+        # ResUsers._get_invalidation_fields()).
+        self.env.registry.clear_cache()
