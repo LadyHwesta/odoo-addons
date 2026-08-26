@@ -2,7 +2,7 @@
 <odoo>
     <record id="ir_cron_caldav_sync_all" model="ir.cron">
         <field name="name">CalDAV: Sync all active calendar accounts</field>
-        <field name="model_id" ref="base.model_res_users"/>
+        <field name="model_id" ref="model_caldav_account"/>
         <field name="state">code</field>
         <field name="code">model._cron_caldav_sync_all()</field>
         <field name="interval_number">15</field>

@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_caldav_account_user,caldav.account.user,model_caldav_account,base.group_user,1,1,1,1
 access_caldav_pending_delete_user,caldav.pending.delete.user,model_caldav_pending_delete,base.group_user,1,1,1,1
 access_caldav_calendar_select_user,caldav.calendar.select.user,model_caldav_calendar_select,base.group_user,1,1,1,1
 access_caldav_calendar_select_line_user,caldav.calendar.select.line.user,model_caldav_calendar_select_line,base.group_user,1,1,1,1

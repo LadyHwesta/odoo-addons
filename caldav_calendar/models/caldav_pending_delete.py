@@ -11,6 +11,6 @@ class CalDAVPendingDelete(models.Model):
     _name = 'caldav.pending.delete'
     _description = 'CalDAV Pending Deletion'
 
-    user_id = fields.Many2one('res.users', required=True, index=True, ondelete='cascade')
+    account_id = fields.Many2one('caldav.account', index=True, ondelete='cascade')
     href = fields.Char(required=True)
     etag = fields.Char()

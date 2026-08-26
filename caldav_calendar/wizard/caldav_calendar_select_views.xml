@@ -5,9 +5,9 @@
         <field name="model">caldav.calendar.select</field>
         <field name="arch" type="xml">
             <form string="Select CalDAV Calendar">
-                <field name="user_id" invisible="1"/>
+                <field name="account_id" invisible="1"/>
                 <field name="line_ids" invisible="1"/>
-                <p>Choose which calendar to sync with this Odoo user:</p>
+                <p>Choose which calendar this account should sync:</p>
                 <field name="selected_line_id" widget="radio"/>
                 <footer>
                     <button string="Select" name="action_confirm" type="object" class="btn-primary"/>

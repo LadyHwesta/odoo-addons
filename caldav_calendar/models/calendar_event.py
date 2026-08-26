@@ -28,9 +28,9 @@ class CalendarEvent(models.Model):
     caldav_uid = fields.Char(copy=False, index='btree', help='iCalendar UID of the linked CalDAV resource.')
     caldav_href = fields.Char(copy=False, help='Full URL of the linked CalDAV resource on the server.')
     caldav_etag = fields.Char(copy=False, help='Last known ETag of the CalDAV resource, used to detect conflicts.')
-    caldav_sync_user_id = fields.Many2one(
-        'res.users', copy=False, index=True,
-        help='User whose CalDAV account this event is synced through.')
+    caldav_account_id = fields.Many2one(
+        'caldav.account', copy=False, index=True,
+        help='Which of the organizer\'s CalDAV calendars this event is synced through.')
     need_caldav_sync = fields.Boolean(default=False, copy=False, index=True)
     caldav_recurrence_id_date = fields.Datetime(
         copy=False,
@@ -46,11 +46,31 @@ class CalendarEvent(models.Model):
     # ------------------------------------------------------------------
     @api.model_create_multi
     def create(self, vals_list):
+        if not self.env.context.get('caldav_no_sync'):
+            self._caldav_assign_default_account(vals_list)
         events = super().create(vals_list)
         events._caldav_stamp_recurrence_anchor()
         if not self.env.context.get('caldav_no_sync'):
             events.filtered(lambda e: not e.need_caldav_sync).write({'need_caldav_sync': True})
         return events
+
+    def _caldav_assign_default_account(self, vals_list):
+        """A brand-new event with no calendar chosen syncs automatically
+        only when its organizer has exactly one active CalDAV account - the
+        common case, and the one that used to be the only case. With two or
+        more accounts there's no way to guess which calendar it belongs to,
+        so it's left unsynced until the user picks one on the event itself.
+        """
+        accounts_by_user = {}
+        for vals in vals_list:
+            if vals.get('caldav_account_id'):
+                continue
+            user_id = vals.get('user_id') or self.env.user.id
+            if user_id not in accounts_by_user:
+                accounts = self.env['caldav.account'].sudo().search([('user_id', '=', user_id), ('active', '=', True)])
+                accounts_by_user[user_id] = accounts.id if len(accounts) == 1 else False
+            if accounts_by_user[user_id]:
+                vals['caldav_account_id'] = accounts_by_user[user_id]
 
     def write(self, vals):
         res = super().write(vals)
@@ -61,10 +81,10 @@ class CalendarEvent(models.Model):
 
     def unlink(self):
         if not self.env.context.get('caldav_no_sync'):
-            to_delete = self.filtered(lambda e: e.caldav_href and e.caldav_sync_user_id)
+            to_delete = self.filtered(lambda e: e.caldav_href and e.caldav_account_id)
             for event in to_delete:
                 self.env['caldav.pending.delete'].sudo().create({
-                    'user_id': event.caldav_sync_user_id.id,
+                    'account_id': event.caldav_account_id.id,
                     'href': event.caldav_href,
                     'etag': event.caldav_etag,
                 })

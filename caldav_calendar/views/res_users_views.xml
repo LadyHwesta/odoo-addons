@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Self-service "Preferences" popup: any user can configure their own CalDAV account here.
-         "other_preferences" is the placeholder group base/views/res_users_views.xml explicitly
-         reserves for this kind of override (see the "mail" module's notification settings for
-         the same pattern). Inserted as a sibling *after* it, as its own nested <group>, rather
-         than injected *inside* it: a bare heading span or button div as a direct child of a
-         <group> counts as a single unpaired grid cell and throws off the label/field pairing of
-         every field that follows it. A nested <group string="..."> gets a bold header for free
-         and keeps its own clean pairing, without disturbing the outer grid at all. -->
+    <!-- Self-service "Preferences" popup: any user can see + manage their own
+         CalDAV accounts here. "other_preferences" is the placeholder group
+         base/views/res_users_views.xml explicitly reserves for this kind of
+         override (see the "mail" module's notification settings for the
+         same pattern). Inserted as a sibling *after* it, as its own nested
+         <group>, rather than injected *inside* it: a bare heading span or
+         button div as a direct child of a <group> counts as a single
+         unpaired grid cell and throws off the label/field pairing of every
+         field that follows it. A nested <group string="..."> gets a bold
+         header for free and keeps its own clean pairing, without disturbing
+         the outer grid at all. -->
     <record id="view_users_form_simple_modif_caldav" model="ir.ui.view">
         <field name="name">res.users.preferences.form.caldav</field>
         <field name="model">res.users</field>
@@ -16,50 +19,23 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='other_preferences']" position="after">
                 <group string="CalDAV Calendar Sync" name="caldav_calendar_sync">
-                    <field name="caldav_sync_status" widget="badge"
-                           decoration-success="caldav_sync_status == 'active'"
-                           decoration-warning="caldav_sync_status == 'paused'"
-                           decoration-danger="caldav_sync_status == 'error'"/>
-                    <field name="caldav_discovery_url" placeholder="https://cloud.example.com/"/>
-                    <field name="caldav_username"/>
-                    <field name="caldav_password" password="True"/>
-                    <field name="caldav_url" placeholder="https://cloud.example.com/remote.php/dav/calendars/john/personal/"/>
-                    <field name="caldav_last_sync" readonly="1"/>
-                    <field name="caldav_last_sync_error" readonly="1" invisible="not caldav_last_sync_error"/>
+                    <field name="caldav_account_ids" nolabel="1" colspan="2" readonly="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="sync_status" widget="badge"
+                                   decoration-success="sync_status == 'active'"
+                                   decoration-warning="sync_status == 'paused'"
+                                   decoration-danger="sync_status == 'error'"/>
+                            <field name="url"/>
+                            <field name="last_sync"/>
+                        </list>
+                    </field>
+                    <div class="o_row" name="caldav_accounts_button" colspan="2">
+                        <button type="action" name="%(caldav_calendar.action_caldav_account)d"
+                                string="Manage CalDAV Calendars" class="btn-secondary"
+                                context="{'default_user_id': id}"/>
+                    </div>
                 </group>
-                <div class="o_row" name="caldav_buttons">
-                    <button name="action_caldav_test_connection" type="object" string="Test Connection" class="btn-secondary"/>
-                    <button name="action_caldav_discover_calendars" type="object" string="Discover Calendars" class="btn-secondary"/>
-                    <button name="action_caldav_sync_now" type="object" string="Sync Now" class="btn-primary"/>
-                </div>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Full admin user form (Settings > Users): same fields, for admins managing other users -->
-    <record id="view_users_form_caldav" model="ir.ui.view">
-        <field name="name">res.users.form.caldav</field>
-        <field name="model">res.users</field>
-        <field name="inherit_id" ref="base.view_users_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//group[@name='other_preferences']" position="after">
-                <group string="CalDAV Calendar Sync" name="caldav_calendar_sync">
-                    <field name="caldav_sync_status" widget="badge"
-                           decoration-success="caldav_sync_status == 'active'"
-                           decoration-warning="caldav_sync_status == 'paused'"
-                           decoration-danger="caldav_sync_status == 'error'"/>
-                    <field name="caldav_discovery_url" placeholder="https://cloud.example.com/"/>
-                    <field name="caldav_username"/>
-                    <field name="caldav_password" password="True"/>
-                    <field name="caldav_url" placeholder="https://cloud.example.com/remote.php/dav/calendars/john/personal/"/>
-                    <field name="caldav_last_sync" readonly="1"/>
-                    <field name="caldav_last_sync_error" readonly="1" invisible="not caldav_last_sync_error"/>
-                </group>
-                <div class="o_row" name="caldav_buttons">
-                    <button name="action_caldav_test_connection" type="object" string="Test Connection" class="btn-secondary"/>
-                    <button name="action_caldav_discover_calendars" type="object" string="Discover Calendars" class="btn-secondary"/>
-                    <button name="action_caldav_sync_now" type="object" string="Sync Now" class="btn-primary"/>
-                </div>
             </xpath>
         </field>
     </record>

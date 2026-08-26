@@ -15,19 +15,31 @@ all already core Odoo dependencies.
 
 ## Setup (per user)
 
-From the user's avatar menu → **My Profile** (or Settings → Users for an
-admin configuring someone else):
+Each user can add any number of CalDAV calendar accounts - each syncs
+independently, with its own credentials and sync cursor. From the user's
+avatar menu → **My Profile**, the "CalDAV Calendar Sync" section shows a
+read-only summary of their accounts; **Manage CalDAV Calendars** opens the
+real list/form to add or edit one:
 
-1. Fill in **CalDAV Server URL** (e.g. `https://cloud.example.com/`),
-   **Username**, and **Password** — use an app-specific password if your
-   server supports one (Nextcloud, Fastmail, iCloud all do).
-2. Click **Discover Calendars** and pick the calendar to sync, *or* skip
-   discovery and paste the full calendar collection URL directly into
-   **Calendar URL**.
-3. Click **Test Connection**, then **Sync Now** for an initial sync.
-4. After that, the `CalDAV: Sync all active calendar accounts` scheduled
+1. **New**, give it a **Name** (just a label, e.g. "Personal" or "Work").
+2. Fill in **CalDAV Server URL**, **Username**, and **Password** — use an
+   app-specific password if your server supports one (Nextcloud, Fastmail,
+   iCloud all do).
+3. Save, then click **Discover Calendars** and pick the calendar to sync,
+   *or* skip discovery and paste the full calendar collection URL directly
+   into **Calendar URL**.
+4. Click **Test Connection**, then **Sync Now** for an initial sync.
+5. After that, the `CalDAV: Sync all active calendar accounts` scheduled
    action (Settings → Technical → Scheduled Actions, every 15 min by
-   default) keeps it in sync automatically in both directions.
+   default) keeps every account in sync automatically in both directions.
+
+**Which calendar does a new event sync to?** If you have exactly one
+account, new events sync to it automatically - the same "just works"
+behavior as when this module only supported one calendar. With two or
+more accounts there's no way to guess which one a new event belongs to,
+so it's created unsynced; pick one from the **Sync to CalDAV Calendar**
+field on the event itself (only shows calendars belonging to that event's
+organizer).
 
 ## How it works
 
@@ -92,8 +104,22 @@ EXDATE) plus one extra VEVENT per modified occurrence, each carrying a
 - Alarms/reminders are not synced.
 - Attendees are matched/created by e-mail only; no invite e-mails are sent
   by this module (Odoo's own calendar notifications still apply locally).
-- One CalDAV calendar per Odoo user. Multiple calendars per user would need
-  the `caldav_url` field to become a one2many.
+- Each `calendar.event` syncs through at most one `caldav.account`. There's
+  no way to mirror the same event into two different calendars.
+
+## Upgrading from a v1 install (one calendar per user)
+
+19.0.2.0.0 replaced the flat `caldav_*` fields on `res.users` with a
+`caldav.account` model (one2many from the user), so a user can have
+several calendars instead of exactly one. `migrations/19.0.2.0.0/
+post-migrate.py` handles this automatically on `-u caldav_calendar`: for
+any user with the old fields configured, it creates one `caldav.account`
+carrying over their URL/credentials/sync state, and repoints their
+already-synced `calendar.event` rows at it. Verified against a real
+upgrade (seeded old-schema data, ran the upgrade, confirmed the new
+account and the event's new `caldav_account_id` both came out right, and
+that Odoo dropped the old columns cleanly afterward) - not just read
+against the migration script.
 
 ## Testing status
 
@@ -120,19 +146,35 @@ EXDATE) plus one extra VEVENT per modified occurrence, each carrying a
   RFC 6578 bootstrap request that returns the full listing *and* a fresh
   token in one round-trip. Fixed; confirmed the incremental path now
   actually engages on a compliant server.
+- Multi-account support (this version) verified via `odoo-bin shell`: a
+  user with one account still auto-syncs new events to it (unchanged
+  behavior); adding a second stops the auto-assignment and each account's
+  push query only ever picks up its own events, never the other's; the
+  `ir.rule` genuinely hides one user's accounts from another. Also
+  screenshotted the real rendered UI (Playwright + headless Chromium) for
+  both the Preferences summary list and the full account list/form, not
+  just reasoned about the view XML.
 
 ## Files
 
 - `models/caldav_service.py` - plain-Python WebDAV/CalDAV client (no ORM,
   no Odoo import - unit-testable standalone).
-- `models/res_users.py` - per-user account fields + sync orchestration
-  (push/pull/conflict/recurrence-override handling) + cron entry point.
+- `models/caldav_account.py` - one CalDAV calendar subscription: its own
+  credentials, sync cursor, and all sync orchestration (push/pull/conflict/
+  recurrence-override handling) + the cron entry point. A user can have
+  several.
+- `models/res_users.py` - just the `caldav_account_ids` one2many for the
+  self-service Preferences summary.
 - `models/calendar_event.py` - `calendar.event` ↔ iCalendar field mapping
   (including RECURRENCE-ID overrides and EXDATE), dirty-tracking on
-  write/unlink, the RECURRENCE-ID anchor (`caldav_recurrence_id_date`).
+  write/unlink, the RECURRENCE-ID anchor (`caldav_recurrence_id_date`), and
+  auto-assigning a new event to its organizer's one account when they only
+  have one.
 - `models/calendar_recurrence.py` - flags a series' master for push when
   the recurrence pattern itself changes (interval/count/until/weekdays),
   not just when the base event's own fields change.
 - `models/caldav_pending_delete.py` - tombstone queue so deletes propagate
   even though the `calendar.event` row is already gone.
+- `migrations/19.0.2.0.0/post-migrate.py` - carries old single-account
+  data forward into the new model on upgrade.
 - `wizard/` - "Discover Calendars" picker.

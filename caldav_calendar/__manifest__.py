@@ -1,6 +1,6 @@
 {
     'name': 'CalDAV Calendar Sync',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Productivity/Calendar',
     'summary': 'Two-way calendar synchronization with any RFC 4791 CalDAV server',
     'description': """
@@ -12,8 +12,9 @@ Synchronizes Odoo's Calendar app with any standards-compliant CalDAV server
 ``google_calendar`` / ``microsoft_calendar`` modules sync with their
 respective providers.
 
-Each user configures a CalDAV calendar URL and credentials (username +
-password or app-specific password) from their Preferences. Odoo then:
+Each user can add any number of CalDAV calendar accounts (URL + username +
+password or app-specific password) from their Preferences - each one syncs
+independently. Odoo then:
 
 * Pulls remote changes using RFC 6578 ``sync-collection`` when the server
   supports it, falling back to a ``getctag`` + full report comparison
@@ -41,6 +42,7 @@ See README.md for known edge cases and other limitations.
         'security/ir.model.access.csv',
         'security/caldav_security.xml',
         'data/ir_cron.xml',
+        'views/caldav_account_views.xml',
         'views/res_users_views.xml',
         'views/calendar_event_views.xml',
         'wizard/caldav_calendar_select_views.xml',
