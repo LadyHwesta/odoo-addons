@@ -15,6 +15,20 @@ Custom Odoo 19 modules.
 instance for trying these modules against a real server - see
 [`testing/README.md`](testing/README.md).
 
+## Compatibility & contributing
+
+Everything here targets **Odoo 19.0** (see each module's `__manifest__.py`
+- the `19.0.x.y.z` version already encodes that), tracked on `main`. That's
+the version actively used and maintained.
+
+Ports to other Odoo versions (e.g. 18.0) are welcome as PRs, but should
+target a new version branch (e.g. `18.0`) rather than `main` - ask if that
+branch doesn't exist yet and it'll get created. The expectation is that
+whoever contributes a version port also owns keeping it compatible going
+forward: reviews/merges happen here, but active maintenance of a
+non-current-version branch isn't something to expect from the `main`
+maintainer.
+
 ## License
 
 LGPL-3 (see [`LICENSE`](LICENSE)), matching Odoo Community itself, unless a
