@@ -9,11 +9,18 @@ library.
 
 Mirrors the structure of core's own `auth_ldap` module:
 
-- A user's local Odoo password is checked **first**. Only if that fails
-  does Odoo attempt an IMAP `LOGIN` with the submitted credentials against
-  each configured server (in `sequence` order). This means an admin
-  account, or anyone who still has a local password set, is never at risk
-  of being locked out just because the mail server is unreachable.
+- A user's local Odoo password is checked **first**. Only if that fails,
+  **and only for a user who was actually converted to IMAP authentication**
+  (see Setup below - their local password is empty), does Odoo attempt an
+  IMAP `LOGIN` with the submitted credentials against each configured
+  server (in `sequence` order). This means an admin account, or anyone who
+  still has a local password set, is never at risk of being locked out
+  just because the mail server is unreachable - and, just as importantly,
+  never triggers a real login attempt against the IMAP server just because
+  they mistyped their Odoo password. Mail providers commonly rate-limit or
+  block a source IP after enough failed logins, so this gate isn't just an
+  optimization: without it, *every* user's password typo - converted or
+  not - would count against that limit.
 - **Does not auto-provision new users** (unlike `auth_ldap`'s optional
   `create_user` behavior): IMAP only ever authenticates a login that
   already has an Odoo `res.users` record. A valid mailbox password alone
@@ -57,6 +64,7 @@ combination doesn't connect, that's the first thing to check.
   probably what you want (don't let Odoo write to the mail server), but it
   does mean the two passwords can diverge from that point on.
 - One connection attempt per configured server, in sequence, on every
-  fallback login. If you have several servers configured and the first one
-  is down, expect each of its failed logins to pay that server's connection
-  timeout (15s) before trying the next.
+  fallback login *for an IMAP-converted user*. If you have several servers
+  configured and the first one is down, expect each of that user's failed
+  logins to pay that server's connection timeout (15s) before trying the
+  next.

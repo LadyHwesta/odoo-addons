@@ -15,6 +15,15 @@ class ResUsers(models.Model):
         server is unreachable. Only users who already exist in Odoo are
         ever authenticated this way - unlike auth_ldap, this module does
         not auto-provision new users from a successful external login.
+
+        Unlike auth_ldap, the fallback only fires for users who were
+        actually converted to IMAP authentication (empty local password -
+        see action_convert_to_imap_auth). Any user still on a local
+        password never reaches the IMAP server at all: without this gate,
+        every mistyped password for every user - converted or not - would
+        try a real LOGIN against each configured IMAP server, and mail
+        providers commonly block/throttle a source IP after enough failed
+        logins.
         """
         try:
             return super()._check_credentials(credential, env)
@@ -22,7 +31,7 @@ class ResUsers(models.Model):
             if not (credential['type'] == 'password' and credential.get('password')):
                 raise
             passwd_allowed = env['interactive'] or not self.env.user._rpc_api_keys_only()
-            if passwd_allowed and self.env.user.active:
+            if passwd_allowed and self.env.user.active and self._auth_imap_local_password_is_empty():
                 Imap = self.env['res.company.imap']
                 for conf in Imap._get_imap_dicts():
                     if Imap._authenticate(conf, self.env.user.login, credential['password']):
@@ -32,6 +41,18 @@ class ResUsers(models.Model):
                             'mfa': 'default',
                         }
             raise
+
+    def _auth_imap_local_password_is_empty(self):
+        # 'password' is write-only on the res.users model (its compute
+        # always reports '' - see _compute_password), so like core's own
+        # _check_credentials we have to read it back with raw SQL instead
+        # of the ORM.
+        self.env.cr.execute(
+            'SELECT password IS NULL FROM res_users WHERE id=%s',
+            (self.env.user.id,),
+        )
+        [is_empty] = self.env.cr.fetchone()
+        return is_empty
 
     def action_convert_to_imap_auth(self):
         """Clear these users' local Odoo password so every future login for
