@@ -103,7 +103,12 @@ class CalDAVClient:
         self.calendar_url = url if url.endswith('/') else url + '/'
         self.timeout = (CONNECT_TIMEOUT, timeout or DEFAULT_READ_TIMEOUT)
         self.session = requests.Session()
-        self.session.auth = (username, password)
+        # A public/shared read-only calendar may need no auth at all; skip the
+        # Basic-Auth header entirely rather than sending an empty credential.
+        # A username with no password is still allowed (some servers take a
+        # token as the username).
+        if username:
+            self.session.auth = (username, password or '')
         self.session.headers['User-Agent'] = 'Odoo CalDAV Calendar Sync'
 
     # ------------------------------------------------------------------

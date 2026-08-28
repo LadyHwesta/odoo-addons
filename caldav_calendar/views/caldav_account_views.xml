@@ -30,8 +30,10 @@
                         </group>
                         <group string="Connection">
                             <field name="discovery_url" placeholder="https://cloud.example.com/"/>
-                            <field name="username"/>
-                            <field name="password" password="True"/>
+                            <field name="username" required="not read_only"
+                                   placeholder="Leave blank for a public calendar"/>
+                            <field name="password" password="True" required="not read_only"
+                                   placeholder="Leave blank for a public calendar"/>
                             <field name="url" placeholder="https://cloud.example.com/remote.php/dav/calendars/john/personal/"/>
                         </group>
                     </group>

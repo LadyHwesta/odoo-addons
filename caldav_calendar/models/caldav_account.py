@@ -69,8 +69,12 @@ class CalDAVAccount(models.Model):
     def _caldav_get_client(self, url=None):
         self.ensure_one()
         target_url = url or self.url
-        if not (target_url and self.username and self.password):
-            raise UserError(self.env._('Please fill in the CalDAV URL, username and password first.'))
+        if not target_url:
+            raise UserError(self.env._('Please fill in the CalDAV URL first.'))
+        if not self.read_only and not (self.username and self.password):
+            raise UserError(self.env._(
+                'Please fill in the CalDAV username and password, or tick '
+                '"Read-Only Subscription" if this calendar needs no login.'))
         return CalDAVClient(target_url, self.username, self.password, timeout=self._caldav_request_timeout())
 
     @api.model
@@ -111,8 +115,10 @@ class CalDAVAccount(models.Model):
     def action_caldav_discover_calendars(self):
         self.ensure_one()
         base_url = self.discovery_url or self.url
-        if not (base_url and self.username and self.password):
-            raise UserError(self.env._('Please fill in the server URL, username and password first.'))
+        if not base_url:
+            raise UserError(self.env._('Please fill in the server URL first.'))
+        if not self.read_only and not (self.username and self.password):
+            raise UserError(self.env._('Please fill in the username and password first.'))
         try:
             client = self._caldav_get_client(url=base_url)
             calendars = client.discover_calendars()

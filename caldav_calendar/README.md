@@ -52,6 +52,11 @@ accumulating `need_caldav_sync` flags and delete tombstones for writes the
 server would just reject (and from flipping the account to `error` when it
 does). Untick it later and normal two-way push resumes.
 
+**Username** and **Password** are optional while **Read-Only Subscription**
+is ticked - leave them blank for a public calendar and no auth header is
+sent; a username with no password is also accepted (some servers take a
+token there). They stay required for a normal two-way account.
+
 ## How it works
 
 - **Pull**: uses RFC 6578 `sync-collection` when the server supports it
