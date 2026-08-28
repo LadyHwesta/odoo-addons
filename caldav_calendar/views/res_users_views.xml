@@ -26,6 +26,7 @@
                                    decoration-success="sync_status == 'active'"
                                    decoration-warning="sync_status == 'paused'"
                                    decoration-danger="sync_status == 'error'"/>
+                            <field name="read_only" optional="show"/>
                             <field name="url"/>
                             <field name="last_sync"/>
                         </list>

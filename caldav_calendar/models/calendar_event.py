@@ -51,15 +51,20 @@ class CalendarEvent(models.Model):
         events = super().create(vals_list)
         events._caldav_stamp_recurrence_anchor()
         if not self.env.context.get('caldav_no_sync'):
-            events.filtered(lambda e: not e.need_caldav_sync).write({'need_caldav_sync': True})
+            events.filtered(
+                lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only
+            ).write({'need_caldav_sync': True})
         return events
 
     def _caldav_assign_default_account(self, vals_list):
         """A brand-new event with no calendar chosen syncs automatically
-        only when its organizer has exactly one active CalDAV account - the
-        common case, and the one that used to be the only case. With two or
-        more accounts there's no way to guess which calendar it belongs to,
-        so it's left unsynced until the user picks one on the event itself.
+        only when its organizer has exactly one active, writable CalDAV
+        account - the common case, and the one that used to be the only
+        case. With two or more accounts there's no way to guess which
+        calendar it belongs to, so it's left unsynced until the user picks
+        one on the event itself. Read-only subscriptions are skipped
+        entirely here: auto-assigning to one would just mark the event
+        dirty forever for a push that can never land.
         """
         accounts_by_user = {}
         for vals in vals_list:
@@ -67,7 +72,9 @@ class CalendarEvent(models.Model):
                 continue
             user_id = vals.get('user_id') or self.env.user.id
             if user_id not in accounts_by_user:
-                accounts = self.env['caldav.account'].sudo().search([('user_id', '=', user_id), ('active', '=', True)])
+                accounts = self.env['caldav.account'].sudo().search([
+                    ('user_id', '=', user_id), ('active', '=', True), ('read_only', '=', False),
+                ])
                 accounts_by_user[user_id] = accounts.id if len(accounts) == 1 else False
             if accounts_by_user[user_id]:
                 vals['caldav_account_id'] = accounts_by_user[user_id]
@@ -81,7 +88,8 @@ class CalendarEvent(models.Model):
 
     def unlink(self):
         if not self.env.context.get('caldav_no_sync'):
-            to_delete = self.filtered(lambda e: e.caldav_href and e.caldav_account_id)
+            to_delete = self.filtered(
+                lambda e: e.caldav_href and e.caldav_account_id and not e.caldav_account_id.read_only)
             for event in to_delete:
                 self.env['caldav.pending.delete'].sudo().create({
                     'account_id': event.caldav_account_id.id,
@@ -93,7 +101,8 @@ class CalendarEvent(models.Model):
             # for the now-missing slot.
             occurrence_deletes = self.filtered(lambda e: not e._caldav_is_recurrence_master())
             masters = occurrence_deletes.mapped('recurrence_id.base_event_id')
-            masters = (masters - self).filtered(lambda e: not e.need_caldav_sync)
+            masters = (masters - self).filtered(
+                lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only)
             if masters:
                 masters.with_context(caldav_no_sync=True).write({'need_caldav_sync': True})
         return super().unlink()
@@ -146,7 +155,8 @@ class CalendarEvent(models.Model):
                     exceptions |= event
         if exceptions:
             exceptions.with_context(caldav_no_sync=True).write({'follow_recurrence': False})
-        targets = targets.filtered(lambda e: not e.need_caldav_sync)
+        targets = targets.filtered(
+            lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only)
         if targets:
             targets.with_context(caldav_no_sync=True).write({'need_caldav_sync': True})
 

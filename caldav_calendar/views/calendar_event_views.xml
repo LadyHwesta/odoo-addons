@@ -13,7 +13,7 @@
             <xpath expr="//sheet" position="inside">
                 <group>
                     <field name="caldav_account_id" string="Sync to CalDAV Calendar"
-                           domain="[('user_id', '=', user_id)]"
+                           domain="[('user_id', '=', user_id), ('read_only', '=', False)]"
                            placeholder="Not synced"/>
                 </group>
                 <group string="CalDAV Sync (Technical)" name="caldav_technical" groups="base.group_no_one">

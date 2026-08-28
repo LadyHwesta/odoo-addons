@@ -13,7 +13,8 @@ class CalendarRecurrence(models.Model):
         # this one key is enough to catch recurrence-pattern edits made
         # without touching the base calendar.event's own fields.
         if not self.env.context.get('caldav_no_sync') and 'rrule' in vals:
-            dirty = self.mapped('base_event_id').filtered(lambda e: not e.need_caldav_sync)
+            dirty = self.mapped('base_event_id').filtered(
+                lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only)
             if dirty:
                 dirty.write({'need_caldav_sync': True})
         return res

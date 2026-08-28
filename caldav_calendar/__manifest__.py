@@ -1,6 +1,6 @@
 {
     'name': 'CalDAV Calendar Sync',
-    'version': '19.0.2.0.0',
+    'version': '19.0.2.1.0',
     'category': 'Productivity/Calendar',
     'summary': 'Two-way calendar synchronization with any RFC 4791 CalDAV server',
     'description': """

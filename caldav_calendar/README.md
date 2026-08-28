@@ -34,12 +34,23 @@ real list/form to add or edit one:
    default) keeps every account in sync automatically in both directions.
 
 **Which calendar does a new event sync to?** If you have exactly one
-account, new events sync to it automatically - the same "just works"
-behavior as when this module only supported one calendar. With two or
-more accounts there's no way to guess which one a new event belongs to,
+writable account, new events sync to it automatically - the same "just
+works" behavior as when this module only supported one calendar. With two
+or more accounts there's no way to guess which one a new event belongs to,
 so it's created unsynced; pick one from the **Sync to CalDAV Calendar**
-field on the event itself (only shows calendars belonging to that event's
-organizer).
+field on the event itself (only shows writable calendars belonging to that
+event's organizer).
+
+**Read-only subscriptions.** Tick **Read-Only Subscription** on an account
+for calendars you can only view, not change - subscribed holiday feeds,
+team calendars you lack write access to, ICS subscriptions. Odoo still
+pulls remote changes for these on every sync, but never pushes: local
+edits to those events stay local, deletes aren't propagated, and the
+account is skipped by both new-event auto-assignment and the **Sync to
+CalDAV Calendar** picker. This keeps a view-only calendar from
+accumulating `need_caldav_sync` flags and delete tombstones for writes the
+server would just reject (and from flipping the account to `error` when it
+does). Untick it later and normal two-way push resumes.
 
 ## How it works
 
@@ -49,7 +60,8 @@ organizer).
 - **Push**: `calendar.event` writes set a `need_caldav_sync` flag; the sync
   job `PUT`s dirty events with `If-Match`/`If-None-Match` ETag
   preconditions, and drains a small delete queue (`caldav.pending.delete`)
-  for events removed in Odoo.
+  for events removed in Odoo. Accounts flagged **Read-Only Subscription**
+  skip this phase entirely - they only ever pull.
 - **Conflicts**: last-write-wins, remote takes priority when both sides
   changed the same event between syncs (logged, not silently discarded -
   check `caldav_last_sync_error` / server logs if this matters to you).
@@ -146,7 +158,13 @@ against the migration script.
   RFC 6578 bootstrap request that returns the full listing *and* a fresh
   token in one round-trip. Fixed; confirmed the incremental path now
   actually engages on a compliant server.
-- Multi-account support (this version) verified via `odoo-bin shell`: a
+- **Read-only subscriptions (19.0.2.1.0) are not yet verified end-to-end.**
+  The change is small and mechanical - every code path that would set
+  `need_caldav_sync`, enqueue a `caldav.pending.delete`, or auto-assign a
+  new event now also checks `caldav_account_id.read_only`, and
+  `_caldav_sync` skips `_caldav_push` for such accounts - but it hasn't
+  been exercised against a real read-only calendar yet.
+- Multi-account support (a previous version) verified via `odoo-bin shell`: a
   user with one account still auto-syncs new events to it (unchanged
   behavior); adding a second stops the auto-assignment and each account's
   push query only ever picks up its own events, never the other's; the

@@ -32,6 +32,14 @@ class CalDAVAccount(models.Model):
         required=True, default='Calendar',
         help='A label to tell your calendars apart, e.g. "Personal" or "Work".')
     active = fields.Boolean(default=True, help='Uncheck to pause syncing this account without deleting it.')
+    read_only = fields.Boolean(
+        string='Read-Only Subscription', default=False,
+        help='Tick this for calendars you can only view, not change: subscribed '
+             'holiday feeds, team calendars you lack write access to, ICS '
+             'subscriptions. Odoo still pulls remote changes for these, but '
+             'never pushes local edits back - so a local change to one of these '
+             'events stays local, and nothing queues up waiting for a write the '
+             'server would only reject.')
 
     discovery_url = fields.Char(
         string='CalDAV Server URL',
@@ -149,7 +157,8 @@ class CalDAVAccount(models.Model):
         account = self.sudo()
         client = account._caldav_get_client()
         try:
-            account._caldav_push(client)
+            if not account.read_only:
+                account._caldav_push(client)
             account._caldav_pull(client)
         except CalDAVError as exc:
             account.write({'sync_status': 'error', 'last_sync_error': str(exc)})
