@@ -65,6 +65,17 @@ does). Untick it later and normal two-way push resumes.
 - **Conflicts**: last-write-wins, remote takes priority when both sides
   changed the same event between syncs (logged, not silently discarded -
   check `caldav_last_sync_error` / server logs if this matters to you).
+- **Timeouts / flaky networks**: each HTTP call uses a `(10s connect, 90s
+  read)` timeout and is retried twice with exponential backoff on a
+  timeout or dropped connection before the account is flagged `error`.
+  Every request is safe to replay - reads are read-only, and writes carry
+  ETag preconditions, so a retried write that actually landed the first
+  time comes back as a `412`/`404` the sync already handles. The read
+  timeout is the common thing to tune for a slow server: set the
+  `caldav_calendar.request_timeout` system parameter (Settings → Technical
+  → System Parameters) to a number of seconds to override the 90s default.
+  A network failure now records a one-line reason in **Last CalDAV Sync
+  Error**, not a Python traceback.
 
 ## Recurring events and per-occurrence exceptions
 
@@ -164,6 +175,14 @@ against the migration script.
   new event now also checks `caldav_account_id.read_only`, and
   `_caldav_sync` skips `_caldav_push` for such accounts - but it hasn't
   been exercised against a real read-only calendar yet.
+- **Timeout handling + retry (19.0.2.2.0)**: the retry loop (succeeds after
+  a transient failure, gives up as `CalDAVConnectionError` once retries are
+  exhausted, wraps non-retryable `requests` errors immediately, honours the
+  `(connect, read)` tuple) is covered by a standalone test against the real
+  `requests` exception classes with a fake session. The end-to-end effect -
+  a real slow server no longer dumping a traceback into **Last CalDAV Sync
+  Error**, and `caldav_calendar.request_timeout` taking effect - has not
+  been re-checked against a live instance.
 - Multi-account support (a previous version) verified via `odoo-bin shell`: a
   user with one account still auto-syncs new events to it (unchanged
   behavior); adding a second stops the auto-assignment and each account's

@@ -7,6 +7,7 @@ cron worker). It only depends on ``requests`` and ``lxml``, both of which
 are already core Odoo dependencies - no extra pip install is required.
 """
 import logging
+import time
 from urllib.parse import urljoin, urlparse
 from xml.sax.saxutils import escape as xml_escape
 
@@ -20,7 +21,22 @@ NS = {
     'c': 'urn:ietf:params:xml:ns:caldav',
 }
 
-TIMEOUT = 30
+# requests timeout as (connect, read). The connect budget stays short - a
+# server that won't even accept the socket in 10s isn't going to get better -
+# but the read budget is generous: a CalDAV sync-collection REPORT makes the
+# server compute a whole change set, and a cold PHP/DB backend (Nextcloud et
+# al.) can legitimately take a while just to send the first byte.
+CONNECT_TIMEOUT = 10
+DEFAULT_READ_TIMEOUT = 90
+
+# Transient network failures (timeout, dropped connection) are retried this
+# many extra times, with exponential backoff, before giving up. Every request
+# this client makes is safe to replay: GET/PROPFIND/REPORT are read-only, and
+# PUT/DELETE both carry ETag preconditions (or If-None-Match:* on create), so
+# a retry after a response we never saw resolves as a 412/404 the callers
+# already handle rather than as a duplicate write.
+RETRIES = 2
+RETRY_BACKOFF = 1.0
 
 
 class CalDAVError(Exception):
@@ -42,6 +58,13 @@ class CalDAVPreconditionFailedError(CalDAVError):
 class CalDAVSyncTokenInvalidError(CalDAVError):
     """403 on a sync-collection REPORT (RFC 6578 valid-sync-token precondition
     failure): token expired/unknown, do a full resync."""
+
+
+class CalDAVConnectionError(CalDAVError):
+    """The request never got a usable HTTP response: connection refused/reset,
+    DNS failure, TLS error, or a read/connect timeout that outlasted the
+    retries. Distinct from an HTTP error status, which means the server did
+    answer."""
 
 
 def _raise_for_status(response):
@@ -74,10 +97,11 @@ def _find_ctag(el):
 class CalDAVClient:
     """Thin wrapper around a `requests.Session` speaking WebDAV/CalDAV XML."""
 
-    def __init__(self, url, username, password):
+    def __init__(self, url, username, password, timeout=None):
         parsed = urlparse(url)
         self.base_url = f'{parsed.scheme}://{parsed.netloc}'
         self.calendar_url = url if url.endswith('/') else url + '/'
+        self.timeout = (CONNECT_TIMEOUT, timeout or DEFAULT_READ_TIMEOUT)
         self.session = requests.Session()
         self.session.auth = (username, password)
         self.session.headers['User-Agent'] = 'Odoo CalDAV Calendar Sync'
@@ -89,15 +113,40 @@ class CalDAVClient:
         headers = dict(headers or {})
         if depth is not None:
             headers['Depth'] = str(depth)
-        response = self.session.request(
-            method, url, headers=headers,
-            data=data.encode('utf-8') if isinstance(data, str) else data,
-            timeout=TIMEOUT,
-        )
+        payload = data.encode('utf-8') if isinstance(data, str) else data
+        response = self._send_with_retry(method, url, headers, payload)
         if is_sync_collection and response.status_code == 403:
             raise CalDAVSyncTokenInvalidError(f'Sync token rejected (403) for {url}')
         _raise_for_status(response)
         return response
+
+    def _send_with_retry(self, method, url, headers, payload):
+        """Issue the request, retrying transient network failures with
+        exponential backoff. Any failure that outlasts the retries - or that
+        isn't retryable in the first place - is re-raised as a
+        CalDAVConnectionError so callers only ever have to catch CalDAVError.
+        """
+        last_exc = None
+        for attempt in range(RETRIES + 1):
+            try:
+                return self.session.request(
+                    method, url, headers=headers, data=payload, timeout=self.timeout,
+                )
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+                last_exc = exc
+                if attempt < RETRIES:
+                    time.sleep(RETRY_BACKOFF * (2 ** attempt))
+                    _logger.info(
+                        'CalDAV: %s %s failed (%s), retrying (%d/%d)',
+                        method, url, exc.__class__.__name__, attempt + 1, RETRIES,
+                    )
+                    continue
+            except requests.exceptions.RequestException as exc:
+                raise CalDAVConnectionError(f'{method} {url} failed: {exc}') from exc
+        raise CalDAVConnectionError(
+            f'{method} {url} still failing after {RETRIES + 1} attempts '
+            f'(timeouts {self.timeout[0]}s/{self.timeout[1]}s): {last_exc}'
+        ) from last_exc
 
     def _propfind(self, url, body, depth=0):
         response = self._request(

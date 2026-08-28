@@ -71,7 +71,21 @@ class CalDAVAccount(models.Model):
         target_url = url or self.url
         if not (target_url and self.username and self.password):
             raise UserError(self.env._('Please fill in the CalDAV URL, username and password first.'))
-        return CalDAVClient(target_url, self.username, self.password)
+        return CalDAVClient(target_url, self.username, self.password, timeout=self._caldav_request_timeout())
+
+    @api.model
+    def _caldav_request_timeout(self):
+        """Per-request read timeout (seconds), overridable via the
+        ``caldav_calendar.request_timeout`` system parameter for servers that
+        need longer than the default. Falls back to the client's own default
+        when unset or unparseable.
+        """
+        raw = self.env['ir.config_parameter'].sudo().get_param('caldav_calendar.request_timeout')
+        try:
+            value = int(raw)
+        except (TypeError, ValueError):
+            return None
+        return value if value > 0 else None
 
     def action_caldav_test_connection(self):
         self.ensure_one()
@@ -126,7 +140,10 @@ class CalDAVAccount(models.Model):
 
     def action_caldav_sync_now(self):
         self.ensure_one()
-        self._caldav_sync()
+        try:
+            self._caldav_sync()
+        except CalDAVError as exc:
+            raise UserError(self.env._('CalDAV sync failed: %s', exc))
         if self.sync_status == 'error':
             error = self.last_sync_error or self.env._('unknown error')
             raise UserError(self.env._('CalDAV sync failed: %s', error))
@@ -142,6 +159,15 @@ class CalDAVAccount(models.Model):
         for account in accounts:
             try:
                 account._caldav_sync()
+            except CalDAVError as exc:
+                # An expected CalDAV/network failure: server unreachable, auth
+                # rejected, sync token stale, timeout past its retries. Store
+                # the one-line reason, not a stack trace nobody needs to read.
+                _logger.warning(
+                    'CalDAV: sync failed for account %s (user %s): %s',
+                    account.name, account.user_id.login, exc,
+                )
+                account.write({'sync_status': 'error', 'last_sync_error': str(exc)})
             except Exception:
                 _logger.exception('CalDAV: sync failed for account %s (user %s)', account.name, account.user_id.login)
                 account.write({
