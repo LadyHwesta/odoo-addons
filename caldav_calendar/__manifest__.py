@@ -34,6 +34,7 @@ See README.md for known edge cases and other limitations.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'images': ['static/description/banner.png'],
     'depends': ['calendar', 'mail'],
     'external_dependencies': {
         'python': ['requests', 'lxml', 'vobject'],

@@ -1,0 +1,89 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#1e3a8a;">IMAP Authentication</h2>
+        <h3 class="oe_slogan" style="color:#666;">
+            Authenticate existing Odoo users against an IMAP mail server
+        </h3>
+        <div class="oe_span12">
+            <p class="oe_mt32" style="text-align:center;">
+                <img src="banner.png" class="img img-responsive"
+                     style="max-width:100%;border-radius:8px;"
+                     alt="IMAP Authentication"/>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">What it does</h3>
+            <p class="oe_mt32">
+                Lets existing Odoo users log in with their mailbox password, by
+                authenticating against an IMAP server (<code>LOGIN</code>)
+                &mdash; the same mail server password they already use, instead
+                of (or as a fallback to) a separate Odoo password.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Local password checked first</h3>
+            <p>
+                Mirrors the structure of core's own <code>auth_ldap</code>
+                module: a user's local Odoo password is checked first, and only
+                on failure does Odoo fall back to an IMAP login with the
+                submitted credentials. An admin account (or anyone who still has
+                a local password set) is never locked out just because the mail
+                server is unreachable.
+            </p>
+        </div>
+        <div class="oe_span6">
+            <h3 class="oe_slogan">No auto-provisioning</h3>
+            <p>
+                Unlike <code>auth_ldap</code>, this module does <b>not</b>
+                create new Odoo users. IMAP only authenticates users who already
+                have an Odoo account, matched by login.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Convert a user to IMAP-only</h3>
+            <p class="oe_mt32">
+                Use the <b>Convert to IMAP Authentication</b> action on a user
+                record to clear their local Odoo password, so every future login
+                for them falls through to the IMAP check.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Requirements</h3>
+            <p class="oe_mt32">
+                No extra Python packages required: uses <code>imaplib</code> from
+                the Python standard library. IMAP host, port and SSL settings are
+                configured per company.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <p class="text-center" style="color:#999;">
+                Licensed under LGPL-3.
+            </p>
+        </div>
+    </div>
+</section>

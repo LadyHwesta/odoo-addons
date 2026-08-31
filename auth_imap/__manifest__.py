@@ -30,6 +30,7 @@ standard library.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'images': ['static/description/banner.png'],
     'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',

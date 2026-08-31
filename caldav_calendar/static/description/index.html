@@ -1,0 +1,116 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#4a2f7a;">CalDAV Calendar Sync</h2>
+        <h3 class="oe_slogan" style="color:#666;">
+            Two-way calendar synchronization with any RFC&nbsp;4791 CalDAV server
+        </h3>
+        <div class="oe_span12">
+            <p class="oe_mt32" style="text-align:center;">
+                <img src="banner.png" class="img img-responsive"
+                     style="max-width:100%;border-radius:8px;"
+                     alt="CalDAV Calendar Sync"/>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">What it does</h3>
+            <p class="oe_mt32">
+                Synchronizes Odoo's Calendar app with any standards-compliant
+                CalDAV server (Nextcloud, Radicale, Ba&iuml;kal, Fastmail,
+                iCloud, &hellip;), the same way the core
+                <code>google_calendar</code> / <code>microsoft_calendar</code>
+                modules sync with their respective providers.
+            </p>
+            <p>
+                Each user can add any number of CalDAV calendar accounts
+                (URL&nbsp;+ username&nbsp;+ password or app-specific password)
+                from their Preferences &mdash; each one syncs independently, with
+                its own credentials and sync cursor.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Pull</h3>
+            <p>
+                Uses RFC&nbsp;6578 <code>sync-collection</code> when the server
+                supports it (incremental and cheap), falling back to a
+                <code>getctag</code> + full report comparison otherwise.
+            </p>
+        </div>
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Push</h3>
+            <p>
+                Pushes local <code>calendar.event</code> creates, updates and
+                deletes back to the server, using <code>ETag</code>
+                preconditions to avoid clobbering concurrent remote edits.
+            </p>
+        </div>
+    </div>
+    <div class="oe_row oe_spaced">
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Automatic &amp; manual</h3>
+            <p>
+                Runs automatically on a scheduled action (every 15&nbsp;minutes
+                by default) and can also be triggered manually from Preferences.
+            </p>
+        </div>
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Recurring events</h3>
+            <p>
+                Recurring events sync in full, including per-occurrence
+                exceptions (<code>RECURRENCE-ID</code> overrides and
+                <code>EXDATE</code>), not just the master rule.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Read-only subscriptions</h3>
+            <p class="oe_mt32">
+                Tick <b>Read-Only Subscription</b> on an account for calendars
+                you can only view &mdash; subscribed holiday feeds, team
+                calendars you lack write access to, ICS subscriptions. Odoo
+                still pulls remote changes on every sync but never pushes, and
+                username/password become optional for public feeds.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Requirements</h3>
+            <p class="oe_mt32">
+                No extra Python packages are required: this module only relies on
+                <code>requests</code>, <code>lxml</code> and <code>vobject</code>,
+                which are already core Odoo dependencies.
+            </p>
+            <p>
+                See <code>README.md</code> in the module for setup steps, known
+                edge cases and other limitations.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <p class="text-center" style="color:#999;">
+                Licensed under LGPL-3.
+            </p>
+        </div>
+    </div>
+</section>
