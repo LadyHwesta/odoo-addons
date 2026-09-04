@@ -15,6 +15,11 @@
                                  help="Serve WebFinger, NodeInfo and actor endpoints, and deliver activities to remote servers. Each actor's handle host comes from its website's Website Domain, so set that first.">
                             <field name="activitypub_enabled"/>
                         </setting>
+                        <setting id="activitypub_replies_to_chatter_setting"
+                                 string="Post federated replies to chatter"
+                                 help="When someone on the Fediverse replies to a federated record, post their reply to that record's chatter as a comment.">
+                            <field name="activitypub_replies_to_chatter"/>
+                        </setting>
                     </block>
                 </app>
             </xpath>

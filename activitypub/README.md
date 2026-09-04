@@ -15,11 +15,13 @@ that is the job of the bridge modules:
 No extra pip packages: only `requests` and `cryptography`, both already
 bundled with Odoo.
 
-## Status — Phases 1 & 2 of 4
+## Status — Phases 1–3 of 4
 
-Phase 1 made an actor **discoverable**; Phase 2 makes it **publish and
-gain followers**. Phase 3 adds inbound replies / likes / boosts; Phase 4
-adds the event bridge + polish.
+Phase 1 made an actor **discoverable**; Phase 2 made it **publish and
+gain followers**; Phase 3 makes it **hear back** — replies, edits,
+deletes, likes and boosts from the Fediverse. Phase 4 adds the event
+bridge + polish (attachments, hashtags, rate limiting, real-world
+Mastodon verification).
 
 Implemented now:
 
@@ -49,14 +51,25 @@ Implemented now:
   verify the HTTP Signature against the sending actor's fetched public key
   (SSRF-guarded, cached in `activitypub.remote.actor` for 24 h), reject a
   bad / stale / unowned signature with `401`, cap the body at 1 MiB, and
-  dispatch **Follow** (records the follower, auto-sends `Accept`),
-  **Undo{Follow}** (removes it) and **Accept**. Any other activity type is
-  accepted and logged as ignored (`202`) — reply / like / boost handling is
-  Phase 3.
-- A master **Enable Fediverse federation** switch (Settings → Fediverse).
-  While off, every endpoint above returns `404`.
-- Debug views under **Fediverse**: Actors, Followers, Activities (with the
-  raw payload and per-inbox delivery state), Delivery Queue.
+  dispatch:
+  - **Follow** → record the follower, auto-send `Accept`; **Undo{Follow}** →
+    remove it; **Accept** → recorded.
+  - **Create{Note}** whose `inReplyTo` is one of our objects → store the
+    reply as a remote `activitypub.object`, thread it under the parent, and
+    (unless *Post federated replies to chatter* is off) post it to the
+    source record's chatter as a comment attributed to the sender's handle.
+  - **Update** / **Delete** of a stored remote object → refresh / tombstone
+    it; a `Delete` of the sending actor itself drops it as a follower.
+  - **Like** / **Announce** of one of our objects → an `activitypub.interaction`
+    row (idempotent); **Undo** of either removes it. `activitypub.object`
+    exposes `reply_count` / `like_count` / `announce_count`.
+  - Anything else → accepted and logged as ignored (`202`).
+- A master **Enable Fediverse federation** switch and a **Post federated
+  replies to chatter** toggle (Settings → Fediverse). While federation is
+  off, every endpoint above returns `404`.
+- Debug views under **Fediverse**: Actors, Followers, Activities (raw
+  payload + per-inbox delivery state), Objects (with reply / reaction
+  counts and the stored payload), Delivery Queue.
 
 ### SSRF / abuse guards
 
@@ -122,6 +135,13 @@ and `requests`:
   and queues an `Accept`; it is idempotent; `Undo{Follow}` removes it; a
   bad signature or an unowned `keyId` is `401`; an unknown type is logged
   and `202`.
+- **Inbound interaction** (`test_inbound_interaction.py`, same mocking): a
+  reply to a local object is stored, threaded and posted to the source
+  record's chatter; a reply to an unknown object or a duplicate is a no-op;
+  the chatter toggle is honoured; Like / Announce are counted and
+  idempotent, `Undo` decrements; a remote `Update` refreshes and a remote
+  `Delete` tombstones the stored object; an actor deleting itself is
+  dropped as a follower.
 - **Controllers** (`test_controllers.py`, `test_outbox_http.py`):
   WebFinger, Actor content negotiation, NodeInfo, the master switch, the
   paged outbox / followers collections, and object / activity endpoints.
@@ -148,7 +168,10 @@ odoo-bin -d <db> -i activitypub --test-enable --test-tags=/activitypub --stop-af
   render of an Odoo record, or a stored remote object).
 - `models/activitypub_activity.py` — Create/Update/Delete/Follow/… rows;
   `_queue_deliveries` for outbound, `_ingest` + `_ingest_<type>` for
-  inbound.
+  inbound (Follow/Undo/Accept, Create replies, Update, Delete, Like,
+  Announce).
+- `models/activitypub_interaction.py` — a remote Like / Announce of a local
+  object; drives the per-object counters.
 - `models/activitypub_delivery.py` — one POST of an activity to one inbox;
   the `_cron_deliver` retry loop and `_cron_gc` pruner.
 - `models/activitypub_follower.py` — a remote actor following a local one.

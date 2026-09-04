@@ -7,4 +7,5 @@ from . import test_actor
 from . import test_controllers
 from . import test_delivery
 from . import test_follow_flow
+from . import test_inbound_interaction
 from . import test_outbox_http

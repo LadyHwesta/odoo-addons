@@ -37,7 +37,7 @@ already bundled with Odoo.
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['website'],
+    'depends': ['website', 'mail'],
     'external_dependencies': {
         'python': ['requests', 'cryptography'],
     },

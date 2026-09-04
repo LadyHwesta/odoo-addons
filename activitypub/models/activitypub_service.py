@@ -34,6 +34,7 @@ import requests
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from dateutil import parser as _date_parser
 
 # The two JSON-LD vocabularies every mainstream Fediverse server agrees on:
 # ActivityStreams 2.0 for the social vocabulary, and the security vocab for
@@ -352,6 +353,20 @@ def to_ap_datetime(value):
     """Public alias: format a ``datetime`` (or leave a string) as the
     ``YYYY-MM-DDTHH:MM:SSZ`` ActivityStreams wants."""
     return _as_utc_iso(value)
+
+
+def parse_ap_datetime(value):
+    """Parse an ActivityStreams timestamp into a naive UTC ``datetime`` (what
+    Odoo stores), or ``None`` when it is missing / unparseable."""
+    if not value:
+        return None
+    try:
+        dt = _date_parser.isoparse(value)
+    except (ValueError, TypeError, OverflowError):
+        return None
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt
 
 
 # --------------------------------------------------------------------------

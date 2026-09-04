@@ -2,12 +2,15 @@
 """Tests for the JSON-LD document builders and content negotiation."""
 import unittest
 
+from datetime import datetime
+
 from odoo.addons.activitypub.models.activitypub_service import (
     AS_PUBLIC,
     build_actor_document,
     build_ordered_collection,
     build_ordered_collection_page,
     build_webfinger,
+    parse_ap_datetime,
     wants_activitypub,
 )
 
@@ -99,6 +102,22 @@ class TestContentNegotiation(unittest.TestCase):
 
     def test_public_uri_constant(self):
         self.assertEqual(AS_PUBLIC, "https://www.w3.org/ns/activitystreams#Public")
+
+
+class TestParseApDatetime(unittest.TestCase):
+
+    def test_zulu(self):
+        self.assertEqual(parse_ap_datetime("2026-01-02T03:04:05Z"),
+                         datetime(2026, 1, 2, 3, 4, 5))
+
+    def test_offset_is_normalised_to_utc_naive(self):
+        self.assertEqual(parse_ap_datetime("2026-01-02T05:04:05+02:00"),
+                         datetime(2026, 1, 2, 3, 4, 5))
+
+    def test_empty_and_garbage_return_none(self):
+        self.assertIsNone(parse_ap_datetime(""))
+        self.assertIsNone(parse_ap_datetime(None))
+        self.assertIsNone(parse_ap_datetime("not a date"))
 
 
 if __name__ == "__main__":  # pragma: no cover

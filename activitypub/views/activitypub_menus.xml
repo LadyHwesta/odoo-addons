@@ -22,6 +22,11 @@
               action="action_activitypub_activity"
               sequence="30"/>
 
+    <menuitem id="menu_activitypub_objects"
+              parent="menu_activitypub_root"
+              action="action_activitypub_object"
+              sequence="35"/>
+
     <menuitem id="menu_activitypub_deliveries"
               parent="menu_activitypub_root"
               action="action_activitypub_delivery"

@@ -8,6 +8,7 @@ from .activitypub_service import (
     ActivityPubError,
     SignatureError,
     build_accept,
+    parse_ap_datetime,
     verify_signature,
 )
 
@@ -217,11 +218,115 @@ class ActivityPubActivity(models.Model):
                 ]).unlink()
             self._record_inbound(raw, remote, local, state='processed')
             return 202
-        # Undo of a Like / Announce is Phase 3.
+        if inner_type in ('Like', 'Announce'):
+            object_uri = self._object_uri(inner.get('object'))
+            self.env['activitypub.interaction'].sudo()._drop_reaction(
+                remote.uri, inner_type.lower(), object_uri)
+            self._record_inbound(raw, remote, target_actor, state='processed')
+            return 202
         self._record_inbound(raw, remote, target_actor, state='ignored')
         return 202
 
     def _ingest_accept(self, raw, remote, target_actor):
-        # We do not initiate Follows in this phase; just record it.
+        # We do not initiate Follows yet; just record it.
         self._record_inbound(raw, remote, target_actor, state='ignored')
+        return 202
+
+    # ------------------------------------------------------------------
+    # Inbound content: replies, edits, deletes, reactions
+    # ------------------------------------------------------------------
+    def _local_object_for_uri(self, uri):
+        if not uri:
+            return self.env['activitypub.object'].browse()
+        return self.env['activitypub.object'].sudo().search([
+            ('uri', '=', uri), ('local', '=', True), ('deleted', '=', False),
+        ], limit=1)
+
+    def _stored_remote_object(self, uri):
+        if not uri:
+            return self.env['activitypub.object'].browse()
+        return self.env['activitypub.object'].sudo().search([
+            ('uri', '=', uri), ('local', '=', False),
+        ], limit=1)
+
+    def _ingest_create(self, raw, remote, target_actor):
+        obj = raw.get('object')
+        if not isinstance(obj, dict) or not obj.get('id'):
+            self._record_inbound(raw, remote, target_actor, state='ignored')
+            return 202
+
+        in_reply_to = obj.get('inReplyTo')
+        if isinstance(in_reply_to, dict):
+            in_reply_to = in_reply_to.get('id')
+        parent = self._local_object_for_uri(in_reply_to)
+        if not parent:
+            # Not a reply to anything of ours - nothing to attach it to.
+            self._record_inbound(raw, remote, target_actor, state='ignored')
+            return 202
+
+        Object = self.env['activitypub.object'].sudo()
+        if self._stored_remote_object(obj['id']):
+            self._record_inbound(raw, remote, target_actor, state='processed')
+            return 202
+
+        stored = Object.create({
+            'uri': obj['id'],
+            'object_type': obj.get('type') or 'Note',
+            'local': False,
+            'published': parse_ap_datetime(obj.get('published')),
+            'in_reply_to_uri': in_reply_to,
+            'payload': obj,
+        })
+        self._record_inbound(raw, remote, target_actor, state='processed')
+        parent._ap_on_reply(stored, remote)
+        return 202
+
+    def _ingest_update(self, raw, remote, target_actor):
+        obj = raw.get('object')
+        if not isinstance(obj, dict) or not obj.get('id'):
+            self._record_inbound(raw, remote, target_actor, state='ignored')
+            return 202
+        stored = self._stored_remote_object(obj['id'])
+        if stored:
+            stored.write({
+                'payload': obj,
+                'object_type': obj.get('type') or stored.object_type,
+            })
+            state = 'processed'
+        else:
+            state = 'ignored'
+        self._record_inbound(raw, remote, target_actor, state=state)
+        return 202
+
+    def _ingest_delete(self, raw, remote, target_actor):
+        object_uri = self._object_uri(raw.get('object'))
+        state = 'ignored'
+        if object_uri == remote.uri:
+            # The remote actor deleted itself - drop it as a follower.
+            self.env['activitypub.follower'].sudo().search([
+                ('follower_uri', '=', remote.uri)]).unlink()
+            state = 'processed'
+        else:
+            stored = self._stored_remote_object(object_uri)
+            if stored and not stored.deleted:
+                stored.deleted = True
+                state = 'processed'
+        self._record_inbound(raw, remote, target_actor, state=state)
+        return 202
+
+    def _ingest_like(self, raw, remote, target_actor):
+        return self._ingest_reaction(raw, remote, target_actor, 'like')
+
+    def _ingest_announce(self, raw, remote, target_actor):
+        return self._ingest_reaction(raw, remote, target_actor, 'announce')
+
+    def _ingest_reaction(self, raw, remote, target_actor, kind):
+        object_uri = self._object_uri(raw.get('object'))
+        local = self._local_object_for_uri(object_uri)
+        if not local:
+            self._record_inbound(raw, remote, target_actor, state='ignored')
+            return 202
+        self.env['activitypub.interaction'].sudo()._record_reaction(
+            local, remote.uri, kind, raw.get('id'))
+        self._record_inbound(raw, remote, target_actor, state='processed')
         return 202
