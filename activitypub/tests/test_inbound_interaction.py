@@ -97,6 +97,15 @@ class TestInboundInteraction(TransactionCase):
         self.assertIn('hello there', body)
         self.assertIn('@bob@remote.example', body)
 
+    def test_reply_link_with_dangerous_scheme_is_dropped(self):
+        raw = self._reply(content='<p>hi</p>', note_id='https://remote.example/notes/2')
+        raw['object']['url'] = 'javascript:alert(1)'
+        self._ingest(raw)
+        self.target.invalidate_recordset(['message_ids'])
+        body = self.target.message_ids[0].body
+        self.assertNotIn('javascript:', body)
+        self.assertIn('hi', body)
+
     def test_reply_to_unknown_object_is_ignored(self):
         raw = self._reply()
         raw['object']['inReplyTo'] = 'https://news.example.com/ap/objects/999999'

@@ -6,7 +6,7 @@ import requests
 
 from odoo import api, fields, models
 
-from .activitypub_object import ssrf_allow_hosts
+from .activitypub_object import federation_enabled, ssrf_allow_hosts
 from .activitypub_service import ActivityPubError, post_activity
 
 _logger = logging.getLogger(__name__)
@@ -54,6 +54,14 @@ class ActivityPubDelivery(models.Model):
     # ------------------------------------------------------------------
     @api.model
     def _cron_deliver(self, limit=BATCH_SIZE):
+        # The master switch promises nothing is delivered to remote servers
+        # while off. Objects/activities still get created locally (they're
+        # harmless, and dropping them would lose real content if someone
+        # publishes with the switch off by mistake) - this is the one place
+        # that actually has to stop: queued deliveries just wait, and
+        # resume automatically once federation is re-enabled.
+        if not federation_enabled(self.env):
+            return 0
         now = fields.Datetime.now()
         due = self.search([
             ('state', 'in', ('pending', 'retry')),

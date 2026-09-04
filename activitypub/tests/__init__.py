@@ -9,3 +9,4 @@ from . import test_delivery
 from . import test_follow_flow
 from . import test_inbound_interaction
 from . import test_outbox_http
+from . import test_remote_actor

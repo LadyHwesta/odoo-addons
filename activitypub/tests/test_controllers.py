@@ -90,6 +90,11 @@ class TestActivityPubControllers(HttpCase):
             self.assertEqual(r.status_code, 404)
             r2 = self._get(f'/ap/actors/{self.actor.id}', 'application/activity+json')
             self.assertEqual(r2.status_code, 404)
+            # NodeInfo used to skip this gate entirely and stay live.
+            r3 = self._get('/.well-known/nodeinfo', 'application/json')
+            self.assertEqual(r3.status_code, 404)
+            r4 = self._get('/nodeinfo/2.1', 'application/json')
+            self.assertEqual(r4.status_code, 404)
         finally:
             self.env['ir.config_parameter'].sudo().set_param('activitypub.enabled', 'True')
 

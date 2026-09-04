@@ -11,6 +11,7 @@ import logging
 from odoo import http
 from odoo.http import request
 
+from ..models.activitypub_object import federation_enabled
 from ..models.activitypub_service import build_webfinger
 
 _logger = logging.getLogger(__name__)
@@ -20,11 +21,6 @@ JRD_HEADERS = [
     ('Access-Control-Allow-Origin', '*'),
 ]
 JSON_CORS = [('Access-Control-Allow-Origin', '*')]
-
-
-def federation_enabled(env):
-    return env['ir.config_parameter'].sudo().get_param(
-        'activitypub.enabled') in ('True', 'true', '1')
 
 
 class ActivityPubWellKnown(http.Controller):
@@ -56,6 +52,8 @@ class ActivityPubWellKnown(http.Controller):
     @http.route('/.well-known/nodeinfo', type='http', auth='public',
                 methods=['GET'], website=True, sitemap=False, csrf=False)
     def nodeinfo_index(self, **kw):
+        if not federation_enabled(request.env):
+            raise request.not_found()
         base = request.httprequest.url_root.rstrip('/')
         return request.make_json_response({
             'links': [{
@@ -68,6 +66,8 @@ class ActivityPubWellKnown(http.Controller):
                 methods=['GET'], website=True, sitemap=False, csrf=False)
     def nodeinfo(self, **kw):
         env = request.env
+        if not federation_enabled(env):
+            raise request.not_found()
         actors = env['activitypub.actor'].sudo().search_count([('active', '=', True)])
         return request.make_json_response({
             'version': '2.1',

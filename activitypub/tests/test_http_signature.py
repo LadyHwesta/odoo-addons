@@ -94,6 +94,23 @@ class TestHttpSignatureRoundTrip(unittest.TestCase):
         self.assertNotIn("Digest", headers)
         self.assertIn("headers=\"(request-target) host date\"", headers["Signature"])
 
+    def test_post_signature_not_covering_digest_is_rejected(self):
+        # A real Digest header is present and correct, but the signature
+        # itself only covers (request-target)/host/date - exactly what a
+        # sender omitting "digest" from its own headers list would send.
+        # The body must never be trusted just because *some* signature
+        # verifies; it has to be the body this signature actually covers.
+        headers = self._headers(sign_digest=False)
+        self.assertIn("Digest", headers)  # header is sent...
+        self.assertNotIn("digest", headers["Signature"])  # ...just not signed
+        with self.assertRaises(SignatureError):
+            verify_signature("post", "/users/alice/inbox", headers,
+                             self.body, self.public_pem)
+
+    def test_get_without_body_does_not_require_digest(self):
+        headers = build_signature_headers("GET", INBOX, KEY_ID, self.private_pem)
+        verify_signature("get", "/users/alice/inbox", headers, b"", self.public_pem)
+
 
 class TestParseSignatureHeader(unittest.TestCase):
     def test_missing_raises(self):

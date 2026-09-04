@@ -12,12 +12,12 @@ import math
 from odoo import http
 from odoo.http import request
 
+from ..models.activitypub_object import federation_enabled
 from ..models.activitypub_service import (
     build_ordered_collection,
     build_ordered_collection_page,
     wants_activitypub,
 )
-from .well_known import federation_enabled
 
 _logger = logging.getLogger(__name__)
 

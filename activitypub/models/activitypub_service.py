@@ -120,14 +120,19 @@ def _titlecase_header(name):
 
 
 def build_signature_headers(method, url, key_id, private_pem, body=b"",
-                            extra_headers=None, now=None):
+                            extra_headers=None, now=None, sign_digest=None):
     """Return the full header set for an outbound server-to-server request,
     ``Signature`` included.
 
     For a POST (delivering an activity) the signed set is
     ``(request-target) host date digest``; for a signed GET (dereferencing a
     remote actor in "secure mode") it is ``(request-target) host date``.
-    ``now`` is injectable for tests.
+    ``now`` is injectable for tests. ``sign_digest`` forces whether the
+    Digest header (still sent whenever there is a body) is *covered by the
+    signature* - every real call site in this codebase leaves it at the
+    default (cover it whenever there is a body); the override exists only
+    so tests can construct the kind of digest-less signature
+    ``verify_signature`` must reject.
     """
     parsed = urlparse(url)
     path = parsed.path or "/"
@@ -145,7 +150,8 @@ def build_signature_headers(method, url, key_id, private_pem, body=b"",
         headers.update({k.lower(): v for k, v in extra_headers.items()})
 
     signed_names = ["(request-target)", "host", "date"]
-    if "digest" in headers:
+    cover_digest = ("digest" in headers) if sign_digest is None else sign_digest
+    if cover_digest and "digest" in headers:
         signed_names.append("digest")
 
     signing_string = _signing_string(method, path, headers, signed_names)
@@ -217,7 +223,13 @@ def verify_signature(method, path, headers, body, public_pem, now=None):
     if abs((ref - sent).total_seconds()) > MAX_CLOCK_SKEW_SECONDS:
         raise SignatureError("Date header outside acceptable clock skew")
 
-    # If the body digest is covered, it must match the body we actually got.
+    # A request with a body must sign the Digest header, not just optionally
+    # cover it - otherwise the signature only proves who sent *a* request at
+    # that moment, never binding it to *this* body, and a sender (or anyone
+    # able to substitute the body after signing) could get arbitrary content
+    # accepted just by leaving "digest" out of their own headers list.
+    if body and "digest" not in signed_names:
+        raise SignatureError("signature covering a request with a body must sign Digest")
     if "digest" in signed_names:
         if not _digest_matches(lower.get("digest", ""), digest_header(body)):
             raise SignatureError("Digest header does not match the request body")

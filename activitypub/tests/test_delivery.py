@@ -14,6 +14,7 @@ class TestDelivery(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env['ir.config_parameter'].sudo().set_param('activitypub.enabled', 'True')
         cls.website = cls.env['website'].search([], limit=1)
         cls.website.domain = 'https://news.example.com'
         cls.actor = cls.env['activitypub.actor'].create({
@@ -111,6 +112,22 @@ class TestDelivery(TransactionCase):
             'res.partner', self.partner.id, 'Note', {'content': 'lonely'})
         self.assertFalse(activity.delivery_ids)
         self.assertEqual(activity.state, 'delivered')
+
+    def test_disabled_federation_does_not_deliver(self):
+        activity = self._publish()
+        self.env['ir.config_parameter'].sudo().set_param('activitypub.enabled', 'False')
+        try:
+            with mock.patch(_DELIVERY + '.post_activity', return_value=(202, 'ok')) as posted:
+                self._run_cron()
+            posted.assert_not_called()
+            self.assertEqual(activity.delivery_ids.state, 'pending')
+        finally:
+            self.env['ir.config_parameter'].sudo().set_param('activitypub.enabled', 'True')
+        # Re-enabling resumes delivery of the same, still-queued row.
+        with mock.patch(_DELIVERY + '.post_activity', return_value=(202, 'ok')) as posted:
+            self._run_cron()
+        posted.assert_called_once()
+        self.assertEqual(activity.delivery_ids.state, 'delivered')
 
     def test_push_profile_queues_update_to_followers(self):
         self.actor.action_push_profile()

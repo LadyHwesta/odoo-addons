@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from unittest.mock import Mock
 
 from odoo.tests.common import TransactionCase, tagged
 
@@ -82,6 +83,37 @@ class TestEventFederation(TransactionCase):
         self.assertTrue(place)
         self.assertEqual(place['type'], 'Place')
         self.assertIn('Big Hall', place['name'])
+        # base_geolocalize isn't installed here, so the partner has no
+        # date_localization at all - coordinates must be omitted, not
+        # defaulted to (0, 0).
+        self.assertNotIn('latitude', place)
+
+    def test_place_includes_a_real_zero_zero_coordinate(self):
+        # partner_latitude/longitude default to 0.0 when never geocoded -
+        # indistinguishable from a genuine (0, 0) by value alone.
+        # date_localization (base_geolocalize) is what actually tells them
+        # apart, so exercise the logic directly against a double that has
+        # it, without pulling base_geolocalize in as a real dependency.
+        fake_self = Mock()
+        fake_self.address_inline = False
+        fake_self.address_id = Mock(
+            display_name='Null Island HQ', partner_latitude=0.0,
+            partner_longitude=0.0, date_localization=date(2026, 1, 1))
+        place_method = type(self.env['event.event'])._ap_place
+        place = place_method(fake_self)
+        self.assertEqual(place['latitude'], 0.0)
+        self.assertEqual(place['longitude'], 0.0)
+
+    def test_place_omits_coordinates_when_never_geocoded(self):
+        fake_self = Mock()
+        fake_self.address_inline = False
+        fake_self.address_id = Mock(
+            display_name='Somewhere', partner_latitude=0.0,
+            partner_longitude=0.0, date_localization=False)
+        place_method = type(self.env['event.event'])._ap_place
+        place = place_method(fake_self)
+        self.assertNotIn('latitude', place)
+        self.assertNotIn('longitude', place)
 
     def test_edit_dates_sends_update(self):
         event = self._make()

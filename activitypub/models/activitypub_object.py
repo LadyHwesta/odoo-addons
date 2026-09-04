@@ -9,11 +9,27 @@ from odoo.tools import html_sanitize
 _logger = logging.getLogger(__name__)
 
 
+def federation_enabled(env):
+    """Master switch: while off, every /ap and /.well-known endpoint 404s
+    and nothing is delivered to a remote server. Canonical definition -
+    controllers and the delivery cron both import this one."""
+    return env['ir.config_parameter'].sudo().get_param(
+        'activitypub.enabled') in ('True', 'true', '1')
+
+
 def replies_to_chatter(env):
     """Whether an inbound reply should be posted to the source record's
     chatter. Default on: only an explicit 'False' turns it off."""
     return env['ir.config_parameter'].sudo().get_param(
         'activitypub.replies_to_chatter', 'True') != 'False'
+
+
+def _safe_http_url(url):
+    """``url`` if it is a plain http(s) string, else ``None``. Used before
+    rendering any remote-supplied URL as a clickable href - a Create's
+    ``object.url`` (and, one step removed, its ``id``) is remote-controlled
+    and never scheme-validated on the way in."""
+    return url if isinstance(url, str) and url.startswith(('http://', 'https://')) else None
 
 
 def ssrf_allow_hosts(env):
@@ -118,12 +134,20 @@ class ActivityPubObject(models.Model):
             who = f'@{remote_actor.preferred_username}@{remote_actor.domain}'
         else:
             who = remote_actor.uri
-        source_link = payload.get('url') or reply_object.uri
+        # Both the reply's self-reported url and our own stored object uri
+        # ultimately come from remote-controlled fields (Create.object.url /
+        # .id) with no scheme validation on the way in - only http(s) is
+        # ever safe to render as a clickable href here.
+        source_link = (_safe_http_url(payload.get('url'))
+                       or _safe_http_url(reply_object.uri))
         content = html_sanitize(payload.get('content') or '')
-        body = Markup(
-            '<p><a href="%s" target="_blank" rel="noreferrer">%s</a> '
-            'replied from the Fediverse:</p>%s'
-        ) % (source_link, who, Markup(content))
+        if source_link:
+            body = Markup(
+                '<p><a href="%s" target="_blank" rel="noreferrer">%s</a> '
+                'replied from the Fediverse:</p>%s'
+            ) % (source_link, who, Markup(content))
+        else:
+            body = Markup('<p>%s replied from the Fediverse:</p>%s') % (who, Markup(content))
         record.message_post(
             body=body,
             message_type='comment',

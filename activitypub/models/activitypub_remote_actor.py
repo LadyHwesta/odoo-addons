@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from odoo import api, fields, models
 
 from .activitypub_object import ssrf_allow_hosts
-from .activitypub_service import fetch_json
+from .activitypub_service import RemoteFetchError, fetch_json
 
 _logger = logging.getLogger(__name__)
 
@@ -66,17 +66,30 @@ class ActivityPubRemoteActor(models.Model):
 
     @api.model
     def _vals_from_document(self, uri, doc):
+        # An actor's `id` is required by ActivityStreams to be its own
+        # retrieval URL. Trusting a *different* self-declared id here would
+        # let any actor claim someone else's identity: fetch our own
+        # attacker-controlled (but genuinely, correctly signed) actor,
+        # declare `"id": "<victim's actor URL>"` in the document, and have
+        # this cache - and everything downstream that trusts remote.uri
+        # (Followers, chatter attribution, Like/Announce authorship) -
+        # silently attribute it to the victim instead. A document that
+        # omits `id` (non-compliant but not malicious) still uses `uri`.
+        declared_id = doc.get('id')
+        if declared_id and declared_id != uri:
+            raise RemoteFetchError(
+                f"actor document at {uri!r} declares a different id "
+                f"({declared_id!r}); refusing to cache it as either identity")
         public_key = doc.get('publicKey') or {}
         endpoints = doc.get('endpoints') or {}
-        resolved_id = doc.get('id') or uri
         return {
-            'uri': resolved_id,
+            'uri': uri,
             'inbox_url': doc.get('inbox'),
             'shared_inbox_url': endpoints.get('sharedInbox'),
             'public_key_pem': public_key.get('publicKeyPem'),
             'key_id': public_key.get('id'),
             'preferred_username': doc.get('preferredUsername'),
-            'domain': urlparse(resolved_id).hostname,
+            'domain': urlparse(uri).hostname,
             'fetched_at': fields.Datetime.now(),
             'raw': doc,
         }

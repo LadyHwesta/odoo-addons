@@ -91,9 +91,13 @@ class EventEvent(models.Model):
         if not name:
             return None
         place = {'type': 'Place', 'name': name}
-        lat = getattr(address, 'partner_latitude', 0.0) or 0.0
-        lng = getattr(address, 'partner_longitude', 0.0) or 0.0
-        if lat or lng:
-            place['latitude'] = lat
-            place['longitude'] = lng
+        # partner_latitude/longitude default to 0.0 (not None/unset) when
+        # never geocoded, which is indistinguishable from a genuine (0, 0)
+        # by value alone - `date_localization` (base_geolocalize) is only
+        # ever set after a real successful geocode, so it is what actually
+        # tells the two apart. Absent entirely when base_geolocalize isn't
+        # installed, which also correctly skips including coordinates.
+        if address and getattr(address, 'date_localization', False):
+            place['latitude'] = address.partner_latitude
+            place['longitude'] = address.partner_longitude
         return place

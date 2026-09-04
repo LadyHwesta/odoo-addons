@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ActivityPub - Website Events',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Marketing/Events',
     'summary': 'Federate published events to the Fediverse as Event objects',
     'description': """
