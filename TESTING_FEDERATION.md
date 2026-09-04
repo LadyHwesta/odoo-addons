@@ -1,8 +1,15 @@
 # End-to-end federation test (Odoo ↔ Mastodon)
 
-The `activitypub*` modules are covered by ~80 automated tests, but real
+The `activitypub*` modules are covered by ~90 automated tests, but real
 federation only proves out against another live server. This is the manual
 pass to run once, against a Mastodon (or Mobilizon) instance you control.
+
+**Status:** this guide, followed exactly as written below, has been run to
+completion against a real Mastodon instance for the blog bridge - every
+step in sections 1-5 genuinely works, after the fixes described in the
+gotcha callouts along the way (already applied in the code; nothing left
+to do but follow the steps). The event bridge (section 4, "Events") has
+not had the same independent live pass yet.
 
 ## 0. Prerequisites
 
@@ -25,8 +32,13 @@ pass to run once, against a Mastodon (or Mobilizon) instance you control.
 2. **Settings → Fediverse** → tick **Enable Fediverse federation**. Leave
    *Post federated replies to chatter* on.
 3. **Fediverse → Actors → New**: pick that website, type **Service** (a
-   site voice) or **Group** (a feed), username e.g. `news`. Save. Note the
-   **Actor URL** (`https://<DOMAIN>/ap/actors/<ID>`).
+   site voice) or **Group** (a feed), username e.g. `news`, and an
+   **Avatar** if you have one - **PNG or JPEG only**; an SVG upload is
+   rejected outright (Mastodon won't render one anyway). Save. Note the
+   **Actor URL** (`https://<DOMAIN>/ap/actors/<ID>`). If you change the
+   avatar or bio later, click **Push Profile to Followers** on the actor
+   so existing followers refresh it immediately instead of waiting for
+   their server's own periodic re-fetch.
 4. **Settings → Technical → Scheduled Actions**: confirm
    *ActivityPub: deliver queued activities* is active (every 1 min). You
    can **Run Manually** to push instantly during testing.
@@ -66,6 +78,11 @@ Mastodon home timeline. Check the Delivery Queue row is *delivered*, and
 **Fediverse → Objects** shows a `Note` (not `Article` - see the gotcha
 below) with the reply/like/boost counters.
 
+If you unpublish and republish the *same* post while testing (a natural
+thing to try), that's covered too - see the second gotcha below. It isn't
+covered if you're on an older version of the module than this: check
+`activitypub`'s version is at least `19.0.1.2.0`.
+
 **Events:** Events → Configuration → Event Templates → set a category's
 **Federate events as**. Create an event in that category, publish it on the
 website. It federates as a proper `Event` object for Mobilizon / Gancio.
@@ -76,12 +93,24 @@ Mastodon limitation with structured Event federation in general, not a bug
 here; if visible Mastodon posts for events matter to you, say so and the
 event bridge can be changed to also emit a `Note`.
 
-> **Gotcha found during testing:** Mastodon's `Create` handler only turns
-> `Note` (and `Question`, for polls) into a visible status. Other types -
-> `Article` included - are accepted and even counted in the profile's post
-> count, but never appear in the timeline or the Posts tab. Confirmed via
-> `GET /api/v1/accounts/<id>/statuses` returning `[]` while `statuses_count`
-> was `1`. The blog bridge sends `Note` for exactly this reason.
+> **Gotcha found during testing (1):** Mastodon's `Create` handler only
+> turns `Note` (and `Question`, for polls) into a visible status. Other
+> types - `Article` included - are accepted and even counted in the
+> profile's post count, but never appear in the timeline or the Posts
+> tab. Confirmed via `GET /api/v1/accounts/<id>/statuses` returning `[]`
+> while `statuses_count` was `1`. The blog bridge sends `Note` for exactly
+> this reason.
+
+> **Gotcha found during testing (2):** unpublishing then republishing the
+> same post reused its object URI - the one a `Delete` had already
+> tombstoned. Mastodon's `Create` handler permanently refuses to
+> resurrect a status for a URI it already holds a Tombstone for, silently
+> and without error: clean `2xx` delivery, nothing in Sidekiq's retry/dead
+> queues, nothing in any log, just... nothing shown, forever. This was the
+> single hardest thing to pin down in this whole pass, precisely because
+> every symptom looked identical to "working correctly." Fixed in the
+> engine: a `Create` following any `Delete` for the same record now always
+> mints a brand new object URI.
 
 ## 5. Interaction back
 

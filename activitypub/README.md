@@ -15,13 +15,17 @@ that is the job of the bridge modules:
 No extra pip packages: only `requests` and `cryptography`, both already
 bundled with Odoo.
 
-## Status — feature-complete (phases 1–4)
+## Status — feature-complete (phases 1–4), live-verified against Mastodon
 
 An actor is **discoverable** (1), **publishes and gains followers** (2),
 **hears back** — replies, edits, deletes, likes, boosts (3), and the
 **event bridge**, media attachments, an inbox rate limit and an SSRF
-allowlist are in (4). What remains is a real-world pass against a live
-Mastodon / Mobilizon instance — see `../TESTING_FEDERATION.md`.
+allowlist are in (4). The full loop — discovery, follow, publish, reply,
+like/boost, edit, delete — has been run end to end against a real Mastodon
+instance; see `../TESTING_FEDERATION.md` for the exact steps and the
+gotchas that surfaced (all fixed, and worth reading before you hit them
+yourself). The event bridge's `Event` objects are correct for Mobilizon /
+Gancio but not yet independently re-verified against one of those.
 
 Implemented:
 
@@ -71,6 +75,16 @@ Implemented:
 - A master **Enable Fediverse federation** switch and a **Post federated
   replies to chatter** toggle (Settings → Fediverse). While federation is
   off, every endpoint above returns `404`.
+- **Avatar** — `GET /ap/actors/<id>/icon` serves it publicly (not
+  `/web/image`, which needs model access a remote server doesn't have),
+  with a sniffed `Content-Type`. **SVG uploads are rejected** with a clear
+  error: Mastodon (and most Fediverse servers) refuse to render SVG
+  avatars at all, so one would just silently show as a placeholder - use
+  PNG or JPEG.
+- **Push Profile to Followers** (actor form button) — sends an `Update` so
+  followers refresh their cached name / bio / avatar immediately, instead
+  of waiting for their server's own periodic re-fetch (~a day on
+  Mastodon). Use this after changing an actor's avatar or bio.
 - Debug views under **Fediverse**: Actors, Followers, Activities (raw
   payload + per-inbox delivery state), Objects (with reply / reaction
   counts and the stored payload), Delivery Queue.
@@ -112,9 +126,16 @@ has been published under it (`federated_once`).
    its **Website Domain** set to the public `https://…` URL.
 3. *Settings → Fediverse* — tick **Enable Fediverse federation**.
 4. *Fediverse → Actors* — create an actor: pick the website, a type
-   (`Service` for "the website itself"), and a `username`.
+   (`Service` for "the website itself"), a `username`, and (optional but
+   recommended) an **Avatar** — a **PNG or JPEG**, not SVG.
 5. From a Mastodon account, search for `@<username>@<domain>`. The profile
-   should resolve (with 0 posts until the bridge modules are installed).
+   should resolve (with 0 posts until a bridge module is installed and
+   configured - see `activitypub_website_blog` / `activitypub_website_event`).
+
+For the full path from a bare install to a real post showing up on a real
+Mastodon account - including the bridge setup, the follow handshake, and
+every gotcha this surfaced - follow `../TESTING_FEDERATION.md` end to end
+rather than improvising from this section alone.
 
 ## Testing status
 
@@ -155,10 +176,34 @@ and `requests`:
   dropped as a follower.
 - **Controllers** (`test_controllers.py`, `test_outbox_http.py`):
   WebFinger, Actor content negotiation, NodeInfo, the master switch, the
-  paged outbox / followers collections, and object / activity endpoints.
+  paged outbox / followers collections, object / activity endpoints, the
+  public avatar route (and that an SVG upload is rejected), and that an
+  actor-profile `Update` (Push Profile) does not inflate the outbox's
+  `totalItems` the way a real post does.
+- **Republish after retract** (`test_delivery.py`): a `Create` following a
+  prior `Delete` always gets a brand new object URI, never the one already
+  tombstoned - the fix for the one live-testing bug that took the longest
+  to pin down (see below).
 - **Blog bridge** — see `activitypub_website_blog`.
-- Not yet exercised against a real remote server (Mastodon etc.) — that is
-  the Phase 4 verification step.
+
+**Live-verified** against a real Mastodon instance: discovery, follow
+(with the `Accept` confirmed on both sides), publishing, editing, deleting,
+replying, and liking/boosting all round-tripped correctly once three
+bugs the automated tests couldn't have caught were fixed - each is a
+lesson worth reading even if you never hit it yourself:
+
+1. Odoo's `/web/image/<model>/<id>/<field>` requires the caller to have
+   model access, which an anonymous Fediverse server fetching an avatar
+   never does - it needs its own public route (now `/ap/actors/<id>/icon`).
+2. `Article` is a legitimate ActivityStreams type, but Mastodon's `Create`
+   handler only ever turns `Note` (or `Question`, for polls) into a
+   visible status - `Article` gets accepted and even counted toward the
+   profile's post count, but never rendered. Content bridges should send
+   `Note`.
+3. A URI a `Delete` has already tombstoned can never be resurrected by a
+   later `Create` - confirmed against Mastodon's own source. An
+   unpublish → republish cycle must mint a fresh object URI, not reuse the
+   one already marked deleted.
 
 Run them with:
 
@@ -173,8 +218,9 @@ odoo-bin -d <db> -i activitypub --test-enable --test-tags=/activitypub --stop-af
   negotiation, and the SSRF-guarded `fetch_json` / `post_activity`. No Odoo
   import; unit-testable standalone.
 - `models/activitypub_actor.py` — the `activitypub.actor` model, plus
-  `_ap_publish` / `_ap_retract` (the entry points bridges call) and
-  follower-inbox fan-out.
+  `_ap_publish` / `_ap_retract` (the entry points bridges call, and where
+  a `Create` after a `Delete` is guaranteed a fresh object URI), follower-
+  inbox fan-out, the SVG-avatar rejection, and `action_push_profile`.
 - `models/activitypub_federatable.py` — `activitypub.federatable`, the
   abstract mixin bridges inherit: it owns the create / write / unlink
   plumbing and the publish / update / retract decision, leaving the bridge

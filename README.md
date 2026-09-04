@@ -8,6 +8,18 @@ Custom Odoo 19 modules.
   RFC 4791 CalDAV server (Nextcloud, Radicale, Baïkal, Fastmail, iCloud, ...).
 - [`auth_imap/`](auth_imap/) - authenticate existing Odoo users against an
   IMAP mail server (mailbox password as a fallback login method).
+- [`activitypub/`](activitypub/) - federate this Odoo instance into the
+  Fediverse (Mastodon, Pleroma, Mobilizon, ...) over ActivityPub. The
+  engine: actors, discovery, HTTP Signatures, delivery, inbox. Publishes no
+  content on its own - install a bridge alongside it:
+  - [`activitypub_website_blog/`](activitypub_website_blog/) - federate
+    published blog posts.
+  - [`activitypub_website_event/`](activitypub_website_event/) - federate
+    published events.
+
+  Start with [`activitypub/README.md`](activitypub/README.md); for a
+  from-scratch setup against a real Fediverse server, follow
+  [`TESTING_FEDERATION.md`](TESTING_FEDERATION.md) end to end.
 
 ## Testing
 

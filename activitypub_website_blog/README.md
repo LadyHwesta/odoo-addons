@@ -70,13 +70,21 @@ divs, `data-snippet` attributes) leaking through; editing a published post
 sends `Update` with the new content; unpublishing and deleting send
 `Delete` and tombstone the object; a non-public post or a blog with no
 actor federates nothing; an author with their own actor overrides the blog
-actor.
+actor; unpublishing then republishing gets a brand new object/URI, never
+the one already tombstoned.
 
-Diagnosed against a real Mastodon instance: a post federated as `Article`
-was counted (`statuses_count: 1`) but never appeared -
-`GET /api/v1/accounts/<id>/statuses` returned `[]`. Not yet re-confirmed
-against that instance since switching to `Note` (do that by re-publishing
-a post and checking the same endpoint returns it).
+**Verified end to end against a real Mastodon instance.** Getting there
+took two fixes beyond the `Note` switch above: the raw-`content` /
+website-builder-markup issue (see above), and a subtler one - reusing the
+same object URI across an unpublish → republish cycle. Once a `Delete` for
+a URI has gone out, Mastodon (correctly, per its own source) permanently
+refuses to ever create a status for that URI again, silently and without
+error; the engine now mints a brand new object URI for every `Create`
+that follows a `Delete`, which is what actually made a republished post
+show up. `GET /api/v1/accounts/<id>/statuses` on the Mastodon side is the
+way to confirm a post genuinely landed - the account/profile page's post
+count can be wrong (see the engine README for why) or just slow to
+update, in a way that reading the actual statuses list isn't.
 
 ## Files
 
