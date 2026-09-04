@@ -16,7 +16,7 @@ class TestBlogFederation(TransactionCase):
             'website_id': cls.website.id,
             'actor_type': 'Group',
             'username': 'blog',
-            'display_name': 'Company Blog',
+            'name': 'Company Blog',
         })
         cls.blog = cls.env['blog.blog'].create({
             'name': 'Company Blog',
@@ -106,7 +106,7 @@ class TestBlogFederation(TransactionCase):
             'website_id': self.website.id,
             'actor_type': 'Person',
             'username': 'wilma',
-            'display_name': 'Wilma',
+            'name': 'Wilma',
             'user_id': user.id,
         })
         post = self._publish('By Wilma', author_id=user.partner_id.id)

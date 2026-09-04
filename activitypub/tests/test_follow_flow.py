@@ -23,7 +23,7 @@ class TestFollowFlow(TransactionCase):
             'website_id': cls.website.id,
             'actor_type': 'Service',
             'username': 'news',
-            'display_name': 'News',
+            'name': 'News',
         })
 
     def _seed_remote(self):

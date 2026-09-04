@@ -18,7 +18,7 @@ class TestEventFederation(TransactionCase):
             'website_id': cls.website.id,
             'actor_type': 'Group',
             'username': 'events',
-            'display_name': 'What\'s On',
+            'name': 'What\'s On',
         })
         cls.etype = cls.env['event.type'].create({
             'name': 'Meetups',
@@ -102,7 +102,7 @@ class TestEventFederation(TransactionCase):
     def test_per_event_actor_override(self):
         other = self.env['activitypub.actor'].create({
             'website_id': self.website.id, 'actor_type': 'Group',
-            'username': 'special', 'display_name': 'Special',
+            'username': 'special', 'name': 'Special',
         })
         event = self._make(activitypub_actor_id=other.id)
         self.assertEqual(self._object(event).payload['attributedTo'], other.actor_url)

@@ -38,7 +38,6 @@ class ActivityPubActor(models.Model):
     """
     _name = 'activitypub.actor'
     _description = 'ActivityPub Actor'
-    _rec_name = 'display_name'
     _order = 'website_id, username'
 
     active = fields.Boolean(default=True)
@@ -56,7 +55,8 @@ class ActivityPubActor(models.Model):
              '1-64 lowercase letters, digits, "_" or "-". Once anything has '
              'been published under this actor the username is locked, because '
              'remote servers have followed it by that name.')
-    display_name = fields.Char(required=True)
+    name = fields.Char(required=True, help='Human-readable name shown on the '
+                       'Fediverse profile (the ActivityStreams "name").')
     summary = fields.Html(string='Bio', sanitize=True)
     icon = fields.Image(string='Avatar', max_width=400, max_height=400)
 
@@ -146,7 +146,7 @@ class ActivityPubActor(models.Model):
         return build_actor_document(
             actor_url=self.actor_url,
             username=self.username,
-            name=self.display_name or self.username,
+            name=self.name or self.username,
             actor_type=self.actor_type,
             public_pem=self.public_key_pem or '',
             inbox_url=self._endpoint('/inbox'),
@@ -178,8 +178,8 @@ class ActivityPubActor(models.Model):
         for vals in vals_list:
             if vals.get('username'):
                 vals['username'] = vals['username'].strip().lower()
-            if not vals.get('display_name') and vals.get('username'):
-                vals['display_name'] = vals['username']
+            if not vals.get('name') and vals.get('username'):
+                vals['name'] = vals['username']
         actors = super().create(vals_list)
         # Key generation is done in a second pass under sudo: the private key
         # field is system-only, so a Fediverse Manager (who is not a system

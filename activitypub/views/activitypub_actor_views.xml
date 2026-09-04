@@ -6,7 +6,7 @@
         <field name="model">activitypub.actor</field>
         <field name="arch" type="xml">
             <list>
-                <field name="display_name"/>
+                <field name="name"/>
                 <field name="handle"/>
                 <field name="actor_type"/>
                 <field name="website_id"/>
@@ -39,8 +39,8 @@
                     </div>
                     <field name="icon" widget="image" class="oe_avatar"/>
                     <div class="oe_title">
-                        <label for="display_name"/>
-                        <h1><field name="display_name" placeholder="News"/></h1>
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="News"/></h1>
                         <h3><field name="handle" readonly="1"/></h3>
                     </div>
                     <group>
@@ -79,7 +79,7 @@
         <field name="model">activitypub.actor</field>
         <field name="arch" type="xml">
             <search>
-                <field name="display_name"/>
+                <field name="name"/>
                 <field name="username"/>
                 <field name="website_id"/>
                 <filter name="federated" string="Has Federated"

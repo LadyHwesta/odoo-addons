@@ -21,7 +21,7 @@ class TestActivityPubActor(TransactionCase):
             'website_id': self.website.id,
             'actor_type': 'Service',
             'username': 'news',
-            'display_name': 'Example News',
+            'name': 'Example News',
         }, **vals))
 
     def test_keypair_generated_on_create(self):
@@ -55,7 +55,7 @@ class TestActivityPubActor(TransactionCase):
         self._make()
         with self.assertRaises(Exception), mute_logger('odoo.sql_db'):
             with self.env.cr.savepoint():
-                self._make(display_name='Another')
+                self._make(name='Another')
                 self.env.flush_all()
 
     def test_same_username_other_website_ok(self):

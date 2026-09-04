@@ -23,7 +23,7 @@ class TestInboundInteraction(TransactionCase):
             'website_id': cls.website.id,
             'actor_type': 'Service',
             'username': 'news',
-            'display_name': 'News',
+            'name': 'News',
         })
         cls.target = cls.env['res.partner'].create({'name': 'Federated Target'})
         cls.actor._ap_publish('res.partner', cls.target.id, 'Note',
