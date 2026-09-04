@@ -50,6 +50,15 @@ class TestAssertPublicUrl(unittest.TestCase):
             with self.assertRaises(svc.RemoteFetchError):
                 svc.assert_public_url('https://does-not-resolve.invalid/x')
 
+    def test_allowlisted_host_skips_the_check(self):
+        # Resolves to loopback, which would normally be refused...
+        with mock.patch.object(svc.socket, 'getaddrinfo', _fake_getaddrinfo('127.0.0.1')):
+            with self.assertRaises(svc.RemoteFetchError):
+                svc.assert_public_url('https://mastodon.internal.lan/inbox')
+            # ...but an explicit allowlist entry lets it through.
+            svc.assert_public_url('https://mastodon.internal.lan/inbox',
+                                  allow_hosts=('mastodon.internal.lan',))
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

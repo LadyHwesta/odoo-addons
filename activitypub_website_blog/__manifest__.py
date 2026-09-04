@@ -26,6 +26,7 @@ Install ``activitypub`` first and configure at least one actor.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['activitypub', 'website_blog'],
     'data': [

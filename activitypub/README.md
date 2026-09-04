@@ -15,15 +15,15 @@ that is the job of the bridge modules:
 No extra pip packages: only `requests` and `cryptography`, both already
 bundled with Odoo.
 
-## Status — Phases 1–3 of 4
+## Status — feature-complete (phases 1–4)
 
-Phase 1 made an actor **discoverable**; Phase 2 made it **publish and
-gain followers**; Phase 3 makes it **hear back** — replies, edits,
-deletes, likes and boosts from the Fediverse. Phase 4 adds the event
-bridge + polish (attachments, hashtags, rate limiting, real-world
-Mastodon verification).
+An actor is **discoverable** (1), **publishes and gains followers** (2),
+**hears back** — replies, edits, deletes, likes, boosts (3), and the
+**event bridge**, media attachments, an inbox rate limit and an SSRF
+allowlist are in (4). What remains is a real-world pass against a live
+Mastodon / Mobilizon instance — see `../TESTING_FEDERATION.md`.
 
-Implemented now:
+Implemented:
 
 - **`activitypub.actor`** — a federated identity scoped to a `website`. RSA
   2048 key pair generated on creation; the private key is a `base.group_system`
@@ -77,8 +77,15 @@ Every outbound dereference (`fetch_json`, `post_activity`) goes through
 `assert_public_url`, which resolves the host and refuses loopback, private,
 link-local, multicast and reserved addresses; responses are size-capped
 (2 MiB) and redirect-capped (3), with a `(5 s, 20 s)` timeout. A residual
-DNS-rebinding time-of-check/use gap is documented in the code. The inbox
-rejects unsigned requests and oversized bodies before doing any work.
+DNS-rebinding time-of-check/use gap is documented in the code.
+
+The inbox rejects unsigned requests and bodies over 1 MiB before doing any
+work, and sheds with `429` past **120 activities / 60 s** from one remote
+actor.
+
+*Settings → Fediverse → SSRF allowlist* — a comma-separated hostname list
+exempt from `assert_public_url`. Empty in production; the escape hatch for a
+self-hosted test rig where the peer is on a private network.
 
 ## Multi-website / multi-domain
 
@@ -164,6 +171,11 @@ odoo-bin -d <db> -i activitypub --test-enable --test-tags=/activitypub --stop-af
 - `models/activitypub_actor.py` — the `activitypub.actor` model, plus
   `_ap_publish` / `_ap_retract` (the entry points bridges call) and
   follower-inbox fan-out.
+- `models/activitypub_federatable.py` — `activitypub.federatable`, the
+  abstract mixin bridges inherit: it owns the create / write / unlink
+  plumbing and the publish / update / retract decision, leaving the bridge
+  to implement `_ap_actor` / `_ap_is_public` / `_ap_object_type` /
+  `_ap_build_object`.
 - `models/activitypub_object.py` — one row per federated object (local
   render of an Odoo record, or a stored remote object).
 - `models/activitypub_activity.py` — Create/Update/Delete/Follow/… rows;

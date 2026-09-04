@@ -26,8 +26,8 @@ Federates `website_blog` posts to the Fediverse as ActivityStreams
 
 The Article carries `name`, sanitized `content` (`mediaType: text/html`),
 the absolute `url` of the blog post, `published`, the blog tags as
-`Hashtag`s, and `summary` from the post subtitle. Cover images / other
-attachments are Phase 4.
+`Hashtag`s, `summary` from the post subtitle, and the cover image as an
+`attachment`.
 
 ## Setup
 
@@ -52,6 +52,7 @@ actor. Not yet run against a real Mastodon instance — Phase 4.
 ## Files
 
 - `models/blog_blog.py` — the `activitypub_actor_id` field.
-- `models/blog_post.py` — actor resolution (`_ap_actor`), the Article
-  builder (`_ap_build_article`), and the create / write / unlink hooks that
-  call the engine's `_ap_publish` / `_ap_retract`.
+- `models/blog_post.py` — inherits `activitypub.federatable` and implements
+  its four hooks: actor resolution (`_ap_actor`), publicness
+  (`_ap_is_public`), the type (`Article`), and the object builder
+  (`_ap_build_object`). Lifecycle plumbing lives in the mixin.

@@ -20,6 +20,12 @@
                                  help="When someone on the Fediverse replies to a federated record, post their reply to that record's chatter as a comment.">
                             <field name="activitypub_replies_to_chatter"/>
                         </setting>
+                        <setting id="activitypub_ssrf_allow_hosts_setting"
+                                 string="SSRF allowlist"
+                                 help="Comma-separated hostnames exempt from the SSRF guard on outbound federation requests. Leave empty in production; use only for a test rig where the peer is on a private network.">
+                            <field name="activitypub_ssrf_allow_hosts"
+                                   placeholder="mastodon.internal.lan, 10-6-0-5.example"/>
+                        </setting>
                     </block>
                 </app>
             </xpath>

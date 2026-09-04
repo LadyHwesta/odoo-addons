@@ -6,6 +6,7 @@ import requests
 
 from odoo import api, fields, models
 
+from .activitypub_object import ssrf_allow_hosts
 from .activitypub_service import ActivityPubError, post_activity
 
 _logger = logging.getLogger(__name__)
@@ -76,7 +77,8 @@ class ActivityPubDelivery(models.Model):
             return
         try:
             status, text = post_activity(
-                self.inbox_url, activity.payload, actor.key_id, actor.private_key_pem)
+                self.inbox_url, activity.payload, actor.key_id, actor.private_key_pem,
+                allow_hosts=ssrf_allow_hosts(self.env))
         except ActivityPubError as exc:
             # SSRF block or malformed target - not worth retrying.
             self.write({

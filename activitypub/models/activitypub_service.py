@@ -440,9 +440,13 @@ MAX_REDIRECTS = 3
 USER_AGENT = "Odoo-ActivityPub (+https://github.com/LadyHwesta/odoo-addons)"
 
 
-def assert_public_url(url):
+def assert_public_url(url, allow_hosts=()):
     """Raise :class:`RemoteFetchError` unless ``url`` is http(s) and every
     address its host resolves to right now is publicly routable.
+
+    ``allow_hosts`` is an explicit allowlist of hostnames that skip the check
+    - for a self-hosted test rig where the peer is on a private network, or
+    deliberate internal federation.
 
     This is the SSRF guard on every outbound dereference. A residual
     time-of-check/time-of-use gap remains (DNS could change between this call
@@ -456,6 +460,8 @@ def assert_public_url(url):
     host = parsed.hostname
     if not host:
         raise RemoteFetchError("URL has no host")
+    if host in allow_hosts:
+        return
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     try:
         infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
@@ -480,7 +486,8 @@ def _read_capped(resp):
     return b"".join(chunks)
 
 
-def fetch_json(url, *, timeout=DEFAULT_HTTP_TIMEOUT, headers=None, session=None):
+def fetch_json(url, *, timeout=DEFAULT_HTTP_TIMEOUT, headers=None, session=None,
+               allow_hosts=()):
     """SSRF-guarded, redirect-checked, size-capped GET returning parsed JSON.
 
     Redirects are followed manually so each hop's target is re-validated.
@@ -494,7 +501,7 @@ def fetch_json(url, *, timeout=DEFAULT_HTTP_TIMEOUT, headers=None, session=None)
         hdrs.update(headers)
     current = url
     for _hop in range(MAX_REDIRECTS + 1):
-        assert_public_url(current)
+        assert_public_url(current, allow_hosts)
         resp = sess.get(current, headers=hdrs, timeout=timeout,
                         allow_redirects=False, stream=True)
         if resp.status_code in (301, 302, 303, 307, 308):
@@ -515,7 +522,7 @@ def fetch_json(url, *, timeout=DEFAULT_HTTP_TIMEOUT, headers=None, session=None)
 
 
 def post_activity(inbox_url, activity, key_id, private_pem, *,
-                  timeout=DEFAULT_HTTP_TIMEOUT, session=None):
+                  timeout=DEFAULT_HTTP_TIMEOUT, session=None, allow_hosts=()):
     """Sign ``activity`` and POST it to ``inbox_url``.
 
     Returns ``(status_code, short_text)``. Raises :class:`RemoteFetchError`
@@ -524,7 +531,7 @@ def post_activity(inbox_url, activity, key_id, private_pem, *,
     """
     sess = session or requests
     body = json.dumps(activity, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-    assert_public_url(inbox_url)
+    assert_public_url(inbox_url, allow_hosts)
     headers = build_signature_headers("POST", inbox_url, key_id, private_pem, body=body)
     headers["User-Agent"] = USER_AGENT
     headers["Accept"] = "application/activity+json"

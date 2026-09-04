@@ -16,6 +16,16 @@ def replies_to_chatter(env):
         'activitypub.replies_to_chatter', 'True') != 'False'
 
 
+def ssrf_allow_hosts(env):
+    """Hostnames exempt from the SSRF guard, from the
+    ``activitypub.ssrf_allow_hosts`` system parameter (comma / space
+    separated). Empty by default - only for a self-hosted test rig or
+    deliberate internal federation."""
+    raw = env['ir.config_parameter'].sudo().get_param(
+        'activitypub.ssrf_allow_hosts', '') or ''
+    return tuple(h.strip() for h in raw.replace(',', ' ').split() if h.strip())
+
+
 class ActivityPubObject(models.Model):
     """A federated object - one per thing that has been (or was) published.
 

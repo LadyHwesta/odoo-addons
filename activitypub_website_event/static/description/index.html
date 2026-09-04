@@ -1,0 +1,51 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#d97706;">ActivityPub &mdash; Website Events</h2>
+        <h3 class="oe_slogan" style="color:#666;">
+            Publish events to the Fediverse as <code>Event</code> objects
+        </h3>
+        <div class="oe_span12">
+            <p class="oe_mt32" style="text-align:center;">
+                <img src="banner.png" class="img img-responsive"
+                     style="max-width:100%;border-radius:8px;" alt="ActivityPub - Website Events"/>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">What it does</h3>
+            <p class="oe_mt32">
+                Adds <b>Federate events as</b> to the event category
+                (<code>event.type</code>); every event inherits it and can
+                override it. Publishing an event on the website sends a
+                <code>Create</code>, editing its dates / description /
+                location / tags sends an <code>Update</code>, unpublishing or
+                deleting it sends a <code>Delete</code>.
+            </p>
+            <p>
+                The <code>Event</code> object carries <code>startTime</code> /
+                <code>endTime</code>, the venue as a <code>Place</code> (with
+                latitude / longitude when the address is geolocated), the
+                cover image, and the event tags &mdash; the shape Mobilizon
+                and Gancio consume.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Requires</h3>
+            <p class="oe_mt32">
+                The <b>ActivityPub Federation</b> engine module and
+                <b>Website Events</b>. Configure at least one actor first
+                (Fediverse &rarr; Actors).
+            </p>
+            <p class="text-center" style="color:#999;">Licensed under LGPL-3.</p>
+        </div>
+    </div>
+</section>

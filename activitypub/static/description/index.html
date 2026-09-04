@@ -1,0 +1,81 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#4f46e5;">ActivityPub Federation</h2>
+        <h3 class="oe_slogan" style="color:#666;">
+            Bring your Odoo instance onto the Fediverse &mdash; Mastodon,
+            Pleroma, Misskey, Mobilizon &hellip;
+        </h3>
+        <div class="oe_span12">
+            <p class="oe_mt32" style="text-align:center;">
+                <img src="banner.png" class="img img-responsive"
+                     style="max-width:100%;border-radius:8px;" alt="ActivityPub Federation"/>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">The federation engine</h3>
+            <p class="oe_mt32">
+                This module is the plumbing. It gives Odoo <b>actors</b>
+                (federated identities), <b>WebFinger</b> and <b>NodeInfo</b>
+                discovery, the <b>HTTP Signatures</b> every mainstream server
+                requires, a signed <b>delivery</b> queue with retry, and an
+                <b>inbox</b> that verifies and dispatches what comes back.
+            </p>
+            <p>
+                It publishes no content on its own &mdash; install a bridge:
+                <b>ActivityPub - Website Blog</b> or
+                <b>ActivityPub - Website Events</b>.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Multi-domain</h3>
+            <p>
+                Each actor is scoped to a website; its <b>Website Domain</b>
+                becomes the <code>@name@domain</code> host. One instance can
+                federate every company branch under its own domain.
+            </p>
+        </div>
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Two-way</h3>
+            <p>
+                Followers, and inbound replies, edits, deletes, likes and
+                boosts. Federated replies can be posted to the source
+                record's chatter.
+            </p>
+        </div>
+    </div>
+    <div class="oe_row oe_spaced">
+        <div class="oe_span6">
+            <h3 class="oe_slogan">Guarded</h3>
+            <p>
+                Every outbound dereference is SSRF-checked (no loopback /
+                private / link-local), size- and redirect-capped. The inbox
+                rejects unsigned or oversized requests and rate-limits floods.
+            </p>
+        </div>
+        <div class="oe_span6">
+            <h3 class="oe_slogan">No new dependencies</h3>
+            <p>
+                Only <code>requests</code> and <code>cryptography</code>,
+                both already bundled with Odoo.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <p class="text-center" style="color:#999;">Licensed under LGPL-3.</p>
+        </div>
+    </div>
+</section>

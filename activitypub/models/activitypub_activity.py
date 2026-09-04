@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import uuid
+from datetime import timedelta
 
 from odoo import api, fields, models
 
@@ -13,6 +14,12 @@ from .activitypub_service import (
 )
 
 _logger = logging.getLogger(__name__)
+
+# Inbox flood guard: at most this many inbound activities recorded from one
+# remote actor within the trailing window before we shed with 429. Generous
+# enough for a normal backfill / burst, low enough to blunt a hostile loop.
+INBOUND_RATE_LIMIT = 120
+INBOUND_RATE_WINDOW = 60  # seconds
 
 ACTIVITY_TYPES = [
     ('Create', 'Create'),
@@ -51,7 +58,7 @@ class ActivityPubActivity(models.Model):
         'activitypub.actor', string='Local Actor', ondelete='cascade', index=True,
         help='The local actor this activity is from (outbound) or for (inbound).')
     remote_actor_uri = fields.Char(
-        string='Remote Actor', help='Set on inbound activities.')
+        string='Remote Actor', index=True, help='Set on inbound activities.')
     object_id = fields.Many2one(
         'activitypub.object', string='Object', ondelete='set null')
     object_uri = fields.Char(
@@ -109,6 +116,12 @@ class ActivityPubActivity(models.Model):
         if not actor_uri or not atype:
             return 400
 
+        if self._inbound_rate_limited(actor_uri):
+            _logger.warning('Inbound flood from %s: over %s activities in %ss, '
+                            'returning 429', actor_uri, INBOUND_RATE_LIMIT,
+                            INBOUND_RATE_WINDOW)
+            return 429
+
         RemoteActor = self.env['activitypub.remote.actor'].sudo()
         try:
             remote = RemoteActor._get(actor_uri)
@@ -141,6 +154,16 @@ class ActivityPubActivity(models.Model):
             self._record_inbound(raw, remote, target_actor, state='ignored')
             return 202
         return handler(raw, remote, target_actor)
+
+    @api.model
+    def _inbound_rate_limited(self, actor_uri):
+        window_start = fields.Datetime.now() - timedelta(seconds=INBOUND_RATE_WINDOW)
+        recent = self.search_count([
+            ('direction', '=', 'in'),
+            ('remote_actor_uri', '=', actor_uri),
+            ('create_date', '>=', window_start),
+        ])
+        return recent >= INBOUND_RATE_LIMIT
 
     def _record_inbound(self, raw, remote, target_actor, state='received'):
         vals = {

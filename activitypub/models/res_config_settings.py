@@ -18,3 +18,10 @@ class ResConfigSettings(models.TransientModel):
         help='When someone on the Fediverse replies to a federated record '
              '(a blog post, an event), post their reply to that record\'s '
              'chatter as a comment.')
+    activitypub_ssrf_allow_hosts = fields.Char(
+        string='SSRF allowlist',
+        config_parameter='activitypub.ssrf_allow_hosts',
+        help='Comma-separated hostnames exempt from the SSRF guard on '
+             'outbound federation requests. Leave empty in production; set it '
+             'only for a self-hosted test rig where the peer server is on a '
+             'private network.')

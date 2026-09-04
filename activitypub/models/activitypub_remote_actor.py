@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 from odoo import api, fields, models
 
+from .activitypub_object import ssrf_allow_hosts
 from .activitypub_service import fetch_json
 
 _logger = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ class ActivityPubRemoteActor(models.Model):
         if record and record._is_fresh() and not force_refresh:
             return record
         try:
-            doc = fetch_json(uri)
+            doc = fetch_json(uri, allow_hosts=ssrf_allow_hosts(self.env))
         except Exception:
             if record:
                 _logger.warning('Refresh of remote actor %s failed; using stale cache', uri)
