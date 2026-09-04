@@ -2,7 +2,7 @@
     <div class="oe_row oe_spaced">
         <h2 class="oe_slogan" style="color:#0d9488;">ActivityPub &mdash; Website Blog</h2>
         <h3 class="oe_slogan" style="color:#666;">
-            Publish blog posts to the Fediverse as <code>Article</code> objects
+            Publish blog posts to the Fediverse as toots that actually show up
         </h3>
         <div class="oe_span12">
             <p class="oe_mt32" style="text-align:center;">
@@ -25,9 +25,13 @@
                 followers.
             </p>
             <p>
-                If the post's author has their own actor on the same website,
-                the Article is attributed to the author instead of the blog.
-                Cover image, subtitle and blog tags are carried across.
+                Sent as an ActivityStreams <code>Note</code>, not
+                <code>Article</code> - confirmed against a real Mastodon
+                instance that <code>Article</code> is silently never shown in
+                the timeline. If the post's author has their own actor on the
+                same website, the post is attributed to the author instead of
+                the blog. Cover image, subtitle and blog tags are carried
+                across.
             </p>
         </div>
     </div>

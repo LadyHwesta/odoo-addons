@@ -63,13 +63,25 @@ Both must return `200` and valid JSON. A browser hitting the actor URL
 **Blog:** Website → Blog → set the blog's **Federate posts as** to the
 actor. Create a post, **Publish** it. Within ~1 min it lands in your
 Mastodon home timeline. Check the Delivery Queue row is *delivered*, and
-**Fediverse → Objects** shows an `Article` with the reply/like/boost
-counters.
+**Fediverse → Objects** shows a `Note` (not `Article` - see the gotcha
+below) with the reply/like/boost counters.
 
 **Events:** Events → Configuration → Event Templates → set a category's
 **Federate events as**. Create an event in that category, publish it on the
-website. It appears as an `Event` (best viewed from Mobilizon; Mastodon
-renders it as a link post).
+website. It federates as a proper `Event` object for Mobilizon / Gancio.
+On Mastodon specifically, expect the same non-rendering behavior as
+`Article` below - Mastodon's Create handler doesn't materialize a status
+for `Event` either, so followers there may see nothing for it. That's a
+Mastodon limitation with structured Event federation in general, not a bug
+here; if visible Mastodon posts for events matter to you, say so and the
+event bridge can be changed to also emit a `Note`.
+
+> **Gotcha found during testing:** Mastodon's `Create` handler only turns
+> `Note` (and `Question`, for polls) into a visible status. Other types -
+> `Article` included - are accepted and even counted in the profile's post
+> count, but never appear in the timeline or the Posts tab. Confirmed via
+> `GET /api/v1/accounts/<id>/statuses` returning `[]` while `statuses_count`
+> was `1`. The blog bridge sends `Note` for exactly this reason.
 
 ## 5. Interaction back
 

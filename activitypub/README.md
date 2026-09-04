@@ -9,7 +9,7 @@ that is the job of the bridge modules:
 | Module | Maps |
 |---|---|
 | `activitypub` (this one) | actors, keys, discovery, HTTP Signatures, the `/ap` endpoints |
-| `activitypub_website_blog` | `blog.post` → `Article` |
+| `activitypub_website_blog` | `blog.post` → `Note` |
 | `activitypub_website_event` | `event.event` → `Event` |
 
 No extra pip packages: only `requests` and `cryptography`, both already

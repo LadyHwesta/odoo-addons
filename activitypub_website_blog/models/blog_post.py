@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 
+from markupsafe import Markup
+
 from odoo import fields, models
 
 from odoo.addons.activitypub.models.activitypub_service import (
@@ -24,7 +26,12 @@ class BlogPost(models.Model):
         return _TRIGGER_FIELDS
 
     def _ap_object_type(self):
-        return 'Article'
+        # Mastodon's Create handler only materializes a visible status for
+        # `Note` (and `Question` for polls); `Article` is accepted and
+        # counted but never rendered in the timeline / profile posts tab on
+        # stock Mastodon - confirmed against a real instance. `Note` is the
+        # object type every mainstream server actually displays.
+        return 'Note'
 
     def _ap_actor(self):
         """The author's own actor on the post's website if they have one,
@@ -56,26 +63,38 @@ class BlogPost(models.Model):
         self.ensure_one()
         base = actor._base_url()
         path = self.website_url or ('/blog/%s/%s' % (self.blog_id.id, self.id))
+        url = base + path
         published = self.post_date or self.published_date or self.create_date
-        article = {
+
+        # A Note has no title Mastodon displays separately, so the title
+        # (linked to the post) is prepended into the body. NOTE: `summary`
+        # on an ActivityStreams object is read by Mastodon as a *content
+        # warning* (it hides the post behind "Show more"), so the post
+        # subtitle is folded into the body instead of used there.
+        heading = Markup('<p><strong><a href="%s">%s</a></strong></p>') % (
+            url, self.name or '')
+        body = str(heading)
+        if self.subtitle:
+            body += str(Markup('<p>%s</p>') % self.subtitle)
+        body += self.content or ''
+
+        note = {
             'name': self.name or '',
-            'content': self.content or '',
+            'content': body,
             'mediaType': 'text/html',
-            'url': base + path,
+            'url': url,
             'attributedTo': actor.actor_url,
             'to': [AS_PUBLIC],
             'cc': [actor._endpoint('/followers')],
             'published': to_ap_datetime(published),
         }
-        if self.subtitle:
-            article['summary'] = self.subtitle
         tags = [
             {'type': 'Hashtag', 'name': '#' + re.sub(r'\s+', '', tag.name)}
             for tag in self.tag_ids if tag.name
         ]
         if tags:
-            article['tag'] = tags
+            note['tag'] = tags
         cover = self._ap_cover_image_url(base)
         if cover:
-            article['attachment'] = [{'type': 'Image', 'url': cover}]
-        return article
+            note['attachment'] = [{'type': 'Image', 'url': cover}]
+        return note

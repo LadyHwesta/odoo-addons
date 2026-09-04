@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ActivityPub - Website Blog',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Website/Blog',
-    'summary': 'Federate published blog posts to the Fediverse as Articles',
+    'summary': 'Federate published blog posts to the Fediverse',
     'description': """
 ActivityPub bridge for Website Blog
 ===================================
 
 Publishes ``blog.post`` records to the Fediverse as ActivityStreams
-``Article`` objects, using the ``activitypub`` engine.
+``Note`` objects (the type Mastodon and friends actually render as a
+timeline post - ``Article`` is accepted by most servers but never shown),
+using the ``activitypub`` engine.
 
 * A blog gets a **Federate posts as** actor (``blog.blog`` form). When set,
   publishing a post in that blog sends a ``Create`` to the actor's

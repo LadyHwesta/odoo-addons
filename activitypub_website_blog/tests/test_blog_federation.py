@@ -49,15 +49,23 @@ class TestBlogFederation(TransactionCase):
         }, **vals))
 
     # ------------------------------------------------------------------
-    def test_publish_creates_article_and_queues_delivery(self):
+    def test_publish_creates_note_and_queues_delivery(self):
         post = self._publish('Hello world')
         obj = self._object(post)
         self.assertTrue(obj)
-        self.assertEqual(obj.object_type, 'Article')
-        self.assertEqual(obj.payload['type'], 'Article')
+        # Note, not Article: Mastodon's Create handler only materializes a
+        # visible status for Note (confirmed against a real instance -
+        # Article is accepted and counted but never shown).
+        self.assertEqual(obj.object_type, 'Note')
+        self.assertEqual(obj.payload['type'], 'Note')
         self.assertEqual(obj.payload['attributedTo'], self.actor.actor_url)
         self.assertEqual(obj.payload['to'], [PUBLIC])
         self.assertEqual(obj.payload['name'], 'Hello world')
+        # The title (as a Note has none Mastodon displays) is linked into
+        # the body, and `summary` is never used - Mastodon reads it as a
+        # content warning, which would hide the post.
+        self.assertIn('Hello world', obj.payload['content'])
+        self.assertNotIn('summary', obj.payload)
         self.assertTrue(obj.payload['url'].startswith('https://news.example.com/'))
 
         create = self._activities(post, 'Create')
@@ -65,6 +73,12 @@ class TestBlogFederation(TransactionCase):
         self.assertEqual(create.payload['type'], 'Create')
         self.assertEqual(create.delivery_ids.inbox_url, 'https://remote.example/inbox')
         self.assertTrue(self.actor.federated_once)
+
+    def test_subtitle_is_folded_into_content_not_summary(self):
+        post = self._publish('Titled', subtitle='A subtitle')
+        obj = self._object(post)
+        self.assertNotIn('summary', obj.payload)
+        self.assertIn('A subtitle', obj.payload['content'])
 
     def test_edit_published_post_sends_update(self):
         post = self._publish('First title')
