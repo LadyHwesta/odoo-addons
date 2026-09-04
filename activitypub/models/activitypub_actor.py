@@ -189,6 +189,16 @@ class ActivityPubActor(models.Model):
                     'Username "%s" is not valid: use 1-64 lowercase letters, '
                     'digits, "_" or "-".', actor.username or ''))
 
+    @api.constrains('icon')
+    def _check_icon_not_svg(self):
+        for actor in self:
+            data = actor._icon_bytes()
+            if data and guess_mimetype(data, default='') == 'image/svg+xml':
+                raise ValidationError(_(
+                    'Fediverse servers reject SVG avatars for security '
+                    'reasons - they would just show a placeholder. Upload a '
+                    'PNG or JPEG image instead.'))
+
     # ------------------------------------------------------------------
     # CRUD
     # ------------------------------------------------------------------

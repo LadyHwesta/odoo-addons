@@ -112,6 +112,16 @@ class TestActivityPubControllers(HttpCase):
         )
         self.assertEqual(r.status_code, 400)
 
+    def test_svg_avatar_is_rejected(self):
+        import base64
+        from odoo.exceptions import ValidationError
+        svg = base64.b64encode(
+            b'<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"/>'
+        ).decode()
+        with self.assertRaises(ValidationError):
+            self.actor.icon = svg
+            self.actor.flush_recordset()
+
     def test_actor_icon_served_publicly(self):
         # No icon yet -> 404, and no icon key in the doc.
         self.assertEqual(self._get(f'/ap/actors/{self.actor.id}/icon', '*/*').status_code, 404)
