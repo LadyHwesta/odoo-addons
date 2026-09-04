@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import uuid
-from datetime import timedelta
+from urllib.parse import urlparse
 
 from odoo import api, fields, models
 
@@ -116,10 +116,18 @@ class ActivityPubActivity(models.Model):
         if not actor_uri or not atype:
             return 400
 
-        if self._inbound_rate_limited(actor_uri):
-            _logger.warning('Inbound flood from %s: over %s activities in %ss, '
-                            'returning 429', actor_uri, INBOUND_RATE_LIMIT,
-                            INBOUND_RATE_WINDOW)
+        # Recorded before any network dereference or signature check - the
+        # cost this guards against (an SSRF-checked DNS resolution + HTTP
+        # GET with up to a 20s read timeout) happens regardless of whether
+        # the request ever turns out to be a legitimate, verifiable
+        # activity, so counting only successfully-verified ones (as this
+        # used to) never bounds a flood of forged or unverifiable claims.
+        host = urlparse(actor_uri).hostname or actor_uri
+        Attempt = self.env['activitypub.inbox.attempt'].sudo()
+        Attempt._record(host)
+        if Attempt._is_flooding(host, INBOUND_RATE_WINDOW, INBOUND_RATE_LIMIT):
+            _logger.warning('Inbound flood from host %s: over %s attempts in %ss, '
+                            'returning 429', host, INBOUND_RATE_LIMIT, INBOUND_RATE_WINDOW)
             return 429
 
         RemoteActor = self.env['activitypub.remote.actor'].sudo()
@@ -154,16 +162,6 @@ class ActivityPubActivity(models.Model):
             self._record_inbound(raw, remote, target_actor, state='ignored')
             return 202
         return handler(raw, remote, target_actor)
-
-    @api.model
-    def _inbound_rate_limited(self, actor_uri):
-        window_start = fields.Datetime.now() - timedelta(seconds=INBOUND_RATE_WINDOW)
-        recent = self.search_count([
-            ('direction', '=', 'in'),
-            ('remote_actor_uri', '=', actor_uri),
-            ('create_date', '>=', window_start),
-        ])
-        return recent >= INBOUND_RATE_LIMIT
 
     def _record_inbound(self, raw, remote, target_actor, state='received'):
         vals = {

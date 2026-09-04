@@ -21,4 +21,14 @@
         <field name="active" eval="True"/>
     </record>
 
+    <record id="ir_cron_activitypub_inbox_attempt_gc" model="ir.cron">
+        <field name="name">ActivityPub: prune old inbox flood-guard rows</field>
+        <field name="model_id" ref="model_activitypub_inbox_attempt"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_gc()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
 </odoo>

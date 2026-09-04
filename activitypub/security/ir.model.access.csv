@@ -13,3 +13,5 @@ access_activitypub_remote_actor_manager,activitypub.remote.actor manager,model_a
 access_activitypub_remote_actor_system,activitypub.remote.actor system,model_activitypub_remote_actor,base.group_system,1,1,1,1
 access_activitypub_interaction_manager,activitypub.interaction manager,model_activitypub_interaction,activitypub.group_activitypub_manager,1,0,0,1
 access_activitypub_interaction_system,activitypub.interaction system,model_activitypub_interaction,base.group_system,1,1,1,1
+access_activitypub_inbox_attempt_manager,activitypub.inbox.attempt manager,model_activitypub_inbox_attempt,activitypub.group_activitypub_manager,1,0,0,0
+access_activitypub_inbox_attempt_system,activitypub.inbox.attempt system,model_activitypub_inbox_attempt,base.group_system,1,1,1,1
