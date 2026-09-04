@@ -12,9 +12,9 @@ from odoo.addons.activitypub.models.activitypub_service import (
 
 # Writing any of these on a published post re-federates it.
 _TRIGGER_FIELDS = frozenset({
-    'name', 'subtitle', 'content', 'website_published', 'active',
-    'post_date', 'published_date', 'tag_ids', 'blog_id', 'author_id',
-    'cover_properties',
+    'name', 'subtitle', 'content', 'teaser_manual', 'website_published',
+    'active', 'post_date', 'published_date', 'tag_ids', 'blog_id',
+    'author_id', 'cover_properties',
 })
 
 
@@ -66,17 +66,24 @@ class BlogPost(models.Model):
         url = base + path
         published = self.post_date or self.published_date or self.create_date
 
-        # A Note has no title Mastodon displays separately, so the title
-        # (linked to the post) is prepended into the body. NOTE: `summary`
-        # on an ActivityStreams object is read by Mastodon as a *content
-        # warning* (it hides the post behind "Show more"), so the post
-        # subtitle is folded into the body instead of used there.
+        # `self.content` is raw website-builder HTML - snippet divs,
+        # data-oe-* attributes, layout classes - never meant to be embedded
+        # in a microblog post; every remote server's sanitizer treats it
+        # differently and none of them render it usefully. `teaser` is
+        # Odoo's own plain-text, HTML-stripped ~200-char excerpt of it
+        # (website_blog's own list-view summary), which is exactly the
+        # shape every Fediverse client expects. A Note has no separate
+        # title either, so the title (linked to the post) leads the body;
+        # `summary` is never set - on an AS object Mastodon reads that as a
+        # *content warning* and hides the post behind "Show more".
         heading = Markup('<p><strong><a href="%s">%s</a></strong></p>') % (
             url, self.name or '')
         body = str(heading)
         if self.subtitle:
-            body += str(Markup('<p>%s</p>') % self.subtitle)
-        body += self.content or ''
+            body += str(Markup('<p><em>%s</em></p>') % self.subtitle)
+        if self.teaser:
+            body += str(Markup('<p>%s</p>') % self.teaser)
+        body += str(Markup('<p><a href="%s">Continue reading&#8230;</a></p>') % url)
 
         note = {
             'name': self.name or '',

@@ -80,6 +80,23 @@ class TestBlogFederation(TransactionCase):
         self.assertNotIn('summary', obj.payload)
         self.assertIn('A subtitle', obj.payload['content'])
 
+    def test_body_uses_plain_text_teaser_not_raw_builder_html(self):
+        # self.content is raw website-builder markup (snippet divs,
+        # data-oe-*/data-snippet attributes) - it must never be embedded
+        # as-is; only the plain-text teaser Odoo derives from it should
+        # reach the federated body.
+        post = self._publish('Deep dive', content=(
+            '<section class="s_text_block" data-snippet="s_text_block">'
+            '<div class="container"><p>Some real prose here.</p></div>'
+            '</section>'
+        ))
+        content = self._object(post).payload['content']
+        self.assertNotIn('data-snippet', content)
+        self.assertNotIn('s_text_block', content)
+        self.assertNotIn('<section', content)
+        self.assertIn('Some real prose here.', content)
+        self.assertIn('Continue reading', content)
+
     def test_edit_published_post_sends_update(self):
         post = self._publish('First title')
         post.write({'name': 'Second title'})
