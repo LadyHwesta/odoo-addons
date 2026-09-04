@@ -51,9 +51,14 @@ class CalendarEvent(models.Model):
         events = super().create(vals_list)
         events._caldav_stamp_recurrence_anchor()
         if not self.env.context.get('caldav_no_sync'):
-            events.filtered(
-                lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only
-            ).write({'need_caldav_sync': True})
+            # Not excluded for read-only accounts: `need_caldav_sync` also
+            # doubles as the "this was edited locally since the last pull"
+            # signal _caldav_apply_remote_event() uses to log a conflict
+            # before an incoming remote version overwrites it. Read-only
+            # accounts never push (that's still gated at the account level
+            # in _caldav_push), so setting it here is harmless - it just
+            # keeps that conflict detection working for them too.
+            events.filtered(lambda e: not e.need_caldav_sync).write({'need_caldav_sync': True})
         return events
 
     def _caldav_assign_default_account(self, vals_list):
@@ -101,8 +106,9 @@ class CalendarEvent(models.Model):
             # for the now-missing slot.
             occurrence_deletes = self.filtered(lambda e: not e._caldav_is_recurrence_master())
             masters = occurrence_deletes.mapped('recurrence_id.base_event_id')
-            masters = (masters - self).filtered(
-                lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only)
+            # Not excluded for read-only accounts here either - see the
+            # matching note in create().
+            masters = (masters - self).filtered(lambda e: not e.need_caldav_sync)
             if masters:
                 masters.with_context(caldav_no_sync=True).write({'need_caldav_sync': True})
         return super().unlink()
@@ -155,8 +161,9 @@ class CalendarEvent(models.Model):
                     exceptions |= event
         if exceptions:
             exceptions.with_context(caldav_no_sync=True).write({'follow_recurrence': False})
-        targets = targets.filtered(
-            lambda e: not e.need_caldav_sync and not e.caldav_account_id.read_only)
+        # Not excluded for read-only accounts here either - see the matching
+        # note in create().
+        targets = targets.filtered(lambda e: not e.need_caldav_sync)
         if targets:
             targets.with_context(caldav_no_sync=True).write({'need_caldav_sync': True})
 

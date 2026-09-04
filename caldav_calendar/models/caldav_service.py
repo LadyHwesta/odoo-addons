@@ -56,8 +56,8 @@ class CalDAVPreconditionFailedError(CalDAVError):
 
 
 class CalDAVSyncTokenInvalidError(CalDAVError):
-    """403 on a sync-collection REPORT (RFC 6578 valid-sync-token precondition
-    failure): token expired/unknown, do a full resync."""
+    """RFC 6578 Sec 3.2 valid-sync-token precondition failure on a
+    sync-collection REPORT: token expired/unknown, do a full resync."""
 
 
 class CalDAVConnectionError(CalDAVError):
@@ -68,9 +68,11 @@ class CalDAVConnectionError(CalDAVError):
 
 
 def _raise_for_status(response):
-    # Note: a 403 on a sync-collection REPORT is intercepted earlier, in
+    # Note: a 403 on a sync-collection REPORT that actually carries the
+    # RFC 6578 valid-sync-token precondition is intercepted earlier, in
     # CalDAVClient._request(), and raised as CalDAVSyncTokenInvalidError
-    # instead - by the time a 401/403 reaches here it's a genuine auth failure.
+    # instead - any 401/403 that reaches here (including a sync-collection
+    # 403 with no such precondition) is a genuine auth failure.
     if response.status_code in (401, 403):
         raise CalDAVAuthError(f'{response.status_code} {response.reason} for {response.url}')
     if response.status_code == 404:
@@ -83,6 +85,21 @@ def _raise_for_status(response):
 
 def _text(el):
     return el.text.strip() if el is not None and el.text else False
+
+
+def _is_invalid_sync_token_error(response):
+    """RFC 6578 Sec 3.2: a sync-collection REPORT with an expired/unknown
+    sync-token fails with 403 Forbidden and a DAV:valid-sync-token
+    precondition element in a DAV:error response body - distinct from a
+    plain 403 caused by a genuine authorization failure, which carries no
+    such body. Match by local name only: some servers don't bind the
+    DAV: namespace to the `d` prefix used elsewhere in this client.
+    """
+    try:
+        root = etree.fromstring(response.content)
+    except etree.XMLSyntaxError:
+        return False
+    return bool(root.xpath('//*[local-name()="valid-sync-token"]'))
 
 
 def _find_ctag(el):
@@ -120,7 +137,7 @@ class CalDAVClient:
             headers['Depth'] = str(depth)
         payload = data.encode('utf-8') if isinstance(data, str) else data
         response = self._send_with_retry(method, url, headers, payload)
-        if is_sync_collection and response.status_code == 403:
+        if is_sync_collection and response.status_code == 403 and _is_invalid_sync_token_error(response):
             raise CalDAVSyncTokenInvalidError(f'Sync token rejected (403) for {url}')
         _raise_for_status(response)
         return response

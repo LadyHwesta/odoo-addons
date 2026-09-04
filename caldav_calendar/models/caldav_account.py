@@ -314,7 +314,12 @@ class CalDAVAccount(models.Model):
 
         if existing:
             if existing.need_caldav_sync:
-                _logger.info('CalDAV: conflict on event %s, remote version applied (remote wins)', existing.id)
+                _logger.warning(
+                    'CalDAV: event %s (account %s) was edited locally since the '
+                    'last sync; the incoming remote version overwrites it '
+                    '(remote wins) and the local edit is lost.',
+                    existing.id, self.display_name,
+                )
             existing.with_context(caldav_no_sync=True).write(vals)
             target = existing
         else:
@@ -348,18 +353,29 @@ class CalDAVAccount(models.Model):
         makes when you edit a whole series' pattern.
         """
         self.ensure_one()
+        if event.recurrence_id and event.recurrence_id.rrule == rrule_text:
+            return
         try:
-            if event.recurrence_id:
-                if event.recurrence_id.rrule == rrule_text:
-                    return
-                recurrence = event.recurrence_id.with_context(caldav_no_sync=True)
-                recurrence.write({'rrule': rrule_text})
-                recurrence._apply_recurrence()
-            else:
-                event.with_context(caldav_no_sync=True)._apply_recurrence_values({'rrule': rrule_text})
+            # A savepoint, not a bare try/except: write({'rrule': ...}) below
+            # persists the new rule before _apply_recurrence[_values]() ever
+            # runs, so a failure partway through expansion (a rule write()
+            # accepts but expansion chokes on, say) would otherwise leave the
+            # stored rrule and the actual occurrence rows disagreeing with
+            # each other. Rolling back the whole savepoint on any exception
+            # here restores exactly the state from before this call, instead
+            # of trying to hand-reconstruct it field by field.
+            with self.env.cr.savepoint():
+                if event.recurrence_id:
+                    recurrence = event.recurrence_id.with_context(caldav_no_sync=True)
+                    recurrence.write({'rrule': rrule_text})
+                    recurrence._apply_recurrence()
+                else:
+                    event.with_context(caldav_no_sync=True)._apply_recurrence_values({'rrule': rrule_text})
         except Exception:
             _logger.warning(
-                'CalDAV: could not apply recurrence rule %r to event %s; kept as a single event.',
+                'CalDAV: could not apply recurrence rule %r to event %s; rolled '
+                'back to the previous state so the stored rule and its '
+                'occurrences stay consistent.',
                 rrule_text, event.id, exc_info=True,
             )
 

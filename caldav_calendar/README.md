@@ -188,6 +188,24 @@ against the migration script.
   a real slow server no longer dumping a traceback into **Last CalDAV Sync
   Error**, and `caldav_calendar.request_timeout` taking effect - has not
   been re-checked against a live instance.
+- **Three correctness fixes (19.0.2.4.0)**, each covered by a dedicated
+  ORM-level test (`tests/test_caldav_correctness_fixes.py`), not yet
+  re-verified end-to-end against a live server:
+  - A sync-collection REPORT's 403 is only treated as an invalid/expired
+    sync token when the response body actually carries the RFC 6578 Sec 3.2
+    `DAV:valid-sync-token` precondition; any other 403 (a genuine auth
+    failure) now correctly raises `CalDAVAuthError` instead of silently
+    triggering a full resync.
+  - A read-only account's events now still set `need_caldav_sync` on a
+    local edit (harmless - `_caldav_push` is still gated at the account
+    level, so nothing is ever queued to push for them), which is what lets
+    `_caldav_apply_remote_event` log a conflict warning before the next
+    pull overwrites that edit - previously silent for read-only accounts
+    specifically.
+  - `_caldav_apply_rrule` now applies the new `rrule` and expands it inside
+    one savepoint; if expansion fails partway, the whole attempt rolls back
+    together instead of leaving the stored rule and the actual occurrence
+    rows describing two different patterns.
 - Multi-account support (a previous version) verified via `odoo-bin shell`: a
   user with one account still auto-syncs new events to it (unchanged
   behavior); adding a second stops the auto-assignment and each account's
