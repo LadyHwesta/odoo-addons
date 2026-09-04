@@ -3,7 +3,7 @@ import re
 
 from markupsafe import Markup
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 from odoo.addons.activitypub.models.activitypub_service import (
     AS_PUBLIC,
@@ -24,6 +24,14 @@ class BlogPost(models.Model):
 
     def _ap_trigger_fields(self):
         return _TRIGGER_FIELDS
+
+    @api.model
+    def _cron_federate_catch_up(self):
+        """Catches a post whose post_date only just elapsed, or whose blog
+        got its Federate-as actor set after the post was already published
+        - neither fires a write() on the post itself, so _ap_sync() never
+        re-runs for it on its own."""
+        self._ap_catch_up([('website_published', '=', True), ('active', '=', True)])
 
     def _ap_object_type(self):
         # Mastodon's Create handler only materializes a visible status for

@@ -9,6 +9,13 @@
             <field name="tag_ids" position="after">
                 <field name="activitypub_actor_id" options="{'no_create': True}"/>
             </field>
+            <header position="inside">
+                <button name="action_reset_activitypub_actor" type="object"
+                        string="Reset Federate-as Actor from Category"
+                        invisible="not event_type_id"
+                        confirm="Overwrite this event's Federate-as actor with its category's current one?"
+                        help="Use after correcting a mis-configured category default - it never propagates to already-published events on its own."/>
+            </header>
         </field>
     </record>
 

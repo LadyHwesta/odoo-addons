@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ActivityPub - Website Blog',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Website/Blog',
     'summary': 'Federate published blog posts to the Fediverse',
     'description': """
@@ -32,6 +32,7 @@ Install ``activitypub`` first and configure at least one actor.
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['activitypub', 'website_blog'],
     'data': [
+        'data/ir_cron.xml',
         'views/blog_views.xml',
     ],
     'installable': True,

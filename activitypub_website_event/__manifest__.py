@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ActivityPub - Website Events',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Marketing/Events',
     'summary': 'Federate published events to the Fediverse as Event objects',
     'description': """
@@ -34,6 +34,7 @@ Install ``activitypub`` first and configure at least one actor.
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['activitypub', 'website_event'],
     'data': [
+        'data/ir_cron.xml',
         'views/event_views.xml',
     ],
     'installable': True,

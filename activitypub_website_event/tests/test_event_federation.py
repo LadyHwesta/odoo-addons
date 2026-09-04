@@ -138,3 +138,50 @@ class TestEventFederation(TransactionCase):
         })
         event = self._make(activitypub_actor_id=other.id)
         self.assertEqual(self._object(event).payload['attributedTo'], other.actor_url)
+
+    def test_setting_category_actor_alone_does_not_write_the_event(self):
+        # Setting event.type.activitypub_actor_id is a write on event.type,
+        # never on event.event, so it must not by itself trigger _ap_sync()
+        # for events under that category - _ap_actor()'s live fallback
+        # means they'd federate correctly the *next* time something does
+        # sync them (an edit, or the catch-up cron), without needing this
+        # assignment to reach into every event under the category.
+        empty_type = self.env['event.type'].create({'name': 'No actor yet'})
+        event = self._make(event_type_id=empty_type.id)
+        self.assertFalse(self._object(event), "no category actor: nothing to federate")
+
+        empty_type.activitypub_actor_id = self.actor.id
+        self.assertFalse(self._object(event), "assigning the category's actor "
+                                              "must not itself sync the event")
+        self.assertEqual(event._ap_actor(), self.actor, "but resolution "
+                                                        "already sees it live")
+
+    def test_reset_action_reapplies_category_actor(self):
+        empty_type = self.env['event.type'].create({'name': 'Fixed later'})
+        event = self._make(event_type_id=empty_type.id)
+        self.assertFalse(event.activitypub_actor_id)
+
+        empty_type.activitypub_actor_id = self.actor.id
+        event.action_reset_activitypub_actor()
+        self.assertEqual(event.activitypub_actor_id, self.actor)
+
+    def test_catch_up_federates_event_once_actor_configured_late(self):
+        empty_type = self.env['event.type'].create({'name': 'Was empty'})
+        event = self._make(event_type_id=empty_type.id)
+        self.assertFalse(self._object(event))
+
+        empty_type.activitypub_actor_id = self.actor.id
+        self.assertFalse(self._object(event), "setting the category actor "
+                                              "alone must not federate yet")
+
+        self.env['event.event']._cron_federate_catch_up()
+        self.assertTrue(self._object(event))
+        self.assertTrue(self._activities(event, 'Create'))
+
+    def test_catch_up_does_not_touch_already_federated_events(self):
+        event = self._make()
+        first_activity = self._activities(event, 'Create')
+        self.assertEqual(len(first_activity), 1)
+
+        self.env['event.event']._cron_federate_catch_up()
+        self.assertEqual(self._activities(event, 'Create'), first_activity)

@@ -27,23 +27,57 @@ class EventEvent(models.Model):
 
     @api.depends('event_type_id')
     def _compute_activitypub_actor_id(self):
-        """Default from the category, but never clobber a value already set -
-        a per-event override, or a choice made before the category had one."""
+        """Default from the category into the visible field, but never
+        clobber a value already set - a per-event override, or a choice
+        made before the category had one. This is a UI convenience only:
+        _ap_actor() below has its own live fallback to the category's
+        *current* actor whenever this field is empty, so a category fixed
+        after an event was created still takes effect for that event even
+        though the stored field here is never touched by this compute
+        again. action_reset_activitypub_actor makes that same fix visible
+        in the field itself, for an event that already has an explicit
+        (even if only auto-filled) stored value.
+        """
         for event in self:
             if not event.activitypub_actor_id and event.event_type_id.activitypub_actor_id:
+                event.activitypub_actor_id = event.event_type_id.activitypub_actor_id
+
+    def action_reset_activitypub_actor(self):
+        """Re-apply the event category's Federate-as actor to the visible
+        field, overwriting any per-event value. Functionally _ap_actor()
+        already falls back to the category live when this field is empty;
+        this is for making that explicit/visible, or for overwriting a
+        stored value that no longer matches the category on purpose."""
+        for event in self:
+            if event.event_type_id.activitypub_actor_id:
                 event.activitypub_actor_id = event.event_type_id.activitypub_actor_id
 
     # ------------------------------------------------------------------
     def _ap_trigger_fields(self):
         return _TRIGGER_FIELDS
 
+    @api.model
+    def _cron_federate_catch_up(self):
+        """Catches an event whose category got its Federate-as actor set
+        after the event was already published - that doesn't fire a
+        write() on the event itself, so _ap_sync() never re-runs on its
+        own."""
+        self._ap_catch_up([('website_published', '=', True)])
+
     def _ap_object_type(self):
         return 'Event'
 
     def _ap_actor(self):
         self.ensure_one()
-        actor = self.activitypub_actor_id
-        return actor if actor.active else self.env['activitypub.actor'].browse()
+        Actor = self.env['activitypub.actor'].sudo()
+        # The stored field is an explicit per-event override once set; while
+        # it's empty, resolve the category's *current* actor live rather
+        # than relying on the compute (which only auto-fills once and never
+        # re-fires on the category's own actor changing - see
+        # _compute_activitypub_actor_id) - otherwise a category fixed after
+        # an event was created would never take effect for that event.
+        actor = self.activitypub_actor_id or self.event_type_id.activitypub_actor_id
+        return actor if actor.active else Actor.browse()
 
     def _ap_is_public(self):
         self.ensure_one()

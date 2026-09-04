@@ -80,6 +80,13 @@ class ActivityPubFederatable(models.AbstractModel):
             return
         Object = self.env['activitypub.object'].sudo()
         for record in self:
+            # Per-record, not batched: a record can have more than one
+            # historical activitypub.object row (a republish after a
+            # Delete mints a fresh one rather than reusing the tombstoned
+            # one - see _ap_publish), so a naive batched "in self.ids"
+            # lookup can't be collapsed by source_res_id alone without
+            # picking the wrong (stale) row. `limit=1` here relies on the
+            # model's default id-desc order to get the current one.
             existing = Object.search([
                 ('source_model', '=', record._name),
                 ('source_res_id', '=', record.id),
@@ -103,6 +110,34 @@ class ActivityPubFederatable(models.AbstractModel):
                 record._name, record.id, record._ap_object_type(),
                 record._ap_build_object(actor),
                 activity_type='Update' if live else 'Create')
+
+    def _ap_catch_up(self, domain):
+        """Cron entry point for a bridge: sync every record matching
+        ``domain`` that looks public but has no live federated object yet.
+
+        ``_ap_sync`` only ever runs from create()/write()/unlink() - a
+        record can become eligible to federate without any of those firing
+        again on it: a scheduled ``post_date``/``date_begin`` that simply
+        elapses, or a "Federate as" actor configured *after* the record was
+        already published. Both leave a publicly-visible record that never
+        federates until something else happens to write to it. This sweep
+        catches both.
+        """
+        Object = self.env['activitypub.object'].sudo()
+        candidates = self.search(domain)
+        if not candidates:
+            return
+        federated_ids = set(Object.search([
+            ('source_model', '=', self._name),
+            ('source_res_id', 'in', candidates.ids),
+            ('deleted', '=', False),
+        ]).mapped('source_res_id'))
+        to_sync = candidates.filtered(
+            lambda r: r.id not in federated_ids and r._ap_is_public() and r._ap_actor())
+        if to_sync:
+            _logger.info('%s: catch-up federating %d record(s) that became '
+                        'eligible without a write()', self._name, len(to_sync))
+            to_sync._ap_sync()
 
     # ------------------------------------------------------------------
     # ORM plumbing

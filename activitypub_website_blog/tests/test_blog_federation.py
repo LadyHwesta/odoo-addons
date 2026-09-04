@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
+from odoo import fields
 from odoo.tests.common import TransactionCase, tagged
 
 PUBLIC = 'https://www.w3.org/ns/activitystreams#Public'
@@ -165,3 +168,48 @@ class TestBlogFederation(TransactionCase):
         post = self._publish('By Wilma', author_id=user.partner_id.id)
         self.assertEqual(self._object(post).payload['attributedTo'],
                          author_actor.actor_url)
+
+    def test_catch_up_federates_post_once_actor_configured_late(self):
+        # Setting the actor is a write() on blog.blog, not on the post - it
+        # never triggers the post's own _ap_sync(). This is exactly the
+        # "published, but never federated because the actor wasn't set yet"
+        # trap; the catch-up cron is the fix.
+        unwired = self.env['blog.blog'].create({
+            'name': 'Was Unwired', 'website_id': self.website.id})
+        post = self.env['blog.post'].create({
+            'name': 'Waiting', 'blog_id': unwired.id, 'website_published': True})
+        self.assertFalse(self._object(post))
+
+        unwired.activitypub_actor_id = self.actor.id
+        self.assertFalse(self._object(post), "setting the actor alone must "
+                                             "not have federated it yet")
+
+        self.env['blog.post']._cron_federate_catch_up()
+        obj = self._object(post)
+        self.assertTrue(obj)
+        self.assertTrue(self._activities(post, 'Create'))
+
+    def test_catch_up_federates_post_whose_schedule_elapsed(self):
+        post = self._publish(
+            'Scheduled', post_date=fields.Datetime.now() + timedelta(hours=1))
+        self.assertFalse(self._object(post), "future post_date: not public yet")
+
+        # Simulate the scheduled date elapsing with nothing else touching
+        # the post in the meantime (activitypub_no_sync stands in for "no
+        # write ever reached _ap_sync", which is exactly the real gap).
+        post.with_context(activitypub_no_sync=True).write({
+            'post_date': fields.Datetime.now() - timedelta(minutes=1)})
+        self.assertFalse(self._object(post))
+
+        self.env['blog.post']._cron_federate_catch_up()
+        self.assertTrue(self._object(post))
+        self.assertTrue(self._activities(post, 'Create'))
+
+    def test_catch_up_does_not_touch_already_federated_posts(self):
+        post = self._publish('Already out')
+        first_activity = self._activities(post, 'Create')
+        self.assertEqual(len(first_activity), 1)
+
+        self.env['blog.post']._cron_federate_catch_up()
+        self.assertEqual(self._activities(post, 'Create'), first_activity,
+                         "an already-federated post must not be re-published")
