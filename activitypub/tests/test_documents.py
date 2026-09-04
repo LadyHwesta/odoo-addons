@@ -62,9 +62,11 @@ class TestActorDocument(unittest.TestCase):
         self.assertNotIn("icon", doc)
 
     def test_optional_members_present_when_given(self):
-        doc = self._doc(summary_html="<p>hi</p>", icon_url="https://x/i.png")
+        doc = self._doc(summary_html="<p>hi</p>",
+                        icon={"url": "https://x/i.png", "mediaType": "image/png"})
         self.assertEqual(doc["summary"], "<p>hi</p>")
-        self.assertEqual(doc["icon"], {"type": "Image", "url": "https://x/i.png"})
+        self.assertEqual(doc["icon"],
+                         {"type": "Image", "url": "https://x/i.png", "mediaType": "image/png"})
 
 
 class TestOrderedCollections(unittest.TestCase):

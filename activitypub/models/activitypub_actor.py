@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import base64
+import binascii
 import logging
 import re
 import uuid
@@ -6,6 +8,7 @@ from urllib.parse import urlparse
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools.mimetypes import guess_mimetype
 
 from .activitypub_service import (
     AS_PUBLIC,
@@ -134,11 +137,27 @@ class ActivityPubActor(models.Model):
         self.ensure_one()
         return self._base_url() or '/'
 
-    def _icon_url(self):
+    def _icon_bytes(self):
+        """Raw avatar bytes, or ``None``. Served by the public
+        ``/ap/actors/<id>/icon`` route (``/web/image`` needs the caller to
+        have model access, which a Fediverse server does not)."""
         self.ensure_one()
         if not self.icon:
             return None
-        return f'{self._base_url()}/web/image/activitypub.actor/{self.id}/icon'
+        try:
+            return base64.b64decode(self.icon)
+        except (binascii.Error, ValueError):
+            return None
+
+    def _icon_info(self):
+        self.ensure_one()
+        data = self._icon_bytes()
+        if not data:
+            return None
+        return {
+            'url': f'{self._base_url()}/ap/actors/{self.id}/icon',
+            'mediaType': guess_mimetype(data, default='image/png'),
+        }
 
     def _ap_actor_document(self):
         """The ActivityStreams Actor object served at ``actor_url``."""
@@ -155,7 +174,7 @@ class ActivityPubActor(models.Model):
             following_url=self._endpoint('/following'),
             shared_inbox_url=self._shared_inbox_url(),
             summary_html=self.summary or None,
-            icon_url=self._icon_url(),
+            icon=self._icon_info(),
             published=self.create_date,
         )
 
@@ -341,3 +360,29 @@ class ActivityPubActor(models.Model):
             'domain': [('actor_id', '=', self.id)],
             'context': {'default_actor_id': self.id},
         }
+
+    def action_push_profile(self):
+        """Send an ``Update`` so followers refresh their cached copy of this
+        actor - name, bio and, in particular, the avatar. Remote servers only
+        re-fetch a profile on their own schedule (~a day) otherwise, so run
+        this after changing the avatar or bio."""
+        Activity = self.env['activitypub.activity'].sudo()
+        for actor in self:
+            inboxes = actor._follower_inboxes()
+            if not inboxes:
+                continue
+            base = actor._base_url()
+            activity = Activity.create({
+                'activity_type': 'Update',
+                'direction': 'out',
+                'actor_id': actor.id,
+                'uri': f'urn:uuid:{uuid.uuid4()}',
+                'state': 'pending',
+            })
+            activity.uri = f'{base}/ap/activities/{activity.id}'
+            activity.payload = build_update(
+                actor.actor_url, actor._ap_actor_document(),
+                activity_id=activity.uri, to=[AS_PUBLIC],
+                cc=[actor._endpoint('/followers')])
+            activity._queue_deliveries(inboxes)
+        return True

@@ -3,6 +3,12 @@ import json
 
 from odoo.tests.common import HttpCase, tagged
 
+# A 1x1 transparent PNG.
+PNG_1PX = (
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8'
+    'z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+)
+
 
 @tagged('post_install', '-at_install')
 class TestActivityPubControllers(HttpCase):
@@ -105,3 +111,20 @@ class TestActivityPubControllers(HttpCase):
             allow_redirects=False,
         )
         self.assertEqual(r.status_code, 400)
+
+    def test_actor_icon_served_publicly(self):
+        # No icon yet -> 404, and no icon key in the doc.
+        self.assertEqual(self._get(f'/ap/actors/{self.actor.id}/icon', '*/*').status_code, 404)
+        self.assertNotIn('icon', self._get(
+            f'/ap/actors/{self.actor.id}', 'application/activity+json').json())
+
+        self.actor.icon = PNG_1PX
+        r = self._get(f'/ap/actors/{self.actor.id}/icon', '*/*')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.headers.get('Content-Type'), 'image/png')
+        self.assertTrue(r.content.startswith(b'\x89PNG'))
+
+        doc = self._get(f'/ap/actors/{self.actor.id}', 'application/activity+json').json()
+        self.assertEqual(doc['icon']['type'], 'Image')
+        self.assertEqual(doc['icon']['mediaType'], 'image/png')
+        self.assertTrue(doc['icon']['url'].endswith(f'/ap/actors/{self.actor.id}/icon'))

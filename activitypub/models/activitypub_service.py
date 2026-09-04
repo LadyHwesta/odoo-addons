@@ -274,10 +274,13 @@ def build_webfinger(username, host, actor_url):
 
 def build_actor_document(*, actor_url, username, name, actor_type, public_pem,
                          inbox_url, outbox_url, followers_url, following_url,
-                         shared_inbox_url, summary_html=None, icon_url=None,
+                         shared_inbox_url, summary_html=None, icon=None,
                          published=None, manually_approves_followers=False):
     """An ActivityStreams Actor object. ``publicKey.publicKeyPem`` is what
-    remote servers fetch to verify this actor's HTTP Signatures."""
+    remote servers fetch to verify this actor's HTTP Signatures.
+
+    ``icon`` is ``None`` or ``{"url": ..., "mediaType": ...}``.
+    """
     doc = {
         "@context": AS_CONTEXT,
         "id": actor_url,
@@ -300,8 +303,10 @@ def build_actor_document(*, actor_url, username, name, actor_type, public_pem,
     }
     if summary_html:
         doc["summary"] = summary_html
-    if icon_url:
-        doc["icon"] = {"type": "Image", "url": icon_url}
+    if icon and icon.get("url"):
+        doc["icon"] = {"type": "Image", "url": icon["url"]}
+        if icon.get("mediaType"):
+            doc["icon"]["mediaType"] = icon["mediaType"]
     if published:
         doc["published"] = _as_utc_iso(published)
     return doc

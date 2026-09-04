@@ -94,3 +94,15 @@ class TestDelivery(TransactionCase):
             'res.partner', self.partner.id, 'Note', {'content': 'lonely'})
         self.assertFalse(activity.delivery_ids)
         self.assertEqual(activity.state, 'delivered')
+
+    def test_push_profile_queues_update_to_followers(self):
+        self.actor.action_push_profile()
+        update = self.env['activitypub.activity'].search([
+            ('actor_id', '=', self.actor.id),
+            ('direction', '=', 'out'),
+            ('activity_type', '=', 'Update'),
+        ])
+        self.assertEqual(len(update), 1)
+        self.assertEqual(update.payload['object']['id'], self.actor.actor_url)
+        self.assertEqual(update.payload['object']['type'], 'Service')
+        self.assertEqual(update.delivery_ids.inbox_url, 'https://remote.example/inbox')

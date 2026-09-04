@@ -58,6 +58,23 @@ class ActivityPubController(http.Controller):
             return request.redirect(actor._human_url(), code=302, local=False)
         return self._json(actor._ap_actor_document())
 
+    @http.route('/ap/actors/<int:actor_id>/icon', type='http', auth='public',
+                methods=['GET'], website=True, sitemap=False, csrf=False)
+    def actor_icon(self, actor_id, **kw):
+        """The actor's avatar bytes. Public and unauthenticated - a Fediverse
+        server fetching it has no Odoo session and no model access, so
+        ``/web/image`` would refuse it."""
+        actor = self._get_actor(actor_id)
+        data = actor and actor._icon_bytes()
+        if not data:
+            raise request.not_found()
+        return request.make_response(data, headers=[
+            ('Content-Type', (actor._icon_info() or {}).get('mediaType', 'image/png')),
+            ('Content-Length', str(len(data))),
+            ('Cache-Control', 'public, max-age=86400'),
+            ('Access-Control-Allow-Origin', '*'),
+        ])
+
     # ------------------------------------------------------------------
     # Outbox (paged OrderedCollection of published activities)
     # ------------------------------------------------------------------
