@@ -89,6 +89,12 @@ class ActivityPubController(http.Controller):
             ('actor_id', '=', actor.id),
             ('direction', '=', 'out'),
             ('activity_type', 'in', list(OUTBOX_TYPES)),
+            # Excludes actor-profile Updates (e.g. "Push Profile to
+            # Followers"): those wrap the actor document, not a post, and
+            # have no object_id. Without this a profile edit inflates the
+            # outbox's totalItems, which is what some servers show as the
+            # account's post count before they've ingested anything.
+            ('object_id', '!=', False),
         ]
         total = Activity.search_count(domain)
         outbox_id = actor._endpoint('/outbox')

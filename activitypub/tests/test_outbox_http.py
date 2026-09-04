@@ -64,7 +64,19 @@ class TestOutboxHttp(HttpCase):
 
     def test_activity_served_as_json(self):
         act = self.env['activitypub.activity'].search(
-            [('actor_id', '=', self.actor.id), ('direction', '=', 'out')], limit=1)
+            [('actor_id', '=', self.actor.id), ('direction', '=', 'out'),
+             ('object_id', '!=', False)], limit=1)
         r = self._get(f'/ap/activities/{act.id}')
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['id'], act.uri)
+
+    def test_profile_push_does_not_inflate_outbox_count(self):
+        # An actor-profile Update (e.g. "Push Profile to Followers") wraps
+        # the actor document, not a post, and has no object_id - it must not
+        # count towards totalItems or appear as an outbox item.
+        self.actor.action_push_profile()
+        r = self._get(f'/ap/actors/{self.actor.id}/outbox')
+        self.assertEqual(r.json()['totalItems'], 2)
+        page = self._get(f'/ap/actors/{self.actor.id}/outbox?page=1').json()
+        self.assertEqual(len(page['orderedItems']), 2)
+        self.assertTrue(all(i['type'] == 'Create' for i in page['orderedItems']))
