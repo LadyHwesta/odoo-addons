@@ -24,6 +24,12 @@ class ResUsers(models.Model):
         try a real LOGIN against each configured IMAP server, and mail
         providers commonly block/throttle a source IP after enough failed
         logins.
+
+        Only tried against the user's own company's IMAP server(s)
+        (res.company.imap._get_imap_dicts): each config belongs to one
+        company, and a Company A user's mistyped password has no business
+        reaching Company B's mail server at all - not just "shouldn't
+        authenticate against it".
         """
         try:
             return super()._check_credentials(credential, env)
@@ -33,7 +39,7 @@ class ResUsers(models.Model):
             passwd_allowed = env['interactive'] or not self.env.user._rpc_api_keys_only()
             if passwd_allowed and self.env.user.active and self._auth_imap_local_password_is_empty():
                 Imap = self.env['res.company.imap']
-                for conf in Imap._get_imap_dicts():
+                for conf in Imap._get_imap_dicts(self.env.user.company_id):
                     if Imap._authenticate(conf, self.env.user.login, credential['password']):
                         return {
                             'uid': self.env.user.id,
@@ -59,9 +65,24 @@ class ResUsers(models.Model):
         them falls straight through to the IMAP check (an empty/NULL
         password can never satisfy the local check - same technique
         auth_ldap uses after an LDAP-driven password change).
+
+        Checked per user's own company, not "does any company have an IMAP
+        server configured at all": since _check_credentials only ever tries
+        a user's own company's servers, converting a user whose company has
+        none configured (while some other company does) would pass a
+        global check but then lock that user out for good - every future
+        login falls through to an IMAP check that has nothing to check
+        against, with no local password left to fall back on either.
         """
-        if not self.env['res.company.imap'].sudo().search_count([]):
-            raise UserError(_('Configure at least one IMAP server before converting users to IMAP authentication.'))
+        Imap = self.env['res.company.imap'].sudo()
+        configured_company_ids = set(Imap.search([]).mapped('company').ids)
+        missing = self.filtered(lambda u: u.company_id.id not in configured_company_ids)
+        if missing:
+            raise UserError(_(
+                'Configure at least one IMAP server for %(companies)s before '
+                'converting their users to IMAP authentication.',
+                companies=', '.join(sorted(set(missing.mapped('company_id.name')))),
+            ))
         for user in self:
             user._auth_imap_clear_password()
 

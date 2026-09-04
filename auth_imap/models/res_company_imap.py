@@ -34,15 +34,20 @@ class ResCompanyImap(models.Model):
         if self.imap_encryption and self.imap_server_port in (993, 143, 0, False):
             self.imap_server_port = default_ports[self.imap_encryption]
 
-    def _get_imap_dicts(self):
+    def _get_imap_dicts(self, company):
         """
         Retrieve res_company_imap resources from the database in
-        dictionary format.
+        dictionary format, scoped to `company` - a mistyped password must
+        never be tried against another company's mail server. Each
+        res.company.imap row belongs to exactly one company, and that
+        company's users are the only ones its server should ever see a
+        LOGIN attempt from.
+        :param company: res.company record to scope the search to
         :return: IMAP configurations
         :rtype: list of dictionaries
         """
         return self.sudo().search_read(
-            [('imap_server', '!=', False)],
+            [('imap_server', '!=', False), ('company', '=', company.id)],
             ['id', 'company', 'imap_server', 'imap_server_port', 'imap_encryption'],
             order='sequence',
         )
