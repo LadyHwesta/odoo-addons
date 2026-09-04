@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_activitypub_deliver" model="ir.cron">
+        <field name="name">ActivityPub: deliver queued activities</field>
+        <field name="model_id" ref="model_activitypub_delivery"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_deliver()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="ir_cron_activitypub_gc" model="ir.cron">
+        <field name="name">ActivityPub: prune settled deliveries</field>
+        <field name="model_id" ref="model_activitypub_delivery"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_gc()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

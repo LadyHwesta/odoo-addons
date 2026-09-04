@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
-"""The ``/ap`` endpoints: the Actor object and its collections, plus a
-placeholder inbox.
+"""The ``/ap`` endpoints: actors, their collections, stored objects and
+activities, and the inbox.
 
-Phase 1 serves the Actor document (so a handle resolves from a Mastodon
-search) and empty outbox / followers / following collections. Follower
-handling, a populated outbox and real inbox processing arrive with the
-bridge modules.
+Phase 2 serves a populated, paged outbox and a real follower collection, and
+the inbox verifies HTTP Signatures and handles Follow / Undo / Accept.
 """
+import json
 import logging
+import math
 
 from odoo import http
 from odoo.http import request
 
 from ..models.activitypub_service import (
     build_ordered_collection,
+    build_ordered_collection_page,
     wants_activitypub,
 )
 from .well_known import federation_enabled
@@ -25,9 +26,14 @@ AP_HEADERS = [
     ('Access-Control-Allow-Origin', '*'),
 ]
 
+PAGE_SIZE = 20
+OUTBOX_TYPES = ('Create', 'Update', 'Delete', 'Announce')
+MAX_INBOX_BYTES = 1024 * 1024
+
 
 class ActivityPubController(http.Controller):
 
+    # ------------------------------------------------------------------
     def _get_actor(self, actor_id):
         if not federation_enabled(request.env):
             return None
@@ -36,6 +42,12 @@ class ActivityPubController(http.Controller):
             return None
         return actor
 
+    def _json(self, doc):
+        return request.make_json_response(doc, headers=AP_HEADERS)
+
+    # ------------------------------------------------------------------
+    # Actor object
+    # ------------------------------------------------------------------
     @http.route('/ap/actors/<int:actor_id>', type='http', auth='public',
                 methods=['GET'], website=True, sitemap=False, csrf=False)
     def actor(self, actor_id, **kw):
@@ -43,30 +55,80 @@ class ActivityPubController(http.Controller):
         if not actor:
             raise request.not_found()
         if not wants_activitypub(request.httprequest.headers.get('Accept', '')):
-            # A browser landed here - send it to the website.
             return request.redirect(actor._human_url(), code=302, local=False)
-        return request.make_json_response(actor._ap_actor_document(), headers=AP_HEADERS)
+        return self._json(actor._ap_actor_document())
 
+    # ------------------------------------------------------------------
+    # Outbox (paged OrderedCollection of published activities)
+    # ------------------------------------------------------------------
     @http.route('/ap/actors/<int:actor_id>/outbox', type='http', auth='public',
                 methods=['GET'], website=True, sitemap=False, csrf=False)
-    def outbox(self, actor_id, **kw):
+    def outbox(self, actor_id, page=None, **kw):
         actor = self._get_actor(actor_id)
         if not actor:
             raise request.not_found()
+        Activity = request.env['activitypub.activity'].sudo()
+        domain = [
+            ('actor_id', '=', actor.id),
+            ('direction', '=', 'out'),
+            ('activity_type', 'in', list(OUTBOX_TYPES)),
+        ]
+        total = Activity.search_count(domain)
         outbox_id = actor._endpoint('/outbox')
-        return request.make_json_response(
-            build_ordered_collection(outbox_id, 0, first=f'{outbox_id}?page=1'),
-            headers=AP_HEADERS)
 
+        if page is None:
+            last_page = max(1, math.ceil(total / PAGE_SIZE))
+            return self._json(build_ordered_collection(
+                outbox_id, total,
+                first=f'{outbox_id}?page=1',
+                last=f'{outbox_id}?page={last_page}'))
+
+        try:
+            current = max(1, int(page))
+        except (TypeError, ValueError):
+            current = 1
+        activities = Activity.search(
+            domain, order='id desc',
+            limit=PAGE_SIZE, offset=(current - 1) * PAGE_SIZE)
+        items = [a.payload for a in activities if a.payload]
+        has_next = current * PAGE_SIZE < total
+        return self._json(build_ordered_collection_page(
+            f'{outbox_id}?page={current}', outbox_id, items,
+            next_url=f'{outbox_id}?page={current + 1}' if has_next else None,
+            prev_url=f'{outbox_id}?page={current - 1}' if current > 1 else None))
+
+    # ------------------------------------------------------------------
+    # Followers / following
+    # ------------------------------------------------------------------
     @http.route('/ap/actors/<int:actor_id>/followers', type='http', auth='public',
                 methods=['GET'], website=True, sitemap=False, csrf=False)
-    def followers(self, actor_id, **kw):
+    def followers(self, actor_id, page=None, **kw):
         actor = self._get_actor(actor_id)
         if not actor:
             raise request.not_found()
+        Follower = request.env['activitypub.follower'].sudo()
+        domain = [('actor_id', '=', actor.id), ('state', '=', 'accepted')]
+        total = Follower.search_count(domain)
         coll_id = actor._endpoint('/followers')
-        return request.make_json_response(
-            build_ordered_collection(coll_id, 0), headers=AP_HEADERS)
+
+        if page is None:
+            last_page = max(1, math.ceil(total / PAGE_SIZE))
+            return self._json(build_ordered_collection(
+                coll_id, total,
+                first=f'{coll_id}?page=1',
+                last=f'{coll_id}?page={last_page}'))
+
+        try:
+            current = max(1, int(page))
+        except (TypeError, ValueError):
+            current = 1
+        rows = Follower.search(domain, order='id',
+                               limit=PAGE_SIZE, offset=(current - 1) * PAGE_SIZE)
+        has_next = current * PAGE_SIZE < total
+        return self._json(build_ordered_collection_page(
+            f'{coll_id}?page={current}', coll_id, rows.mapped('follower_uri'),
+            next_url=f'{coll_id}?page={current + 1}' if has_next else None,
+            prev_url=f'{coll_id}?page={current - 1}' if current > 1 else None))
 
     @http.route('/ap/actors/<int:actor_id>/following', type='http', auth='public',
                 methods=['GET'], website=True, sitemap=False, csrf=False)
@@ -75,15 +137,62 @@ class ActivityPubController(http.Controller):
         if not actor:
             raise request.not_found()
         coll_id = actor._endpoint('/following')
-        return request.make_json_response(
-            build_ordered_collection(coll_id, 0), headers=AP_HEADERS)
+        return self._json(build_ordered_collection(coll_id, 0))
 
+    # ------------------------------------------------------------------
+    # Stored objects and activities
+    # ------------------------------------------------------------------
+    @http.route('/ap/objects/<int:object_id>', type='http', auth='public',
+                methods=['GET'], website=True, sitemap=False, csrf=False)
+    def ap_object(self, object_id, **kw):
+        if not federation_enabled(request.env):
+            raise request.not_found()
+        obj = request.env['activitypub.object'].sudo().browse(object_id).exists()
+        if not obj or not obj.local or obj.deleted or not obj.payload:
+            raise request.not_found()
+        if not wants_activitypub(request.httprequest.headers.get('Accept', '')):
+            return request.redirect(obj._human_url(), code=302, local=False)
+        return self._json(obj.payload)
+
+    @http.route('/ap/activities/<int:activity_id>', type='http', auth='public',
+                methods=['GET'], website=True, sitemap=False, csrf=False)
+    def ap_activity(self, activity_id, **kw):
+        if not federation_enabled(request.env):
+            raise request.not_found()
+        activity = request.env['activitypub.activity'].sudo().browse(activity_id).exists()
+        if not activity or activity.direction != 'out' or not activity.payload:
+            raise request.not_found()
+        return self._json(activity.payload)
+
+    # ------------------------------------------------------------------
+    # Inbox
+    # ------------------------------------------------------------------
     @http.route(['/ap/actors/<int:actor_id>/inbox', '/ap/inbox'], type='http',
                 auth='public', methods=['POST'], website=True, sitemap=False,
                 csrf=False)
     def inbox(self, actor_id=None, **kw):
-        # Phase 2 verifies the HTTP Signature and dispatches Follow / Undo /
-        # Create / Like / Announce / Delete. For now the request is absorbed
-        # so a probing server does not retry against a 404.
-        _logger.info('ActivityPub inbox hit (actor_id=%s), not yet processed', actor_id)
-        return request.make_response('', status=202)
+        if not federation_enabled(request.env):
+            raise request.not_found()
+
+        body = request.httprequest.get_data(cache=False)
+        if len(body) > MAX_INBOX_BYTES:
+            return request.make_response('', status=413)
+        try:
+            raw = json.loads(body)
+            if not isinstance(raw, dict):
+                raise ValueError('not a JSON object')
+        except ValueError:
+            return request.make_response('', status=400)
+
+        target = None
+        if actor_id is not None:
+            target = self._get_actor(actor_id)
+            if not target:
+                raise request.not_found()
+
+        headers = dict(request.httprequest.headers.items())
+        # The sender signed (request-target) as the bare path, no query string.
+        path = request.httprequest.path
+        status = request.env['activitypub.activity'].sudo()._ingest(
+            raw, headers, path, body, target)
+        return request.make_response('', status=status)

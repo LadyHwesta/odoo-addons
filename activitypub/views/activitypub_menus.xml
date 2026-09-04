@@ -12,6 +12,21 @@
               action="action_activitypub_actor"
               sequence="10"/>
 
+    <menuitem id="menu_activitypub_followers"
+              parent="menu_activitypub_root"
+              action="action_activitypub_follower"
+              sequence="20"/>
+
+    <menuitem id="menu_activitypub_activities"
+              parent="menu_activitypub_root"
+              action="action_activitypub_activity"
+              sequence="30"/>
+
+    <menuitem id="menu_activitypub_deliveries"
+              parent="menu_activitypub_root"
+              action="action_activitypub_delivery"
+              sequence="40"/>
+
     <menuitem id="menu_activitypub_config"
               name="Configuration"
               parent="menu_activitypub_root"

@@ -3,27 +3,34 @@
 import so they can be unit tested in isolation and reused from a cron worker
 or a plain script.
 
-This module covers the parts of ActivityPub that are pure data and crypto:
+This module covers the parts of ActivityPub that are pure data, crypto and
+transport:
 
 * RSA key generation, and the HTTP Signatures (draft-cavage-http-signatures-12)
   signing / verification that Mastodon, Pleroma, Misskey et al. require on
   every server-to-server request;
 * building the JSON-LD documents Odoo serves - the WebFinger JRD, the Actor
-  object, and the (still empty) paged ``OrderedCollection`` used by outboxes
-  and follower lists;
+  object, the paged ``OrderedCollection`` used by outboxes and follower
+  lists, and the Create / Update / Delete / Accept activities;
 * content negotiation - deciding whether a caller wants the ActivityPub JSON
-  representation of a URL or the human web page at the same address.
+  representation of a URL or the human web page at the same address;
+* SSRF-guarded HTTP: dereferencing a remote actor / object, and POSTing a
+  signed activity to an inbox.
 
-Only depends on ``cryptography`` (bundled with Odoo). ``requests`` is used by
-the ORM layer for delivery, not here.
+Only depends on ``cryptography`` and ``requests``, both bundled with Odoo.
+No Odoo import, so the whole module is exercisable from plain ``unittest``.
 """
 import base64
 import hashlib
+import ipaddress
+import json
 import re
+import socket
 from datetime import datetime, timezone
 from email.utils import format_datetime, parsedate_to_datetime
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
+import requests
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -339,3 +346,173 @@ def wants_activitypub(accept_header):
     if "activity+json" in accept or "ld+json" in accept:
         return True
     return False
+
+
+def to_ap_datetime(value):
+    """Public alias: format a ``datetime`` (or leave a string) as the
+    ``YYYY-MM-DDTHH:MM:SSZ`` ActivityStreams wants."""
+    return _as_utc_iso(value)
+
+
+# --------------------------------------------------------------------------
+# Activity envelopes
+# --------------------------------------------------------------------------
+def _envelope(activity_type, actor_url, activity_id, obj, *, to=None, cc=None,
+              published=None):
+    doc = {
+        "@context": AS_CONTEXT[0],
+        "id": activity_id,
+        "type": activity_type,
+        "actor": actor_url,
+        "to": list(to) if to is not None else [AS_PUBLIC],
+        "cc": list(cc) if cc is not None else [],
+        "object": obj,
+    }
+    if published or activity_type in ("Create", "Update", "Announce"):
+        doc["published"] = _as_utc_iso(published or datetime.now(timezone.utc))
+    return doc
+
+
+def build_create(actor_url, obj, *, activity_id, to=None, cc=None, published=None):
+    return _envelope("Create", actor_url, activity_id, obj,
+                     to=to, cc=cc, published=published)
+
+
+def build_update(actor_url, obj, *, activity_id, to=None, cc=None, published=None):
+    return _envelope("Update", actor_url, activity_id, obj,
+                     to=to, cc=cc, published=published)
+
+
+def build_delete(actor_url, object_uri, *, activity_id, to=None, cc=None):
+    """A Delete carrying a Tombstone - the shape Mastodon expects for a
+    retraction."""
+    return _envelope("Delete", actor_url, activity_id,
+                     {"id": object_uri, "type": "Tombstone"}, to=to, cc=cc)
+
+
+def build_accept(actor_url, follow_activity, *, activity_id):
+    """Accept a received Follow. ``follow_activity`` is echoed back whole so
+    the other server can match it to its pending request."""
+    return {
+        "@context": AS_CONTEXT[0],
+        "id": activity_id,
+        "type": "Accept",
+        "actor": actor_url,
+        "object": follow_activity,
+    }
+
+
+def build_reject(actor_url, follow_activity, *, activity_id):
+    return {
+        "@context": AS_CONTEXT[0],
+        "id": activity_id,
+        "type": "Reject",
+        "actor": actor_url,
+        "object": follow_activity,
+    }
+
+
+# --------------------------------------------------------------------------
+# SSRF-guarded HTTP
+# --------------------------------------------------------------------------
+class RemoteFetchError(ActivityPubError):
+    """A remote actor / object could not be dereferenced."""
+
+
+DEFAULT_HTTP_TIMEOUT = (5, 20)          # (connect, read)
+MAX_FETCH_BYTES = 2 * 1024 * 1024
+MAX_REDIRECTS = 3
+USER_AGENT = "Odoo-ActivityPub (+https://github.com/LadyHwesta/odoo-addons)"
+
+
+def assert_public_url(url):
+    """Raise :class:`RemoteFetchError` unless ``url`` is http(s) and every
+    address its host resolves to right now is publicly routable.
+
+    This is the SSRF guard on every outbound dereference. A residual
+    time-of-check/time-of-use gap remains (DNS could change between this call
+    and the socket connect); it is accepted here as the cost of using
+    ``requests`` directly, and is small next to the size / redirect / timeout
+    caps that bound the blast radius.
+    """
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise RemoteFetchError(f"unsupported URL scheme {parsed.scheme!r}")
+    host = parsed.hostname
+    if not host:
+        raise RemoteFetchError("URL has no host")
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror as exc:
+        raise RemoteFetchError(f"cannot resolve {host}: {exc}")
+    for *_, sockaddr in infos:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if (ip.is_private or ip.is_loopback or ip.is_link_local
+                or ip.is_multicast or ip.is_reserved or ip.is_unspecified):
+            raise RemoteFetchError(f"{host} resolves to non-public address {ip}")
+
+
+def _read_capped(resp):
+    chunks, total = [], 0
+    for chunk in resp.iter_content(8192):
+        total += len(chunk)
+        if total > MAX_FETCH_BYTES:
+            resp.close()
+            raise RemoteFetchError("remote response exceeds size cap")
+        chunks.append(chunk)
+    resp.close()
+    return b"".join(chunks)
+
+
+def fetch_json(url, *, timeout=DEFAULT_HTTP_TIMEOUT, headers=None, session=None):
+    """SSRF-guarded, redirect-checked, size-capped GET returning parsed JSON.
+
+    Redirects are followed manually so each hop's target is re-validated.
+    """
+    sess = session or requests
+    hdrs = {
+        "Accept": "application/activity+json, application/ld+json",
+        "User-Agent": USER_AGENT,
+    }
+    if headers:
+        hdrs.update(headers)
+    current = url
+    for _hop in range(MAX_REDIRECTS + 1):
+        assert_public_url(current)
+        resp = sess.get(current, headers=hdrs, timeout=timeout,
+                        allow_redirects=False, stream=True)
+        if resp.status_code in (301, 302, 303, 307, 308):
+            location = resp.headers.get("Location")
+            resp.close()
+            if not location:
+                raise RemoteFetchError("redirect with no Location header")
+            current = urljoin(current, location)
+            continue
+        if resp.status_code >= 400:
+            resp.close()
+            raise RemoteFetchError(f"GET {current} returned HTTP {resp.status_code}")
+        try:
+            return json.loads(_read_capped(resp))
+        except ValueError as exc:
+            raise RemoteFetchError(f"remote returned invalid JSON: {exc}")
+    raise RemoteFetchError("too many redirects")
+
+
+def post_activity(inbox_url, activity, key_id, private_pem, *,
+                  timeout=DEFAULT_HTTP_TIMEOUT, session=None):
+    """Sign ``activity`` and POST it to ``inbox_url``.
+
+    Returns ``(status_code, short_text)``. Raises :class:`RemoteFetchError`
+    for an SSRF-blocked target; lets ``requests`` exceptions propagate for
+    the caller's retry logic. Redirects are not followed for a POST.
+    """
+    sess = session or requests
+    body = json.dumps(activity, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    assert_public_url(inbox_url)
+    headers = build_signature_headers("POST", inbox_url, key_id, private_pem, body=body)
+    headers["User-Agent"] = USER_AGENT
+    headers["Accept"] = "application/activity+json"
+    resp = sess.post(inbox_url, data=body, headers=headers, timeout=timeout,
+                     allow_redirects=False)
+    return resp.status_code, (resp.text or "")[:2000]

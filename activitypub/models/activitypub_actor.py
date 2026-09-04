@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 import logging
+import re
+import uuid
 from urllib.parse import urlparse
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 from .activitypub_service import (
+    AS_PUBLIC,
     USERNAME_RE,
     build_actor_document,
+    build_create,
+    build_delete,
+    build_update,
     generate_rsa_keypair,
 )
+
+_ACTOR_URL_RE = re.compile(r'/ap/actors/(\d+)/?$')
 
 _logger = logging.getLogger(__name__)
 
@@ -71,6 +79,11 @@ class ActivityPubActor(models.Model):
     domain = fields.Char(compute='_compute_urls',
                          help='Host part of the handle, taken from the website domain.')
     actor_url = fields.Char(compute='_compute_urls', string='Actor URL')
+    key_id = fields.Char(compute='_compute_urls', string='Key ID')
+
+    follower_ids = fields.One2many(
+        'activitypub.follower', 'actor_id', string='Followers')
+    follower_count = fields.Integer(compute='_compute_follower_count')
 
     _username_website_uniq = models.Constraint(
         'unique(username, website_id)',
@@ -92,6 +105,15 @@ class ActivityPubActor(models.Model):
                             if actor.username and host else False)
             actor.actor_url = (f'{base}/ap/actors/{actor.id}'
                                if actor.id and base else False)
+            actor.key_id = f'{actor.actor_url}#main-key' if actor.actor_url else False
+
+    def _compute_follower_count(self):
+        grouped = self.env['activitypub.follower']._read_group(
+            [('actor_id', 'in', self.ids), ('state', '=', 'accepted')],
+            ['actor_id'], ['__count'])
+        counts = {actor.id: count for actor, count in grouped}
+        for actor in self:
+            actor.follower_count = counts.get(actor.id, 0)
 
     def _base_url(self):
         self.ensure_one()
@@ -183,6 +205,119 @@ class ActivityPubActor(models.Model):
         return super().write(vals)
 
     # ------------------------------------------------------------------
+    # Lookup + delivery targets
+    # ------------------------------------------------------------------
+    @api.model
+    def _for_url(self, url):
+        """Resolve one of our actor URLs (``.../ap/actors/<id>``) back to its
+        record. Matches on the id segment; returns an empty recordset when the
+        URL is not ours."""
+        match = _ACTOR_URL_RE.search(url or '')
+        if not match:
+            return self.browse()
+        return self.browse(int(match.group(1))).exists()
+
+    def _follower_inboxes(self):
+        """Distinct set of inbox URLs to deliver to - the shared inbox when a
+        follower advertises one, so several followers on the same server
+        collapse to a single POST."""
+        self.ensure_one()
+        return {
+            f._target_inbox()
+            for f in self.follower_ids
+            if f.state == 'accepted' and f._target_inbox()
+        }
+
+    # ------------------------------------------------------------------
+    # Outbound publishing
+    # ------------------------------------------------------------------
+    def _ap_publish(self, source_model, source_res_id, object_type, ap_object,
+                    activity_type='Create'):
+        """Store / refresh the local object for ``(source_model, source_res_id)``,
+        wrap it in a ``Create`` or ``Update`` activity, and queue delivery to
+        every follower. Returns the ``activitypub.activity`` record."""
+        self.ensure_one()
+        Object = self.env['activitypub.object'].sudo()
+        Activity = self.env['activitypub.activity'].sudo()
+        base = self._base_url()
+
+        obj = Object.search([
+            ('source_model', '=', source_model),
+            ('source_res_id', '=', source_res_id),
+        ], limit=1)
+        if not obj:
+            obj = Object.create({
+                'local': True,
+                'actor_id': self.id,
+                'object_type': object_type,
+                'source_model': source_model,
+                'source_res_id': source_res_id,
+                'uri': f'urn:uuid:{uuid.uuid4()}',
+            })
+            obj.uri = f'{base}/ap/objects/{obj.id}'
+
+        payload = dict(ap_object)
+        payload['id'] = obj.uri
+        payload['type'] = object_type
+        payload.setdefault('attributedTo', self.actor_url)
+        payload.setdefault('to', [AS_PUBLIC])
+        payload.setdefault('cc', [self._endpoint('/followers')])
+        obj.write({
+            'object_type': object_type,
+            'payload': payload,
+            'deleted': False,
+            'published': obj.published or fields.Datetime.now(),
+        })
+
+        activity = Activity.create({
+            'activity_type': activity_type,
+            'direction': 'out',
+            'actor_id': self.id,
+            'object_id': obj.id,
+            'uri': f'urn:uuid:{uuid.uuid4()}',
+            'state': 'pending',
+        })
+        activity.uri = f'{base}/ap/activities/{activity.id}'
+        builder = build_update if activity_type == 'Update' else build_create
+        activity.payload = builder(
+            self.actor_url, payload, activity_id=activity.uri,
+            to=payload['to'], cc=payload['cc'],
+            published=payload.get('published'))
+        activity._queue_deliveries(self._follower_inboxes())
+
+        if not self.federated_once:
+            self.sudo().federated_once = True
+        return activity
+
+    def _ap_retract(self, source_model, source_res_id):
+        """Emit a ``Delete`` for a previously published local object and mark
+        it deleted. No-op when nothing was published."""
+        self.ensure_one()
+        obj = self.env['activitypub.object'].sudo().search([
+            ('source_model', '=', source_model),
+            ('source_res_id', '=', source_res_id),
+            ('deleted', '=', False),
+        ], limit=1)
+        if not obj:
+            return self.env['activitypub.activity']
+        base = self._base_url()
+        activity = self.env['activitypub.activity'].sudo().create({
+            'activity_type': 'Delete',
+            'direction': 'out',
+            'actor_id': self.id,
+            'object_id': obj.id,
+            'uri': f'urn:uuid:{uuid.uuid4()}',
+            'state': 'pending',
+        })
+        activity.uri = f'{base}/ap/activities/{activity.id}'
+        activity.payload = build_delete(
+            self.actor_url, obj.uri, activity_id=activity.uri,
+            cc=[self._endpoint('/followers')])
+        obj.deleted = True
+        activity._queue_deliveries(self._follower_inboxes())
+        return activity
+
+    # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
     def action_regenerate_keys(self):
@@ -195,3 +330,14 @@ class ActivityPubActor(models.Model):
                 'public_key_pem': public_pem,
             })
         return True
+
+    def action_view_followers(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Followers'),
+            'res_model': 'activitypub.follower',
+            'view_mode': 'list,form',
+            'domain': [('actor_id', '=', self.id)],
+            'context': {'default_actor_id': self.id},
+        }

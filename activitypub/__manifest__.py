@@ -44,7 +44,9 @@ already bundled with Odoo.
     'data': [
         'security/activitypub_security.xml',
         'security/ir.model.access.csv',
+        'data/ir_cron.xml',
         'views/activitypub_actor_views.xml',
+        'views/activitypub_activity_views.xml',
         'views/activitypub_menus.xml',
         'views/res_config_settings_views.xml',
     ],

@@ -87,11 +87,21 @@ class TestActivityPubControllers(HttpCase):
         finally:
             self.env['ir.config_parameter'].sudo().set_param('activitypub.enabled', 'True')
 
-    def test_inbox_absorbs_post(self):
+    def test_inbox_rejects_malformed_activity(self):
+        # No 'actor' and no signature: rejected before any processing.
         r = self.url_open(
             f'/ap/actors/{self.actor.id}/inbox',
             data=json.dumps({'type': 'Follow'}),
             headers={'Content-Type': 'application/activity+json'},
             allow_redirects=False,
         )
-        self.assertEqual(r.status_code, 202)
+        self.assertEqual(r.status_code, 400)
+
+    def test_inbox_rejects_non_json(self):
+        r = self.url_open(
+            f'/ap/actors/{self.actor.id}/inbox',
+            data=b'not json',
+            headers={'Content-Type': 'application/activity+json'},
+            allow_redirects=False,
+        )
+        self.assertEqual(r.status_code, 400)

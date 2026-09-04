@@ -1,3 +1,13 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_activitypub_actor_manager,activitypub.actor manager,model_activitypub_actor,activitypub.group_activitypub_manager,1,1,1,1
 access_activitypub_actor_user,activitypub.actor internal read,model_activitypub_actor,base.group_user,1,0,0,0
+access_activitypub_follower_manager,activitypub.follower manager,model_activitypub_follower,activitypub.group_activitypub_manager,1,0,0,1
+access_activitypub_follower_system,activitypub.follower system,model_activitypub_follower,base.group_system,1,1,1,1
+access_activitypub_object_manager,activitypub.object manager,model_activitypub_object,activitypub.group_activitypub_manager,1,0,0,0
+access_activitypub_object_system,activitypub.object system,model_activitypub_object,base.group_system,1,1,1,1
+access_activitypub_activity_manager,activitypub.activity manager,model_activitypub_activity,activitypub.group_activitypub_manager,1,0,0,0
+access_activitypub_activity_system,activitypub.activity system,model_activitypub_activity,base.group_system,1,1,1,1
+access_activitypub_delivery_manager,activitypub.delivery manager,model_activitypub_delivery,activitypub.group_activitypub_manager,1,1,0,1
+access_activitypub_delivery_system,activitypub.delivery system,model_activitypub_delivery,base.group_system,1,1,1,1
+access_activitypub_remote_actor_manager,activitypub.remote.actor manager,model_activitypub_remote_actor,activitypub.group_activitypub_manager,1,0,0,0
+access_activitypub_remote_actor_system,activitypub.remote.actor system,model_activitypub_remote_actor,base.group_system,1,1,1,1
