@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_activitypub_actor_manager,activitypub.actor manager,model_activitypub_actor,activitypub.group_activitypub_manager,1,1,1,1
+access_activitypub_actor_user,activitypub.actor internal read,model_activitypub_actor,base.group_user,1,0,0,0

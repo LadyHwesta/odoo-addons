@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="module_category_activitypub" model="ir.module.category">
+        <field name="name">Fediverse</field>
+        <field name="description">Manage ActivityPub actors and federation.</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="res_groups_privilege_activitypub" model="res.groups.privilege">
+        <field name="name">Fediverse</field>
+        <field name="sequence">90</field>
+        <field name="category_id" ref="module_category_activitypub"/>
+    </record>
+
+    <record id="group_activitypub_manager" model="res.groups">
+        <field name="name">Fediverse Manager</field>
+        <field name="privilege_id" ref="res_groups_privilege_activitypub"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <!-- System administrators always get Fediverse management. -->
+        <field name="implied_by_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+</odoo>

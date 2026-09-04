@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_activitypub" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.activitypub</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Fediverse" string="Fediverse" name="activitypub"
+                     logo="/activitypub/static/description/icon.png">
+                    <block title="Federation" name="activitypub_federation">
+                        <setting id="activitypub_enabled_setting"
+                                 string="Enable Fediverse federation"
+                                 help="Serve WebFinger, NodeInfo and actor endpoints, and deliver activities to remote servers. Each actor's handle host comes from its website's Website Domain, so set that first.">
+                            <field name="activitypub_enabled"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

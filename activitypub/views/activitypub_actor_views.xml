@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_activitypub_actor_list" model="ir.ui.view">
+        <field name="name">activitypub.actor.list</field>
+        <field name="model">activitypub.actor</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="display_name"/>
+                <field name="handle"/>
+                <field name="actor_type"/>
+                <field name="website_id"/>
+                <field name="user_id" optional="hide"/>
+                <field name="federated_once" optional="hide"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_activitypub_actor_form" model="ir.ui.view">
+        <field name="name">activitypub.actor.form</field>
+        <field name="model">activitypub.actor</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_regenerate_keys" type="object"
+                            string="Regenerate Keys"
+                            confirm="Regenerating this actor's key pair breaks every existing follow from remote servers. Continue?"
+                            groups="base.group_system"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <field name="icon" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="display_name"/>
+                        <h1><field name="display_name" placeholder="News"/></h1>
+                        <h3><field name="handle" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="website_id"/>
+                            <field name="actor_type"/>
+                            <field name="username"
+                                   readonly="federated_once"
+                                   placeholder="news"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="domain" readonly="1"/>
+                            <field name="actor_url" widget="url" readonly="1"/>
+                            <field name="federated_once"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Bio" name="bio">
+                            <field name="summary"/>
+                        </page>
+                        <page string="Technical" name="technical">
+                            <group>
+                                <field name="public_key_pem" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_activitypub_actor_search" model="ir.ui.view">
+        <field name="name">activitypub.actor.search</field>
+        <field name="model">activitypub.actor</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name"/>
+                <field name="username"/>
+                <field name="website_id"/>
+                <filter name="federated" string="Has Federated"
+                        domain="[('federated_once', '=', True)]"/>
+                <separator/>
+                <filter name="group_website" string="Website"
+                        context="{'group_by': 'website_id'}"/>
+                <filter name="group_type" string="Type"
+                        context="{'group_by': 'actor_type'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_activitypub_actor" model="ir.actions.act_window">
+        <field name="name">Actors</field>
+        <field name="res_model">activitypub.actor</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first Fediverse actor</p>
+            <p>An actor is a federated identity - for example
+               <b>@news@yourcompany.com</b> - that people on Mastodon and other
+               Fediverse servers can find and follow. Its handle host comes from
+               the selected website's <b>Website Domain</b>.</p>
+        </field>
+    </record>
+
+</odoo>

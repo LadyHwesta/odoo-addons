@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_activitypub_root"
+              name="Fediverse"
+              web_icon="activitypub,static/description/icon.png"
+              sequence="95"
+              groups="activitypub.group_activitypub_manager"/>
+
+    <menuitem id="menu_activitypub_actors"
+              parent="menu_activitypub_root"
+              action="action_activitypub_actor"
+              sequence="10"/>
+
+    <menuitem id="menu_activitypub_config"
+              name="Configuration"
+              parent="menu_activitypub_root"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <record id="action_activitypub_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'activitypub'}</field>
+    </record>
+
+    <menuitem id="menu_activitypub_settings"
+              parent="menu_activitypub_config"
+              action="action_activitypub_config_settings"
+              sequence="10"/>
+
+</odoo>
