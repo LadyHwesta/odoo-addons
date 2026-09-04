@@ -109,6 +109,28 @@ class TestBlogFederation(TransactionCase):
         self.assertTrue(self._activities(post, 'Delete'))
         self.assertTrue(self._object(post).deleted)
 
+    def test_republish_after_unpublish_mints_a_new_object_uri(self):
+        # Once a Delete/Tombstone has gone out for a URI, compliant servers
+        # permanently refuse to resurrect a Create for that same id
+        # (confirmed against Mastodon's own source: it rejects a Create
+        # outright when a Tombstone already exists for the object URI).
+        # Re-publishing must get a brand new object/URI, not reuse the one
+        # already tombstoned.
+        post = self._publish('Comeback')
+        old_obj = self._object(post)
+        post.write({'website_published': False})
+        self.assertTrue(old_obj.deleted)
+
+        post.write({'website_published': True})
+        new_obj = self._object(post)
+        self.assertNotEqual(new_obj.id, old_obj.id)
+        self.assertNotEqual(new_obj.uri, old_obj.uri)
+        self.assertFalse(new_obj.deleted)
+
+        create = self._activities(post, 'Create')
+        self.assertEqual(len(create), 1)
+        self.assertEqual(create.object_id, new_obj)
+
     def test_delete_post_sends_delete(self):
         post = self._publish('Doomed')
         obj = self._object(post)

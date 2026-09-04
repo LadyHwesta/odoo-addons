@@ -270,9 +270,17 @@ class ActivityPubActor(models.Model):
         Activity = self.env['activitypub.activity'].sudo()
         base = self._base_url()
 
+        # A previously-deleted object is excluded here on purpose: once a
+        # Delete/Tombstone has gone out for a URI, compliant servers (e.g.
+        # Mastodon) permanently refuse to resurrect a new Create for that
+        # same id - confirmed against Mastodon's own source, which rejects
+        # a Create outright if a Tombstone already exists for the object
+        # URI. Re-publishing after a retract must mint a fresh URI instead
+        # of reusing the now-poisoned one; the old row stays as history.
         obj = Object.search([
             ('source_model', '=', source_model),
             ('source_res_id', '=', source_res_id),
+            ('deleted', '=', False),
         ], limit=1)
         if not obj:
             obj = Object.create({

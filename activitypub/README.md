@@ -41,7 +41,11 @@ Implemented:
   `activitypub.delivery` per distinct follower inbox. A 1-minute cron signs
   each with HTTP Signatures and POSTs it, retrying transient failures with
   exponential backoff (8 attempts, ~2 h) and giving up permanently on a
-  `4xx`. A daily cron prunes settled delivery rows.
+  `4xx`. A daily cron prunes settled delivery rows. A `Create` after a
+  prior `Delete` for the same record always gets a **brand new object
+  URI** - confirmed against Mastodon's own source that it permanently
+  refuses to resurrect a `Create` for a URI it already has a Tombstone
+  for, silently and without error.
 - **Outbox** — `GET /ap/actors/<id>/outbox` is a real paged
   `OrderedCollection` of published activities; `/followers` reports the
   accepted followers.

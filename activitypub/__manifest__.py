@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ActivityPub / Fediverse Federation',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Website',
     'summary': 'Federate this Odoo instance into the Fediverse (Mastodon, '
                'Pleroma, Misskey, ...) over ActivityPub',

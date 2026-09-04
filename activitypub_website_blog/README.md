@@ -28,7 +28,12 @@ objects, on top of the [`activitypub`](../activitypub) engine.
 
 - Posts that are not public never federate; making one public later
   publishes it then. Re-publishing an unpublished post sends a fresh
-  `Create` (reusing the original object URI).
+  `Create` under a **brand new object URI** - never the one already
+  tombstoned by the earlier `Delete`. Reusing a deleted URI is exactly what
+  broke this in testing: Mastodon's own `Create` handler permanently
+  refuses to resurrect a URI it already has a Tombstone for, so a
+  republished post silently never appeared even though delivery itself
+  succeeded with no error.
 
 A `Note` has no separate title Mastodon displays, so the body is built as:
 the post title (linked back to the page), the subtitle, Odoo's own

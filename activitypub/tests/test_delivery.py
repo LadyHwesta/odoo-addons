@@ -45,6 +45,23 @@ class TestDelivery(TransactionCase):
         self.assertEqual(activity.delivery_ids.state, 'pending')
         self.assertEqual(activity.state, 'pending')
 
+    def test_republish_after_retract_mints_new_uri(self):
+        # A tombstoned URI must never be reused for a later Create -
+        # compliant servers (confirmed against Mastodon's own source: it
+        # rejects a Create outright if a Tombstone already exists for the
+        # object URI) permanently refuse to resurrect it.
+        first = self._publish()
+        first_obj = first.object_id
+        self.actor._ap_retract('res.partner', self.partner.id)
+        self.assertTrue(first_obj.deleted)
+
+        second = self.actor._ap_publish(
+            'res.partner', self.partner.id, 'Note', {'content': 'hi again'})
+        self.assertEqual(second.activity_type, 'Create')
+        self.assertNotEqual(second.object_id, first_obj)
+        self.assertNotEqual(second.object_id.uri, first_obj.uri)
+        self.assertFalse(second.object_id.deleted)
+
     def test_delivered_on_2xx(self):
         activity = self._publish()
         with mock.patch(_DELIVERY + '.post_activity', return_value=(202, 'ok')) as posted:
