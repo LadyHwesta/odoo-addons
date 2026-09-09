@@ -5,7 +5,8 @@
 # (Ctrl+C in a terminal, kill -TERM, kill -INT, or a plain crash).
 #
 # addons_path automatically includes every module folder in this repo's
-# root (one level up from testing/), so new modules just need to exist -
+# root (one level up from testing/) plus vendor/oca/ (third-party OCA
+# modules the club suite builds on), so new modules just need to exist -
 # no editing this script.
 set -uo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,7 +40,7 @@ trap cleanup EXIT INT TERM
 "$DIR/pg_start.sh"
 source "$DIR/.venv/bin/activate"
 
-ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT"
+ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT,$REPO_ROOT/vendor/oca"
 
 echo ""
 echo "Odoo starting at http://localhost:$HTTP_PORT  (db: $DB_NAME, login: admin / admin)"

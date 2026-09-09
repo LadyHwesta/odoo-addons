@@ -40,14 +40,15 @@ confirmed down). Don't leave it running unattended when you're not
 actively testing.
 
 `addons_path` automatically includes every folder at the root of this
-repo, so a new module just needs to exist here - nothing to edit.
+repo, plus `vendor/oca/` (third-party OCA modules the club suite builds
+on), so a new module just needs to exist in one of those - nothing to edit.
 
 First run creates the `odoo_addons_test` database with no modules
 installed yet. Install what you want to test:
 
 ```
 source .venv/bin/activate
-python3 ~/dev/odoo-19/odoo-bin --addons-path="$HOME/dev/odoo-19/addons,$HOME/dev/odoo-19/odoo/addons,$(cd .. && pwd)" \
+python3 ~/dev/odoo-19/odoo-bin --addons-path="$HOME/dev/odoo-19/addons,$HOME/dev/odoo-19/odoo/addons,$(cd .. && pwd),$(cd .. && pwd)/vendor/oca" \
     --db_host="$(pwd)/.sockets" --db_port=5433 -d odoo_addons_test \
     -i base,calendar,caldav_calendar --stop-after-init
 ```
