@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="ir_cron_volunteer_reminders" model="ir.cron">
+        <field name="name">Event Volunteer: send reminders</field>
+        <field name="model_id" ref="model_event_volunteer_assignment" />
+        <field name="state">code</field>
+        <field name="code">model._cron_send_volunteer_reminders()</field>
+        <field name="interval_number">6</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True" />
+    </record>
+</odoo>

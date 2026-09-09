@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="mail_template_volunteer_signup" model="mail.template">
+        <field name="name">Event Volunteer: sign-up confirmation</field>
+        <field name="model_id" ref="model_event_volunteer_assignment" />
+        <field name="subject">You're volunteering: {{ object.role_id.name }} - {{ object.event_id.name }}</field>
+        <field name="email_from">{{ (object.event_id.user_id.email_formatted or object.event_id.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>
+                    Thanks for signing up as <strong t-out="object.role_id.name or ''"/>
+                    for <strong t-out="object.event_id.name or ''"/>.
+                </p>
+                <p>
+                    <t t-if="object.event_id.date_begin">
+                        It starts <strong t-out="format_datetime(object.event_id.date_begin, tz=object.event_id.date_tz, dt_format='medium') or ''"/>.
+                    </t>
+                </p>
+                <p t-if="object.role_id.description">
+                    <em t-out="object.role_id.description or ''"/>
+                </p>
+                <p>Need to pull out? You can withdraw from the event page any time.</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+
+    <record id="mail_template_volunteer_reminder" model="mail.template">
+        <field name="name">Event Volunteer: reminder</field>
+        <field name="model_id" ref="model_event_volunteer_assignment" />
+        <field name="subject">Reminder: you're volunteering at {{ object.event_id.name }}</field>
+        <field name="email_from">{{ (object.event_id.user_id.email_formatted or object.event_id.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>
+                    A reminder that you're signed up as
+                    <strong t-out="object.role_id.name or ''"/> for
+                    <strong t-out="object.event_id.name or ''"/>,
+                    starting <strong t-out="format_datetime(object.event_id.date_begin, tz=object.event_id.date_tz, dt_format='medium') or ''"/>.
+                </p>
+                <p t-if="object.event_id.address_id">
+                    Where: <t t-out="object.event_id.address_id.contact_address or object.event_id.address_id.name or ''"/>
+                </p>
+                <p>See you there. 73!</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+</odoo>
