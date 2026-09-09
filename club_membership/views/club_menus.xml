@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="menu_club_root"
+              name="Club"
+              web_icon="club_membership,static/description/icon.png"
+              sequence="12"
+              groups="base.group_user" />
+
+    <menuitem id="menu_club_members"
+              name="Members"
+              parent="menu_club_root"
+              action="membership.action_membership_members"
+              sequence="1" />
+
+    <menuitem id="menu_club_events"
+              name="Events"
+              parent="menu_club_root"
+              action="event.action_event_view"
+              sequence="2"
+              groups="event.group_event_registration_desk" />
+
+    <menuitem id="menu_club_volunteers"
+              name="Volunteers"
+              parent="menu_club_root"
+              action="event_volunteer.event_volunteer_assignment_action"
+              sequence="3"
+              groups="event.group_event_user" />
+
+    <menuitem id="menu_club_equipment_loans"
+              name="Equipment Loans"
+              parent="menu_club_root"
+              action="club_equipment_loan.club_equipment_loan_action"
+              sequence="4"
+              groups="maintenance.group_equipment_manager,base.group_user" />
+
+    <menuitem id="menu_club_config"
+              name="Configuration"
+              parent="menu_club_root"
+              sequence="90"
+              groups="membership.group_membership_manager,event.group_event_manager,maintenance.group_equipment_manager" />
+
+    <menuitem id="menu_club_config_products"
+              name="Membership Products"
+              parent="menu_club_config"
+              action="membership.action_membership_products"
+              sequence="1"
+              groups="membership.group_membership_manager" />
+
+    <menuitem id="menu_club_config_volunteer_roles"
+              name="Volunteer Roles"
+              parent="menu_club_config"
+              action="event_volunteer.event_volunteer_role_action"
+              sequence="2"
+              groups="event.group_event_manager" />
+
+    <menuitem id="menu_club_config_withdrawal_reasons"
+              name="Withdrawal Reasons"
+              parent="menu_club_config"
+              action="membership_withdrawal.membership_withdrawal_reason_action"
+              sequence="3"
+              groups="membership.group_membership_manager" />
+</odoo>

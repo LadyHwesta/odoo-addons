@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="product_annual_dues" model="product.template">
+        <field name="name">Annual Club Dues</field>
+        <field name="type">service</field>
+        <field name="membership" eval="True" />
+        <field name="membership_prorate" eval="True" />
+        <field name="list_price">25.00</field>
+        <field name="membership_category_id" ref="membership.membership_category_member" />
+        <field name="membership_date_from"
+               eval="DateTime.now().strftime('%Y-01-01')" />
+        <field name="membership_date_to"
+               eval="DateTime.now().strftime('%Y-12-31')" />
+    </record>
+</odoo>

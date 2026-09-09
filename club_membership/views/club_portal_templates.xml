@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="portal_my_home_club" name="Portal home: Club"
+              customize_show="True" inherit_id="portal.portal_my_home" priority="10">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True" />
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/folder.svg'" />
+                <t t-set="title">My Club</t>
+                <t t-set="url" t-value="'/my/club'" />
+                <t t-set="text">Membership, licence, gear and volunteering</t>
+                <t t-set="placeholder_count" t-value="'club_attention_count'" />
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_club" name="My Club">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-4">My Club</h3>
+            <div class="row g-4">
+
+                <!-- Membership -->
+                <div class="col-12 col-lg-6">
+                    <div class="border rounded p-3 h-100">
+                        <h5>Membership</h5>
+                        <t t-set="ms" t-value="partner.membership_state" />
+                        <p class="mb-1">
+                            Status:
+                            <span t-if="ms in ('paid', 'free', 'invoiced')"
+                                  class="badge text-bg-success"
+                                  t-esc="membership_state_label" />
+                            <span t-elif="ms == 'waiting'"
+                                  class="badge text-bg-info">Waiting</span>
+                            <span t-else="" class="badge text-bg-secondary"
+                                  t-esc="membership_state_label or 'Not a member'" />
+                        </p>
+                        <p t-if="partner.membership_stop" class="mb-1 text-muted">
+                            Paid through <span t-esc="partner.membership_stop" />
+                        </p>
+                        <p t-if="partner.membership_state in ('none', 'old', 'canceled')"
+                           class="small text-muted mb-0">
+                            Contact the membership officer to join or renew.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Licence -->
+                <div class="col-12 col-lg-6">
+                    <div class="border rounded p-3 h-100">
+                        <h5>Amateur radio licence</h5>
+                        <t t-if="partner.callsign">
+                            <p class="mb-1">
+                                <strong t-esc="partner.callsign" />
+                                <span t-if="license_class_label" class="text-muted">
+                                    - <t t-esc="license_class_label" />
+                                </span>
+                            </p>
+                            <p class="mb-0">
+                                Expires <span t-esc="partner.ham_license_expiry_date or 'n/a'" />
+                                <span t-if="partner.ham_license_expiring_soon"
+                                      class="badge text-bg-warning ms-1">Renew soon</span>
+                            </p>
+                        </t>
+                        <p t-else="" class="text-muted mb-0">No call sign on file.</p>
+                    </div>
+                </div>
+
+                <!-- Equipment -->
+                <div class="col-12 col-lg-6">
+                    <div class="border rounded p-3 h-100">
+                        <h5>Equipment on loan</h5>
+                        <t t-if="loans">
+                            <ul class="list-unstyled mb-0">
+                                <li t-foreach="loans" t-as="loan" class="mb-1">
+                                    <span t-esc="loan.equipment_id.display_name" />
+                                    - due <span t-esc="loan.due_date" />
+                                    <span t-if="loan.is_overdue"
+                                          class="badge text-bg-danger ms-1">Overdue</span>
+                                </li>
+                            </ul>
+                            <a href="/my/loans" class="small">All my loans</a>
+                        </t>
+                        <p t-else="" class="text-muted mb-0">Nothing out right now.</p>
+                    </div>
+                </div>
+
+                <!-- Volunteering -->
+                <div class="col-12 col-lg-6">
+                    <div class="border rounded p-3 h-100">
+                        <h5>Upcoming volunteering</h5>
+                        <t t-if="volunteering">
+                            <ul class="list-unstyled mb-0">
+                                <li t-foreach="volunteering" t-as="vol" class="mb-1">
+                                    <span t-esc="vol.role_id.name" />
+                                    - <span t-esc="vol.event_id.name" />
+                                    (<span t-esc="vol.event_date_begin" t-options="{'widget': 'date'}" />)
+                                </li>
+                            </ul>
+                        </t>
+                        <p t-else="" class="text-muted mb-0">
+                            You're not signed up for anything yet.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </t>
+    </template>
+</odoo>

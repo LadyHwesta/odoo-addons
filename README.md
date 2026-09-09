@@ -21,6 +21,29 @@ Custom Odoo 19 modules.
   from-scratch setup against a real Fediverse server, follow
   [`TESTING_FEDERATION.md`](TESTING_FEDERATION.md) end to end.
 
+### Amateur radio club suite
+
+A club-centric management setup on Odoo 19 **Community** (no Enterprise, no
+paid apps). Install [`club_membership/`](club_membership/) to get the lot,
+or pick pieces:
+
+- [`club_membership/`](club_membership/) - the umbrella: a single **Club**
+  app menu, an auto-rolling prorated *Annual Dues* product, and a
+  `/my/club` member portal (dues, licence, gear, volunteering).
+- [`club_amateur_radio/`](club_amateur_radio/) - call sign / FCC licence /
+  ARRL fields on contacts, with one-click autofill from the FCC ULS
+  (callook.info) and a licence-expiry sweep.
+- [`event_volunteer/`](event_volunteer/) - volunteer roles with slot
+  quotas on events, website sign-up, reminders.
+- [`club_equipment_loan/`](club_equipment_loan/) - a loaner library on top
+  of the Maintenance app: checkout / return, due dates, overdue chasing, a
+  printable agreement.
+
+These depend on OCA's membership modules, vendored under
+[`vendor/oca/`](vendor/oca/) (add that dir to the addons path) because
+Odoo 19 dropped the core Membership app and OCA's proration / withdrawal
+add-ons aren't on a 19.0 channel yet.
+
 ## Testing
 
 [`testing/`](testing/) has a self-contained local Odoo 19 + Postgres
