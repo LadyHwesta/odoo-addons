@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from datetime import date, datetime, timedelta
 
 from odoo.tests.common import HttpCase, TransactionCase, tagged
@@ -82,3 +83,25 @@ class TestClubPortal(HttpCase):
         home = self.url_open("/my")
         self.assertEqual(home.status_code, 200)
         self.assertIn("My Club", home.text)
+
+
+@tagged("post_install", "-at_install")
+class TestBackendAssets(HttpCase):
+    """Guard against a repo-layout mistake breaking the backend SCSS bundle.
+    A top-level dir named `vendor` on the addons path shadows Bootstrap's
+    own `scss/vendor/` (Odoo's SCSS importer resolves `file_path("vendor")`
+    first), which fails `@import "vendor/rfs"` and poisons web.assets_web -
+    but an SCSS error is swallowed into css_errors and the page still
+    returns 200, so it only shows in the browser console."""
+
+    def test_web_assets_web_compiles_without_scss_error(self):
+        self.authenticate("admin", "admin")
+        page = self.url_open("/odoo")
+        self.assertEqual(page.status_code, 200)
+        match = re.search(
+            r'href="([^"]*web\.assets_web[^"]*\.css[^"]*)"', page.text)
+        self.assertTrue(match, "web.assets_web stylesheet link not on /odoo")
+        css = self.url_open(match.group(1))
+        self.assertEqual(css.status_code, 200)
+        self.assertNotIn("A css error occured", css.text)
+        self.assertNotIn("css_error_message", css.text)

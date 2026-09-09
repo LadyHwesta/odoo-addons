@@ -1,7 +1,7 @@
 # Copyright 2016 Tecnativa  - Antonio Espinosa
 # Copyright 2017-19 Tecnativa - David Vidal
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-# 19.0 port (downstream, not yet upstreamed) - see vendor/oca/README.md.
+# 19.0 port (downstream, not yet upstreamed) - see VENDORED.md.
 # Re-pointed from `membership_extension` to `membership`: the OCA `membership`
 # 19.0 module absorbed everything membership_extension 18.0 provided.
 {

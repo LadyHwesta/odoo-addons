@@ -39,10 +39,11 @@ or pick pieces:
   of the Maintenance app: checkout / return, due dates, overdue chasing, a
   printable agreement.
 
-These depend on OCA's membership modules, vendored under
-[`vendor/oca/`](vendor/oca/) (add that dir to the addons path) because
-Odoo 19 dropped the core Membership app and OCA's proration / withdrawal
-add-ons aren't on a 19.0 channel yet.
+These depend on four OCA membership modules vendored at the repo root
+(`membership`, `website_membership`, `membership_prorate`,
+`membership_withdrawal`) - Odoo 19 dropped the core Membership app and
+OCA's proration / withdrawal add-ons aren't on a 19.0 channel yet. See
+[`VENDORED.md`](VENDORED.md).
 
 ## Testing
 

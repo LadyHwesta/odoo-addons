@@ -37,9 +37,9 @@ suite is present.
 
 ## Requirements
 
-Odoo 19 Community. Everything is vendored or core - no extra Python
-packages. `vendor/oca/` must be on the addons path (the repo's `testing/`
-harness already does this).
+Odoo 19 Community. Everything is core or vendored at the repo root (the
+four OCA `membership*` modules - see [`VENDORED.md`](../VENDORED.md)); no
+extra Python packages, nothing extra on the addons path.
 
 ## Testing status
 
