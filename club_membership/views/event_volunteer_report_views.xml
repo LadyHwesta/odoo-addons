@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="event_volunteer_assignment_view_pivot" model="ir.ui.view">
+        <field name="model">event.volunteer.assignment</field>
+        <field name="arch" type="xml">
+            <pivot string="Volunteer Participation" sample="1">
+                <field name="partner_id" type="row" />
+                <field name="event_date_begin" interval="year" type="col" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="event_volunteer_assignment_view_graph" model="ir.ui.view">
+        <field name="model">event.volunteer.assignment</field>
+        <field name="arch" type="xml">
+            <graph string="Volunteer Participation" sample="1" type="bar">
+                <field name="role_id" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="event_volunteer_participation_action" model="ir.actions.act_window">
+        <field name="name">Volunteer Participation</field>
+        <field name="res_model">event.volunteer.assignment</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="domain">[('state', '=', 'confirmed')]</field>
+        <field name="search_view_id" ref="event_volunteer.event_volunteer_assignment_view_search" />
+        <field name="context">{'search_default_group_role': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No volunteer sign-ups yet</p>
+            <p>Confirmed volunteer assignments across all events - pivot by
+               member to see who turns out, by role to see what's hard to
+               fill.</p>
+        </field>
+    </record>
+</odoo>

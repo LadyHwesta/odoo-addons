@@ -39,6 +39,10 @@
                         <p t-if="partner.membership_stop" class="mb-1 text-muted">
                             Paid through <span t-esc="partner.membership_stop" />
                         </p>
+                        <p t-if="partner.evacuation_zone_id" class="mb-1">
+                            Evacuation zone:
+                            <strong t-esc="partner.evacuation_zone_id.display_name" />
+                        </p>
                         <p t-if="partner.membership_state in ('none', 'old', 'canceled')"
                            class="small text-muted mb-0">
                             Contact the membership officer to join or renew.

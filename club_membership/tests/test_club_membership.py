@@ -2,7 +2,10 @@
 import re
 from datetime import date, datetime, timedelta
 
+from psycopg2 import IntegrityError
+
 from odoo.tests.common import HttpCase, TransactionCase, tagged
+from odoo.tools import mute_logger
 
 
 @tagged("post_install", "-at_install")
@@ -83,6 +86,69 @@ class TestClubPortal(HttpCase):
         home = self.url_open("/my")
         self.assertEqual(home.status_code, 200)
         self.assertIn("My Club", home.text)
+
+
+@tagged("post_install", "-at_install")
+class TestEvacuationZone(TransactionCase):
+    def test_zone_member_count_and_unique_code(self):
+        zone = self.env["club.evacuation.zone"].create({"name": "North Ridge", "code": "NR"})
+        self.env["res.partner"].create({"name": "M1", "evacuation_zone_id": zone.id})
+        self.env["res.partner"].create({"name": "M2", "evacuation_zone_id": zone.id})
+        zone.invalidate_recordset()
+        self.assertEqual(zone.member_count, 2)
+        self.assertIn("NR", zone.display_name)
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), \
+                self.env.cr.savepoint():
+            self.env["club.evacuation.zone"].create({"name": "Dup", "code": "NR"})
+
+    def test_roster_report_renders(self):
+        self.assertTrue(self.env.ref("club_membership.member_roster_action"))
+        report = self.env.ref("club_membership.action_report_member_roster")
+        partner = self.env["res.partner"].create({"name": "Roster Ron", "callsign": "w7ron"})
+        html, _typ = self.env["ir.actions.report"]._render_qweb_html(
+            report.report_name, partner.ids)
+        self.assertIn(b"W7RON", html)
+        self.assertIn(b"Roster Ron", html)
+
+
+@tagged("post_install", "-at_install")
+class TestEventStatsReport(TransactionCase):
+    def test_report_club_event_row(self):
+        event = self.env["event.event"].create({
+            "name": "Field Day",
+            "date_begin": datetime.now() + timedelta(days=3),
+            "date_end": datetime.now() + timedelta(days=4),
+        })
+        for i in range(3):
+            self.env["event.registration"].create({
+                "event_id": event.id,
+                "partner_id": self.env["res.partner"].create({"name": f"A{i}"}).id,
+                "state": "open",
+            })
+        r_full = self.env["event.volunteer.role"].create({
+            "event_id": event.id, "name": "Logger", "slot_count": 2})
+        r_short = self.env["event.volunteer.role"].create({
+            "event_id": event.id, "name": "Net Control", "slot_count": 3})
+        vols = self.env["res.partner"].create(
+            [{"name": f"V{i}"} for i in range(3)])
+        for role, partner in ((r_full, vols[0]), (r_full, vols[1]), (r_short, vols[2])):
+            self.env["event.volunteer.assignment"].create({
+                "role_id": role.id, "partner_id": partner.id, "state": "confirmed",
+            })
+        self.env.flush_all()
+
+        row = self.env["report.club.event"].search([("event_id", "=", event.id)])
+        self.assertEqual(len(row), 1)
+        self.assertEqual(row.attendee_count, 3)
+        self.assertEqual(row.volunteer_confirmed, 3)
+        self.assertEqual(row.volunteer_needed, 5)   # 2 + 3
+        self.assertEqual(row.volunteer_shortfall, 2)  # 5 needed - 3 filled
+        self.assertEqual(row.roles_understaffed, 1)  # Net Control (3 > 1)
+
+    def test_reporting_actions_installed(self):
+        self.assertTrue(self.env.ref("club_membership.report_club_event_action"))
+        self.assertTrue(self.env.ref("club_membership.event_volunteer_participation_action"))
+        self.assertTrue(self.env.ref("club_membership.menu_club_reporting"))
 
 
 @tagged("post_install", "-at_install")

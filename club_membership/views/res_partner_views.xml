@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Evacuation zone on the Membership page -->
+    <record id="view_partner_form_evacuation_zone" model="ir.ui.view">
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="membership.view_partner_form" />
+        <field name="arch" type="xml">
+            <field name="membership_category_ids" position="after">
+                <field name="evacuation_zone_id" />
+            </field>
+        </field>
+    </record>
+
+    <!-- ============ Member Roster ============ -->
+    <record id="member_roster_view_list" model="ir.ui.view">
+        <field name="name">member.roster.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Member Roster" create="0"
+                  decoration-warning="ham_license_expiring_soon"
+                  decoration-muted="membership_state in ('none', 'old', 'canceled')">
+                <field name="name" />
+                <field name="callsign" />
+                <field name="ham_license_class" string="Class" />
+                <field name="ham_license_expiry_date" string="Licence Expires" />
+                <field name="ham_license_expiring_soon" column_invisible="1" />
+                <field name="membership_state" string="Membership" widget="badge"
+                       decoration-success="membership_state in ('paid', 'free', 'invoiced')"
+                       decoration-info="membership_state == 'waiting'"
+                       decoration-warning="membership_state == 'old'" />
+                <field name="membership_stop" string="Renewal Due" />
+                <field name="evacuation_zone_id" />
+                <field name="email" widget="email" />
+                <field name="phone" class="o_force_ltr" optional="show" />
+                <field name="city" optional="hide" />
+                <field name="arrl_member" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="member_roster_view_search" model="ir.ui.view">
+        <field name="name">member.roster.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Member Roster">
+                <field name="name"
+                       filter_domain="['|', '|', ('name', 'ilike', self), ('callsign', 'ilike', self), ('email', 'ilike', self)]" />
+                <field name="callsign" />
+                <field name="evacuation_zone_id" />
+                <filter name="members" string="Current Members"
+                        domain="[('membership_state', 'in', ('invoiced', 'paid', 'free'))]" />
+                <filter name="lapsed" string="Lapsed / Not Members"
+                        domain="[('membership_state', 'in', ('none', 'old', 'canceled'))]" />
+                <separator />
+                <filter name="licence_expiring" string="Licence Expiring Soon"
+                        domain="[('ham_license_expiring_soon', '=', True)]" />
+                <filter name="no_zone" string="No Evacuation Zone"
+                        domain="[('evacuation_zone_id', '=', False)]" />
+                <filter name="arrl" string="ARRL Members"
+                        domain="[('arrl_member', '=', True)]" />
+                <group>
+                    <filter name="group_zone" string="Evacuation Zone"
+                            context="{'group_by': 'evacuation_zone_id'}" />
+                    <filter name="group_class" string="Operator Class"
+                            context="{'group_by': 'ham_license_class'}" />
+                    <filter name="group_membership" string="Membership Status"
+                            context="{'group_by': 'membership_state'}" />
+                    <filter name="group_renewal" string="Renewal Month"
+                            context="{'group_by': 'membership_stop'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="member_roster_action" model="ir.actions.act_window">
+        <field name="name">Member Roster</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="member_roster_view_list" />
+        <field name="search_view_id" ref="member_roster_view_search" />
+        <field name="domain">[('membership_state', '!=', 'none')]</field>
+        <field name="context">{'search_default_members': 1, 'search_default_group_zone': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No members yet</p>
+            <p>Members appear here once they have a membership line. Use
+               <b>Print &gt; Member Roster</b> for a PDF.</p>
+        </field>
+    </record>
+</odoo>

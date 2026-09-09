@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_club_evacuation_zone_manager,club.evacuation.zone manager,model_club_evacuation_zone,membership.group_membership_manager,1,1,1,1
+access_club_evacuation_zone_user,club.evacuation.zone user,model_club_evacuation_zone,base.group_user,1,0,0,0
+access_report_club_event,report.club.event,model_report_club_event,base.group_user,1,0,0,0

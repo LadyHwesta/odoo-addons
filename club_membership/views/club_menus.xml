@@ -33,11 +33,51 @@
               sequence="4"
               groups="maintenance.group_equipment_manager,base.group_user" />
 
+    <menuitem id="menu_club_reporting"
+              name="Reporting"
+              parent="menu_club_root"
+              sequence="80"
+              groups="base.group_user" />
+
+    <menuitem id="menu_club_report_roster"
+              name="Member Roster"
+              parent="menu_club_reporting"
+              action="member_roster_action"
+              sequence="1" />
+
+    <menuitem id="menu_club_report_members_analysis"
+              name="Members Analysis"
+              parent="menu_club_reporting"
+              action="membership.action_report_membership_tree"
+              sequence="2"
+              groups="base.group_partner_manager" />
+
+    <menuitem id="menu_club_report_event_stats"
+              name="Event Statistics"
+              parent="menu_club_reporting"
+              action="report_club_event_action"
+              sequence="3"
+              groups="event.group_event_user" />
+
+    <menuitem id="menu_club_report_volunteer"
+              name="Volunteer Participation"
+              parent="menu_club_reporting"
+              action="event_volunteer_participation_action"
+              sequence="4"
+              groups="event.group_event_user" />
+
     <menuitem id="menu_club_config"
               name="Configuration"
               parent="menu_club_root"
               sequence="90"
               groups="membership.group_membership_manager,event.group_event_manager,maintenance.group_equipment_manager" />
+
+    <menuitem id="menu_club_config_evacuation_zones"
+              name="Evacuation Zones"
+              parent="menu_club_config"
+              action="club_evacuation_zone_action"
+              sequence="4"
+              groups="membership.group_membership_manager" />
 
     <menuitem id="menu_club_config_products"
               name="Membership Products"

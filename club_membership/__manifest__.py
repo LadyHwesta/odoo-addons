@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Amateur Radio Club',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Association',
     'summary': 'Club-centric bundle: members with prorated dues and licences, '
                'events with volunteers, a loaner equipment library, and one '
@@ -47,8 +47,14 @@ No extra Python packages.
         'club_equipment_loan',
     ],
     'data': [
+        'security/ir.model.access.csv',
         'data/product_data.xml',
         'data/ir_cron.xml',
+        'views/club_evacuation_zone_views.xml',
+        'views/res_partner_views.xml',
+        'views/report_club_event_views.xml',
+        'views/event_volunteer_report_views.xml',
+        'report/member_roster_report.xml',
         'views/club_menus.xml',
         'views/club_portal_templates.xml',
     ],

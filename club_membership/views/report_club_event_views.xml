@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="report_club_event_view_list" model="ir.ui.view">
+        <field name="model">report.club.event</field>
+        <field name="arch" type="xml">
+            <list string="Event Statistics" create="0">
+                <field name="event_id" />
+                <field name="date_begin" />
+                <field name="event_type_id" optional="show" />
+                <field name="attendee_count" sum="Attendees" />
+                <field name="volunteer_confirmed" sum="Volunteers" />
+                <field name="volunteer_needed" sum="Slots" />
+                <field name="volunteer_shortfall" sum="Unfilled" />
+                <field name="roles_understaffed" sum="Understaffed roles" />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="report_club_event_view_pivot" model="ir.ui.view">
+        <field name="model">report.club.event</field>
+        <field name="arch" type="xml">
+            <pivot string="Event Statistics" sample="1">
+                <field name="date_begin" interval="month" type="row" />
+                <field name="attendee_count" type="measure" />
+                <field name="volunteer_confirmed" type="measure" />
+                <field name="volunteer_shortfall" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="report_club_event_view_graph" model="ir.ui.view">
+        <field name="model">report.club.event</field>
+        <field name="arch" type="xml">
+            <graph string="Event Statistics" sample="1" type="bar">
+                <field name="date_begin" interval="month" />
+                <field name="attendee_count" type="measure" />
+                <field name="volunteer_confirmed" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="report_club_event_view_search" model="ir.ui.view">
+        <field name="model">report.club.event</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="event_id" />
+                <field name="event_type_id" />
+                <filter name="understaffed" string="Had Unfilled Slots"
+                        domain="[('volunteer_shortfall', '>', 0)]" />
+                <filter name="this_year" string="This Year"
+                        domain="[('date_begin', '>=', datetime.datetime(context_today().year, 1, 1))]" />
+                <group>
+                    <filter name="group_month" string="Month"
+                            context="{'group_by': 'date_begin:month'}" />
+                    <filter name="group_type" string="Category"
+                            context="{'group_by': 'event_type_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="report_club_event_action" model="ir.actions.act_window">
+        <field name="name">Event Statistics</field>
+        <field name="res_model">report.club.event</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="search_view_id" ref="report_club_event_view_search" />
+        <field name="context">{'search_default_group_month': 1}</field>
+    </record>
+</odoo>

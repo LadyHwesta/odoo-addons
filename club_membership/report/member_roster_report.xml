@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="action_report_member_roster" model="ir.actions.report">
+        <field name="name">Member Roster</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">club_membership.report_member_roster</field>
+        <field name="report_file">club_membership.report_member_roster</field>
+        <field name="binding_model_id" ref="base.model_res_partner" />
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro" />
+    </record>
+
+    <template id="report_member_roster">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Member Roster</h2>
+                    <p class="text-muted">
+                        <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')" />
+                        &#8226; <t t-esc="len(docs)" /> member(s)
+                    </p>
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Call sign</th>
+                                <th>Class</th>
+                                <th>Licence exp.</th>
+                                <th>Membership</th>
+                                <th>Renewal</th>
+                                <th>Zone</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="p">
+                                <td t-esc="p.name" />
+                                <td t-esc="p.callsign or ''" />
+                                <td t-esc="dict(p._fields['ham_license_class']._description_selection(p.env)).get(p.ham_license_class, '')" />
+                                <td t-esc="p.ham_license_expiry_date or ''" />
+                                <td t-esc="dict(p._fields['membership_state']._description_selection(p.env)).get(p.membership_state, '')" />
+                                <td t-esc="p.membership_stop or ''" />
+                                <td t-esc="p.evacuation_zone_id.display_name or ''" />
+                                <td t-esc="p.email or ''" />
+                                <td t-esc="p.phone or ''" />
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

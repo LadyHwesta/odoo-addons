@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="club_evacuation_zone_view_list" model="ir.ui.view">
+        <field name="model">club.evacuation.zone</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="coordinator_id" />
+                <field name="member_count" string="Members" />
+            </list>
+        </field>
+    </record>
+
+    <record id="club_evacuation_zone_view_form" model="ir.ui.view">
+        <field name="model">club.evacuation.zone</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_members" type="object"
+                                class="oe_stat_button" icon="fa-users">
+                            <field name="member_count" widget="statinfo" string="Members" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. North Ridge" /></h1>
+                    </div>
+                    <group>
+                        <field name="code" />
+                        <field name="coordinator_id" />
+                        <field name="active" widget="boolean_toggle" />
+                    </group>
+                    <field name="note" placeholder="Muster point, repeater, net time..." />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="club_evacuation_zone_action" model="ir.actions.act_window">
+        <field name="name">Evacuation Zones</field>
+        <field name="res_model">club.evacuation.zone</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
