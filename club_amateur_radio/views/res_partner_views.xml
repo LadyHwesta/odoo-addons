@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_partner_form_amateur_radio" model="ir.ui.view">
+        <field name="name">res.partner.form - amateur radio</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Amateur Radio" name="amateur_radio">
+                    <group>
+                        <group name="ham_licence" string="FCC Licence">
+                            <div class="o_row" colspan="2">
+                                <field name="callsign" placeholder="e.g. W1AW" />
+                                <button
+                                    name="action_lookup_callsign"
+                                    type="object"
+                                    string="Look up call sign"
+                                    icon="fa-search"
+                                    class="btn-link"
+                                    invisible="not callsign"
+                                    help="Fill the fields below from the FCC ULS (callook.info). Also fills a blank name / address."
+                                />
+                            </div>
+                            <field name="ham_license_class" />
+                            <field name="ham_license_type" />
+                            <field name="ham_license_grant_date" />
+                            <field name="ham_license_expiry_date" />
+                            <field
+                                name="ham_license_expiring_soon"
+                                invisible="not ham_license_expiring_soon"
+                            />
+                            <field name="ham_frn" />
+                            <field name="ham_grid_square" />
+                            <field
+                                name="ham_license_last_checked"
+                                invisible="not ham_license_last_checked"
+                            />
+                        </group>
+                        <group name="ham_extra" string="Club Station / ARRL">
+                            <field
+                                name="ham_trustee_name"
+                                invisible="ham_license_type not in ('club', 'military', 'races', 'recreation')"
+                            />
+                            <field
+                                name="ham_trustee_callsign"
+                                invisible="ham_license_type not in ('club', 'military', 'races', 'recreation')"
+                            />
+                            <field name="arrl_member" />
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_amateur_radio" model="ir.ui.view">
+        <field name="name">res.partner.list - amateur radio</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree" />
+        <field name="arch" type="xml">
+            <field name="display_name" position="after">
+                <field name="callsign" optional="show" />
+                <field name="ham_license_class" optional="hide" />
+                <field name="ham_license_expiry_date" optional="hide" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter_amateur_radio" model="ir.ui.view">
+        <field name="name">res.partner.search - amateur radio</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter" />
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field
+                    name="callsign"
+                    string="Call Sign"
+                    filter_domain="[('callsign', 'ilike', self)]"
+                />
+            </field>
+            <filter name="type_company" position="after">
+                <separator />
+                <filter
+                    name="ham_licensed"
+                    string="Licensed (has a call sign)"
+                    domain="[('callsign', '!=', False)]"
+                />
+                <filter
+                    name="ham_expiring_soon"
+                    string="Licence Expiring Soon"
+                    domain="[('ham_license_expiring_soon', '=', True)]"
+                />
+                <filter
+                    name="arrl_member"
+                    string="ARRL Member"
+                    domain="[('arrl_member', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="group_license_class"
+                    string="Operator Class"
+                    context="{'group_by': 'ham_license_class'}"
+                />
+            </filter>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form_amateur_radio" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.club_amateur_radio</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    data-string="Amateur Radio Club"
+                    string="Amateur Radio Club"
+                    name="club_amateur_radio"
+                    logo="/club_amateur_radio/static/description/icon.png"
+                >
+                    <block title="FCC Licence Lookup" name="club_amateur_radio_uls">
+                        <setting
+                            id="club_uls_lookup_enabled_setting"
+                            string="FCC call-sign lookup"
+                            help="Allow 'Look up call sign' and the nightly licence refresh to query callook.info. Turn off for an air-gapped install - the fields stay editable by hand."
+                        >
+                            <field name="uls_lookup_enabled" />
+                        </setting>
+                        <setting
+                            id="club_ham_license_warn_days_setting"
+                            string="Licence expiry warning window"
+                            help="A member's licence counts as 'expiring soon' - and the nightly sweep raises a To-Do - once it is within this many days of expiry (or already expired)."
+                        >
+                            <field name="ham_license_warn_days" />
+                            <span class="text-muted">days</span>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
