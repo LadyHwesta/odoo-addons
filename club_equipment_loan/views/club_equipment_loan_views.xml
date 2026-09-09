@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="club_equipment_loan_view_list" model="ir.ui.view">
+        <field name="model">club.equipment.loan</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_overdue" decoration-muted="state in ('returned', 'cancelled')">
+                <field name="name" />
+                <field name="equipment_id" />
+                <field name="borrower_id" />
+                <field name="checkout_date" />
+                <field name="due_date" />
+                <field name="return_date" optional="hide" />
+                <field name="is_overdue" optional="hide" />
+                <field name="state" widget="badge"
+                       decoration-info="state == 'reserved'"
+                       decoration-success="state == 'out'"
+                       decoration-muted="state in ('returned', 'cancelled')" />
+            </list>
+        </field>
+    </record>
+
+    <record id="club_equipment_loan_view_form" model="ir.ui.view">
+        <field name="model">club.equipment.loan</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_check_out" type="object" string="Check Out"
+                            class="btn-primary" invisible="state != 'reserved'" />
+                    <button name="action_check_in" type="object" string="Check In"
+                            class="btn-primary" invisible="state != 'out'" />
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('reserved', 'out')" />
+                    <button name="action_reset_to_reserved" type="object"
+                            string="Reset to Reserved" invisible="state != 'cancelled'" />
+                    <button name="%(action_report_equipment_loan)d" type="action"
+                            string="Print Agreement" class="btn-secondary" />
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="reserved,out,returned" />
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Overdue" bg_color="text-bg-danger"
+                            invisible="not is_overdue" />
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="equipment_id"
+                                   readonly="state != 'reserved'" />
+                            <field name="borrower_id"
+                                   readonly="state not in ('reserved', 'out')" />
+                            <field name="user_id" />
+                        </group>
+                        <group>
+                            <field name="checkout_date" />
+                            <field name="due_date" />
+                            <field name="return_date" />
+                            <field name="is_overdue" invisible="1" />
+                            <field name="company_id" groups="base.group_multi_company" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="borrower_accepted" />
+                    </group>
+                    <notebook>
+                        <page string="Condition &amp; Notes" name="condition">
+                            <group>
+                                <field name="condition_out" placeholder="State of the item when it went out..." />
+                                <field name="condition_in" placeholder="State of the item when it came back..." />
+                            </group>
+                            <field name="notes" placeholder="Anything else..." />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="club_equipment_loan_view_search" model="ir.ui.view">
+        <field name="model">club.equipment.loan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="equipment_id" />
+                <field name="borrower_id" />
+                <filter name="reserved" string="Reserved" domain="[('state', '=', 'reserved')]" />
+                <filter name="out" string="On Loan" domain="[('state', '=', 'out')]" />
+                <filter name="overdue" string="Overdue" domain="[('is_overdue', '=', True)]" />
+                <filter name="returned" string="Returned" domain="[('state', '=', 'returned')]" />
+                <separator />
+                <filter name="my_loans" string="My Loans (as officer)"
+                        domain="[('user_id', '=', uid)]" />
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}" />
+                    <filter name="group_equipment" string="Equipment" context="{'group_by': 'equipment_id'}" />
+                    <filter name="group_borrower" string="Borrower" context="{'group_by': 'borrower_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="club_equipment_loan_action" model="ir.actions.act_window">
+        <field name="name">Equipment Loans</field>
+        <field name="res_model">club.equipment.loan</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="club_equipment_loan_view_search" />
+        <field name="context">{'search_default_out': 1, 'search_default_reserved': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Record a new equipment loan</p>
+            <p>Lend a loanable item to a member and track it back.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_club_equipment_loan"
+              name="Equipment Loans"
+              parent="maintenance.menu_maintenance_title"
+              action="club_equipment_loan_action"
+              groups="maintenance.group_equipment_manager,base.group_user"
+              sequence="3" />
+</odoo>

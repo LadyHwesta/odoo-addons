@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="club_equipment_loan_portal_rule" model="ir.rule">
+        <field name="name">Equipment loan: portal user sees only their own</field>
+        <field name="model_id" ref="model_club_equipment_loan" />
+        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
+        <field name="domain_force">[('borrower_id', '=', user.partner_id.id)]</field>
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="club_equipment_loan_company_rule" model="ir.rule">
+        <field name="name">Equipment loan: multi-company</field>
+        <field name="model_id" ref="model_club_equipment_loan" />
+        <field name="global" eval="True" />
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

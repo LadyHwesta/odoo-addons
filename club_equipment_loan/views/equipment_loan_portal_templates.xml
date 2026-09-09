@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="portal_my_home_equipment_loan" name="Portal home: Equipment loans"
+              customize_show="True" inherit_id="portal.portal_my_home" priority="50">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True" />
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/folder.svg'" />
+                <t t-set="title">Equipment on loan</t>
+                <t t-set="url" t-value="'/my/loans'" />
+                <t t-set="text">Club gear you currently have out</t>
+                <t t-set="placeholder_count" t-value="'equipment_loan_count'" />
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_loans" name="My Equipment Loans">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">Equipment on loan</h3>
+
+            <t t-if="not loans">
+                <p class="alert alert-info">You have no equipment out from the club.</p>
+            </t>
+            <t t-else="">
+                <table class="table table-sm o_portal_my_doc_table">
+                    <thead>
+                        <tr class="active">
+                            <th>Reference</th>
+                            <th>Equipment</th>
+                            <th>Checked out</th>
+                            <th>Due back</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="loans" t-as="loan">
+                            <td t-esc="loan.name" />
+                            <td t-esc="loan.equipment_id.display_name" />
+                            <td t-esc="loan.checkout_date" />
+                            <td>
+                                <span t-esc="loan.due_date" />
+                                <span t-if="loan.is_overdue"
+                                      class="badge text-bg-danger ms-1">Overdue</span>
+                            </td>
+                            <td>
+                                <span t-if="loan.state == 'out'"
+                                      class="badge text-bg-success">On loan</span>
+                                <span t-elif="loan.state == 'reserved'"
+                                      class="badge text-bg-info">Reserved</span>
+                                <span t-elif="loan.state == 'returned'"
+                                      class="badge text-bg-secondary">Returned</span>
+                                <span t-else="" class="badge text-bg-light">Cancelled</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </t>
+    </template>
+</odoo>

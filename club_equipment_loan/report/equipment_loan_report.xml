@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="action_report_equipment_loan" model="ir.actions.report">
+        <field name="name">Loan Agreement</field>
+        <field name="model">club.equipment.loan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">club_equipment_loan.report_equipment_loan</field>
+        <field name="report_file">club_equipment_loan.report_equipment_loan</field>
+        <field name="binding_model_id" ref="model_club_equipment_loan" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_equipment_loan">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="loan">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Equipment Loan Agreement</h2>
+                        <p class="text-muted" t-out="loan.name" />
+
+                        <table class="table table-sm mt-3">
+                            <tr>
+                                <th style="width:35%">Equipment</th>
+                                <td t-out="loan.equipment_id.display_name" />
+                            </tr>
+                            <tr>
+                                <th>Serial no.</th>
+                                <td t-out="loan.equipment_id.serial_no or ''" />
+                            </tr>
+                            <tr>
+                                <th>Borrower</th>
+                                <td t-out="loan.borrower_id.name" />
+                            </tr>
+                            <tr>
+                                <th>Checked out</th>
+                                <td t-out="loan.checkout_date" />
+                            </tr>
+                            <tr>
+                                <th>Due back</th>
+                                <td t-out="loan.due_date" />
+                            </tr>
+                            <tr t-if="loan.condition_out">
+                                <th>Condition at checkout</th>
+                                <td t-out="loan.condition_out" />
+                            </tr>
+                        </table>
+
+                        <p class="mt-4">
+                            The borrower agrees to return the item above by the due
+                            date, in the condition received (fair wear and tear
+                            excepted), and to tell the club promptly if it is lost
+                            or damaged.
+                        </p>
+
+                        <div class="row mt-5">
+                            <div class="col-6">
+                                <p>_____________________________</p>
+                                <p>Borrower: <span t-out="loan.borrower_id.name" /></p>
+                                <p>Date: <span t-out="loan.checkout_date" /></p>
+                            </div>
+                            <div class="col-6">
+                                <p>_____________________________</p>
+                                <p>For the club: <span t-out="loan.user_id.name or ''" /></p>
+                            </div>
+                        </div>
+
+                        <p class="mt-4 small text-muted" t-if="loan.borrower_accepted">
+                            Terms accepted in the system on
+                            <span t-out="loan.write_date" t-options="{'widget': 'date'}" />.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

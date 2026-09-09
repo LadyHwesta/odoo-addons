@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="mail_template_loan_checkout" model="mail.template">
+        <field name="name">Equipment Loan: checkout confirmation</field>
+        <field name="model_id" ref="model_club_equipment_loan" />
+        <field name="subject">You've borrowed {{ object.equipment_id.display_name }} - due {{ format_date(object.due_date) }}</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.borrower_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.borrower_id.name or ''"/>,</p>
+                <p>
+                    You've checked out <strong t-out="object.equipment_id.display_name or ''"/>
+                    (loan <t t-out="object.name or ''"/>).
+                </p>
+                <p>Please have it back by <strong t-out="format_date(object.due_date) or ''"/>.</p>
+                <p t-if="object.condition_out">
+                    Noted condition on the way out: <em t-out="object.condition_out or ''"/>
+                </p>
+                <p>Thanks for looking after the club's gear. 73!</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.borrower_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+
+    <record id="mail_template_loan_overdue" model="mail.template">
+        <field name="name">Equipment Loan: overdue reminder</field>
+        <field name="model_id" ref="model_club_equipment_loan" />
+        <field name="subject">Overdue: please return {{ object.equipment_id.display_name }}</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.borrower_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.borrower_id.name or ''"/>,</p>
+                <p>
+                    <strong t-out="object.equipment_id.display_name or ''"/> (loan
+                    <t t-out="object.name or ''"/>) was due back on
+                    <strong t-out="format_date(object.due_date) or ''"/> and hasn't
+                    been returned yet.
+                </p>
+                <p>Could you get it back to the club as soon as you can? Thanks.</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.borrower_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+</odoo>

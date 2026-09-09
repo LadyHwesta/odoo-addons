@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form_equipment_loan" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.club_equipment_loan</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Equipment Loans" string="Equipment Loans"
+                     name="club_equipment_loan"
+                     logo="/maintenance/static/description/icon.png"
+                     groups="maintenance.group_equipment_manager">
+                    <block title="Loans" name="club_equipment_loan_block">
+                        <setting id="equipment_loan_default_days_setting"
+                                 string="Default loan length"
+                                 help="Pre-fills a new loan's due date this many days after checkout.">
+                            <field name="equipment_loan_default_days" />
+                            <span class="text-muted">days</span>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

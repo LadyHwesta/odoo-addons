@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="hr_equipment_view_form_loan" model="ir.ui.view">
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form" />
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_loans" type="object"
+                        class="oe_stat_button" icon="fa-exchange"
+                        invisible="not is_loanable">
+                    <field name="loan_count" widget="statinfo" string="Loans" />
+                </button>
+            </div>
+            <field name="category_id" position="after">
+                <field name="is_loanable" />
+                <field name="loan_availability" invisible="not is_loanable"
+                       widget="badge"
+                       decoration-success="loan_availability == 'available'"
+                       decoration-warning="loan_availability == 'reserved'"
+                       decoration-danger="loan_availability == 'on_loan'" />
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_equipment_view_search_loan" model="ir.ui.view">
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_search" />
+        <field name="arch" type="xml">
+            <filter name="available" position="after">
+                <separator />
+                <filter name="loanable" string="Loanable"
+                        domain="[('is_loanable', '=', True)]" />
+                <filter name="available_to_loan" string="Available to Loan"
+                        domain="[('is_loanable', '=', True), ('loan_availability', '=', 'available')]" />
+            </filter>
+        </field>
+    </record>
+</odoo>
