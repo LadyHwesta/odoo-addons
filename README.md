@@ -33,13 +33,17 @@ or pick pieces:
 - [`club_amateur_radio/`](club_amateur_radio/) - call sign / FCC licence /
   ARRL fields on contacts, with one-click autofill from the FCC ULS
   (callook.info) and a licence-expiry sweep.
-- [`event_volunteer/`](event_volunteer/) - volunteer roles with slot
-  quotas on events, website sign-up, reminders.
 - [`club_equipment_loan/`](club_equipment_loan/) - a loaner library on top
   of the Maintenance app: checkout / return, due dates, overdue chasing, a
   printable agreement.
 
-These depend on four OCA membership modules vendored at the repo root
+The suite also depends on **`event_volunteer`** (volunteer roles with slot
+quotas on events, website sign-up, reminders), which now lives in
+[`LadyHwesta/nonprofit-addons`](https://github.com/LadyHwesta/nonprofit-addons) -
+it's deployment-neutral and shared with the non-profit work. Clone that
+repo next to this one and add it to the addons path.
+
+These also depend on four OCA membership modules vendored at the repo root
 (`membership`, `website_membership`, `membership_prorate`,
 `membership_withdrawal`) - Odoo 19 dropped the core Membership app and
 OCA's proration / withdrawal add-ons aren't on a 19.0 channel yet. See

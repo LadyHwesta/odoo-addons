@@ -40,14 +40,18 @@ confirmed down). Don't leave it running unattended when you're not
 actively testing.
 
 `addons_path` automatically includes every folder at the root of this
-repo, so a new module just needs to exist there - nothing to edit.
+repo, plus a sibling clone of
+[`LadyHwesta/nonprofit-addons`](https://github.com/LadyHwesta/nonprofit-addons)
+(the club suite's `club_membership` depends on `event_volunteer`, which
+lives there). Clone it at `../nonprofit-addons`, or set `NONPROFIT_ADDONS`
+to wherever it is.
 
 First run creates the `odoo_addons_test` database with no modules
 installed yet. Install what you want to test:
 
 ```
 source .venv/bin/activate
-python3 ~/dev/odoo-19/odoo-bin --addons-path="$HOME/dev/odoo-19/addons,$HOME/dev/odoo-19/odoo/addons,$(cd .. && pwd)" \
+python3 ~/dev/odoo-19/odoo-bin --addons-path="$HOME/dev/odoo-19/addons,$HOME/dev/odoo-19/odoo/addons,$(cd .. && pwd),$(cd ../../nonprofit-addons && pwd)" \
     --db_host="$(pwd)/.sockets" --db_port=5433 -d odoo_addons_test \
     -i base,calendar,caldav_calendar --stop-after-init
 ```

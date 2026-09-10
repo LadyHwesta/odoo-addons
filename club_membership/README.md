@@ -13,7 +13,7 @@ suite is present.
 | `membership_withdrawal` (OCA, vendored) | resignation reason + date |
 | `website_membership` (OCA, vendored) | opt-in public member directory |
 | [`club_amateur_radio`](../club_amateur_radio/) | call sign / FCC licence / ARRL, with autofill |
-| [`event_volunteer`](../event_volunteer/) | volunteer roles + website sign-up |
+| `event_volunteer` (in [nonprofit-addons](https://github.com/LadyHwesta/nonprofit-addons)) | volunteer roles + website sign-up |
 | [`club_equipment_loan`](../club_equipment_loan/) | loaner equipment library |
 
 ## What it adds

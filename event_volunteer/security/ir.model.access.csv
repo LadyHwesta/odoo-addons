@@ -1,8 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_event_volunteer_role_manager,event.volunteer.role manager,model_event_volunteer_role,event.group_event_manager,1,1,1,1
-access_event_volunteer_role_user,event.volunteer.role user,model_event_volunteer_role,event.group_event_user,1,0,0,0
-access_event_volunteer_role_portal,event.volunteer.role portal,model_event_volunteer_role,base.group_portal,1,0,0,0
-access_event_volunteer_role_public,event.volunteer.role public,model_event_volunteer_role,base.group_public,1,0,0,0
-access_event_volunteer_assignment_manager,event.volunteer.assignment manager,model_event_volunteer_assignment,event.group_event_manager,1,1,1,1
-access_event_volunteer_assignment_user,event.volunteer.assignment user,model_event_volunteer_assignment,event.group_event_user,1,1,1,0
-access_event_volunteer_assignment_portal,event.volunteer.assignment portal,model_event_volunteer_assignment,base.group_portal,1,0,0,0

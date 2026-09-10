@@ -5,12 +5,16 @@
 # (Ctrl+C in a terminal, kill -TERM, kill -INT, or a plain crash).
 #
 # addons_path automatically includes every module folder in this repo's
-# root (one level up from testing/), so new modules just need to exist -
-# no editing this script.
+# root (one level up from testing/), plus a sibling clone of
+# LadyHwesta/nonprofit-addons (for event_volunteer, which the club suite
+# depends on) - override its location with NONPROFIT_ADDONS if it isn't at
+# ../nonprofit-addons. New modules in this repo just need to exist - no
+# editing this script.
 set -uo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$DIR/.." && pwd)"
 ODOO_SRC="${ODOO_SRC:-$HOME/dev/odoo-19}"
+NONPROFIT_ADDONS="${NONPROFIT_ADDONS:-$REPO_ROOT/../nonprofit-addons}"
 DB_NAME="${DB_NAME:-odoo_addons_test}"
 HTTP_PORT="${HTTP_PORT:-8069}"
 
@@ -39,7 +43,8 @@ trap cleanup EXIT INT TERM
 "$DIR/pg_start.sh"
 source "$DIR/.venv/bin/activate"
 
-ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT"
+ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT,$NONPROFIT_ADDONS"
+[ -d "$NONPROFIT_ADDONS/event_volunteer" ] || echo "WARNING: $NONPROFIT_ADDONS/event_volunteer not found - clone LadyHwesta/nonprofit-addons there (or set NONPROFIT_ADDONS)." >&2
 
 echo ""
 echo "Odoo starting at http://localhost:$HTTP_PORT  (db: $DB_NAME, login: admin / admin)"
