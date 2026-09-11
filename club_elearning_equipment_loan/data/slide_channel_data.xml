@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_equipment_loan" model="slide.channel">
+        <field name="name">Equipment Loans</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html">
+            <p>Running the club's loaner equipment library - from marking
+            an item loanable through checkout, return, and chasing an
+            overdue loan.</p>
+        </field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('maintenance.group_equipment_manager')])]" />
+    </record>
+
+    <!-- ========= Section 1: Setting up the lending library ========= -->
+    <record id="section_setup" model="slide.slide">
+        <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="name">Setting up the lending library</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_loanable" model="slide.slide">
+        <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="name">Marking equipment loanable</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <p>The library is just the Maintenance app's own equipment
+            register with one flag added: tick <strong>Is Loanable</strong>
+            on a piece of equipment to add it to the pool. Once flagged,
+            its form shows an <strong>Availability</strong> badge
+            (available / reserved / on loan) and a <strong>Loans</strong>
+            smart button, and the equipment list gets <em>Loanable</em>
+            and <em>Available to Loan</em> filters - handy for seeing
+            what's actually free to hand out right now.</p>
+            <p>Under <strong>Settings &gt; Equipment Loans</strong>, set
+            the <strong>Default loan length (days)</strong> - it pre-fills
+            a new loan's due date so nobody has to calculate it every
+            time.</p>
+        </field>
+    </record>
+
+    <!-- ================ Section 2: Running a loan ================ -->
+    <record id="section_running" model="slide.slide">
+        <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="name">Running a loan</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_workflow" model="slide.slide">
+        <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="name">Checking equipment out and in</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <p>A loan moves through <strong>Reserved → On Loan
+            → Returned</strong> (or Cancelled). Fill in the borrower,
+            loan officer, and due-back date, and record the item's
+            condition going out. <strong>Check Out</strong> is blocked
+            until <em>Borrower Accepted Terms</em> is ticked - ideally
+            after they've read <strong>Print Agreement</strong>, a QWeb
+            PDF they sign. <strong>Check In</strong> stamps the return
+            date and records the condition coming back; only one active
+            loan is allowed per item at a time, so the system won't let a
+            second loan start while the first is still open.</p>
+        </field>
+    </record>
+
+    <record id="lesson_overdue" model="slide.slide">
+        <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="name">Overdue chasing and the portal view</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html">
+            <p>Every six hours, a sweep checks for loans past their due
+            date. The first time it finds one, it emails the borrower a
+            reminder and drops a To-Do on the loan officer - and only that
+            one time per loan, not on every subsequent sweep. A borrower
+            can also see what they have out themselves: signed in, their
+            <strong>My Account &gt; Equipment on loan</strong> page
+            (<code>/my/loans</code>) lists only their own loans, nothing
+            about anyone else's.</p>
+        </field>
+    </record>
+
+    <!-- ========================= Quiz ========================= -->
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A borrower hasn't ticked "Borrower Accepted Terms" yet. What happens if you click Check Out?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">It's blocked until they accept the terms</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">It proceeds, but with a warning email later</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">It proceeds silently</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">The item is automatically marked unloanable</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Can a second loan be started on an item that's already checked out?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">No - only one active loan per item at a time</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Yes, as long as the borrowers are different</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Yes, up to three at once</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Only a manager can override and start a second one</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">A loan is overdue and the sweep already emailed the borrower once. What happens on the next sweep, six hours later?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Another reminder email goes out every six hours</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Nothing further - it only notifies once per loan</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">The loan is automatically cancelled</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">The item is marked lost</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q4" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">What can a borrower see on /my/loans?</field>
+    </record>
+    <record id="quiz_q4_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Only their own loans</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q4_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Every loan in the club, including other members'</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Nothing - portal users can't see loans at all</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Only overdue loans</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>

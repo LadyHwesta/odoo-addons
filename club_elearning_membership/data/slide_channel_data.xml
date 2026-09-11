@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_membership" model="slide.channel">
+        <field name="name">Membership Management</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html">
+            <p>Running the club's membership side - dues, the Club app,
+            evacuation zones, and the reports that come with it.</p>
+        </field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('membership.group_membership_manager')])]" />
+    </record>
+
+    <!-- ============= Section 1: Dues and the Club app ============= -->
+    <record id="section_dues" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">Dues and the Club app</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_dues" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">The Annual Dues product and yearly proration</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <p>The suite ships an <strong>Annual Club Dues</strong> product
+            with proration turned on and dated to the current calendar
+            year - a member who joins mid-year is charged the prorated
+            fraction automatically. A daily job
+            (<code>_cron_roll_membership_year</code>) moves any prorated,
+            expired membership product into the new year on or after
+            January 1st, so proration keeps charging new members the right
+            fraction every January without anyone editing dates by hand.
+            A plain, non-prorated membership product is left alone by this
+            job.</p>
+        </field>
+    </record>
+
+    <record id="lesson_club_app" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">The Club app and its menus</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html">
+            <p>One <strong>Club</strong> app menu gathers Members, Events,
+            Volunteers, Equipment Loans, Reporting, and Configuration in
+            one place - a front door on top of the Membership, Events, and
+            Maintenance apps, which stay installed and reachable on their
+            own too. Members also get their own view: signed-in members
+            land on <strong>/my/club</strong>, a portal home showing dues
+            status, licence class and expiry (with a "Renew soon" badge
+            inside the warning window), evacuation zone, equipment
+            currently checked out, and upcoming volunteer commitments -
+            everything in one glance instead of hunting through several
+            apps.</p>
+        </field>
+    </record>
+
+    <!-- ================ Section 2: Evacuation zones ================ -->
+    <record id="section_zones" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">Evacuation zones</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_zones" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">Evacuation zones</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <p>Manage zones under <strong>Club &gt; Configuration &gt;
+            Evacuation Zones</strong> - a name, a short code used on
+            rosters and net lists, and a zone coordinator (the member who
+            leads check-ins for that zone). Assign a member to one from the
+            <strong>Evacuation Zone</strong> field on their Membership
+            page. A zone's member count updates automatically as people
+            are assigned, and zone codes have to be unique so a roster
+            never has two zones that look the same.</p>
+        </field>
+    </record>
+
+    <!-- =================== Section 3: Reporting =================== -->
+    <record id="section_reporting" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">Reporting</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="lesson_reporting" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">Member Roster, Event Statistics &amp; Volunteer Participation</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">31</field>
+        <field name="html_content" type="html">
+            <p>Under <strong>Club &gt; Reporting</strong>: the
+            <strong>Member Roster</strong> lists members with call sign,
+            licence class and expiry, membership status and renewal date,
+            evacuation zone, and contact details - filter and group by any
+            of those (grouped by zone by default), and
+            <strong>Print &gt; Member Roster</strong> turns whatever's
+            filtered or selected into a PDF. <strong>Event
+            Statistics</strong> analyzes one event at a time - attendees,
+            volunteers signed up versus slots needed, unfilled slots, and
+            understaffed roles - as a graph, pivot, or list.
+            <strong>Volunteer Participation</strong> pivots confirmed
+            volunteer assignments across every event, by member (who
+            actually turns out) or by role (what's hard to fill).
+            <strong>Members Analysis</strong> is the OCA membership
+            module's own built-in membership/revenue report.</p>
+        </field>
+    </record>
+
+    <!-- ========================= Quiz ========================= -->
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_membership" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A member joins in October. What happens to their Annual Club Dues charge?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">They pay the full year's dues regardless of join date</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">It's automatically prorated for the months remaining</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">They wait until January to be charged anything</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Someone has to manually calculate and enter the prorated amount</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">What keeps the dues product charging the right amount every January without anyone editing dates?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">A daily job that rolls expired prorated products into the new year</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">The treasurer updates it by hand every January</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">It never needs updating once created</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Members request a new product each year</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Where does a member see their own dues status, licence expiry, and gear on loan?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">/my/club</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">The Member Roster report</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">They have to call the club</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">The evacuation zone page</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q4" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Which report shows volunteers signed up versus slots needed for one event?</field>
+    </record>
+    <record id="quiz_q4_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Member Roster</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Event Statistics</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q4_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Members Analysis</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Volunteer Participation</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>

@@ -49,6 +49,26 @@ These also depend on four OCA membership modules vendored at the repo root
 OCA's proration / withdrawal add-ons aren't on a 19.0 channel yet. See
 [`VENDORED.md`](VENDORED.md).
 
+**eLearning training** - three small, pure-data modules that each drop
+one ready-built course into Odoo's own **eLearning** app
+(`website_slides`), one per functional area so a club only installs the
+training that matches what it actually runs:
+
+- [`club_elearning_membership/`](club_elearning_membership/) - *Membership
+  Management* (dues/proration, the Club app, evacuation zones, reporting).
+- [`club_elearning_amateur_radio/`](club_elearning_amateur_radio/) -
+  *License & Callsign Tracking* (FCC lookup, the expiry sweep).
+- [`club_elearning_equipment_loan/`](club_elearning_equipment_loan/) -
+  *Equipment Loans* (the checkout/return workflow, overdue chasing).
+
+Each is gated (`visibility="members"`, `enroll="invite"`) with the
+matching security group auto-enrolled, and ends with a 4-question quiz.
+See [`nonprofit-addons`](https://github.com/LadyHwesta/nonprofit-addons)'s
+own README for the same pattern applied there, including a schema gotcha
+worth knowing before adding another lesson: a `slide.slide`'s
+`html_content` field needs real inline XML elements, not a
+`<![CDATA[...]]>` block.
+
 ## Testing
 
 [`testing/`](testing/) has a self-contained local Odoo 19 + Postgres

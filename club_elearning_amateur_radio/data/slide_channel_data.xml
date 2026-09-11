@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_amateur_radio" model="slide.channel">
+        <field name="name">License &amp; Callsign Tracking</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html">
+            <p>Looking up a member's FCC licence, and keeping it current
+            without watching a calendar.</p>
+        </field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('membership.group_membership_manager')])]" />
+    </record>
+
+    <!-- ================ Section 1: Call sign lookup ================ -->
+    <record id="section_lookup" model="slide.slide">
+        <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="name">Call sign lookup</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_lookup" model="slide.slide">
+        <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="name">Looking up a call sign from the FCC</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <p>Every contact has an <strong>Amateur Radio</strong> tab.
+            Type a call sign and click <strong>Look up call sign</strong>
+            to query callook.info - a free, no-key JSON wrapper around the
+            FCC's own licence database - and pull in Operator Class,
+            Licence Type, grant and expiry dates, FRN, grid square, and
+            (for a club-station licence) the trustee's name and call
+            sign. No API key, no extra Python packages, just Odoo's
+            already-bundled <code>requests</code>.</p>
+        </field>
+    </record>
+
+    <record id="lesson_fills" model="slide.slide">
+        <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="name">What gets filled versus left alone</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html">
+            <p>The licence fields themselves are always overwritten from
+            the lookup - the FCC is the authority on those, so a fresh
+            lookup should always win. The contact's <strong>name</strong>
+            and <strong>mailing address</strong> are different: they're
+            only filled in when they're still blank. That means a lookup
+            on a brand-new member is one click that sets everything up,
+            but running it again later on an existing member never
+            clobbers a name or address you've already typed by hand.</p>
+        </field>
+    </record>
+
+    <!-- ================ Section 2: Staying current ================ -->
+    <record id="section_current" model="slide.slide">
+        <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="name">Staying current</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_sweep" model="slide.slide">
+        <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="name">The daily expiry sweep and settings</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <p>A daily scheduled action re-checks every member with a call
+            sign, refreshes their expiry date, and raises one To-Do
+            activity per member whose licence has expired or is expiring
+            within the warning window - never a second one for the same
+            lapse. It pauses briefly between lookups to be kind to
+            callook.info, and one bad call sign never stops the whole
+            sweep from finishing.</p>
+            <p>Under <strong>Settings &gt; Amateur Radio Club</strong>:
+            turn <strong>FCC call-sign lookup</strong> off entirely for an
+            air-gapped install (the fields stay editable by hand), and set
+            the <strong>Licence expiry warning window</strong> - how many
+            days before expiry a licence counts as "expiring soon"
+            (default 60).</p>
+        </field>
+    </record>
+
+    <!-- ========================= Quiz ========================= -->
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">You look up a call sign for an existing member whose name is already filled in. What happens to their name?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">It's overwritten with whatever the FCC has on file</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">It's left alone, since it isn't blank</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">The lookup fails and shows an error</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">The member has to confirm the change first</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Are the licence fields (class, expiry, etc.) treated the same way as name/address?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">No - licence fields always get overwritten from the FCC, since it's the authority on those</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Yes - both only fill in when blank</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Licence fields are never updated after the first lookup</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Only an administrator can update licence fields</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">A member's licence expired two weeks ago and got a To-Do raised. It's still expired the next day the sweep runs. What happens?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">A second, duplicate To-Do is raised</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">No new To-Do - it doesn't raise a second one for the same lapse</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">The member is automatically removed from the roster</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">The existing To-Do is silently deleted</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q4" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">How do you turn off FCC lookups for an air-gapped install?</field>
+    </record>
+    <record id="quiz_q4_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Settings &gt; Amateur Radio Club &gt; FCC call-sign lookup</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q4_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Uninstall the module entirely</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Delete the callsign field from every contact</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">It can't be turned off</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>
