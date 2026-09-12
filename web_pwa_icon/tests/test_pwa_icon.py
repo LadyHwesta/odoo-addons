@@ -44,13 +44,16 @@ class TestAppleTouchIcon(HttpCase):
     def test_falls_back_to_odoo_icon_without_custom_icon(self):
         resp = self.url_open('/web/pwa_icon/apple-touch-icon.png', allow_redirects=False)
         self.assertEqual(resp.status_code, 303)
-        self.assertEqual(resp.headers['Location'], '/web/static/img/odoo-icon-ios.png')
+        # Werkzeug renders this Location either as a bare path or as an
+        # absolute URL depending on the environment (both are valid per
+        # RFC 7231) - assert on the path, not on which form it took.
+        self.assertTrue(resp.headers['Location'].endswith('/web/static/img/odoo-icon-ios.png'))
 
     def test_redirects_to_web_pwa_customize_icon_when_set(self):
         self.env['res.config.settings'].create({'pwa_icon': _make_512_png()}).execute()
         resp = self.url_open('/web/pwa_icon/apple-touch-icon.png', allow_redirects=False)
         self.assertEqual(resp.status_code, 303)
-        self.assertEqual(resp.headers['Location'], '/web_pwa_customize/icon192x192.png')
+        self.assertTrue(resp.headers['Location'].endswith('/web_pwa_customize/icon192x192.png'))
 
     def test_apple_touch_icon_link_uses_our_route(self):
         self.authenticate('admin', 'admin')
