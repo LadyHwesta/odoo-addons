@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Membership Management",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Website/eLearning",
     "summary": "eLearning course: dues, evacuation zones, and club reporting",
     "description": """
@@ -20,7 +20,7 @@ Only depends on ``club_membership``.
     "author": "Tiesa",
     "license": "LGPL-3",
     "website": "https://github.com/LadyHwesta/odoo-addons",
-    "depends": ["website_slides", "club_membership"],
+    "depends": ["website_slides", "club_elearning_theme", "club_membership"],
     "data": [
         "data/slide_channel_data.xml",
     ],

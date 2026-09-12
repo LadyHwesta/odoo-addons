@@ -28,16 +28,48 @@
         <field name="slide_category">article</field>
         <field name="sequence">11</field>
         <field name="html_content" type="html">
-            <p>The suite ships an <strong>Annual Club Dues</strong> product
-            with proration turned on and dated to the current calendar
-            year - a member who joins mid-year is charged the prorated
-            fraction automatically. A daily job
-            (<code>_cron_roll_membership_year</code>) moves any prorated,
-            expired membership product into the new year on or after
-            January 1st, so proration keeps charging new members the right
-            fraction every January without anyone editing dates by hand.
-            A plain, non-prorated membership product is left alone by this
-            job.</p>
+            <div class="oe-course-content">
+                <p>The suite ships an <strong>Annual Club Dues</strong>
+                product with proration turned on and dated to the current
+                calendar year - a member who joins mid-year is charged the
+                prorated fraction automatically.</p>
+
+                <div class="oe-diagram">
+                    <div class="oe-flow">
+                        <div class="oe-flow-step">
+                            <span class="oe-flow-step-icon"><i class="fa fa-moon-o" /></span>
+                            Daily job checks the date
+                        </div>
+                        <span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span>
+                        <div class="oe-flow-step">
+                            <span class="oe-flow-step-icon"><i class="fa fa-calendar" /></span>
+                            On/after Jan 1st
+                        </div>
+                        <span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span>
+                        <div class="oe-flow-step">
+                            <span class="oe-flow-step-icon"><i class="fa fa-refresh" /></span>
+                            Prorated product rolls to the new year
+                        </div>
+                    </div>
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Illustration</span>
+                        <code>_cron_roll_membership_year</code> moves any
+                        prorated, expired membership product into the new
+                        year, so proration keeps charging new members the
+                        right fraction every January without anyone editing
+                        dates by hand.
+                    </p>
+                </div>
+
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-info-circle" /></span>
+                    <div>
+                        <span class="oe-callout-label">Not every product</span>
+                        <p>A plain, non-prorated membership product is left
+                        alone by this job.</p>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 
@@ -47,17 +79,35 @@
         <field name="slide_category">article</field>
         <field name="sequence">12</field>
         <field name="html_content" type="html">
-            <p>One <strong>Club</strong> app menu gathers Members, Events,
-            Volunteers, Equipment Loans, Reporting, and Configuration in
-            one place - a front door on top of the Membership, Events, and
-            Maintenance apps, which stay installed and reachable on their
-            own too. Members also get their own view: signed-in members
-            land on <strong>/my/club</strong>, a portal home showing dues
-            status, licence class and expiry (with a "Renew soon" badge
-            inside the warning window), evacuation zone, equipment
-            currently checked out, and upcoming volunteer commitments -
-            everything in one glance instead of hunting through several
-            apps.</p>
+            <div class="oe-course-content">
+                <p>One <strong>Club</strong> app menu gathers Members,
+                Events, Volunteers, Equipment Loans, Reporting, and
+                Configuration in one place - a front door on top of the
+                Membership, Events, and Maintenance apps, which stay
+                installed and reachable on their own too.</p>
+
+                <div class="oe-diagram">
+                    <div class="oe-mock-bar">
+                        <span class="oe-mock-dots"><span /><span /><span /></span>
+                        /my/club
+                    </div>
+                    <div class="oe-mock-body">
+                        <p>
+                            <span class="oe-badge oe-badge-good">Dues: Current</span>
+                            <span class="oe-badge oe-badge-warn">Licence: Renew soon</span>
+                            <span class="oe-badge">Zone: C</span>
+                        </p>
+                        <p class="mb-0 text-muted">Plus equipment currently
+                        checked out and upcoming volunteer commitments.</p>
+                    </div>
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Illustration</span>
+                        signed-in members land on this portal home -
+                        everything in one glance instead of hunting through
+                        several apps.
+                    </p>
+                </div>
+            </div>
         </field>
     </record>
 
@@ -75,14 +125,33 @@
         <field name="slide_category">article</field>
         <field name="sequence">21</field>
         <field name="html_content" type="html">
-            <p>Manage zones under <strong>Club &gt; Configuration &gt;
-            Evacuation Zones</strong> - a name, a short code used on
-            rosters and net lists, and a zone coordinator (the member who
-            leads check-ins for that zone). Assign a member to one from the
-            <strong>Evacuation Zone</strong> field on their Membership
-            page. A zone's member count updates automatically as people
-            are assigned, and zone codes have to be unique so a roster
-            never has two zones that look the same.</p>
+            <div class="oe-course-content">
+                <ol class="oe-steps">
+                    <li>
+                        <p>Manage zones under <strong>Club &gt;
+                        Configuration &gt; Evacuation Zones</strong> - a
+                        name, a short code used on rosters and net lists,
+                        and a zone coordinator (the member who leads
+                        check-ins for that zone).</p>
+                    </li>
+                    <li>
+                        <p>Assign a member to one from the
+                        <strong>Evacuation Zone</strong> field on their
+                        Membership page.</p>
+                    </li>
+                </ol>
+
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-hashtag" /></span>
+                    <div>
+                        <span class="oe-callout-label">Kept consistent automatically</span>
+                        <p>A zone's member count updates automatically as
+                        people are assigned, and zone codes have to be
+                        unique so a roster never has two zones that look the
+                        same.</p>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 
@@ -100,21 +169,41 @@
         <field name="slide_category">article</field>
         <field name="sequence">31</field>
         <field name="html_content" type="html">
-            <p>Under <strong>Club &gt; Reporting</strong>: the
-            <strong>Member Roster</strong> lists members with call sign,
-            licence class and expiry, membership status and renewal date,
-            evacuation zone, and contact details - filter and group by any
-            of those (grouped by zone by default), and
-            <strong>Print &gt; Member Roster</strong> turns whatever's
-            filtered or selected into a PDF. <strong>Event
-            Statistics</strong> analyzes one event at a time - attendees,
-            volunteers signed up versus slots needed, unfilled slots, and
-            understaffed roles - as a graph, pivot, or list.
-            <strong>Volunteer Participation</strong> pivots confirmed
-            volunteer assignments across every event, by member (who
-            actually turns out) or by role (what's hard to fill).
-            <strong>Members Analysis</strong> is the OCA membership
-            module's own built-in membership/revenue report.</p>
+            <div class="oe-course-content">
+                <p>Under <strong>Club &gt; Reporting</strong>:</p>
+
+                <div class="oe-columns">
+                    <div class="oe-column">
+                        <h4><i class="fa fa-users" /> Member Roster</h4>
+                        <p class="mb-0">Call sign, licence class and expiry,
+                        membership status and renewal date, evacuation zone,
+                        and contact details - filter and group by any of
+                        those (grouped by zone by default). <strong>Print
+                        &gt; Member Roster</strong> turns whatever's
+                        filtered or selected into a PDF.</p>
+                    </div>
+                    <div class="oe-column">
+                        <h4><i class="fa fa-bar-chart" /> Event Statistics</h4>
+                        <p class="mb-0">One event at a time - attendees,
+                        volunteers signed up versus slots needed, unfilled
+                        slots, and understaffed roles - as a graph, pivot,
+                        or list.</p>
+                    </div>
+                </div>
+
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-hand-paper-o" /></span>
+                    <div>
+                        <span class="oe-callout-label">Two more worth knowing</span>
+                        <p><strong>Volunteer Participation</strong> pivots
+                        confirmed volunteer assignments across every event,
+                        by member (who actually turns out) or by role (what's
+                        hard to fill). <strong>Members Analysis</strong> is
+                        the OCA membership module's own built-in membership/
+                        revenue report.</p>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 

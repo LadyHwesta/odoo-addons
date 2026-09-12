@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Equipment Loans",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Website/eLearning",
     "summary": "eLearning course: the loaner equipment library workflow",
     "description": """
@@ -19,7 +19,7 @@ Only depends on ``club_equipment_loan``.
     "author": "Tiesa",
     "license": "LGPL-3",
     "website": "https://github.com/LadyHwesta/odoo-addons",
-    "depends": ["website_slides", "club_equipment_loan"],
+    "depends": ["website_slides", "club_elearning_theme", "club_equipment_loan"],
     "data": [
         "data/slide_channel_data.xml",
     ],

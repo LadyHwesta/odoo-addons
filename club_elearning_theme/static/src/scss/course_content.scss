@@ -1,0 +1,272 @@
+// Styling for eLearning lesson bodies (slide.slide.html_content).
+// Scoped under .oe-course-content so it never leaks into the surrounding
+// website theme, and pulls its palette from custom properties (with sane
+// defaults) rather than hard-coded brand colors, since this content is
+// meant to look reasonable inside whatever theme the org has installed.
+.oe-course-content {
+    --oe-ink: #26313a;
+    --oe-ink-muted: #5b6b76;
+    --oe-border: #dde3e7;
+    --oe-accent: #2c6e91;
+    --oe-accent-ink: #1f4f68;
+    --oe-accent-bg: #eaf2f6;
+    --oe-good: #2e7d4f;
+    --oe-good-bg: #e9f5ee;
+    --oe-warn: #a1671e;
+    --oe-warn-bg: #faf1e2;
+    --oe-chip-bg: #eef1f3;
+
+    color: var(--oe-ink);
+    line-height: 1.65;
+
+    p {
+        max-width: 68ch;
+    }
+
+    // ---------- Menu-path / field-name chips ----------
+    .oe-path {
+        display: inline-block;
+        font-weight: 600;
+        font-size: 0.92em;
+        background: var(--oe-chip-bg);
+        border: 1px solid var(--oe-border);
+        border-radius: 5px;
+        padding: 0.08em 0.55em;
+        white-space: nowrap;
+    }
+
+    // ---------- Callouts ----------
+    .oe-callout {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        border-left: 4px solid var(--oe-accent);
+        background: var(--oe-accent-bg);
+        border-radius: 0 10px 10px 0;
+        padding: 0.9rem 1.1rem;
+        margin: 1.25rem 0;
+    }
+    .oe-callout .oe-callout-icon {
+        color: var(--oe-accent-ink);
+        font-size: 1.15rem;
+        margin-top: 0.15rem;
+        flex: none;
+    }
+    .oe-callout .oe-callout-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--oe-accent-ink);
+        margin-bottom: 0.2rem;
+    }
+    .oe-callout > div > :last-child {
+        margin-bottom: 0;
+    }
+    .oe-callout.oe-callout-good {
+        border-left-color: var(--oe-good);
+        background: var(--oe-good-bg);
+    }
+    .oe-callout.oe-callout-good .oe-callout-icon,
+    .oe-callout.oe-callout-good .oe-callout-label {
+        color: var(--oe-good);
+    }
+    .oe-callout.oe-callout-warn {
+        border-left-color: var(--oe-warn);
+        background: var(--oe-warn-bg);
+    }
+    .oe-callout.oe-callout-warn .oe-callout-icon,
+    .oe-callout.oe-callout-warn .oe-callout-label {
+        color: var(--oe-warn);
+    }
+
+    // ---------- Numbered step list ----------
+    ol.oe-steps {
+        list-style: none;
+        counter-reset: oe-step;
+        margin: 1.1rem 0 1.4rem;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+    }
+    ol.oe-steps > li {
+        counter-increment: oe-step;
+        display: grid;
+        grid-template-columns: 2rem 1fr;
+        gap: 0.85rem;
+        align-items: start;
+    }
+    ol.oe-steps > li::before {
+        content: counter(oe-step);
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #fff;
+        background: var(--oe-accent);
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        display: grid;
+        place-items: center;
+    }
+    ol.oe-steps > li > :first-child {
+        margin-top: 0.15rem;
+    }
+    ol.oe-steps > li > :last-child {
+        margin-bottom: 0;
+    }
+
+    // ---------- State badges ----------
+    .oe-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35em;
+        font-weight: 600;
+        font-size: 0.82em;
+        border-radius: 999px;
+        padding: 0.15em 0.75em;
+        background: var(--oe-chip-bg);
+        color: var(--oe-ink-muted);
+    }
+    .oe-badge.oe-badge-good { background: var(--oe-good-bg); color: var(--oe-good); }
+    .oe-badge.oe-badge-warn { background: var(--oe-warn-bg); color: var(--oe-warn); }
+    .oe-badge.oe-badge-accent { background: var(--oe-accent-bg); color: var(--oe-accent-ink); }
+
+    // ---------- Illustrative diagrams ----------
+    // Every diagram carries a visible "Illustration" caption - these are
+    // hand-drawn mockups to explain a concept, never a capture of the
+    // real, current UI.
+    .oe-diagram {
+        border: 1px solid var(--oe-border);
+        border-radius: 12px;
+        background: #fff;
+        padding: 1.25rem;
+        margin: 1.4rem 0;
+    }
+    .oe-diagram-caption {
+        font-size: 0.78rem;
+        color: var(--oe-ink-muted);
+        font-style: italic;
+        margin: 0.6rem 0 0;
+        text-align: center;
+    }
+    .oe-diagram-caption .oe-diagram-caption-tag {
+        font-style: normal;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.68rem;
+        color: var(--oe-accent-ink);
+        margin-inline-end: 0.4em;
+    }
+
+    // A little fake "browser/app chrome" bar used inside diagrams.
+    .oe-mock-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: var(--oe-chip-bg);
+        border: 1px solid var(--oe-border);
+        border-radius: 8px 8px 0 0;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--oe-ink-muted);
+    }
+    .oe-mock-bar .oe-mock-dots {
+        display: flex;
+        gap: 0.3rem;
+    }
+    .oe-mock-bar .oe-mock-dots span {
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        background: var(--oe-border);
+        display: inline-block;
+    }
+    .oe-mock-body {
+        border: 1px solid var(--oe-border);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 1rem;
+        background: #fbfcfd;
+    }
+    .oe-mock-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35em;
+        border-radius: 7px;
+        padding: 0.3em 0.85em;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: var(--oe-accent);
+        color: #fff;
+    }
+    .oe-mock-btn.oe-mock-btn-outline {
+        background: #fff;
+        color: var(--oe-accent-ink);
+        border: 1.5px solid var(--oe-accent);
+    }
+
+    // Flow diagram: a row of stages joined by arrows.
+    .oe-flow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        padding: 0.5rem 0;
+    }
+    .oe-flow .oe-flow-step {
+        border: 1.5px solid var(--oe-border);
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: center;
+        background: #fff;
+        min-width: 7rem;
+    }
+    .oe-flow .oe-flow-step .oe-flow-step-icon {
+        display: block;
+        font-size: 1.3rem;
+        color: var(--oe-accent);
+        margin-bottom: 0.25rem;
+    }
+    .oe-flow .oe-flow-arrow {
+        color: var(--oe-ink-muted);
+        font-size: 1.2rem;
+    }
+
+    // Simple two-column "do now / later" comparison used in a couple of
+    // lessons.
+    .oe-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.2rem 0;
+    }
+    @media (max-width: 576px) {
+        .oe-columns { grid-template-columns: 1fr; }
+    }
+    .oe-columns .oe-column {
+        border: 1px solid var(--oe-border);
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+    }
+    .oe-columns .oe-column h4 {
+        font-size: 0.95rem;
+        margin: 0 0 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+    }
+    .oe-columns .oe-column ul {
+        margin: 0;
+        padding-inline-start: 1.1rem;
+    }
+    .oe-columns .oe-column li {
+        margin: 0.3rem 0;
+    }
+}

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: License & Callsign Tracking",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Website/eLearning",
     "summary": "eLearning course: FCC call-sign lookup and licence expiry tracking",
     "description": """
@@ -19,7 +19,7 @@ Only depends on ``club_amateur_radio``.
     "author": "Tiesa",
     "license": "LGPL-3",
     "website": "https://github.com/LadyHwesta/odoo-addons",
-    "depends": ["website_slides", "club_amateur_radio"],
+    "depends": ["website_slides", "club_elearning_theme", "club_amateur_radio"],
     "data": [
         "data/slide_channel_data.xml",
     ],

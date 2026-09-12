@@ -1,0 +1,158 @@
+From 917fee7be9860d940b8d18e3f81672803ee496f1 Mon Sep 17 00:00:00 2001
+From: Tiesa Meskis <tiesa@meskis.net>
+Date: Mon, 24 Aug 2026 18:09:49 +0000
+Subject: [PATCH] fix(muk_web_theme): disable AppsMenu override for Odoo 19
+ compatibility
+
+Odoo 19 rewrote the Dropdown component (dropdown.js) to be fully
+popover-based with no XML template. The content slot is now passed
+as props to a DropdownPopover component mounted via usePopover,
+rather than rendered conditionally inline via t-if.
+
+AppsMenu extends Dropdown, so it inherits this new architecture.
+The old approach of replacing <Dropdown> in web.NavBar.AppsMenu
+via xpath no longer works:
+  - //Dropdown xpath fails because Owl's template engine lowercases
+    component element names when parsing as HTML DOM
+  - The content slot renders into the DOM immediately on page load
+    rather than only when the dropdown is open, because the popover
+    lifecycle differs from the old t-if approach
+    Bootstrap's display:none on .dropdown-menu
+
+For Odoo 19: disable the AppsMenu template override and component
+registration. The systray ResizeObserver fix in navbar.js is kept
+as it remains valid.
+
+TODO: rewrite AppsMenu as a standalone component using usePopover
+directly (not extending Dropdown) to restore the full-screen app
+launcher overlay on Odoo 19.
+---
+ .../src/webclient/appsmenu/appsmenu.scss      |  8 +++-
+ .../static/src/webclient/navbar/navbar.js     | 26 +----------
+ .../static/src/webclient/navbar/navbar.xml    | 46 -------------------
+ 3 files changed, 7 insertions(+), 73 deletions(-)
+
+diff --git a/muk_web_theme/static/src/webclient/appsmenu/appsmenu.scss b/muk_web_theme/static/src/webclient/appsmenu/appsmenu.scss
+index db68e905..f1151972 100644
+--- a/muk_web_theme/static/src/webclient/appsmenu/appsmenu.scss
++++ b/muk_web_theme/static/src/webclient/appsmenu/appsmenu.scss
+@@ -1,9 +1,12 @@
+ .o_navbar_apps_menu .dropdown-toggle {
+ 	padding: 0px 14px !important;
+ }
+-	
++
++.mk_app_menu.dropdown-menu.show {
++
++}
++
+ .mk_app_menu.dropdown-menu {
+-	display: flex !important;
+ 	flex-direction: row !important;
+ 	flex-wrap: wrap !important;
+ 	align-content: flex-start;
+@@ -65,3 +68,4 @@
+ 	    }
+ 	}
+ }
++.mk_app_menu.dropdown-menu.show { display: flex !important; }
+diff --git a/muk_web_theme/static/src/webclient/navbar/navbar.js b/muk_web_theme/static/src/webclient/navbar/navbar.js
+index 15e61a74..6cf23569 100644
+--- a/muk_web_theme/static/src/webclient/navbar/navbar.js
++++ b/muk_web_theme/static/src/webclient/navbar/navbar.js
+@@ -1,28 +1,12 @@
+ import { onMounted, onWillUnmount } from '@odoo/owl';
+-
+ import { patch } from '@web/core/utils/patch';
+-import { useService } from '@web/core/utils/hooks';
+ import { debounce } from '@web/core/utils/timing';
+-
+ import { NavBar } from '@web/webclient/navbar/navbar';
+-import { AppsMenu } from '@muk_web_theme/webclient/appsmenu/appsmenu';
+ 
+-/** Add the app-menu service to the navbar setup. */
++/** Fit the menu again whenever the systray takes a different amount of room. */
+ patch(NavBar.prototype, {
+-    /**
+-     * Fit the menu again whenever the systray takes a different amount of room.
+-     *
+-     * The navbar sizes its menu to what the systray leaves, and does so again
+-     * when the window is resized or an item joins or leaves the systray — but
+-     * not when an item it already shows grows. Counters arriving after the
+-     * first paint do exactly that, and the menu is left running underneath
+-     * them until something else happens to trigger a fit.
+-     *
+-     * @override
+-     */
+     setup() {
+         super.setup();
+-        this.appMenuService = useService('app_menu');
+         const refit = debounce(() => this.adapt(), 250);
+         let observer = null;
+         onMounted(() => {
+@@ -38,11 +22,3 @@ patch(NavBar.prototype, {
+         });
+     },
+ });
+-
+-/** Register the themed AppsMenu as a navbar component. */
+-patch(NavBar, {
+-    components: {
+-        ...NavBar.components,
+-        AppsMenu,
+-    },
+-});
+diff --git a/muk_web_theme/static/src/webclient/navbar/navbar.xml b/muk_web_theme/static/src/webclient/navbar/navbar.xml
+index a631c038..1833fe63 100644
+--- a/muk_web_theme/static/src/webclient/navbar/navbar.xml
++++ b/muk_web_theme/static/src/webclient/navbar/navbar.xml
+@@ -1,49 +1,3 @@
+ <?xml version="1.0" encoding="UTF-8" ?>
+-
+ <templates xml:space="preserve">
+-
+-	<t 
+-		t-name="muk_web_theme.NavBar.AppsMenu"
+-		t-inherit="web.NavBar.AppsMenu" 
+-		t-inherit-mode="extension" 
+-	>
+-		<xpath expr="//Dropdown" position="replace">
+-			<AppsMenu menuClass="'mk_app_menu'">
+-				<button data-hotkey="h" title="Home Menu">
+-					<i class="oi oi-apps" />
+-				</button>
+-          		<t t-set-slot="content">
+-					<DropdownItem
+-						t-foreach="this.appMenuService.getAppsMenuItems()"
+-						t-as="app"
+-						t-key="app.id"
+-						class="'o_app'"
+-						attrs="{ href: app.href, 'data-menu-xmlid': app.xmlid, 'data-section': app.id }"
+-						onSelected="() => this.onNavBarDropdownItemSelection(app)"
+-						closingMode="'none'"
+-					>
+-						<a 
+-							t-att-href="app.href" 
+-							t-on-click.prevent=""
+-						>
+-							<img 
+-								t-if="app.webIconData"          		
+-								class="mk_app_icon" 
+-								t-att-src="app.webIconData"
+-							/>
+-							<img  
+-								t-else="" 
+-								class="mk_app_icon" 
+-								src="/base/static/description/icon.png"
+-							/>
+-							<span class="mk_app_name">
+-								<t t-out="app.label"/>
+-							</span>
+-						</a>
+-					</DropdownItem>
+-         		</t>
+-			</AppsMenu>
+-		</xpath>
+-	</t>
+-	
+ </templates>

@@ -28,14 +28,53 @@
         <field name="slide_category">article</field>
         <field name="sequence">11</field>
         <field name="html_content" type="html">
-            <p>Every contact has an <strong>Amateur Radio</strong> tab.
-            Type a call sign and click <strong>Look up call sign</strong>
-            to query callook.info - a free, no-key JSON wrapper around the
-            FCC's own licence database - and pull in Operator Class,
-            Licence Type, grant and expiry dates, FRN, grid square, and
-            (for a club-station licence) the trustee's name and call
-            sign. No API key, no extra Python packages, just Odoo's
-            already-bundled <code>requests</code>.</p>
+            <div class="oe-course-content">
+                <ol class="oe-steps">
+                    <li>
+                        <p>Every contact has an <strong>Amateur Radio</strong>
+                        tab.</p>
+                    </li>
+                    <li>
+                        <p>Type a call sign.</p>
+                    </li>
+                    <li>
+                        <p>Click <strong>Look up call sign</strong> to query
+                        callook.info - a free, no-key JSON wrapper around the
+                        FCC's own licence database.</p>
+                    </li>
+                </ol>
+
+                <div class="oe-diagram">
+                    <div class="oe-mock-bar">
+                        <span class="oe-mock-dots"><span /><span /><span /></span>
+                        Amateur Radio
+                    </div>
+                    <div class="oe-mock-body">
+                        <p>
+                            <span class="oe-badge">Operator Class</span>
+                            <span class="oe-badge">Licence Type</span>
+                            <span class="oe-badge">Grant &amp; Expiry</span>
+                            <span class="oe-badge">FRN</span>
+                            <span class="oe-badge">Grid Square</span>
+                        </p>
+                        <p class="mb-0 text-muted">For a club-station
+                        licence, also the trustee's name and call sign.</p>
+                    </div>
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Illustration</span>
+                        what one lookup pulls in.
+                    </p>
+                </div>
+
+                <div class="oe-callout oe-callout-good">
+                    <span class="oe-callout-icon"><i class="fa fa-plug" /></span>
+                    <div>
+                        <span class="oe-callout-label">Nothing extra to install</span>
+                        <p>No API key, no extra Python packages, just Odoo's
+                        already-bundled <code>requests</code>.</p>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 
@@ -45,14 +84,32 @@
         <field name="slide_category">article</field>
         <field name="sequence">12</field>
         <field name="html_content" type="html">
-            <p>The licence fields themselves are always overwritten from
-            the lookup - the FCC is the authority on those, so a fresh
-            lookup should always win. The contact's <strong>name</strong>
-            and <strong>mailing address</strong> are different: they're
-            only filled in when they're still blank. That means a lookup
-            on a brand-new member is one click that sets everything up,
-            but running it again later on an existing member never
-            clobbers a name or address you've already typed by hand.</p>
+            <div class="oe-course-content">
+                <div class="oe-columns">
+                    <div class="oe-column">
+                        <h4><i class="fa fa-id-badge" /> Licence fields</h4>
+                        <p class="mb-0">Always overwritten from the lookup -
+                        the FCC is the authority on those, so a fresh lookup
+                        should always win.</p>
+                    </div>
+                    <div class="oe-column">
+                        <h4><i class="fa fa-address-card-o" /> Name &amp; mailing address</h4>
+                        <p class="mb-0">Only filled in when they're still
+                        blank.</p>
+                    </div>
+                </div>
+
+                <div class="oe-callout oe-callout-good">
+                    <span class="oe-callout-icon"><i class="fa fa-shield" /></span>
+                    <div>
+                        <span class="oe-callout-label">Safe to re-run</span>
+                        <p>A lookup on a brand-new member is one click that
+                        sets everything up, but running it again later on an
+                        existing member never clobbers a name or address
+                        you've already typed by hand.</p>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 
@@ -70,19 +127,46 @@
         <field name="slide_category">article</field>
         <field name="sequence">21</field>
         <field name="html_content" type="html">
-            <p>A daily scheduled action re-checks every member with a call
-            sign, refreshes their expiry date, and raises one To-Do
-            activity per member whose licence has expired or is expiring
-            within the warning window - never a second one for the same
-            lapse. It pauses briefly between lookups to be kind to
-            callook.info, and one bad call sign never stops the whole
-            sweep from finishing.</p>
-            <p>Under <strong>Settings &gt; Amateur Radio Club</strong>:
-            turn <strong>FCC call-sign lookup</strong> off entirely for an
-            air-gapped install (the fields stay editable by hand), and set
-            the <strong>Licence expiry warning window</strong> - how many
-            days before expiry a licence counts as "expiring soon"
-            (default 60).</p>
+            <div class="oe-course-content">
+                <div class="oe-diagram">
+                    <div class="oe-flow">
+                        <div class="oe-flow-step">
+                            <span class="oe-flow-step-icon"><i class="fa fa-moon-o" /></span>
+                            Daily sweep
+                        </div>
+                        <span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span>
+                        <div class="oe-flow-step">
+                            <span class="oe-flow-step-icon"><i class="fa fa-refresh" /></span>
+                            Refreshes every expiry date
+                        </div>
+                        <span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span>
+                        <div class="oe-flow-step">
+                            <span class="oe-flow-step-icon"><i class="fa fa-check-square-o" /></span>
+                            One To-Do per lapsed member
+                        </div>
+                    </div>
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Illustration</span>
+                        never a second To-Do for the same lapse. It pauses
+                        briefly between lookups to be kind to callook.info,
+                        and one bad call sign never stops the whole sweep
+                        from finishing.
+                    </p>
+                </div>
+
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-cog" /></span>
+                    <div>
+                        <span class="oe-callout-label">Settings &gt; Amateur Radio Club</span>
+                        <p>Turn <strong>FCC call-sign lookup</strong> off
+                        entirely for an air-gapped install (the fields stay
+                        editable by hand), and set the <strong>Licence
+                        expiry warning window</strong> - how many days
+                        before expiry a licence counts as "expiring soon"
+                        (default 60).</p>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 
