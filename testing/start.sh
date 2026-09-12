@@ -10,11 +10,17 @@
 # depends on) - override its location with NONPROFIT_ADDONS if it isn't at
 # ../nonprofit-addons. New modules in this repo just need to exist - no
 # editing this script.
+#
+# External OCA repo web_pwa_icon needs (web_pwa_customize). Clone the
+# 19.0 branch under ~/dev/oca/ (one clean parent dir for every plain,
+# unmodified OCA dependency repo), or point this at wherever it lives.
+# Missing it just skips web_pwa_icon (won't install).
 set -uo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$DIR/.." && pwd)"
 ODOO_SRC="${ODOO_SRC:-$HOME/dev/odoo-19}"
 NONPROFIT_ADDONS="${NONPROFIT_ADDONS:-$REPO_ROOT/../nonprofit-addons}"
+OCA_WEB="${OCA_WEB:-$HOME/dev/oca/web}"
 DB_NAME="${DB_NAME:-odoo_addons_test}"
 HTTP_PORT="${HTTP_PORT:-8069}"
 
@@ -45,6 +51,7 @@ source "$DIR/.venv/bin/activate"
 
 ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT,$NONPROFIT_ADDONS"
 [ -d "$NONPROFIT_ADDONS/event_volunteer" ] || echo "WARNING: $NONPROFIT_ADDONS/event_volunteer not found - clone LadyHwesta/nonprofit-addons there (or set NONPROFIT_ADDONS)." >&2
+[ -d "$OCA_WEB" ] && ADDONS_PATH="$ADDONS_PATH,$OCA_WEB"
 
 echo ""
 echo "Odoo starting at http://localhost:$HTTP_PORT  (db: $DB_NAME, login: admin / admin)"

@@ -1,43 +1,41 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Progressive Web App Icon',
-    'version': '19.0.1.0.0',
+    'name': 'Progressive Web App Icon (iOS + Visibility)',
+    'version': '19.0.2.0.0',
     'category': 'Extra Tools',
-    'summary': 'Use your own icon when Odoo is installed as an app',
+    'summary': "Complete OCA's web_pwa_customize with iOS coverage and visible settings",
     'description': """
-Progressive Web App Icon
-==========================
+Progressive Web App Icon (iOS + Visibility)
+=============================================
 
-Odoo's "Install app" / "Add to Home Screen" icon (Chrome, Edge, Android,
-iOS Safari) is hardcoded to Odoo's own artwork - there's no Settings
-option to change it, even though the app's *name* already is one
-(``web.web_app_name``) - it's just hidden behind developer mode, in a
-"Progressive Web App" block nobody stumbles across.
+OCA's ``web_pwa_customize`` (from `OCA/web
+<https://github.com/OCA/web>`_) lets you set a custom icon, short name,
+and colors for Odoo's "Install app" prompt - but only for
+``/web/manifest.webmanifest`` (Chrome, Edge, Android). It leaves two
+things unsolved:
 
-This module surfaces that block unconditionally (no developer mode
-needed - General Settings already requires admin access) and adds a
-new field right next to the existing name one: **Settings > General
-Settings > Progressive Web App**, upload your own square icon. Leave it
-empty and the icon side of things changes nothing - Odoo's own icon is
-still used everywhere.
+* **iOS Safari's "Add to Home Screen" never sees any of it** - Safari
+  reads the ``apple-touch-icon`` link tag, not the PWA manifest, and
+  ``web_pwa_customize`` doesn't touch that tag at all. Install from an
+  iPhone and you still get Odoo's own stock icon.
+* **Its own settings stay hidden** unless developer mode is on - it adds
+  its fields to the existing "Progressive Web App" block in Settings >
+  General Settings, but that block (along with core's pre-existing
+  ``web.web_app_name`` field, which nothing else surfaces either) is
+  gated behind ``base.group_no_one``.
 
-Covers both places the icon is actually read from:
-
-* the ``/web/manifest.webmanifest`` PWA manifest (Chrome/Edge/Android
-  "Install app"),
-* the ``apple-touch-icon`` link tag (iOS Safari "Add to Home Screen").
-
-Your source image is resized on the fly for each size that's needed,
-so one upload is enough - no need to prepare multiple pre-sized files.
-
-**Not covered:** the small icon on the rarely-seen "you're offline"
-page, which stays Odoo's own artwork. Low-traffic page, not worth the
-extra complexity of caching a resized copy to a real static file for it.
+This module (which depends on ``web_pwa_customize`` rather than
+reimplementing icon storage) fixes both: it points the
+``apple-touch-icon`` tag at whichever icon size ``web_pwa_customize``
+already generated (falling back to Odoo's own artwork if none is set),
+and removes the developer-mode restriction from the settings block -
+General Settings already requires admin access, so this adds no real
+exposure.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['web', 'base_setup'],
+    'depends': ['web', 'base_setup', 'web_pwa_customize'],
     'data': [
         'views/res_config_settings_views.xml',
         'views/webclient_templates.xml',

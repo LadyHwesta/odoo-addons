@@ -3,7 +3,7 @@
 
     <template id="webclient_bootstrap_pwa_icon" inherit_id="web.webclient_bootstrap">
         <xpath expr="//link[@rel='apple-touch-icon']" position="attributes">
-            <attribute name="href">/web/pwa_icon/180x180</attribute>
+            <attribute name="href">/web/pwa_icon/apple-touch-icon.png</attribute>
         </xpath>
     </template>
 

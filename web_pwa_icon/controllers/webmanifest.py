@@ -1,42 +1,39 @@
 # -*- coding: utf-8 -*-
 from odoo import http
-from odoo.addons.web.controllers.webmanifest import WebManifest
 from odoo.http import request
 
-# The sizes /web/manifest.webmanifest actually asks for, mapped to Odoo's
-# own stock artwork - what we fall back to when no custom icon has been
-# configured. Anything else requested (namely the 180x180 apple-touch-icon)
-# falls back to the iOS-specific default instead.
-_FALLBACK_ICONS = {
-    (192, 192): '/web/static/img/odoo-icon-192x192.png',
-    (512, 512): '/web/static/img/odoo-icon-512x512.png',
-}
-_FALLBACK_ICON_DEFAULT = '/web/static/img/odoo-icon-ios.png'
+# web_pwa_customize stores each resized variant as an ir.attachment whose
+# `url` looks like /web_pwa_customize/icon<W>x<H>.<ext> (or, for an SVG
+# upload, just /web_pwa_customize/icon.svg with no size suffix at all).
+# Apple has no single canonical size; 192x192 is the closest of the ones
+# web_pwa_customize actually generates to the commonly-recommended 180x180,
+# so it's tried first, then whatever else exists, then Odoo's own default.
+_ICON_URL_BASE = '/web_pwa_customize/icon'
+_PREFERRED_SIZES = ['192x192', '256x256', '152x152', '144x144', '128x128', '512x512']
+_FALLBACK_ICON = '/web/static/img/odoo-icon-ios.png'
 
 
-class WebPwaIconWebManifest(WebManifest):
+class WebPwaIconAppleTouchIcon(http.Controller):
 
-    def _get_webmanifest(self):
-        manifest = super()._get_webmanifest()
-        if request.env.company.pwa_icon:
-            manifest['icons'] = [{
-                'src': '/web/pwa_icon/%dx%d' % size,
-                'sizes': '%dx%d' % size,
-                'type': 'image/png',
-            } for size in _FALLBACK_ICONS]
-        return manifest
+    def _custom_apple_touch_icon_url(self):
+        """The best available web_pwa_customize icon URL for iOS, or None
+        if no custom icon has been configured at all."""
+        attachments = request.env['ir.attachment'].sudo().search([
+            ('url', 'like', _ICON_URL_BASE),
+        ])
+        by_url = {a.url: a for a in attachments}
+        for size in _PREFERRED_SIZES:
+            url = f'{_ICON_URL_BASE}{size}.png'
+            if url in by_url:
+                return url
+        # No sized PNG variants - either nothing configured, or an SVG
+        # upload (web_pwa_customize doesn't resize those, it only ever
+        # writes the one un-suffixed attachment).
+        svg = by_url.get(f'{_ICON_URL_BASE}.svg')
+        return svg.url if svg else None
 
-    @http.route('/web/pwa_icon/<int:width>x<int:height>', type='http',
+    @http.route('/web/pwa_icon/apple-touch-icon.png', type='http',
                 auth='public', readonly=True)
-    def pwa_icon(self, width, height):
-        """Serve the current company's custom PWA icon, resized to the
-        requested dimensions, or fall back to Odoo's own artwork if no
-        custom icon has been configured."""
-        company = request.env.company
-        if not company.pwa_icon:
-            fallback = _FALLBACK_ICONS.get((width, height), _FALLBACK_ICON_DEFAULT)
-            return request.redirect(fallback)
-        stream = request.env['ir.binary']._get_image_stream_from(
-            company, 'pwa_icon', width=width, height=height,
-        )
-        return stream.get_response()
+    def apple_touch_icon(self):
+        url = self._custom_apple_touch_icon_url()
+        return request.redirect(url or _FALLBACK_ICON)

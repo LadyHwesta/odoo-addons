@@ -46,6 +46,15 @@ repo, plus a sibling clone of
 lives there). Clone it at `../nonprofit-addons`, or set `NONPROFIT_ADDONS`
 to wherever it is.
 
+`web_pwa_icon` depends on OCA's `web_pwa_customize`. Clone
+[`OCA/web`](https://github.com/OCA/web) (19.0 branch) at `~/dev/oca/web`,
+or set `OCA_WEB` to wherever it is - `start.sh` picks it up automatically
+if present, skips it (and `web_pwa_icon` won't install) if not:
+
+```
+git clone --branch 19.0 --single-branch --depth 1 https://github.com/OCA/web.git ~/dev/oca/web
+```
+
 First run creates the `odoo_addons_test` database with no modules
 installed yet. Install what you want to test:
 
