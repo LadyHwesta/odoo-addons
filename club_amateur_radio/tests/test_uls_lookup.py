@@ -158,6 +158,13 @@ class TestUlsLookup(TransactionCase):
         partner.write({"callsign": "na2aa"})
         self.assertEqual(partner.callsign, "NA2AA")
 
+    def test_gmrs_callsign_is_stored_uppercased(self):
+        partner = self.env["res.partner"].create(
+            {"name": "X", "gmrs_callsign": " wqyv533 "})
+        self.assertEqual(partner.gmrs_callsign, "WQYV533")
+        partner.write({"gmrs_callsign": "wxyz123"})
+        self.assertEqual(partner.gmrs_callsign, "WXYZ123")
+
     # ------------------------------------------------------------------
     # expiring-soon compute + cron activity
     # ------------------------------------------------------------------

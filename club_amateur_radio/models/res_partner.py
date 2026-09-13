@@ -23,6 +23,11 @@ class ResPartner(models.Model):
     callsign = fields.Char(
         string="Call Sign", index="btree_not_null", tracking=True,
         help="FCC amateur radio call sign. Uppercased automatically.")
+    gmrs_callsign = fields.Char(
+        string="GMRS Call Sign", index="btree_not_null",
+        help="FCC General Mobile Radio Service call sign - a separate "
+             "licence from amateur radio, tracked here since the club "
+             "does too. Uppercased automatically.")
     ham_license_class = fields.Selection(
         selection=[
             ("novice", "Novice"),
@@ -89,17 +94,26 @@ class ResPartner(models.Model):
         for vals in vals_list:
             if vals.get("callsign"):
                 vals["callsign"] = vals["callsign"].strip().upper()
+            if vals.get("gmrs_callsign"):
+                vals["gmrs_callsign"] = vals["gmrs_callsign"].strip().upper()
         return super().create(vals_list)
 
     def write(self, vals):
         if vals.get("callsign"):
             vals["callsign"] = vals["callsign"].strip().upper()
+        if vals.get("gmrs_callsign"):
+            vals["gmrs_callsign"] = vals["gmrs_callsign"].strip().upper()
         return super().write(vals)
 
     @api.onchange("callsign")
     def _onchange_callsign_upper(self):
         if self.callsign:
             self.callsign = self.callsign.strip().upper()
+
+    @api.onchange("gmrs_callsign")
+    def _onchange_gmrs_callsign_upper(self):
+        if self.gmrs_callsign:
+            self.gmrs_callsign = self.gmrs_callsign.strip().upper()
 
     # ------------------------------------------------------------------
     # Lookup

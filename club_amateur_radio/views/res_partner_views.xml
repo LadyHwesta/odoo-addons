@@ -46,6 +46,7 @@
                                 invisible="ham_license_type not in ('club', 'military', 'races', 'recreation')"
                             />
                             <field name="arrl_member" />
+                            <field name="gmrs_callsign" placeholder="e.g. WQYV533" />
                         </group>
                     </group>
                 </page>
@@ -60,6 +61,7 @@
         <field name="arch" type="xml">
             <field name="display_name" position="after">
                 <field name="callsign" optional="show" />
+                <field name="gmrs_callsign" optional="hide" />
                 <field name="ham_license_class" optional="hide" />
                 <field name="ham_license_expiry_date" optional="hide" />
             </field>
@@ -76,6 +78,11 @@
                     name="callsign"
                     string="Call Sign"
                     filter_domain="[('callsign', 'ilike', self)]"
+                />
+                <field
+                    name="gmrs_callsign"
+                    string="GMRS Call Sign"
+                    filter_domain="[('gmrs_callsign', 'ilike', self)]"
                 />
             </field>
             <filter name="type_company" position="after">

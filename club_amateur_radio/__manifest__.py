@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Amateur Radio Club - Member Profiles',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Association',
     'summary': 'Call sign, FCC licence and ARRL fields on club members, with '
                'call-sign autofill from the FCC ULS (via callook.info)',
