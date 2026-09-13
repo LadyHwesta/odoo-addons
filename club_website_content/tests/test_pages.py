@@ -67,3 +67,13 @@ class TestClubWebsiteContentPages(HttpCase):
         resources = children.filtered(lambda m: m.name == "Resources")
         self.assertEqual(len(resources.child_id), 10,
                           "Resources should have 10 dropdown items (incl. 6 FRS/GMRS subpages)")
+
+    def test_homepage_serves_our_club_content(self):
+        website = self.env.ref("website.default_website")
+        self.assertEqual(website.homepage_url, "/our-club",
+                          "the site's \"/\" should serve the ported /our-club page, "
+                          "not Odoo's stock demo homepage")
+        resp = self.url_open("/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b"About SCRA", resp.content,
+                       "\"/\" did not render the /our-club page's content")

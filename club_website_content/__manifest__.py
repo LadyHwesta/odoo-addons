@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Club Website Content',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Website',
     'summary': 'Recreates the club\'s WordPress site content as Odoo website pages',
     'description': """
@@ -42,6 +42,7 @@ re-uploads them as Odoo attachments.
     'data': [
         'data/menus.xml',
         'views/pages_our_club.xml',
+        'data/website_config.xml',
         'views/pages_repeaters.xml',
         'views/pages_events.xml',
         'views/pages_resources.xml',
