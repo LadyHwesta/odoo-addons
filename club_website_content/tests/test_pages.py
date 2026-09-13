@@ -56,10 +56,17 @@ class TestClubWebsiteContentPages(HttpCase):
                 self.assertEqual(resp.status_code, 200, f"{url} did not return 200")
 
     def test_menu_structure(self):
+        # Deliberately NOT website.main_menu - that's a shared record that
+        # isn't any actual website's own root, so checking its child_id
+        # gives false confidence (see hooks.py's create_nav_menu
+        # docstring - this is exactly the check that missed the original
+        # bug). The real nav tree for a site is walked from that website's
+        # own menu_id, so that's what has to be checked here.
         top_level_names = {"Our Club", "Repeaters", "Events", "Resources", "Donate"}
-        main_menu = self.env.ref("website.main_menu")
-        children = main_menu.child_id.filtered(lambda m: m.name in top_level_names)
-        self.assertEqual(len(children), 5, "expected all 5 top-level section menus")
+        website = self.env.ref("website.default_website")
+        children = website.menu_id.child_id.filtered(lambda m: m.name in top_level_names)
+        self.assertEqual(len(children), 5, "expected all 5 top-level section menus "
+                          "under the website's own root menu")
 
         our_club = children.filtered(lambda m: m.name == "Our Club")
         self.assertEqual(len(our_club.child_id), 5, "Our Club should have 5 dropdown items")
@@ -67,6 +74,19 @@ class TestClubWebsiteContentPages(HttpCase):
         resources = children.filtered(lambda m: m.name == "Resources")
         self.assertEqual(len(resources.child_id), 10,
                           "Resources should have 10 dropdown items (incl. 6 FRS/GMRS subpages)")
+
+    def test_menu_items_actually_render_in_the_nav(self):
+        # Ground truth: render a real page and check the dropdown links
+        # are actually in the HTML, rather than only checking the ORM
+        # structure - that's what would have caught the original bug.
+        resp = self.url_open("/our-club")
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content
+        for url in ("/our-club/meetings", "/repeaters/dmr", "/events/field-day",
+                    "/resources/frs-gmrs", "/donate"):
+            with self.subTest(url=url):
+                self.assertIn(url.encode(), html,
+                               f"{url} did not appear as a nav link in the rendered page")
 
     def test_homepage_serves_our_club_content(self):
         website = self.env.ref("website.default_website")

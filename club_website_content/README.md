@@ -43,7 +43,28 @@ Nothing here guesses at visual design.
 ## Setup
 
 Just install - `website` is the only dependency. All pages are
-published on install; no further configuration needed. The nav menu
-items are added to whatever site already exists as the default
-website (`website.main_menu`) - if there's ever more than one website
-in the database, double check the menus landed under the right one.
+published on install; the site's homepage is set to `/our-club`; and
+the nav menu (5 top-level sections, with dropdowns) is built and
+attached to the target website - all handled by a `post_init_hook`
+(see `hooks.py`), not by data-file XML. If there's more than one
+website in the database, double-check the content landed under the
+right one (`hooks.py` picks `website.default_website`, falling back to
+whichever website exists if that xmlid is missing).
+
+**If upgrading from a version before 19.0.1.2.0**: that version's
+`data/menus.xml` had a real bug - a `website.menu` record created
+without an explicit `website_id` gets silently duplicated per website
+by Odoo's own `website.menu.create()`, and an *extra* orphan copy ends
+up owning the record's external ID whenever its parent is
+`website.main_menu`; any child menu referencing that ID as its own
+parent then attaches to the orphan instead of the copy that's actually
+part of a site's rendered nav tree - so the dropdowns never appeared,
+even though the top-level items sometimes did. A migration script
+(`migrations/19.0.1.2.0/post-fix-nav-menu.py`) rebuilds the whole menu
+correctly on upgrade. It can't safely clean up the *old* top-level
+orphans it leaves behind (a core `website.menu.unlink()` override
+means deleting one of those can cascade into deleting unrelated
+menus on other websites - see the DANGER note in `hooks.py`), so after
+upgrading you may see one or two empty, harmless duplicate top-level
+entries (e.g. a second "Our Club" with no dropdown) - safe to delete
+by hand via the website builder's menu editor if they bother you.
