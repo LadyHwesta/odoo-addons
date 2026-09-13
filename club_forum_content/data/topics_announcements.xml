@@ -592,5 +592,222 @@
             </field>
         </record>
 
+        <!-- phil-kenny-k6axy-silent-key -->
+        <record id="topic_phil_kenny_k6axy_silent_key" model="forum.post">
+            <field name="name">Phil Kenny K6AXY - Silent Key</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-12 01:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR / Duane Reese on October 11, 2017)</p>
+                <p>Sad to report that Phil Kenny, K6AXY, passed away in his sleep while visiting his daughter Carol Elliott in San Carlos. He was a great friend, and was surrounded by family when he passed. Small comfort in the circumstances, but comfort nonetheless.</p>
+                <p>Anyone wishing to contact the family can reach out to Carol Elliott by email.</p>
+            </field>
+        </record>
+
+        <!-- solder-reflow-oven-controller -->
+        <record id="topic_solder_reflow_oven_controller" model="forum.post">
+            <field name="name">Solder reflow oven controller</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-01-14 07:50:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WA8YWQ on January 13, 2018)</p>
+                <p>John, WB6FRZ, handed out several solder reflow ovens with controllers to SCRA members at the January 2018 meeting. I got hold of the Arduino source code and modified the controller firmware to better handle intermittent temperature-sensor issues, and added Teflon tubing to protect the thermocouple wire where it runs through copper tubing.</p>
+                <p>Happy to share the firmware source, or update anyone's unit with a custom temperature profile. Also working on a hand-held solder paste dispenser using a stepper motor and an ATmega328.</p>
+                <p>Contact: Dave, WA8YWQ, mcquate@sonic.net</p>
+            </field>
+        </record>
+
+        <!-- charger-for-ht60-yeasu -->
+        <record id="topic_charger_for_ft60_yaesu" model="forum.post">
+            <field name="name">Charger for HT60 Yaesu</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-02-04 21:43:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Karen Stultz-Miller, K6KSM, on February 4, 2018)</p>
+                <p>Looking for a replacement charger for my Yaesu HT60 - mine has gone missing. If anyone has a spare they'd sell, please get in touch.</p>
+                <p>Karen, K6KSM</p>
+            </field>
+        </record>
+        <record id="topic_charger_for_ft60_yaesu_reply1" model="forum.post">
+            <field name="name">Charger for HT60 Yaesu</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_charger_for_ft60_yaesu" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-02-05 01:15:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on February 4, 2018)</p>
+                <p>I think you mean the FT-60R - do you need the wall adapter, the cradle, or both? Here are a couple of Amazon links for replacement chargers, Prime and non-Prime pricing both shown.</p>
+            </field>
+        </record>
+        <record id="topic_charger_for_ft60_yaesu_reply2" model="forum.post">
+            <field name="name">Charger for HT60 Yaesu</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_charger_for_ft60_yaesu" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-02-05 02:41:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Karen Stultz-Miller, K6KSM, on February 4, 2018)</p>
+                <p>Need a complete replacement unit, unfortunately - the original was lost during my third evacuation and never turned up. Thanks for the help, Fred!</p>
+            </field>
+        </record>
+
+        <!-- possible-analy-high-school-arc -->
+        <record id="topic_possible_analy_high_school_arc" model="forum.post">
+            <field name="name">Possible Analy High School ARC</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-06-23 04:54:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on June 22, 2018)</p>
+                <p>Randy, KU9COR, teaches video and filmmaking at Analy High School and is looking into starting an amateur radio club there. He's planning to launch it in August once the school year starts, and is looking for help from SCRA getting it off the ground - he's got the technical knowledge but not much experience running a club.</p>
+            </field>
+        </record>
+        <record id="topic_possible_analy_high_school_arc_reply1" model="forum.post">
+            <field name="name">Possible Analy High School ARC</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_possible_analy_high_school_arc" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-07-16 00:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6MSP on July 15, 2018)</p>
+                <p>I teach STEM at Brook Haven, and there used to be an amateur radio station there. Happy to help - ki6msp@gmail.com</p>
+            </field>
+        </record>
+
+        <!-- antenna-items-for-sale -->
+        <record id="topic_antenna_items_for_sale" model="forum.post">
+            <field name="name">Antenna items for sale</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-07-16 17:36:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Charles KG6CTT on July 16, 2018)</p>
+                <p>Ordered an antenna and coax I can't use, so seeing if anyone here's interested:</p>
+                <p>Brand new in box MFJ 80-6m vertical antenna. 50 ft Belden coax 9913F7.</p>
+                <p>Both cost $300, will sell for $250. Contact me at chuxishere@yahoo.com</p>
+                <p>73, Charles, KG6CTT</p>
+            </field>
+        </record>
+        <record id="topic_antenna_items_for_sale_reply1" model="forum.post">
+            <field name="name">Antenna items for sale</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_antenna_items_for_sale" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-07-17 21:16:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Charles KG6CTT on July 17, 2018)</p>
+                <p>The antenna is an MFJ-2386 80-6m vertical. Coax is Belden 9913F7, 50 ft.</p>
+            </field>
+        </record>
+
+        <!-- list-of-ht-nets -->
+        <record id="topic_list_of_ht_nets" model="forum.post">
+            <field name="name">List of HT nets</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-05-15 19:22:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on May 15, 2019)</p>
+                <p>A chronological list of nets and repeaters used by radio clubs and service organizations in the area. (Login required to view the attached file.)</p>
+            </field>
+        </record>
+        <record id="topic_list_of_ht_nets_reply1" model="forum.post">
+            <field name="name">List of HT nets</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_list_of_ht_nets" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-05-16 03:41:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on May 15, 2019)</p>
+                <p>An excellent resource! Thanks for posting.</p>
+            </field>
+        </record>
+
+        <!-- sonoma-county-emergency-public-service-frequencies -->
+        <record id="topic_sonoma_county_emergency_frequencies" model="forum.post">
+            <field name="name">Sonoma County emergency/public service frequencies</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-06-27 02:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on June 26, 2019)</p>
+                <p>Frequencies by number, low to high. Frequencies by agency and city.</p>
+            </field>
+        </record>
+        <record id="topic_sonoma_county_emergency_frequencies_reply1" model="forum.post">
+            <field name="name">Sonoma County emergency/public service frequencies</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_sonoma_county_emergency_frequencies" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-06-27 02:41:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on June 26, 2019)</p>
+                <p>File didn't go through.</p>
+            </field>
+        </record>
+        <record id="topic_sonoma_county_emergency_frequencies_reply2" model="forum.post">
+            <field name="name">Sonoma County emergency/public service frequencies</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_sonoma_county_emergency_frequencies" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-06-27 02:43:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on June 26, 2019)</p>
+                <p>One more time... (login required to view the attached files)</p>
+            </field>
+        </record>
+
+        <!-- list-of-vhf-nets-v2 -->
+        <record id="topic_list_of_vhf_nets_v2" model="forum.post">
+            <field name="name">List of VHF nets v2</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-07-02 03:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on July 1, 2019)</p>
+                <p>Version 2 updates: added a few more nets, fixed some broken links, tracked down the correct names for some of the nets, and filled in a few more mountain-top names. Thanks to everyone who sent in suggestions and corrections. (Login required to view the attached file.)</p>
+            </field>
+        </record>
+        <record id="topic_list_of_vhf_nets_v2_reply1" model="forum.post">
+            <field name="name">List of VHF nets v2</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_list_of_vhf_nets_v2" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-12-11 05:54:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6ZLM on December 10, 2019)</p>
+                <p>Wow, very impressive and thorough. Thanks!</p>
+            </field>
+        </record>
+
+        <!-- pelican-cases-available -->
+        <record id="topic_pelican_cases_available" model="forum.post">
+            <field name="name">Pelican cases available</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-07-19 16:56:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N2WD on July 19, 2019)</p>
+                <p>Five Pelican cases available for purchase - waterproof, great for transporting delicate equipment, with Pick N Pluck foam you can customize.</p>
+                <p><strong>Pelican 1600:</strong> $50. Interior 21.5" x 16.5" x 8". 2-level Pick N Pluck with convoluted lid foam.</p>
+                <p><strong>Pelican 1650 (four available):</strong> $75 each. Interior 28.6" x 17.5" x 10.7". Four polyurethane wheels, watertight/crushproof/dustproof, 2-level Pick N Pluck foam, automatic pressure equalization valve, double throw latches.</p>
+                <p>Contact N2WD for more info or to view the cases.</p>
+            </field>
+        </record>
+        <record id="topic_pelican_cases_available_reply1" model="forum.post">
+            <field name="name">Pelican cases available</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_pelican_cases_available" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2019-07-22 02:08:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N2WD on July 21, 2019)</p>
+                <p>Call 707.953.7470 if you're interested in the Pelican cases - that's the right number for me.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

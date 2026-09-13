@@ -757,5 +757,138 @@
             </field>
         </record>
 
+        <!-- digital-mobile-radio-2 -->
+        <record id="topic_digital_mobile_radio_2" model="forum.post">
+            <field name="name">Digital Mobile Radio (2)</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-17 15:06:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 17, 2017)</p>
+                <p>Another plug for DMR - Phil K6AXY and I have been staying in touch on it while traveling cross-country, both running Radioddity GD-77 dual-band DMR radios paired with SharkRF OpenSPOT repeaters. My setup connects through an AT&amp;T hotspot in the motorhome, and we've had several QSOs on Talk Group 3100 North America. N6DMR seems to be getting a bit of a following in the DMR crowd.</p>
+            </field>
+        </record>
+        <record id="topic_digital_mobile_radio_2_reply1" model="forum.post">
+            <field name="name">Digital Mobile Radio (2)</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_digital_mobile_radio_2" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-17 15:07:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 17, 2017)</p>
+                <p>A quick intro to ad-hoc talk groups in DMR: pick a custom talk group number (e.g. TG 31000077) to set up a private or semi-private channel. Once you key up on it, anyone else who knows the number can join - a temporary dedicated space with no permanent infrastructure needed.</p>
+            </field>
+        </record>
+        <record id="topic_digital_mobile_radio_2_reply2" model="forum.post">
+            <field name="name">Digital Mobile Radio (2)</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_digital_mobile_radio_2" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-17 15:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 17, 2017)</p>
+                <p>Also recommend "Contact Manager," a third-party code plug editor supporting Motorola and TYT radios - the docs have practical tips for avoiding common programming pitfalls.</p>
+            </field>
+        </record>
+        <record id="topic_digital_mobile_radio_2_reply3" model="forum.post">
+            <field name="name">Digital Mobile Radio (2)</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_digital_mobile_radio_2" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-18 03:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 17, 2017)</p>
+                <p>Two solid DMR tutorials worth a look: Part 1 covers DMR terminology and a general overview, Part 2 walks through actual radio programming. Between the two, a newcomer can get up to speed fast.</p>
+            </field>
+        </record>
+
+        <!-- any-broken-hf-rigs-needing-repair -->
+        <record id="topic_any_broken_hf_rigs_needing_repair" model="forum.post">
+            <field name="name">Any broken HF rigs needing repair?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-12-05 05:01:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on December 4, 2017)</p>
+                <p>Hello everyone! I'm new to the club (joined after the October fires) and have been trying to get involved in the weekly nets. I also just passed my Amateur Extra exam and am looking for a technical challenge.</p>
+                <p>I'm a bit of a tinkerer, and am putting together an HF rig - currently eyeing a Xiegu/Connect Systems CS108G, or maybe going full SDR with a HobbyPCB RS-HFIQ into a Raspberry Pi or Odroid I have lying around.</p>
+                <p>I'd also be glad to help repair other equipment, if anyone has older or marginal gear sitting idle in the shack. Don't have gobs of free time, but I do have a couple of scopes, a function generator, and some Saleae logic analyzers I can put to use for the community.</p>
+                <p>Ping me if there's any interest - and my regrets that I can't make the winter dinner party.</p>
+                <p>Cheers, -R</p>
+            </field>
+        </record>
+
+        <!-- building-a-satellite-antenna-rotator -->
+        <record id="topic_building_satellite_antenna_rotator" model="forum.post">
+            <field name="name">Building a satellite antenna rotator</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-04-14 04:26:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on April 13, 2018)</p>
+                <p>At the April '18 club meeting there was a presentation on the club's satellite antenna rotator - still a work in progress, expected to be complete and fully operational by Field Day. Two write-ups were shared: the original WRAPS project built in 2015 (handles a single Arrow or Elk antenna), and a "Tricked Out WRAPS" version that handles two antennas.</p>
+                <p>There are a few undocumented pitfalls in the build - reach out if you're interested. Thanks to Jack K6ROW (feedline work), John WB6FRZ (milling), and Dave W6IBC (troubleshooting).</p>
+            </field>
+        </record>
+        <record id="topic_building_satellite_antenna_rotator_reply1" model="forum.post">
+            <field name="name">Building a satellite antenna rotator</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_building_satellite_antenna_rotator" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-04-14 04:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on April 13, 2018)</p>
+                <p>The "Tricked Out WRAPS" write-up is attached here.</p>
+            </field>
+        </record>
+        <record id="topic_building_satellite_antenna_rotator_reply2" model="forum.post">
+            <field name="name">Building a satellite antenna rotator</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_building_satellite_antenna_rotator" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-04-14 04:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on April 13, 2018)</p>
+                <p>The original WRAPS project files are available for download: <a href="https://www.amsat.org//wordpress/xtra/WRAPS%20CD%20Master.zip">amsat.org WRAPS CD Master.zip</a></p>
+            </field>
+        </record>
+
+        <!-- help-programming-an-icom-9100 -->
+        <record id="topic_help_programming_icom_9100" model="forum.post">
+            <field name="name">Help programming an Icom 9100</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-09-27 06:15:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on September 26, 2018)</p>
+                <p>Looking for help programming the VHF band on an Icom IC-9100. Moving from Sebastopol to Santa Rosa and could use a hand due to some mobility limitations. Contact info available for anyone willing to help.</p>
+            </field>
+        </record>
+        <record id="topic_help_programming_icom_9100_reply1" model="forum.post">
+            <field name="name">Help programming an Icom 9100</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_programming_icom_9100" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-09-27 17:02:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on September 27, 2018)</p>
+                <p>Would suggest RT Systems software rather than programming it by hand - you can pull repeater data straight from RepeaterBook.com. The IC-9100 has a USB interface, so software-based programming is pretty painless.</p>
+            </field>
+        </record>
+
+        <!-- test-equipment-for-hf-radios -->
+        <record id="topic_test_equipment_for_hf_radios" model="forum.post">
+            <field name="name">Test equipment for HF radios</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-12-02 04:38:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD / Randy on December 1, 2018)</p>
+                <p>Troubleshooting an Icom IC-751A that shows no transmit output into a dummy load. The display shows frequency correctly and the audio compressor works, but the transmit relay never engages when pressing PTT.</p>
+                <p>I recently moved all the boards and wiring over to a new rust-free chassis and have double-checked that all the connections are properly seated. Working through the service manual and schematics to isolate the fault.</p>
+                <p>Would like to borrow a signal generator and frequency counter, or have someone help troubleshoot it in person - will bring this up at an upcoming club meeting too.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

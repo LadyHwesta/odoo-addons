@@ -371,5 +371,63 @@
             </field>
         </record>
 
+        <!-- digital-mobile-radio -->
+        <record id="topic_digital_mobile_radio" model="forum.post">
+            <field name="name">Digital Mobile Radio</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-11 02:54:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 10, 2017)</p>
+                <p>An enthusiastic endorsement of Digital Mobile Radio (DMR) - good evening QSOs with Phil K6AXY across the country. Both using Radioddity GD-77 dual-band DMR radios and SharkRF OpenSPOT repeaters. My OpenSPOT connects via an AT&amp;T mobile hotspot in the motorhome, which has made for several QSOs on Talk Group 3100 North America. N6DMR seems to be catching on in the DMR community.</p>
+            </field>
+        </record>
+        <record id="topic_digital_mobile_radio_reply1" model="forum.post">
+            <field name="name">Digital Mobile Radio</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_digital_mobile_radio" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-13 06:11:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 12, 2017)</p>
+                <p>"Adhoc Talk Groups" let you set up private or group DMR communications - you pick a custom talk group number, and once you key up on it, anyone else keying that same number joins in. Tested this with a temporary TG number (31000077) and confirmed it works for both a private two-way contact and a semi-private multi-user group, just by sharing the TG number.</p>
+            </field>
+        </record>
+        <record id="topic_digital_mobile_radio_reply2" model="forum.post">
+            <field name="name">Digital Mobile Radio</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_digital_mobile_radio" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-10-17 15:13:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on October 17, 2017)</p>
+                <p>Recommend Contact Manager, a third-party code plug editor that supports Motorola and TYT radios. Its documentation includes useful tips for avoiding common configuration mistakes - a solid resource for anyone programming a DMR radio.</p>
+            </field>
+        </record>
+
+        <!-- christmas-party-sign-ups -->
+        <record id="topic_christmas_party_sign_ups" model="forum.post">
+            <field name="name">Christmas party sign-ups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-11-19 20:11:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on November 19, 2018)</p>
+                <p>Where are they?</p>
+            </field>
+        </record>
+        <record id="topic_christmas_party_sign_ups_reply1" model="forum.post">
+            <field name="name">Christmas party sign-ups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_christmas_party_sign_ups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2018-11-19 21:11:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on November 19, 2018)</p>
+                <p>Click the Public Service Signup link, then click Holiday Party 2018. After signing up, click the Store tab at the top of the page and buy your ticket(s) in the SCRA store.</p>
+                <p>- Fred, AE6SF</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
