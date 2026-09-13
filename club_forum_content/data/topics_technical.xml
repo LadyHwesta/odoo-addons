@@ -261,5 +261,254 @@
             </field>
         </record>
 
+        <!-- mesh-network-development-in-sonoma-county -->
+        <record id="topic_mesh_network_development" model="forum.post">
+            <field name="name">Mesh network development in Sonoma County</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-10-06 07:06:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WA8YWQ on October 5, 2014)</p>
+                <p>Dave (WA8YWQ) started a discussion about adapting WiFi routers for dynamic mesh networks on the 13 cm ham band. He noted that "the Linksys WRT54G and similar, and some Ubiquiti wireless routers are supported by replacement firmware written by the Broadband-Hamnet group (HSMM-MESH)." The network automatically reconfigures itself as nodes come and go, requiring no fixed infrastructure. Dave invited anyone interested in such projects to contact him.</p>
+            </field>
+        </record>
+        <record id="topic_mesh_network_development_reply1" model="forum.post">
+            <field name="name">Mesh network development in Sonoma County</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_mesh_network_development" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-10-06 17:56:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted anonymously on October 6, 2014)</p>
+                <p>An anonymous respondent said they were enthusiastic about the concept, had devices compatible with the modified firmware, and were willing to help test it.</p>
+            </field>
+        </record>
+        <record id="topic_mesh_network_development_reply2" model="forum.post">
+            <field name="name">Mesh network development in Sonoma County</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_mesh_network_development" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-10-06 19:06:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on October 6, 2014)</p>
+                <p>Chris (W6CGS) reintroduced himself using his vanity call sign and confirmed he had equipment available for experimenting with and testing the mesh network proposal.</p>
+            </field>
+        </record>
+        <record id="topic_mesh_network_development_reply3" model="forum.post">
+            <field name="name">Mesh network development in Sonoma County</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_mesh_network_development" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-10-07 00:24:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WA8YWQ on October 6, 2014)</p>
+                <p>Dave shared technical resources, including the Broadband-Hamnet firmware, a Washington State University ham club simulation, and alternative firmware options (OpenWRT and Open-Mesh). He discussed the geographical challenges between their locations and mentioned his prior involvement with "the No Cat Network" in Sebastopol, offering his email for direct coordination on sourcing equipment and planning an implementation.</p>
+            </field>
+        </record>
+
+        <!-- tips-and-tricks -->
+        <record id="topic_tips_and_tricks" model="forum.post">
+            <field name="name">Tips and Tricks</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-10-12 20:25:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on October 12, 2014)</p>
+                <p>Share your tips and tricks here.</p>
+                <p>Need a way to carry and dispense paracord without it kinking? Take a 1.25 liter plastic soft drink bottle, wash and dry it, then drill a 3/32 hole in the cap (deburr it). Feed 100 feet of unrolled paracord into the bottle, rattling it to push the cord to the bottom. Thread the loose end through the cap for storage in your trunk. Not as fast as using a reel, but it stores nicely and keeps the cord clean.</p>
+            </field>
+        </record>
+        <record id="topic_tips_and_tricks_reply1" model="forum.post">
+            <field name="name">Tips and Tricks</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_tips_and_tricks" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-04-14 00:21:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on April 13, 2016)</p>
+                <p>Tip for winding wire antennas for storage: use a kite reel (available on Amazon for under $10). Remove the kite twine and cut a notch where it guides onto the spool, then drill a hole in the reel to feed wire onto it. The kite reel's folding handle and ratchet stop make it convenient. 75 feet of End Fed antenna wire wound on the reel stores well - this method keeps wire smooth without kinking, and works well for portable radial wires too.</p>
+            </field>
+        </record>
+
+        <!-- what-hf-antenna -->
+        <record id="topic_what_hf_antenna" model="forum.post">
+            <field name="name">What HF antenna?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-11-27 04:33:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on November 26, 2014)</p>
+                <p>Looking for antenna recommendations for a camping trip to Anza Borrego State Park (32.978804, -116.211930). The site has a dry wash area with hills, a large rock formation (60-70' high) to the southeast, and sparse vegetation (trees roughly 10 feet tall).</p>
+                <p>Available equipment: an 80 meter Carolina Windom (offset center dipole), a Buddipole (convertible to vertical), and a 40-10 screwdriver antenna. Considering stringing the Windom between a bluff and a 20-foot fiberglass pole, though that would put it in the roadway and direct sun.</p>
+                <p>Open to skeds with interested operators if conditions permit.</p>
+            </field>
+        </record>
+        <record id="topic_what_hf_antenna_reply1" model="forum.post">
+            <field name="name">What HF antenna?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_what_hf_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-11-27 07:45:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on November 26, 2014)</p>
+                <p>Recommends the screwdriver antenna with radials pinned down with rocks, avoiding dependency on natural landscape supports in case weather forces a relocation. Offered to make contact if given the day, time, mode, and frequency.</p>
+            </field>
+        </record>
+
+        <!-- yaesu-fusion-issues -->
+        <record id="topic_yaesu_fusion_issues" model="forum.post">
+            <field name="name">Yaesu Fusion issues</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-03-09 00:32:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on March 8, 2015)</p>
+                <p>When the Yaesu Fusion System is installed, there are bound to be questions that come up on how to use it. Starting this thread to deal with questions, issues, and answers generally dealing with the Fusion system and/or the Yaesu digital radios that support it. So if you have questions, answers, tips or tricks with the Fusion repeater, the FTM-400, DR-1, DR-2, FT991, WIRES, or any digitally related product, please post up.</p>
+            </field>
+        </record>
+        <record id="topic_yaesu_fusion_issues_reply1" model="forum.post">
+            <field name="name">Yaesu Fusion issues</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_yaesu_fusion_issues" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-03-09 03:49:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on March 8, 2015)</p>
+                <p><strong>Undocumented FTM-400 feature - Cross Band Repeat.</strong> Yaesu left this out of the user manual, but the radio actually supports it.</p>
+                <p><strong>Entering cross-band mode:</strong> Turn the APRS modem off. Set a UHF frequency in either the upper or lower display (VFO or memory). Set a VHF frequency in the other display (VFO or memory). Turn the FTM-400 off. Press and hold the lower 3 buttons to the right of the display, then press the power button. "X-BAND Repeater" will show between the upper and lower frequency displays if it worked.</p>
+                <p><strong>Exiting cross-band mode:</strong> Turn the FTM-400 off. Press and hold the lower 3 buttons to the right of the display, then press the power button again. "X-BAND Repeater" will no longer be displayed. Return the frequencies to your preferences, and turn the APRS modem back on if you run APRS.</p>
+            </field>
+        </record>
+
+        <!-- 80m-small-magnetic-loop-antenna -->
+        <record id="topic_80m_small_magnetic_loop" model="forum.post">
+            <field name="name">80m small magnetic loop antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-03-09 18:38:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on March 9, 2015)</p>
+                <p>I am in the process of building a small magnetic loop. I have extra materials for a second .750 o.d. copper loop, approximately 6 ft in diameter. I borrowed a very nice tubing roller and was wondering if there was any interest in the club for one of these loops? I will split the cost of the tubing, so a 6ft diameter loop rolled and ready would be approximately $55.</p>
+                <p>Duane, N6DMR</p>
+            </field>
+        </record>
+        <record id="topic_80m_small_magnetic_loop_reply1" model="forum.post">
+            <field name="name">80m small magnetic loop antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_80m_small_magnetic_loop" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-03-10 04:28:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on March 9, 2015)</p>
+                <p>Hi Duane, I'm very interested in the 80m loop antenna project for my use. Please call or email me and we can work out the details.</p>
+                <p>73, John, WB6FRZ</p>
+            </field>
+        </record>
+
+        <!-- list-of-local-nets -->
+        <record id="topic_list_of_local_nets" model="forum.post">
+            <field name="name">List of local nets</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-03-23 01:26:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on March 22, 2015)</p>
+                <p>Does anyone have a list of the nets that can be heard in our area? I'm looking for the day, time and frequency to listen in.</p>
+                <p>Darv, KK6OVH</p>
+            </field>
+        </record>
+
+        <!-- fs-butternut-bencher-hf6v-plus-extras -->
+        <record id="topic_fs_butternut_hf6v" model="forum.post">
+            <field name="name">FS: Butternut/Bencher HF6V plus extras</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-04-12 19:55:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on April 12, 2015)</p>
+                <p>A rebuilt Butternut HF6V multiband vertical antenna is for sale. I've put a lot of time into restoring it to full working order, and added reinforced aluminum angle coil mounts, a homebrew tilt base with 16 radials using metal measuring tapes, and an AD5X-designed relay box that allows tuning across the entire 80M and 60M bands.</p>
+                <p>Includes a DX Engineering Hustler antenna mount and extra 15M band wire. An antenna analyzer is recommended for proper tuning; an MFJ PL-259 has worked fine for me. Asking $400, preference to club members, as I have over $600 invested in materials alone.</p>
+                <p>Contact Duane, N6DMR</p>
+            </field>
+        </record>
+        <record id="topic_fs_butternut_hf6v_reply1" model="forum.post">
+            <field name="name">FS: Butternut/Bencher HF6V plus extras</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_fs_butternut_hf6v" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-04-12 20:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on April 12, 2015)</p>
+                <p>Pictures added.</p>
+            </field>
+        </record>
+        <record id="topic_fs_butternut_hf6v_reply2" model="forum.post">
+            <field name="name">FS: Butternut/Bencher HF6V plus extras</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_fs_butternut_hf6v" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-04-12 20:01:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on April 12, 2015)</p>
+                <p>Picture.</p>
+            </field>
+        </record>
+        <record id="topic_fs_butternut_hf6v_reply3" model="forum.post">
+            <field name="name">FS: Butternut/Bencher HF6V plus extras</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_fs_butternut_hf6v" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-04-12 20:02:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N6DMR on April 12, 2015)</p>
+                <p>Pictures.</p>
+            </field>
+        </record>
+
+        <!-- help-programming-a-baofeng-gt-3-mark-ii-ht -->
+        <record id="topic_help_baofeng_gt3_mark_ii" model="forum.post">
+            <field name="name">Help programming a Baofeng GT-3 Mark II HT</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-12-08 01:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on December 7, 2015)</p>
+                <p>A friend has a dual-band Baofeng GT-3 Mark II HT and wants to use it with the 147.315 2m repeater. It works fine on simplex and appears to transmit into the repeater correctly, but won't receive anything back from it. Looking for help with the configuration.</p>
+            </field>
+        </record>
+        <record id="topic_help_baofeng_gt3_mark_ii_reply1" model="forum.post">
+            <field name="name">Help programming a Baofeng GT-3 Mark II HT</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_baofeng_gt3_mark_ii" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-12-08 03:25:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on December 7, 2015)</p>
+                <p>Check whether the radio has PL decode enabled, and whether the decode tone matches the encode tone - a mismatch there would explain not hearing anything back.</p>
+            </field>
+        </record>
+        <record id="topic_help_baofeng_gt3_mark_ii_reply2" model="forum.post">
+            <field name="name">Help programming a Baofeng GT-3 Mark II HT</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_baofeng_gt3_mark_ii" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-12-11 05:57:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KK6OVH on December 10, 2015)</p>
+                <p>Shared a link with step-by-step programming instructions for that radio model.</p>
+            </field>
+        </record>
+        <record id="topic_help_baofeng_gt3_mark_ii_reply3" model="forum.post">
+            <field name="name">Help programming a Baofeng GT-3 Mark II HT</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_baofeng_gt3_mark_ii" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-01-06 05:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on January 5, 2016)</p>
+                <p>Thanks to everyone who responded - forwarded the programming instructions along to my friend.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

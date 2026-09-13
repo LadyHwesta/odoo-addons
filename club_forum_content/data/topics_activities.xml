@@ -181,5 +181,42 @@
             </field>
         </record>
 
+        <!-- north-american-ssb-sprint -->
+        <record id="topic_na_ssb_sprint" model="forum.post">
+            <field name="name">North American SSB Sprint</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-01-30 00:42:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on January 29, 2015)</p>
+                <p>Dear Fellow Contester: since you enjoy participating in shorter domestic SSB contests, we want to be sure you're aware of an exciting four hour event of this type coming up this Saturday, January 31st - the North American SSB Sprint! The NA SSB Sprint runs on 20m, 40m and 80m this Saturday afternoon/evening:</p>
+                <p><strong>Time zones:</strong><br />UTC: 00z-04z<br />AST: 8pm-12am<br />EST: 7pm-11pm<br />CST: 6pm-10pm<br />MST: 5pm-9pm<br />PST: 4pm-8pm<br />AKST: 3pm-7pm<br />HST: 2pm-6pm</p>
+                <p><strong>Highlights:</strong></p>
+                <ul>
+                    <li>Four-hour duration, ideal for participants with limited availability</li>
+                    <li>Categories for QRP, Low Power (100w), and High Power with separate awards</li>
+                    <li>Individual entry or team registration (up to 5 members)</li>
+                    <li>Unique QSY rule requiring a 5kHz minimum frequency change after CQ</li>
+                    <li>Multiple award opportunities including t-shirts, plaques, certificates, and achievement recognition</li>
+                    <li>Random drawing for door prizes from all submitted logs</li>
+                </ul>
+                <p><a href="http://www.ssbsprint.com">ssbsprint.com</a> has the contest rules, a multiplier checklist, logging software guidance, operating tips, and planned activity tracking.</p>
+                <p>73 and CU in the Sprint! NA SSB Sprint Committee, Contest Manager: Chris Tate, N6WM</p>
+            </field>
+        </record>
+
+        <!-- anyone-going-to-nvcon -->
+        <record id="topic_anyone_going_to_nvcon" model="forum.post">
+            <field name="name">Anyone going to NVCON?</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-04-14 16:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N2WD on April 14, 2015)</p>
+                <p>Is anyone going to <a href="http://nvcon.org/">NVCON (Nevada State Convention)</a>? It's on May 1-3 at the Boomtown Casino and Hotel in (actually west of) Reno.</p>
+                <p>Ed, N2WD</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

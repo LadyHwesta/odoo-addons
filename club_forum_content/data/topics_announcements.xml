@@ -193,5 +193,286 @@
             </field>
         </record>
 
+        <!-- stolen-ht -->
+        <record id="topic_stolen_ht" model="forum.post">
+            <field name="name">Stolen HT</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-07-28 22:25:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6XLT on July 28, 2014)</p>
+                <p>A friend of mine, K6KDH, suffered a car burglary over the weekend. Her Yaesu FT-60 was stolen, serial number 7N780865. If you come across it please let me know and I will pass the information on. Thanks</p>
+                <p>Craig, K6XLT</p>
+            </field>
+        </record>
+
+        <!-- funy -->
+        <record id="topic_funy" model="forum.post">
+            <field name="name">Funy</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-08-31 22:39:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on August 31, 2014)</p>
+                <p>For those of you that like those Dos Equis "most interesting man" commercials, I offer this. Found it on the SFARC's website.</p>
+            </field>
+        </record>
+        <record id="topic_funy_reply1" model="forum.post">
+            <field name="name">Funy</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_funy" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-09-03 00:40:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6EM on September 2, 2014)</p>
+                <p>Sorry Charlie, the link didn't show up. How about posting the URL?</p>
+            </field>
+        </record>
+
+        <!-- michael-von-der-portens-email-has-been-hijacked -->
+        <record id="topic_michael_von_der_porten_hijacked" model="forum.post">
+            <field name="name">Michael Von der Porten's email has been hijacked</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-09-15 13:40:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6JAO and KG6GEX on September 15, 2014)</p>
+                <p>A security alert warns that Michael Von der Porten's AOL email account (mikevdpca@aim.com) has been compromised. Fraudulent messages requesting money are being sent from this address.</p>
+                <p>Please disregard such messages and mark them as spam or phishing. Bill Finkelstein said he would contact Michael by phone to let him know of the breach.</p>
+                <p>Bill also recommends that anyone still relying on AOL or Yahoo email accounts consider migrating to Gmail for better security protections.</p>
+            </field>
+        </record>
+
+        <!-- pilgrimage-to-hro-planned-wanna-go -->
+        <record id="topic_pilgrimage_to_hro" model="forum.post">
+            <field name="name">Pilgrimage to HRO planned, wanna go?</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-09-20 02:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on September 19, 2014)</p>
+                <p>Newly-licensed operators from the recent technician class are organizing a group visit to Ham Radio Outlet in Oakland. Club members interested in joining the convoy are invited to meet in the east parking lot of Macy's no later than 8:15 AM on Saturday, October 4th - the Saturday following the monthly club meeting.</p>
+                <p>This is a ham radio candy store and your wallet will probably feel a lot lighter on the way back!</p>
+            </field>
+        </record>
+
+        <!-- free-tower-and-vertical-antenna -->
+        <record id="topic_free_tower_and_vertical_antenna" model="forum.post">
+            <field name="name">Free tower and vertical antenna</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-09-27 20:42:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on September 27, 2014)</p>
+                <p>A tower and vertical antenna are available for removal from a Santa Rosa property. The owner wants them removed entirely. Interested parties must sign a liability release statement, with each crew member signing before work begins.</p>
+                <p>Contact John Breckenridge at 707-217-1017 for details. Photos available via Flickr.</p>
+            </field>
+        </record>
+
+        <!-- arduino-for-ham-radio -->
+        <record id="topic_arduino_for_ham_radio" model="forum.post">
+            <field name="name">Arduino for Ham Radio</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-10-30 04:58:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on October 29, 2014)</p>
+                <p>A webcast featuring Glen Popiel, KW5GP, author of "Arduino for Ham Radio" (an ARRL publication), was scheduled for Thursday, October 30th at 8:00 PM CT (0100 UTC) at W5KUB's ham shack.</p>
+                <p>Arduino microcontrollers give ham radio operators, students, and professionals an affordable way to build interactive devices using sensors and actuators. Popiel demonstrated numerous projects, including:</p>
+                <ul>
+                    <li>Random Code Practice Generator</li>
+                    <li>Talking GPS/UTC Time/Grid Square Indicator</li>
+                    <li>CW Beacon and Foxhunt Keyer</li>
+                    <li>Iambic Keyer</li>
+                    <li>Fan Speed Controller</li>
+                    <li>Waveform Generator</li>
+                    <li>Digital Compass</li>
+                    <li>PS/2 CW Keyboard</li>
+                    <li>Weather Station</li>
+                    <li>Field Day Satellite Tracker</li>
+                    <li>RF Probe with LED Bar Graph</li>
+                    <li>Azimuth/Elevation Rotator Controller</li>
+                    <li>Solar Battery Charger Monitor</li>
+                    <li>CW Decoder</li>
+                    <li>On-Air Indicator</li>
+                    <li>Lightning Detector</li>
+                    <li>Talking SWR Meter</li>
+                    <li>CDE/Hy-Gain Rotator Controllers</li>
+                </ul>
+                <p>The webcast included live chat, telephone access for questions, and time to discuss Arduino projects.</p>
+            </field>
+        </record>
+
+        <!-- looking-for-cb-transceiver -->
+        <record id="topic_looking_for_cb_transceiver" model="forum.post">
+            <field name="name">Looking for CB transceiver</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-06-03 01:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on June 2, 2015)</p>
+                <p>Looking for a mobile CB transceiver for an upcoming Sierra trip. Plan to loan a CB handheld to a non-amateur friend for remote area communication, and need a car-mounted unit for the trip in.</p>
+                <p>Budget is around $25 or less - willing to loan, buy, or accept a donation. Reply here or email me directly.</p>
+            </field>
+        </record>
+
+        <!-- fill-in-for-newsline -->
+        <record id="topic_fill_in_for_newsline" model="forum.post">
+            <field name="name">Fill-in for Newsline</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-06-03 02:34:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on June 2, 2015)</p>
+                <p>Anyone out there have any great ideas for a Newsline fill-in?</p>
+                <ul>
+                    <li>Tech net?</li>
+                    <li>Joe's 10 meter net?</li>
+                    <li>Swap net?</li>
+                    <li>CW class?</li>
+                    <li>Round table discussion on topic XYZ?</li>
+                </ul>
+            </field>
+        </record>
+        <record id="topic_fill_in_for_newsline_reply1" model="forum.post">
+            <field name="name">Fill-in for Newsline</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_fill_in_for_newsline" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-06-04 16:25:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AG6CI on June 4, 2015)</p>
+                <p>I like the idea of Joe's 10 meter net. Doing a net on HF/simplex is different than using a repeater.</p>
+                <p>Keith, AG6CI</p>
+            </field>
+        </record>
+
+        <!-- hf-vertical-antenna-for-sale-hustler-4-btv-system-like-new -->
+        <record id="topic_hf_vertical_hustler_4btv" model="forum.post">
+            <field name="name">HF Vertical Antenna for sale - Hustler 4-BTV system, like new</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-06-10 06:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on June 9, 2015)</p>
+                <p>Hustler 4-BTV vertical antenna system for sale, like-new condition. Includes:</p>
+                <ul>
+                    <li>Hustler 4-BTV Vertical Antenna (40, 20, 15, 10 meters; 1500W; 20 feet long)</li>
+                    <li>DX Engineering DXE-RADP-3 stainless steel radial plate</li>
+                    <li>30 radials, 14AWG stranded copper insulated wire (~32 ft each)</li>
+                    <li>DX Engineering DXE-AOK-DCF SO-239 add-on kit (installed)</li>
+                    <li>Radio Works T-4 1:1 current balun/line isolator (installed)</li>
+                    <li>Replacement trap covers</li>
+                    <li>Belden 9913 coax cable with connectors and braided copper interconnections</li>
+                    <li>Documentation and photos available on request</li>
+                </ul>
+                <p><strong>Price: $300</strong> (original cost exceeded $450 with tax)</p>
+            </field>
+        </record>
+
+        <!-- article-on-make-magazine-site -->
+        <record id="topic_article_make_magazine" model="forum.post">
+            <field name="name">Article on Make: magazine site</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-06-30 16:09:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AG6CI on June 30, 2015)</p>
+                <p>A Make: magazine article titled "A Maker's Introduction to Ham Radio" was published this morning. Worth a look, and worth checking Make:'s site in general for project inspiration - I check it almost daily. Wish it had come out before Field Day.</p>
+                <p>'73, Keith, AG6CI</p>
+            </field>
+        </record>
+
+        <!-- ham-radio-and-the-nepal-earthquake -->
+        <record id="topic_ham_radio_nepal_earthquake" model="forum.post">
+            <field name="name">Ham radio and the Nepal earthquake</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-09-09 16:15:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AG6CI on September 9, 2015)</p>
+                <p>Hello All: another article on the Make: magazine site, this one about efforts to deploy ham radio in Nepal before, during, and after the big quake earlier this year.</p>
+                <p><a href="http://makezine.com/2015/09/09/the-great-nepali-radio-shake-up/">http://makezine.com/2015/09/09/the-great-nepali-radio-shake-up/</a></p>
+                <p>Some of you might remember what it was like before the VE system was set up, and you had to go to the nearest big city to take tests for your license. That's what it's like in Nepal now.</p>
+                <p>'73 de AG6CI</p>
+            </field>
+        </record>
+
+        <!-- ham-radio-projects-on-make-magazine-site -->
+        <record id="topic_ham_radio_projects_make_magazine" model="forum.post">
+            <field name="name">Ham radio projects on Make: magazine site</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-11-08 00:55:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AG6CI on November 7, 2015)</p>
+                <p>Here's a link to a set of 5 ham radio projects on the Make: magazine web site:</p>
+                <p><a href="http://makezine.com/2015/11/06/5-ham-radio-projects-with-diana-eng/">http://makezine.com/2015/11/06/5-ham-radio-projects-with-diana-eng/</a></p>
+                <p>One of them is a basic "how to set up an HF station" article. There's also a good one on an end fed half wave antenna tuner for portable operation.</p>
+                <p>'73 de AG6CI</p>
+            </field>
+        </record>
+
+        <!-- free-microwave-dish-and-coax -->
+        <record id="topic_free_microwave_dish_and_coax" model="forum.post">
+            <field name="name">Free microwave dish and coax</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-11-25 22:54:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6JAO on November 25, 2015)</p>
+                <p>Offering a new, unused Terk TRK-S26 DirecTV satellite dish with triple LNB and 50 feet of RG-6 coaxial cable, free. Incompatible with modern DirecTV HD receivers, but suitable for microwave technology experimentation. Contact bill@williamfinkelstein.com - otherwise it goes to recycling.</p>
+            </field>
+        </record>
+        <record id="topic_free_microwave_dish_and_coax_reply1" model="forum.post">
+            <field name="name">Free microwave dish and coax</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_free_microwave_dish_and_coax" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-12-11 14:56:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6JAO on December 11, 2015)</p>
+                <p>The item has been claimed and is no longer available.</p>
+            </field>
+        </record>
+
+        <!-- free-to-a-good-home-old-1970-80s-radio-gear -->
+        <record id="topic_free_1970s_80s_radio_gear" model="forum.post">
+            <field name="name">Free to a good home: old 1970s/80s radio gear</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-12-20 00:23:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6JAO on December 19, 2015)</p>
+                <p>If you're interested in this box of free goodies, drop me an email at bill@williamfinkelstein.com</p>
+                <ul>
+                    <li>Midland 13-513 - 220 to 225 MHz FM 20 Watt transceiver (mobile/base)</li>
+                    <li>Open frame linear power supply for the Midland</li>
+                    <li>Icom IC-2AT - 2 meter HT with DTMF &amp; dip switch selectable PL tone generator</li>
+                    <li>Icom IC-3AT - 220-224.990 MHz HT with DTMF &amp; dip switch selectable PL tone generator</li>
+                    <li>Icom BP-4 battery case (holds 6 x AAs)</li>
+                    <li>Icom BC-35 battery charger</li>
+                    <li>2 x Icom BC-25U AC adapter</li>
+                    <li>Dentron Supertuner, 160-10 meters, coax, balanced or unbalanced antenna tuner</li>
+                    <li>Nye Viking HF low pass filter</li>
+                    <li>West Marine Omega marine VHF handheld with charger</li>
+                </ul>
+                <p>The NiCad batteries in the handhelds are long dead - you'll need to find a replacement pack or mod your own.</p>
+                <p>73s, Bill Finkelstein, WB6JAO</p>
+            </field>
+        </record>
+        <record id="topic_free_1970s_80s_radio_gear_reply1" model="forum.post">
+            <field name="name">Free to a good home: old 1970s/80s radio gear</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_free_1970s_80s_radio_gear" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-05-01 20:11:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6JAO on May 1, 2016)</p>
+                <p>Hi Folks - all the gear is gone (it's been gone for a while, just getting around to closing this out).</p>
+                <p>73s, Bill</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
