@@ -218,5 +218,158 @@
             </field>
         </record>
 
+        <!-- mini-x-2016 -->
+        <record id="topic_mini_dx_2016" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-06 05:23:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on June 5, 2016)</p>
+                <p>Mini-DX 2016 is scheduled for August 4-7 at A.W. Way Park in Humboldt County. More info under Club Activities; a draft Ops Plan is attached.</p>
+                <p>Confirmed signups as of 7/30/16: Doug Payne KF6LMB, Keith Payea AG6CI, Dave Harrison W6IBC, Joy KI6ASJ, John Felton KE5RI, Ed Jacobson W1EJ, Charlie Sikes KZ6T, Fred Seitel AE6SF, Aaron Marroquin KK6ZDB, Eric McHenry AA6EM, Iola Beckley KK6HRE, and Jack Christensen K6ROW.</p>
+                <p>Contact Doug, KF6LMB, if you're interested.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply1" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-08 03:08:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6EM on June 7, 2016)</p>
+                <p>First-time Mini-DX attendee, planning to tent camp solo. Bringing a BuddiPole and a Yaesu 897 covering 2-40m plus VHF/UHF. Might bring a Honda 2000 generator for recharging, considering bringing a scooter, and trying to talk my spouse into coming too.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply2" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-08 14:34:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on June 8, 2016)</p>
+                <p>Notes on Summits on the Air (SOTA) activations - last year attempted two peaks with mixed results. This year, planning Friday activations of Cooksie Mountain and Moody Ridge. No AC power or RV hookups at the site; planning to run off batteries, with generators reserved for recharging and Saturday evening's presentation.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply3" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-09 03:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on June 8, 2016)</p>
+                <p>Bringing the whole family (spouse plus two young daughters) - building a 40m dipole, bringing a KX3, a solar panel, a charge controller, and a lead-acid battery. First Mini-DX, so keeping the setup simple. Asking what kind of vehicle is needed for the road in.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply4" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-03 22:20:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on July 3, 2016)</p>
+                <p>List of personal radio gear available for shared use: antenna launcher, an analyzer, several antennas (Carolina Windom, BuddiPole, screwdriver vertical, Elk 2M log periodic), and radios (Elecraft KX3, Icom 7000). Club loaner equipment also available: a Yaesu 2900, FT60, FT1DR, and a TYT TH-F5.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply5" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-08 00:19:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Doug on July 7, 2016)</p>
+                <p>Planning to attend pending recovery from surgery - offers of a ride would help. Bringing two inverted V antennas, baluns, coax, anchor stakes, an Icom 706 with tuners, a 100 amp-hour marine battery with a solar panel, and a Yaesu 60-watt 2-meter unit. Also bringing a firepit, club easy-ups, tables, coolers, and backup cooking gear.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply6" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-14 19:37:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Doug on July 14, 2016)</p>
+                <p>Will bring a BuddiPole antenna, available for anyone to use. Use 147.55 en route; once west of Weott, contact the campsite directly. Look for the white "Radio" signs before and at the park entrance, on the left side of the road.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2016_reply7" model="forum.post">
+            <field name="name">Mini-DX 2016</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2016" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-08-11 00:17:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on August 10, 2016)</p>
+                <p>Photos from Mini-DX 2016 are up on Flickr.</p>
+            </field>
+        </record>
+
+        <!-- summits-on-the-air-fun -->
+        <record id="topic_summits_on_the_air_fun" model="forum.post">
+            <field name="name">Summits on the Air fun</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-09-22 20:08:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on September 22, 2016)</p>
+                <p>Continuing my quest to reach 100 Activator points and 500 Chaser points by the end of the year. This week's trip took me to the Burney, CA area, with a plan to activate three summits: Soldier Mountain, Burney Mountain, and Lassen Peak. Got to Soldier Mountain's summit late afternoon, but 20 meters was still open for most of my contacts. Gorgeous view of the Fall River Valley to the east - almost like looking at Google Earth - plus Shasta to the north and Lassen to the southwest.</p>
+                <p>Next morning I went up Burney Mountain. The last few miles of road are not for the faint of heart - lucky I met no one coming the other way. Wind at the top was roaring, so I started with my MFJ 20m loaded whip. After about six contacts on 20 CW I wanted to try other bands, so I put up my 20 ft pole with 39 feet of wire. Worked more on 20 and several on 40, though the wind was bending the pole way over. The fire tower is staffed, so there's access to a pit toilet! Headed to Lassen Park after that looking for a campsite, but after checking the weather (high winds, cold, showers) decided to save Lassen for next summer.</p>
+                <p>If you like the outdoors, SOTA is great fun. Anyone want to join me on the next outing?</p>
+            </field>
+        </record>
+        <record id="topic_summits_on_the_air_fun_reply1" model="forum.post">
+            <field name="name">Summits on the Air fun</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_summits_on_the_air_fun" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-10-10 16:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W6STR on October 10, 2016)</p>
+                <p>Ed, congrats on 100+ points activating SOTA summits - that's quite an achievement! You're well on your way to becoming a SOTA Goat!</p>
+                <p>Mike, W6STR</p>
+            </field>
+        </record>
+        <record id="topic_summits_on_the_air_fun_reply2" model="forum.post">
+            <field name="name">Summits on the Air fun</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_summits_on_the_air_fun" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-10-10 18:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on October 10, 2016)</p>
+                <p>Thanks Mike. The last two summits that got me over 100 were a bit of a challenge - North Yolla Bolly and Black Rock Mountain, in the Shasta Trinity National Forest about sixty miles west of Red Bluff. Did both in one day since they're only about four miles apart. Camped at the trailhead and got an early start. The hike up to Pettijohn Basin between them is along a nice but sometimes steep trail. Did North Yolla Bolly in the morning, then Black Rock - the trail gets indistinct and pretty steep the last half mile. Glad I had the Garmin! A lot of work for one day, but the views from the summits were fabulous and HF propagation even better. Next year I'm planning to backpack and camp in the basin between them. By the way, I see you're #10 on the W6 Chasers list - wow!</p>
+            </field>
+        </record>
+        <record id="topic_summits_on_the_air_fun_reply3" model="forum.post">
+            <field name="name">Summits on the Air fun</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_summits_on_the_air_fun" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-11-02 18:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W6STR on November 2, 2016)</p>
+                <p>Ed, I'm interested in activating Sonoma Mountain and see you've already done it - could you email me about trails to the top?</p>
+                <p>Thanks, Mike, W6STR</p>
+            </field>
+        </record>
+
+        <!-- aa-cw-friday-night-practice-net -->
+        <record id="topic_aa_cw_friday_practice_net" model="forum.post">
+            <field name="name">AA CW Friday night practice net</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-07-19 23:30:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on July 19, 2017)</p>
+                <p>The SCRA CW Practice Net runs every Friday at 7:00 PM on the SCRA VHF repeater, 147.315 PL 88.5.</p>
+                <p>Attached (login required to view): the SCRA CW Practice Net Control Script, SCRA CW Practice Net Guidelines, and "Thoughts on Learning CW."</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

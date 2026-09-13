@@ -510,5 +510,252 @@
             </field>
         </record>
 
+        <!-- what-did-you-do-ham-radio-related-recently -->
+        <record id="topic_what_did_you_do_recently" model="forum.post">
+            <field name="name">What did you do ham radio related recently?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-01-10 17:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on January 10, 2016)</p>
+                <p>Share your recent ham radio activities here - projects, special events, classes, or just getting on the air.</p>
+            </field>
+        </record>
+        <record id="topic_what_did_you_do_recently_reply1" model="forum.post">
+            <field name="name">What did you do ham radio related recently?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_what_did_you_do_recently" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-05-27 17:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on May 27, 2016)</p>
+                <p>Tried contacting Indianapolis Motor Speedway (W9IMS) during a special event, and heard a station from Hawaii on 20m. A barefoot KX3 has a hard time competing with the high-power stations, but it's rewarding when it works. Planning a mobile setup for a '05 Toyota UZJ100 - looking for a radio with cross-band capability, considering APRS too.</p>
+            </field>
+        </record>
+        <record id="topic_what_did_you_do_recently_reply2" model="forum.post">
+            <field name="name">What did you do ham radio related recently?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_what_did_you_do_recently" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-07 00:30:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on July 6, 2016)</p>
+                <p>Actively doing SOTA activations and chasing. Happy to have others join on activations.</p>
+            </field>
+        </record>
+        <record id="topic_what_did_you_do_recently_reply3" model="forum.post">
+            <field name="name">What did you do ham radio related recently?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_what_did_you_do_recently" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-07 17:30:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W6STR on July 7, 2016)</p>
+                <p>Recommends the SOTA Goat iPhone app (v1.2.1, by Rockwell Schlock, WW1X) for SOTA notifications - "works like a charm."</p>
+            </field>
+        </record>
+        <record id="topic_what_did_you_do_recently_reply4" model="forum.post">
+            <field name="name">What did you do ham radio related recently?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_what_did_you_do_recently" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-09-23 16:16:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on September 23, 2016)</p>
+                <p>Thanks Mike for the app recommendation.</p>
+            </field>
+        </record>
+
+        <!-- grounding-your-station -->
+        <record id="topic_grounding_your_station" model="forum.post">
+            <field name="name">Grounding your station</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-04-22 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on April 21, 2016)</p>
+                <p>A newly licensed ham with an electrical engineering background asks about grounding requirements for a home station, wondering whether extensive grounding measures are needed given how rare lightning is in the area. Describes the standard recommendation: an 8-foot ground rod connected to all equipment via copper piping, lightning arrestors on antennas, and a bond to the home's electrical ground.</p>
+            </field>
+        </record>
+        <record id="topic_grounding_your_station_reply1" model="forum.post">
+            <field name="name">Grounding your station</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_grounding_your_station" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-04-22 04:40:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on April 21, 2016)</p>
+                <p>Uses a grounding bus tied to a half-inch copper braided strap connected to a ground rod (limited to 4 feet by soil conditions). Relies on disconnecting equipment during storms rather than lightning protection, and recommends Joe K6AWA, who gave a good grounding presentation at the club.</p>
+            </field>
+        </record>
+        <record id="topic_grounding_your_station_reply2" model="forum.post">
+            <field name="name">Grounding your station</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_grounding_your_station" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-05-27 17:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on May 27, 2016)</p>
+                <p>Installed an 8-foot ground rod with a random wire antenna routed through a lightning arrestor. The rod connects to the foundation rebar, with plans to run about 100 feet of #6 AWG stranded copper to the electrical ground rod. Unplugs antennas during electrical storms, and notes Joe K6AWA (at a more exposed, elevated location) needs more protection than most.</p>
+            </field>
+        </record>
+        <record id="topic_grounding_your_station_reply3" model="forum.post">
+            <field name="name">Grounding your station</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_grounding_your_station" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-08 18:01:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on June 8, 2016)</p>
+                <p>Found "Power, Grounding, Bonding, and Audio for Ham Radio" to be an excellent resource on lightning strikes and bonding technique. Looking to split a bulk purchase of grounding wire, since pricing varies a lot between suppliers.</p>
+            </field>
+        </record>
+        <record id="topic_grounding_your_station_reply4" model="forum.post">
+            <field name="name">Grounding your station</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_grounding_your_station" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-09 03:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on June 8, 2016)</p>
+                <p>The National Electrical Code requires #4 or #6 AWG minimum for electrical grounds - #8 wire won't be code compliant. Suggests checking Platt for competitive pricing on materials.</p>
+            </field>
+        </record>
+
+        <!-- anyone-have-a-sainsonic-ap510-aprs -->
+        <record id="topic_sainsonic_ap510_aprs" model="forum.post">
+            <field name="name">Anyone have a Sainsonic AP510 APRS?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-05-01 20:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6JAO on May 1, 2016)</p>
+                <p>I recently picked one up and have been trying to get it working. It's a snazzy small APRS unit, totally self contained - unfortunately it's not very Windows 10 friendly. Does anyone have one they've gotten working? I may just have to dust off my old Win/XP computer!</p>
+                <p>73s, Bill Finkelstein, WB6JAO</p>
+            </field>
+        </record>
+
+        <!-- feed-line-connectors -->
+        <record id="topic_feed_line_connectors" model="forum.post">
+            <field name="name">Feed line connectors</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-02 20:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on June 2, 2016)</p>
+                <p>With Field Day coming up and a soldering program planned, looking at installing connectors on 100 feet of LMR400 coax. Amphenol is highly regarded for PL259s but has multiple versions - looking for input on crimp vs. solder, and whether phenolic insulators (083-1SP, $4.95) or teflon insulators (083-822, $5.95) are the better choice.</p>
+            </field>
+        </record>
+        <record id="topic_feed_line_connectors_reply1" model="forum.post">
+            <field name="name">Feed line connectors</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_feed_line_connectors" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-13 03:23:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on June 12, 2016)</p>
+                <p>Found a technical article from DavisRF comparing crimp and solder methods - useful reading even with limited hands-on experience (just one random wire antenna so far). Curious what the rest of the community thinks.</p>
+            </field>
+        </record>
+
+        <!-- crimp-or-clamp-n-type-connector-for-lmr-400 -->
+        <record id="topic_crimp_or_clamp_n_type" model="forum.post">
+            <field name="name">Crimp or clamp N-type connector for LMR-400?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-08-02 16:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on August 2, 2016)</p>
+                <p>N-type connectors are supposed to beat "UHF" PL-258/SO-239 connectors on losses at UHF frequencies and moisture resistance. Installing one on LMR-400 for the first time - crimp or clamp, and what's the advantage of one over the other? Also looking for vendor and model recommendations.</p>
+            </field>
+        </record>
+
+        <!-- local-powerpole-standard-configuration-for-13-8v-connections -->
+        <record id="topic_local_powerpole_standard" model="forum.post">
+            <field name="name">Local Powerpole standard configuration for 13.8V connections</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-08-09 17:54:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on August 9, 2016)</p>
+                <p>What's the local SCRA standard Powerpole configuration for DC power connections to a mobile transceiver?</p>
+            </field>
+        </record>
+        <record id="topic_local_powerpole_standard_reply1" model="forum.post">
+            <field name="name">Local Powerpole standard configuration for 13.8V connections</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_local_powerpole_standard" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-08-09 18:04:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AG6CI on August 9, 2016)</p>
+                <p>We use the ARES standard configuration locally. Pre-bonded connectors are recommended to make sure they're assembled correctly - same configuration applies to accessories like inline meters.</p>
+            </field>
+        </record>
+        <record id="topic_local_powerpole_standard_reply2" model="forum.post">
+            <field name="name">Local Powerpole standard configuration for 13.8V connections</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_local_powerpole_standard" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-08-09 19:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on August 9, 2016)</p>
+                <p>The standard is "Red Right, Tongue Top." Anderson Powerpole connectors (PP15, PP30, PP45) are used for 12VDC systems - black is negative, red is positive. Contact size depends on wire gauge: PP15 for 18-16 AWG, PP30 for 14-12 AWG, PP45 for 10 AWG. Crimping is preferred over soldering, though cyanoacrylate glue works to bond the housings together.</p>
+            </field>
+        </record>
+
+        <!-- storage-cases -->
+        <record id="topic_storage_cases" model="forum.post">
+            <field name="name">Storage cases</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-10-12 02:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on October 11, 2016)</p>
+                <p><strong>Alternative to Pelican cases</strong></p>
+                <p>Was looking for a carry case for my KX3 - something I could pack in the back of the Jeep without worrying about it getting banged around on a road trip. Pelican cases turned out to be pricey, so I went looking for alternatives. Settled on a case made by Fuerte and sold by <a href="http://seahorsecases.com">seahorsecases.com</a> - made in the USA, meets Mil-Spec standards, lifetime guarantee, and about a third cheaper than Pelican.</p>
+                <p>The popular Pelican 1450 runs $94 on Google; the equivalent Seahorse SE-520 with padding is $48. For the KX3, I got the SE-430 model with padding - looks like it'll work out nicely.</p>
+            </field>
+        </record>
+
+        <!-- pangrams-for-cw-practice -->
+        <record id="topic_pangrams_for_cw_practice" model="forum.post">
+            <field name="name">Pangrams for CW practice</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-06-06 03:53:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB / Phil on June 5, 2017)</p>
+                <p>When learning Morse Code, pangrams (sentences using all 26 letters of the alphabet) are handy for practicing sending and receiving. The classic one: "The quick brown fox jumps over a lazy dog."</p>
+                <p>A few more, by character count:</p>
+                <ul>
+                    <li>(31) The five boxing wizards jump quickly.</li>
+                    <li>(32) Pack my box with five dozen liquor jugs.</li>
+                    <li>(35) The quick brown fox jumps over the lazy dog.</li>
+                    <li>(41) A large fawn jumped quickly over white zinc boxes.</li>
+                    <li>(44) Five or six big jet planes zoomed quickly by the tower.</li>
+                    <li>(47) My grandfather picks up quartz and valuable onyx jewels.</li>
+                    <li>(48) Fred specialized in the job of making very quaint wax toys.</li>
+                    <li>(48) Sixty zippers were quickly picked from the woven jute bag.</li>
+                    <li>(49) A quick movement of the enemy will jeopardize six gunboats.</li>
+                    <li>(49) All questions asked by five watch experts amazed the judge.</li>
+                    <li>(49) How razorback jumping frogs can level six piqued gymnasts.</li>
+                    <li>(50) We promptly judged antique ivory buckles for the next prize.</li>
+                </ul>
+                <p>Source: fun-with-words.com</p>
+            </field>
+        </record>
+        <record id="topic_pangrams_for_cw_practice_reply1" model="forum.post">
+            <field name="name">Pangrams for CW practice</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_pangrams_for_cw_practice" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-06-18 02:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on June 17, 2017)</p>
+                <p>Always enjoy your pangrams, Phil!</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

@@ -474,5 +474,123 @@
             </field>
         </record>
 
+        <!-- new-elecraft-kx2-a-fit-in-your-pocket-transceiver -->
+        <record id="topic_new_elecraft_kx2" model="forum.post">
+            <field name="name">New Elecraft KX2 - a fit-in-your-pocket transceiver</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-05-18 18:05:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N2WD on May 18, 2016)</p>
+                <p>Elecraft announced a new "pocket-size" transceiver called the KX2 at the FDIM QRP event during the Dayton Hamfest. The ultra-portable radio measures 5.8 x 2.8 x 1.5 inches, weighs 13 ounces, and puts out up to 10 watts across 9 bands. Priced at $749, it shares many features with the KX3 and works with the KXPA100 amplifier.</p>
+            </field>
+        </record>
+        <record id="topic_new_elecraft_kx2_reply1" model="forum.post">
+            <field name="name">New Elecraft KX2 - a fit-in-your-pocket transceiver</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_elecraft_kx2" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-05-20 21:38:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N2WD on May 20, 2016)</p>
+                <p>The Elecraft KX2 is now available - billed as "the smallest full-featured HF radio on the planet." Impressively portable while still fully functional, making comparable radios look dated by comparison. More details on Elecraft's website.</p>
+            </field>
+        </record>
+
+        <!-- nice-field-day-write-up-in-the-press-democrat -->
+        <record id="topic_nice_field_day_write_up" model="forum.post">
+            <field name="name">Nice Field Day write-up in the Press Democrat</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-06-27 16:16:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by N2WD on June 27, 2016)</p>
+                <p>The Press Democrat ran a piece on SCRA's Field Day event with photos. Thanks to Darryl Paule (KI6MSP) for getting media attention for the event: "Sonoma County ham radio hobbyists coming in loud and clear."</p>
+            </field>
+        </record>
+        <record id="topic_nice_field_day_write_up_reply1" model="forum.post">
+            <field name="name">Nice Field Day write-up in the Press Democrat</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_nice_field_day_write_up" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-06-12 03:43:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6MSP on June 11, 2017)</p>
+                <p>Sorry for the very delayed reply here - are you planning on coming to the upcoming Field Day, Ed?</p>
+            </field>
+        </record>
+
+        <!-- antenna-for-sale -->
+        <record id="topic_antenna_for_sale" model="forum.post">
+            <field name="name">Antenna for sale</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-07 20:40:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on July 7, 2016)</p>
+                <p>I have a 2M Cushcraft 13B2 new in the box for sale, $125. Regular price is $249! It's a 13 element beam.</p>
+                <p>Ed, W1EJ, 354-4482.</p>
+            </field>
+        </record>
+        <record id="topic_antenna_for_sale_reply1" model="forum.post">
+            <field name="name">Antenna for sale</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_antenna_for_sale" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-07 22:14:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on July 7, 2016)</p>
+                <p>Antenna is sold. Sorry for the wrong phone number.</p>
+                <p>Ed</p>
+            </field>
+        </record>
+
+        <!-- new-ham-looking-for-hf-radio -->
+        <record id="topic_new_ham_looking_for_hf_radio" model="forum.post">
+            <field name="name">New ham looking for HF radio</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-30 23:23:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6EM on July 30, 2016)</p>
+                <p>New to HF and looking for recommendations for a first HF radio. Plan to use a portable balanced wire inverted-V dipole and an antenna tuner to work 40-10m, with hopes of using it while camping and traveling.</p>
+                <p>Open to both vintage and modern gear. Older options under consideration: Kenwood TS-120, 130, 140, and TenTec Argonauts, Eagle, and Scouts. Newer radios being weighed: Yaesu 991 and 490D, Kenwood TS-590SG, and 480SAT. Prefer knobs and buttons over buried menus, and a larger display - the Yaesu 857's display looks too small for my needs.</p>
+            </field>
+        </record>
+        <record id="topic_new_ham_looking_for_hf_radio_reply1" model="forum.post">
+            <field name="name">New ham looking for HF radio</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_ham_looking_for_hf_radio" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2016-07-31 02:21:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W1EJ on July 30, 2016)</p>
+                <p>The TS-590 is a great radio, with a great display visible in bright daylight. Also worth a look: the ICOM IC-7300 (see the August QST review). The TS-130 and 140 are solid vintage choices too, in my experience.</p>
+            </field>
+        </record>
+
+        <!-- recording-of-7-25-17-net -->
+        <record id="topic_recording_of_7_25_17_net" model="forum.post">
+            <field name="name">Recording of 7/25/17 net</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-07-28 04:09:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on July 27, 2017)</p>
+                <p>A recording of the July 25, 2017 net check-ins is now available - edited down to a sampling of all the callers, so you can hear how your transmission sounds on the repeater. MP3 file, plays on Windows and Mac.</p>
+            </field>
+        </record>
+        <record id="topic_recording_of_7_25_17_net_reply1" model="forum.post">
+            <field name="name">Recording of 7/25/17 net</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_recording_of_7_25_17_net" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2017-08-02 05:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on August 1, 2017)</p>
+                <p>Couldn't get the audio file to play on my iPad - might just be a device compatibility issue.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
