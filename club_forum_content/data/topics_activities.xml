@@ -429,5 +429,18 @@
             </field>
         </record>
 
+        <!-- winter-field-day-js8call -->
+        <record id="topic_winter_field_day_js8call" model="forum.post">
+            <field name="name">Winter Field Day - JS8Call</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-01-24 03:36:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Howard, K6SID, on January 23, 2021)</p>
+                <p>Getting set up for Winter Field Day and looking at digital mode options - PSK31 activity is thin and FT8 isn't allowed for WFD. Looking at JS8Call instead since it is allowed, but activity there seems sparse too - the occasional signal shows up on 40m, but no luck getting a contact through CQ calls yet.</p>
+                <p>Anyone with JS8Call experience have tips?</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

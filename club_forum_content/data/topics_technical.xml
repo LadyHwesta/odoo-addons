@@ -890,5 +890,137 @@
             </field>
         </record>
 
+        <!-- mobile-radio-for-truck -->
+        <record id="topic_mobile_radio_for_truck" model="forum.post">
+            <field name="name">Mobile radio for truck</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2020-08-14 04:16:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Gene Bastian, KN6DJS, on August 13, 2020)</p>
+                <p>Considering a Kenwood TM-V71A 144/440 MHz dual-band mobile transceiver for my truck - 50 watts, 1000 memory channels, EchoLink capability, true dual receive. Is this a good entry-level choice, or overkill? Open to other recommendations, and looking for antenna suggestions too.</p>
+            </field>
+        </record>
+        <record id="topic_mobile_radio_for_truck_reply1" model="forum.post">
+            <field name="name">Mobile radio for truck</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_mobile_radio_for_truck" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2020-10-02 19:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Scott, KJ6QIQ, on October 2, 2020)</p>
+                <p>That Kenwood is a great radio - I use one regularly for 2m contacts, local nets, and packet work. Easy to program by hand without special software, though you'll want to assign a hot key for mic-keypad frequency entry. I've used radios from all the major manufacturers and the Kenwood's display is one of the clearer ones. For installation, if you're mounting the main body under or behind the seat, consider an external speaker at the back of the unit - a compact Uniden speaker aimed the right direction helps a lot with volume.</p>
+            </field>
+        </record>
+
+        <!-- help-request-by-new-ham-to-use-baofeng-uv-82-hp -->
+        <record id="topic_help_request_baofeng_uv82hp" model="forum.post">
+            <field name="name">Help request by new ham to use Baofeng UV-82 HP</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-01-16 23:42:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on January 16, 2021)</p>
+                <p>Victor Matthias, KM6VFS, emailed the education address asking for help understanding and using his Baofeng UV-82 HP. He's a new ham in Petaluma - reach out to him at victormatthias1@gmail.com if you're able to help.</p>
+                <p>73, John, WB6FRZ</p>
+            </field>
+        </record>
+        <record id="topic_help_request_baofeng_uv82hp_reply1" model="forum.post">
+            <field name="name">Help request by new ham to use Baofeng UV-82 HP</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_request_baofeng_uv82hp" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-01-20 05:13:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Mark, W6GOL, on January 19, 2021)</p>
+                <p>Hi John, just reached out to him to see how I can help.</p>
+                <p>-Mark, W6GOL</p>
+            </field>
+        </record>
+
+        <!-- dc-power-question -->
+        <record id="topic_dc_power_question" model="forum.post">
+            <field name="name">DC power question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-01-24 02:06:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Scott, KJ6QIQ, on January 23, 2021)</p>
+                <p>Trying to power LED closet lights from a LiFePO4 battery instead of the original AC-to-DC power supply. They work fine on the original supply (12V, 1500mA), but on the 14V battery they cycle on and off every 1-2 seconds, even with the motion sensor covered.</p>
+                <p>Is the 14V vs 12V difference causing this? Would a buck converter set to 12V fix it?</p>
+            </field>
+        </record>
+        <record id="topic_dc_power_question_reply1" model="forum.post">
+            <field name="name">DC power question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_dc_power_question" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-01-24 03:43:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on January 23, 2021)</p>
+                <p>Would steer away from a cheap buck converter - they can generate RF noise. A quieter option: drop about 2V using four silicon diodes in series.</p>
+                <p>Also worth checking: whether the battery's output voltage is dropping or fluctuating, whether it's actually fully charged, and whether its battery management system might be shutting things down under load. What's the current draw you need?</p>
+            </field>
+        </record>
+
+        <!-- can-anyone-program-a-scanner -->
+        <record id="topic_can_anyone_program_a_scanner" model="forum.post">
+            <field name="name">Can anyone program a scanner?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-01-26 00:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6AWB on January 25, 2021)</p>
+                <p>I have a Uniden SR30C Bearcat scanner I can't figure out. I've got the manual, but it's confusing.</p>
+            </field>
+        </record>
+
+        <!-- question-on-coax-cable -->
+        <record id="topic_question_on_coax_cable" model="forum.post">
+            <field name="name">Question on coax cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-10-01 23:38:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6QKD on October 1, 2021)</p>
+                <p>Installing a Diamond X50A dual-band antenna with about 50 feet of coax run. RG-8X or LMR400? Is the extra cost of LMR worth it here?</p>
+            </field>
+        </record>
+        <record id="topic_question_on_coax_cable_reply1" model="forum.post">
+            <field name="name">Question on coax cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_question_on_coax_cable" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2021-10-26 20:05:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by W3HWJ on October 26, 2021)</p>
+                <p>Would go with RG-8X - never found the extra cost of LMR cable worth it at that run length, the performance difference would be imperceptible.</p>
+            </field>
+        </record>
+        <record id="topic_question_on_coax_cable_reply2" model="forum.post">
+            <field name="name">Question on coax cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_question_on_coax_cable" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2022-02-03 19:46:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KJ6OYJ on February 3, 2022)</p>
+                <p>From experience: a long RG-8X run loses a noticeable amount on VHF/UHF. My fix was to move the antenna closer to the radio and use about 10 feet of coax instead of a longer run.</p>
+            </field>
+        </record>
+
+        <!-- manually-programming-a-baofeng-uv5r -->
+        <record id="topic_manually_programming_baofeng_uv5r" model="forum.post">
+            <field name="name">Manually programming a Baofeng UV5R</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-01-01 21:14:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bill, AA6BD, on January 1, 2023)</p>
+                <p>One of our members asked how to manually program a Baofeng UV5R, then went and found two YouTube videos that walked him through it - worked for him. Sharing the links here in case they help someone else; a bit more searching will probably turn up even more.</p>
+                <p>-Bill, AA6BD</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
