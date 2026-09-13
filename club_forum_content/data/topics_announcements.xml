@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- irlp-net-on-aprs -->
+        <record id="topic_irlp_net_on_aprs" model="forum.post">
+            <field name="name">IRLP net on APRS</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-01-26 23:24:00'" />
+            <field name="content" type="html">
+                <p>(From Google Groups, originally posted by KI6UGB on January 26, 2014)</p>
+                <p>For those that are interested. On Thursday Jan 16 at 7:30PM I will attempt to tie our IRLP node to a net in Southern California, An outdoor adventure and ham club called OAUSA puts on weekly nets on a variety of different outdoor subjects. This week's net is on APRS.</p>
+                <p>I say "attempt" as the last time I tried I could hear them but they could not hear me to check in.</p>
+                <p>It's a good group. I met up with them on a ten day 4x4 trip through Arizona, New Mexico and Utah a few years back. We used Simplex APRS (no digipeaters in the back country) to keep track of where all our vehicles were. One of the guys used a pactor-3 modem with his HF rig to send photos back to his family.</p>
+                <p>The net starts at 7:30 with a rather lengthy check-in procedure and typically runs to 9:00 PM. The net is held on the Western Reflector at Node 9251. For more information visit the OAUSA website at
+                <a href="http://forums.oausa.net">forums.oausa.net</a>.</p>
+                <p>If you have time, give a listen and check-in. Hope you enjoy.</p>
+            </field>
+        </record>
+
+        <!-- scra-swapnet -->
+        <record id="topic_scra_swapnet" model="forum.post">
+            <field name="name">SCRA Swapnet</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-01-29 20:02:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on January 29, 2014)</p>
+                <p>This is a reminder that the first SCRA Swapnet will occur tonight (January 29, 2014) at 7:00 PM on the English Hill VHF repeater, 147.315 + 88.5.</p>
+                <p>I hope you will listen and (more importantly) participate to help make this new net a success.</p>
+            </field>
+        </record>
+
+        <!-- website-updates -->
+        <record id="topic_website_updates" model="forum.post">
+            <field name="name">Website Updates</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-05 05:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on February 4, 2014)</p>
+                <p>Hi all, a couple of updates regarding the transition to the new website:</p>
+                <p>- 25 people have created accounts so far. Thanks! There are a couple of accounts I was unable to verify as no callsign was provided and I couldn't find the email address in the database. Those users have been notified, and unless I hear back with a callsign in the next week or so, those accounts will be deleted.</p>
+                <p>- For those who tried to renew their membership with PayPal only to find it didn't work, worry not, the Store page has been fixed, and PayPal works again.</p>
+                <p>- I highly encourage everyone to subscribe to any or all of our three forums. From any forum's page, click the "Subscribe" button at the top (be sure you're logged in) to receive an email whenever a new topic is posted. Charlie and I hope to slowly move from the Google Group to the forums.</p>
+                <p>- Any club officials or committee chairs who need to be able to edit certain pages will need to request access from me. John WB6FRZ kindly volunteered to test this system, and I believe we got the issues ironed out. Officials will be able to edit only their specific page, and that page will only be editable by the appropriate official.</p>
+                <p>If there are any questions, issues, or comments that arise, please don't hesitate to contact me. Thanks for your patience as we go through this transition!</p>
+                <p>-Sutter KI6ZON, SCRA Webmaster</p>
+            </field>
+        </record>
+        <record id="topic_website_updates_reply1" model="forum.post">
+            <field name="name">Website Updates</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_website_updates" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-15 01:48:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6ROW on February 14, 2014)</p>
+                <p>Hi Sutter, I really like the new look! Thanks for your work.</p>
+                <p>On login, after you enter your info, it gives you the same screen as before login, so unless one just forges ahead, it can be uncertain as to whether one is really logged in. How about after login a welcome message acknowledging login.</p>
+                <p>Thanks, Jack, K6ROW</p>
+            </field>
+        </record>
+        <record id="topic_website_updates_reply2" model="forum.post">
+            <field name="name">Website Updates</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_website_updates" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-15 04:13:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on February 14, 2014)</p>
+                <p>Hi Jack, an excellent point. I've changed the code so that the button on the far right of the menu now says "Login" when a user is not logged in and "Welcome [Your Callsign]" when a user is logged in. Do you think this solves the problem sufficiently? Thanks! -Sutter</p>
+            </field>
+        </record>
+        <record id="topic_website_updates_reply3" model="forum.post">
+            <field name="name">Website Updates</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_website_updates" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-18 17:39:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Lewis, KK6BK on February 18, 2014)</p>
+                <p>When you subscribe to the forums, is it possible to request a digest like some other discussion boards do? That combines all submissions into a digest for all those submitted in one day or one week, whichever you select. It's not an issue at this point, but when discussion boards become busy it prevents filling your mailbox with email for each individual update to the forum.</p>
+            </field>
+        </record>
+        <record id="topic_website_updates_reply4" model="forum.post">
+            <field name="name">Website Updates</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_website_updates" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-18 20:13:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on February 18, 2014)</p>
+                <p>Hi Lewis, when you subscribe to a whole forum (Activities, Public Service, etc.), you will receive an email for each new topic, but <strong>not</strong> for replies to topics. You must subscribe to topics individually to get emails for each new message. Hopefully this will keep the email volume down. -Sutter</p>
+            </field>
+        </record>
+
+        <!-- irlp-not-operating -->
+        <record id="topic_irlp_not_operating" model="forum.post">
+            <field name="name">IRLP not operating</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-13 16:46:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6ROW on February 13, 2014)</p>
+                <p>The IRLP computer appears to have problems and IRLP isn't working. A new computer is on order and will be installed when it arrives.</p>
+            </field>
+        </record>
+        <record id="topic_irlp_not_operating_reply1" model="forum.post">
+            <field name="name">IRLP not operating</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_irlp_not_operating" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-13 21:03:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on February 13, 2014)</p>
+                <p>Just out of curiosity, what is thought to be wrong with it?</p>
+            </field>
+        </record>
+        <record id="topic_irlp_not_operating_reply2" model="forum.post">
+            <field name="name">IRLP not operating</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_irlp_not_operating" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-02 16:26:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on March 2, 2014)</p>
+                <p>The IRLP system is now back up and running. We replaced the aging computer with a new "embedded node" - a dedicated single purpose computer with a solid state hard drive, whose only mission is to run IRLP.</p>
+                <p>Anyway, please use it. If you notice something that isn't quite right with it, please shoot me an email.</p>
+            </field>
+        </record>
+
+        <!-- looking-for-member-of-14-century-wireless-association -->
+        <record id="topic_14_century_wireless" model="forum.post">
+            <field name="name">Looking for member of 1/4 Century Wireless Association</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-01 05:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on February 28, 2014)</p>
+                <p>Greetings fellow ham operators. My son Rory, KJ6QIR, is looking for a member of the 1/4 Century Wireless Association in pursuance of a scholarship. Please contact me if you are or know someone who is a member.</p>
+                <p>Thanks, Scott Wellington, KJ6QIQ</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

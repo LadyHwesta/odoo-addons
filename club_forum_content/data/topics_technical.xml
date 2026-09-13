@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- short-mobile-antenna -->
+        <record id="topic_short_mobile_antenna" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-01-26 23:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB / Jim Robison, KJ6MRV, on January 26, 2014)</p>
+                <p>Folks, I need some advice. I'm looking for a mobile antenna for my Yaesu FT-2900. I have been using 38" mag mounts and the antenna keeps hitting low trees. A 19" model would be better, but what will that do to my range? Any suggestions?</p>
+                <p>Thanks, Jim Robison, KJ6MRV</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply1" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-22 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KZ6T Charlie, September 22, 2013)</p>
+                <p>Hi Jim, I do have some experience with trees and antennas so here is my 2 cents.</p>
+                <p>Before you make a change, what is your mag mount mounted to? Do you have enough ground plane area to support a 1/4 wave? In my current Jeep situation, my antenna mount is essentially on the end of a mast that has virtually no ground plane area. A 1/2 wave antenna works great there, but a 1/4 wave is almost useless. So before you make the change, make sure you have enough ground plane. 1/4 wave in every direction will give decent results.</p>
+                <p>Are you still apt to hit branches with the 1/4 wave? If so, those short antennas don't bend nearly as much as the longer ones. If using a rigid NMO mount you might end up bending some sheet metal as well.</p>
+                <p>So back to your basic questions. I had very good luck with a Comet (now NGC) B-10 when it was mounted to the top of my van. It's quite short, only 12 inches, but works as both a 2m and 70cm antenna. That's the good part - the down side is there is virtually no gain to speak of, and it does need a ground plane. If I put it on my Jeep mount, it's a little better than a dummy load. I think Doug KF6LMB is using the same on top of his pickup. When I had it mounted on the van, I could hit any repeater in this area - Santa Rosa to Vacaville and Novato with 50 watts. Not nearly as far as a 1/2 wave with gain. A 1/2 wave on the same mount will get me into the Palo Alto repeater from Santa Rosa using 50 watts.</p>
+                <p>I do have a spare 1/4 wave mag mount that I won in the SCRA raffle that you are welcome to borrow as a comparison test between your 1/2 wave and a 1/4 wave before you go drilling any holes.</p>
+                <p>Charlie... KZ6T</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply2" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-22 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by jim_robison, September 22, 2013)</p>
+                <p>Charlie, thanks for the thinking points. I will be mounting it on my Volvo wagon, so I guess the ground plane is as big as most SUVs, though not as big as an American van. Thank you for the loan offer. I have a mag mount, I just don't know what to stick in it.</p>
+                <p>Jim</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply3" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-22 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Doug on Earthlink, September 22, 2013)</p>
+                <p>Jim, not sure what Charlie said I had on my pickup, but it was one of those MFJ (mighty fine junk) antennas, 1/4 wave. Cost used to be 29 bucks. I seem to have good luck with it. It stands about 18 inches tall. The only bad luck I had with it was that I forgot to take it out when I went in the carwash. Oops. An example of its use: above Nice on the hill, I contacted Charlie on the old English Hill antenna in Sebastopol with 60 watts. Same story contacting Mt Diablo, from up at Loon Lake 30 miles east of Georgetown, or 50 miles east of Auburn. This may be the loaner that Charlie has to loan to you. Good luck, KF6LMB</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply4" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-23 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bob KG6ZDN, September 23, 2013)</p>
+                <p>Hi Jim, just a note of caution - I think that not all mag mounts will be tuned for all antennas, they have a matching coil built in to both couple to the ground plane and match the antenna. For a proper match and best results, be sure to use one designed for the antenna being used (one designed for a 5/8 wave antenna will differ from one designed for a 1/4 wave, etc.)</p>
+                <p>Good luck, 73, Bob KG6ZDN</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply5" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-23 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Brian, N6IIY, September 23, 2013)</p>
+                <p>Hi Bob, this might be the case if you are using a mag mount with a non-standard interface, meaning the mag mount was intended to be no more than part of a complete antenna system, not a separate product.</p>
+                <p>But all mag mounts I've seen sold as mag mounts using standard interfaces such as SO-239 or NMO can accommodate virtually any antenna with the proper connector.</p>
+                <p>I have used NMO mounts on my vehicles (both permanent and mag mounts) and have freely interchanged between 5/8 wave and 1/4 wave antennas with no ill effects. I have 1/4 wave antennas on the permanent mounts since that allows me to put the vehicles in the garage, but if I know I'll be somewhere a little extra oomph will help, I swap in the 5/8 wave once I'm out of the garage.</p>
+                <p>The 5/8 wave antennas I've used have their loading coil in their bases, between the NMO mount and the whip.</p>
+                <p>73, Brian, N6IIY</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply6" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-23 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Joe K6AWA, September 23, 2013)</p>
+                <p>Hi Jim, I'm a little late with a suggestion for a short mobile mag mount antenna, but here it goes: I have MP Antenna's "Super M Classic" tri-band mobile mag mount. This is a very well built all stainless 2m/220/440 ham band antenna with an overall height of 19". It handles 200 watts, and works especially well in town and in the hills due to its quasi-circular polarization. You can see it in Universal Radio's catalog, or online from other sellers.</p>
+                <p>Best, Joe K6AWA</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply7" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-25 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by jim_robison, September 25, 2013)</p>
+                <p>Thank you for all the great suggestions. I have decided to buy a Tram 1185. I like the short 19 inch height, the wide 3 inch base, and I especially like the $16 price.</p>
+                <p>Thanks again, Jim, KJ6MRV</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply8" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-25 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KE5RI, September 25, 2013)</p>
+                <p>I am not sure you will be happy with it, Jim. Why? Because it has no gain on two meters and, I am only guessing here, you get what you pay for. There is little to be said for it on eham.net. Personally, I would choose something else. No 19" whip (1/4 wave) is going to give you gain. I am assuming that you are primarily interested in two meter operation.</p>
+                <p>John, KE5RI</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply9" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-25 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by David Harrison, September 25, 2013)</p>
+                <p>Hi Jim, I use a 19 inch whip on a NMO threaded mag mount on my SUV because it fits inside my garage. John is correct that the quarter wave antenna will not give you gain in excess of a quarter wavelength ground plane radiator. That may be entirely satisfactory for most purposes. When I need gain, I swap a longer half-wavelength antenna for the quarter wave ground plane, and get somewhat greater range. While you get what you pay for, what you pay for may be entirely adequate for your purposes.</p>
+                <p>73, Dave W6IBC</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply10" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-26 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by jim_robison, September 26, 2013)</p>
+                <p>My theory is that I'll get better results with a 1/4 wave mounted on the roof than a 1/2 wave being dragged behind the car after it hits a low tree limb, or missing entirely after the whip got knocked out of the mount.</p>
+                <p>Jim, KJ6MRV</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply11" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-26 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KE5RI, September 26, 2013)</p>
+                <p>Good point! John</p>
+            </field>
+        </record>
+        <record id="topic_short_mobile_antenna_reply12" model="forum.post">
+            <field name="name">Short mobile antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_short_mobile_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2013-09-26 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Saraj KU6F, September 26, 2013)</p>
+                <p>Hi all, ditto to Jim Robison's remark. My Diamond NR770HAB mounted off the back of my Rav4 has survived all the oak trees and parking garages for 2+ years now. Better longevity than anything else I've used. It also has a fold-over which is fine when I remember it.</p>
+                <p>Saraj, KU6F</p>
+            </field>
+        </record>
+
+        <!-- manually-programing-a-baofeng-uv-3r-tranciever -->
+        <record id="topic_baofeng_uv3r_programming" model="forum.post">
+            <field name="name">Manually programming a Baofeng UV-3R transceiver</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-22 07:13:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on February 21, 2014)</p>
+                <p>Won or bought a new Baofeng UV-3R and need help programming it? Dave W6IBC has put together a handy guide for programming your new radio (see the Useful Links resource page on this site for the current copy).</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

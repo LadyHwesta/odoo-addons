@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- mini-dx-2014 -->
+        <record id="topic_mini_dx_2014" model="forum.post">
+            <field name="name">Mini-DX 2014</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-02-16 20:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on February 16, 2014)</p>
+                <p>It's not too soon to start thinking about this year's event. Mini-DX 2014 is planned to be held at the same location as 2013 - A.W. Way Park along the Mattole river in Humboldt County. Save the date of July 11, 12, and 13.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2014_reply1" model="forum.post">
+            <field name="name">Mini-DX 2014</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2014" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-23 21:47:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by ag6ci on June 23, 2014)</p>
+                <p>I have one small suggestion. Maybe we should just schedule the breakfasts and dinners, and not the one lunch on Saturday. That would leave flexibility if folks want to go to the beach or something.</p>
+                <p>Keith, AG6CI</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2014_reply2" model="forum.post">
+            <field name="name">Mini-DX 2014</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2014" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-08-01 18:11:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by w1ej on August 1, 2014)</p>
+                <p>Sounds like a good idea to me. Ed</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_2014_reply3" model="forum.post">
+            <field name="name">Mini-DX 2014</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_2014" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-08-09 23:39:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by ag6ci on August 9, 2014)</p>
+                <p>Did we agree on a talk-in frequency last year, or did we just use 146.52? It's certainly not overloaded with traffic...</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
