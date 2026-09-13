@@ -1317,5 +1317,111 @@
             </field>
         </record>
 
+        <!-- diplexer-2 -->
+        <record id="topic_diplexer_2" model="forum.post">
+            <field name="name">Diplexer (2)</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-03-14 14:38:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Alain, K6PTC, on March 14, 2025)</p>
+                <p>Looking for a UHF/VHF diplexer (like the Comet CF-416) to borrow or buy, for upcoming public service events.</p>
+                <p>Alain, K6PTC</p>
+            </field>
+        </record>
+
+        <!-- recommended-coax-cable-for-wb6frz-2m-70-cm-vertical-ground-portable-antenna -->
+        <record id="topic_coax_for_wb6frz_portable_antenna" model="forum.post">
+            <field name="name">Recommended coax cable for WB6FRZ 2m/70cm vertical ground portable antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-05-19 23:53:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6STO on May 19, 2025)</p>
+                <p>Planning a hike and want a light, flexible coax for the WB6FRZ 2m/70cm vertical portable antenna, somewhere around 15-25 feet. RG8X or RG58?</p>
+            </field>
+        </record>
+        <record id="topic_coax_for_wb6frz_portable_antenna_reply1" model="forum.post">
+            <field name="name">Recommended coax cable for WB6FRZ 2m/70cm vertical ground portable antenna</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_coax_for_wb6frz_portable_antenna" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-06-09 17:04:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on June 9, 2025)</p>
+                <p>Go with RG8X - it's a bit heavier than RG58 but much lighter than RG8. 25 feet of RG8X on 2m is only about 1 dB of loss, roughly 20% of your power - shorter runs lose even less.</p>
+            </field>
+        </record>
+
+        <!-- field-strength-meter-to-borrow -->
+        <record id="topic_field_strength_meter_to_borrow" model="forum.post">
+            <field name="name">Field strength meter to borrow</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-02-25 00:30:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on February 24, 2025)</p>
+                <p>Looking to borrow a field strength meter to work with Alain (K6PTC) on comparing field strengths of a few different 2m antennas for motorcycle use, ahead of the SCRA public service events coming up Sunday, March 2nd.</p>
+            </field>
+        </record>
+        <record id="topic_field_strength_meter_to_borrow_reply1" model="forum.post">
+            <field name="name">Field strength meter to borrow</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_field_strength_meter_to_borrow" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-02-25 00:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on February 24, 2025)</p>
+                <p>Thanks for looking - found a solution to this need.</p>
+            </field>
+        </record>
+
+        <!-- need-ideas-for-multi-mode-radio-install-with-easy-disconnect-for-use-at-home -->
+        <record id="topic_multi_mode_radio_easy_disconnect" model="forum.post">
+            <field name="name">Need ideas for multi-mode radio install with easy disconnect for use at home</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-11-16 07:14:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on November 15, 2025)</p>
+                <p>Looking for ideas on a mobile HF/VHF radio install that's easy to connect and disconnect for use at home too. The old Atlas radios had slide mobile mounts built for exactly this - modern radios don't seem to do that anymore.</p>
+            </field>
+        </record>
+        <record id="topic_multi_mode_radio_easy_disconnect_reply1" model="forum.post">
+            <field name="name">Need ideas for multi-mode radio install with easy disconnect for use at home</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_multi_mode_radio_easy_disconnect" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-11-16 15:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KA6R, on November 16, 2025)</p>
+                <p>Would recommend the Yaesu FTM150R - it has a slide-in/out design with a lift lever. You can mount it under a seat with slightly longer cables and pull it easily between the vehicle and home use.</p>
+            </field>
+        </record>
+        <record id="topic_multi_mode_radio_easy_disconnect_reply2" model="forum.post">
+            <field name="name">Need ideas for multi-mode radio install with easy disconnect for use at home</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_multi_mode_radio_easy_disconnect" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-11-16 17:07:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on November 16, 2025)</p>
+                <p>Thanks, that's a good suggestion.</p>
+            </field>
+        </record>
+
+        <!-- bluetooh-for-mobiles -->
+        <record id="topic_bluetooth_for_mobiles" model="forum.post">
+            <field name="name">Bluetooth for mobiles</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-11-17 18:48:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KA6R, on November 17, 2025)</p>
+                <p>Has anyone tried the Bluetooth features on some of the newer mobile rigs? Specifically the Yaesu FTM150R?</p>
+                <p>Thanks, Bradley, KA6R</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

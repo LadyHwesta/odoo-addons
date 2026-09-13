@@ -442,5 +442,32 @@
             </field>
         </record>
 
+        <!-- field-day-2025 -->
+        <record id="topic_field_day_2025" model="forum.post">
+            <field name="name">Field Day 2025</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-06-24 01:01:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted anonymously for K6YA on June 23, 2025)</p>
+                <p>K6YA is inviting contacts via AX.25 packet on Field Day - monitoring 145.050 MHz Saturday from 1100 to 1700 Pacific time, from grid square CM87xh.</p>
+                <p>Suggested exchange: "From: K6YA, To: CQ, CQ Field Day K6YA," followed by your call sign, station class, and section - K6YA will respond "K6YA 3A SCV." Digital QSO contacts count two points each.</p>
+                <p>K6YA can reach digipeaters KBERR, KBETH, KJOHN, and WOODY, and also accepts messages at K6YA@winlink.org in standard NTS or ICS-213 format - per the Field Day 2025 rules, messages that "leave or enter the Field Day operation via amateur radio RF" can earn 10 bonus points each, up to 100 points total.</p>
+            </field>
+        </record>
+
+        <!-- fox-hunting -->
+        <record id="topic_fox_hunting" model="forum.post">
+            <field name="name">Fox hunting</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-10-15 22:34:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KA6R, on October 15, 2025)</p>
+                <p>Is anyone in the club into fox hunting or radio orienteering? Thinking of getting something started.</p>
+                <p>Bradley, KA6R</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
