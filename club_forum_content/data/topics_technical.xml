@@ -1423,5 +1423,124 @@
             </field>
         </record>
 
+        <!-- power-cable -->
+        <record id="topic_power_cable" model="forum.post">
+            <field name="name">Power cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-04-09 21:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Greg Wojcik, KD6ZVW, on April 9, 2026)</p>
+                <p>What's the power cable setup used in the club's event kits for connecting an Icom 2730 to a Bioenno battery when operating stationary?</p>
+            </field>
+        </record>
+        <record id="topic_power_cable_reply1" model="forum.post">
+            <field name="name">Power cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_power_cable" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-04-09 21:29:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on April 9, 2026)</p>
+                <p>The public service event kits use Anderson Powerpole connectors for DC power - they need crimped pins and a specific crimper tool, and results vary depending on which crimper you use. Happy to help build a cable from the Bioenno battery to the radio if that's useful.</p>
+            </field>
+        </record>
+
+        <!-- new-ht-recommendations -->
+        <record id="topic_new_ht_recommendations" model="forum.post">
+            <field name="name">New HT recommendations</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-04-15 23:34:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KO6EDR on April 15, 2026)</p>
+                <p>Looking to upgrade from a Baofeng UV-5R and want to try digital - what mode does best in our area, DMR, D-Star, YSF, etc.?</p>
+                <p>I've been looking at everything from the Yaesu FT5DR, Anytone 878II Plus and 890, Icom ID-50A and 52A Plus, to the Kenwood TH-D75. Gone down a rabbit hole and can't find my way out.</p>
+                <p>Now I'm second-guessing whether I even need digital and eyeing the FT-60R instead. Somebody just tell me what to get, lol.</p>
+            </field>
+        </record>
+
+        <!-- icom-id-50a -->
+        <record id="topic_icom_id_50a" model="forum.post">
+            <field name="name">Icom ID-50A</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-07-01 03:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Art Deicke, KO6KKT, on June 30, 2026)</p>
+                <p>Looking for an Elmer to help with a new Icom ID-50A HT. It worked fine on the repeater until a switchover to the backup system during the SAG on Giro Bello - after that I could receive but not transmit. Same issue came up during the club net that evening. Wondering if a config change is to blame; hoping someone familiar with this radio can help.</p>
+                <p>Art Deicke, KO6KKT - aedeicke@gmail.com - 707-322-2015</p>
+            </field>
+        </record>
+        <record id="topic_icom_id_50a_reply1" model="forum.post">
+            <field name="name">Icom ID-50A</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_icom_id_50a" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-07-01 04:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on June 30, 2026)</p>
+                <p>Happy to take a look at it with you, Art - are you coming to the SCRA monthly meeting tomorrow evening?</p>
+            </field>
+        </record>
+
+        <!-- duplexer-tuning -->
+        <record id="topic_duplexer_tuning" model="forum.post">
+            <field name="name">Duplexer tuning</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-07-05 19:23:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KB6ZOP on July 5, 2026)</p>
+                <p>Dealing with desense on a low-power home UHF repeater, and the NanoVNA-F isn't cutting it for duplexer tuning. Does the club have access to a spectrum analyzer with tracking generator, or similar gear (an IFR/VNA-class tool), for tuning two "flat pack" low-wattage mobile duplexers?</p>
+            </field>
+        </record>
+        <record id="topic_duplexer_tuning_reply1" model="forum.post">
+            <field name="name">Duplexer tuning</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_duplexer_tuning" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-07-09 22:10:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6ERI on July 9, 2026)</p>
+                <p>Passing along a pointer from John WB6FRZ - check the club's <a href="https://sonomacountyradioamateurs.com/wp/loaner-program-catalog/">Loaner Program catalog</a>, specifically the Test and Repair section, for what's available.</p>
+            </field>
+        </record>
+        <record id="topic_duplexer_tuning_reply2" model="forum.post">
+            <field name="name">Duplexer tuning</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_duplexer_tuning" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-07-10 01:23:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KB6ZOP on July 9, 2026)</p>
+                <p>Thanks K6ERI, will take a look and check the loaner program. Spent more time with the NanoVNA hooked up to my PC and got a bit further, but it's clearly not really the right tool for this job.</p>
+            </field>
+        </record>
+
+        <!-- clubs-ftm500-needs-a-microphone-connector-replaced -->
+        <record id="topic_clubs_ftm500_mic_connector" model="forum.post">
+            <field name="name">Club's FTM500 needs a microphone connector replaced</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-07-16 16:57:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KA6R, on July 16, 2026)</p>
+                <p>Need an RJ12 crimper and connector - the connector tab on the FTM500 microphone got bent. It's been straightened out, but ideally, if someone has the crimper and a new connector, replacing it would be the better fix.</p>
+                <p>Thanks, Bradley, KA6R</p>
+            </field>
+        </record>
+        <record id="topic_clubs_ftm500_mic_connector_reply1" model="forum.post">
+            <field name="name">Club's FTM500 needs a microphone connector replaced</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_clubs_ftm500_mic_connector" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-20 17:52:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Tiesa Meskis on August 20, 2026)</p>
+                <p>Hi Brad, did this ever get taken care of? If not, I have those and can arrange to meet up and fix it.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Club Forum Content',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Website',
     'summary': "Recreates the club's WordPress (bbPress) forum history in website_forum",
     'description': """

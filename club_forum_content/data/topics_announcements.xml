@@ -922,5 +922,103 @@
             </field>
         </record>
 
+        <!-- new-web-based-net-control-tool -->
+        <record id="topic_new_web_based_net_control_tool" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-16 09:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Tiesa Meskis, KF7KOL, on August 16, 2026)</p>
+                <p>Built a web-based net control tool to help with net check-ins: <a href="https://netcontrol.meskis.net/">https://netcontrol.meskis.net/</a> - requires an account, and new registrations need admin approval.</p>
+                <p>Some of what it does:</p>
+                <ul>
+                    <li>Expected check-ins list, with query controls for minimum check-ins and date range</li>
+                    <li>Traffic tracking - flags stations with pending traffic and lets you mark it handled</li>
+                    <li>Manual entry for new stations with automatic callsign lookup</li>
+                    <li>A live view page for following check-ins as they happen</li>
+                    <li>Net control script display with automatic substitution of the operator's name and callsign</li>
+                </ul>
+                <p>Feedback on what to improve is very welcome - there's a help page with more documentation.</p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply1" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-16 15:01:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on August 16, 2026)</p>
+                <p>Created an account but can't log in - running into an access issue.</p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply2" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-16 15:20:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Tiesa Meskis, KF7KOL, on August 16, 2026)</p>
+                <p>New registrations need admin approval - I've approved your account and sent a confirmation email. Will make that requirement more visible for the next person who signs up.</p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply3" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-17 17:36:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on August 17, 2026)</p>
+                <p>Nice tool - though I've been sticking to my old habits, printing summary sheets and taking handwritten notes. Curious what other experienced net control ops use, and how this might fit alongside what people already do.</p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply4" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-17 21:18:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6ERI on August 17, 2026)</p>
+                <p>Can more than one person use it during the same net at once? Also, a print-to-PDF option for a one-page check-in summary would fit nicely alongside the paper workflow a lot of us already use.</p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply5" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-17 22:19:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Tiesa Meskis, KF7KOL, on August 17, 2026)</p>
+                <p>On the expected-stations side: you can generate a list based on a minimum number of check-ins within a chosen time period, which cuts down on manual entry. New stations just need a callsign typed in and the name fills in automatically.</p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply6" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-17 22:25:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Tiesa Meskis, KF7KOL, on August 17, 2026)</p>
+                <p>Only one net control operator can run an active session per net right now. Thinking about setting up a demo server for practice sessions, and print improvements are on the list too. Source is up on GitHub if anyone wants to poke around: <a href="https://github.com/LadyHwesta/ham-net-tracker">github.com/LadyHwesta/ham-net-tracker</a></p>
+            </field>
+        </record>
+        <record id="topic_new_web_based_net_control_tool_reply7" model="forum.post">
+            <field name="name">New web-based net control tool</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_new_web_based_net_control_tool" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2026-08-18 20:24:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Tiesa Meskis, KF7KOL, on August 18, 2026)</p>
+                <p>Latest update adds the net control script right in the app, pinned in place, with variables filled in for the operator's name and callsign. More detail in the project readme - actively testing it during live nets now.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
