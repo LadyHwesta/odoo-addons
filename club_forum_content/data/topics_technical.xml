@@ -1022,5 +1022,300 @@
             </field>
         </record>
 
+        <!-- icom-7300-question -->
+        <record id="topic_icom_7300_question" model="forum.post">
+            <field name="name">Icom 7300 question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-03-06 01:30:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KC6EOA, on March 5, 2023)</p>
+                <p>What's your opinion of the Icom 7300? Looking at it as my first real radio - seems like it should last a good while.</p>
+                <p>Also: when you buy a new ham radio, do you usually get the extended warranty?</p>
+                <p>Thanks, Bradley, KC6EOA</p>
+            </field>
+        </record>
+        <record id="topic_icom_7300_question_reply1" model="forum.post">
+            <field name="name">Icom 7300 question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_icom_7300_question" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-03-06 05:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on March 5, 2023)</p>
+                <p>Really like mine, especially the spectrum scope, and the frequency accuracy and stability compared to rigs from 40 years ago - it's a very capable radio. Only disappointment is the DSP doesn't quite have the magic to kill serious background noise.</p>
+                <p>On extended warranties, I self-insure when I can afford to. Mine's been trouble-free for six years now (as of the end of this month), no servicing needed. Paid $1350 plus tax; they're around $1100 before tax now.</p>
+                <p>- Fred, AE6SF</p>
+            </field>
+        </record>
+        <record id="topic_icom_7300_question_reply2" model="forum.post">
+            <field name="name">Icom 7300 question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_icom_7300_question" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-03-06 06:17:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KC6EOA, on March 5, 2023)</p>
+                <p>Thanks Fred, that's helpful. Liking the price and everything I've been reading about it...</p>
+                <p>Bradley, KC6EOA</p>
+            </field>
+        </record>
+        <record id="topic_icom_7300_question_reply3" model="forum.post">
+            <field name="name">Icom 7300 question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_icom_7300_question" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-03-06 08:48:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on March 6, 2023)</p>
+                <p>Had mine about as long as Fred - zero problems other than user error. Only dislike is the fan noise. Like the improvements from the firmware updates. I've got an Icom 9700 sitting on top of it - they make a great pair.</p>
+                <p>I generally skip extended warranties. Only had one new radio fail on me, and that was after the warranty period, but Kenwood covered it for free anyway.</p>
+            </field>
+        </record>
+        <record id="topic_icom_7300_question_reply4" model="forum.post">
+            <field name="name">Icom 7300 question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_icom_7300_question" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-03-06 23:43:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KC6EOA, on March 6, 2023)</p>
+                <p>Thank you, Charles. Good to hear. I'll keep an eye out for updates too - went ahead and bought one today, I'm sure it'll be a lot of fun.</p>
+                <p>Bradley, KC6EOA</p>
+            </field>
+        </record>
+        <record id="topic_icom_7300_question_reply5" model="forum.post">
+            <field name="name">Icom 7300 question</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_icom_7300_question" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-05-24 17:35:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6ZGN on May 24, 2023)</p>
+                <p>Have had my 7300 about 4 years now, no issues at all. Use it mostly for CW, but also check into the Tuesday 10m SSB net and get good audio reports on default settings. Don't have money to insure it, so I just take my chances. If CW's your focus though, I'd also look at the FTDX10 - it has a lot going for it.</p>
+            </field>
+        </record>
+
+        <!-- do-i-need-to-ground-my-mag-mount-antenna-if-i-use-it-for-a-base-station -->
+        <record id="topic_ground_mag_mount_base_station" model="forum.post">
+            <field name="name">Do I need to ground my mag mount antenna if I use it for a base station?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-04-23 18:39:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6NOT on April 23, 2023)</p>
+                <p>Have an outdoor mag mount antenna on an oil pan as a ground plane, feeding coax into my radio indoors. Considering putting in a bulkhead connector through the wall. Do I need grounding and lightning arrestors here, especially since I'm using a small PVC pipe "tower" to stay under the radar of HOA antenna restrictions?</p>
+            </field>
+        </record>
+        <record id="topic_ground_mag_mount_base_station_reply1" model="forum.post">
+            <field name="name">Do I need to ground my mag mount antenna if I use it for a base station?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_ground_mag_mount_base_station" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-04-27 06:07:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on April 26, 2023)</p>
+                <p>The "ground plane" on your mag mount is for RF impedance matching, not safety grounding - two different things. Earth ground (for dissipating a static/lightning charge via an arrestor) is separate from safety ground (recommended for tower installs, and on the technician exam). Most local amateur stations don't have either system and generally get by fine, though a lightning arrestor can help with a nearby strike.</p>
+                <p>Would suggest a copper-coated ground rod (~$20), and definitely use Coax Seal around your connections plus a drip loop to keep moisture out.</p>
+            </field>
+        </record>
+        <record id="topic_ground_mag_mount_base_station_reply2" model="forum.post">
+            <field name="name">Do I need to ground my mag mount antenna if I use it for a base station?</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_ground_mag_mount_base_station" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-05-01 19:07:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6NOT on May 1, 2023)</p>
+                <p>Thanks Fred AE6SF, John WB6FRZ, and Darryl KI6MSP for the guidance! Decided to just move the setup closer to the window as a portable arrangement rather than install a permanent bulkhead connector, and I'll skip using it during storms instead of adding a grounding system.</p>
+            </field>
+        </record>
+
+        <!-- need-help-with-cable -->
+        <record id="topic_need_help_with_cable" model="forum.post">
+            <field name="name">Need help with cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-06-12 15:04:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Alain, K6PTC, on June 12, 2023)</p>
+                <p>Hello folks, simple ask - I need about 3' of cable with an RJ-45 on one end and bare wires on the other, to connect my DRA30 soundcard (DB9 connector, which I have) to the input of my Yaesu FT-2900. Anyone with a crimper able to help?</p>
+            </field>
+        </record>
+        <record id="topic_need_help_with_cable_reply1" model="forum.post">
+            <field name="name">Need help with cable</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_need_help_with_cable" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-06-12 15:33:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on June 12, 2023)</p>
+                <p>Hi Alain, I've got that crimper and am happy to crimp a connector onto your cable. Give me a call or email.</p>
+                <p>John B., WB6FRZ</p>
+            </field>
+        </record>
+
+        <!-- need-yaesu-ft60-operating-help -->
+        <record id="topic_need_yaesu_ft60_operating_help" model="forum.post">
+            <field name="name">Need Yaesu FT60 operating help</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-09-19 04:14:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on September 18, 2023)</p>
+                <p>Heather Young, KN6YAM, is looking for some basic mentoring on operating her Yaesu FT60 HT. If you can help, reach out to her directly - her info's in the club roster.</p>
+            </field>
+        </record>
+
+        <!-- looking-for-someone-with-kvl-hardware-to-add-features-to-a-motorola-xts5000 -->
+        <record id="topic_looking_for_kvl_hardware_xts5000" model="forum.post">
+            <field name="name">Looking for someone with KVL hardware to add features to a Motorola XTS5000</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-10-13 16:09:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KO6BFM on October 13, 2023)</p>
+                <p>Hello! Hoping someone in the club can help add to the Moto XTS code plug - I have a UHF XTS5000 I'd like to add FPP to. Fingers crossed!</p>
+            </field>
+        </record>
+
+        <!-- help-with-hamalert-app -->
+        <record id="topic_help_with_hamalert_app" model="forum.post">
+            <field name="name">Help with HamAlert app</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-11-25 22:51:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6STO on November 25, 2023)</p>
+                <p>Trying to configure HamAlert to notify me for SOTA activators in CA on 2m or 70cm, but I'm getting flooded with alerts for activators I have no way of working. Tried adjusting the triggers and conditions several times with no luck.</p>
+            </field>
+        </record>
+        <record id="topic_help_with_hamalert_app_reply1" model="forum.post">
+            <field name="name">Help with HamAlert app</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_with_hamalert_app" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2023-11-26 00:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on November 25, 2023)</p>
+                <p>Not too familiar with that app myself, but there's a YouTube tutorial on HamAlert that might help sort out the configuration.</p>
+            </field>
+        </record>
+
+        <!-- help-in-resurrecting-a-cw-key -->
+        <record id="topic_help_resurrecting_cw_key" model="forum.post">
+            <field name="name">Help in resurrecting a CW key</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2024-02-29 18:19:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Patrick Laherty, W6VKQ, on February 29, 2024)</p>
+                <p>New SCRA member here. Trying to restore a vintage CW key that belonged to my father, a WWII radioman and lifelong ham. It arrived in rough shape and I've partially restored it, but want to improve the arm balance and setup, and connect it to a power supply with a speaker for Morse practice. Would appreciate help from anyone in the club who's done this kind of work.</p>
+                <p>707-570-5432</p>
+            </field>
+        </record>
+        <record id="topic_help_resurrecting_cw_key_reply1" model="forum.post">
+            <field name="name">Help in resurrecting a CW key</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_help_resurrecting_cw_key" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2024-03-23 01:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Scott, AE6SW, on March 22, 2024)</p>
+                <p>Would try Ed W1EJ or John Breckenridge (WB6FRZ) at the next club meeting - both are experienced CW operators who've restored vintage keys before. John's reachable through the club mentor page under the CW mode category.</p>
+            </field>
+        </record>
+
+        <!-- flooring-for-the-ham-shack -->
+        <record id="topic_flooring_for_the_ham_shack" model="forum.post">
+            <field name="name">Flooring for the ham shack</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2024-05-02 16:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Francis, KB7IP, on May 2, 2024)</p>
+                <p>Any suggestions for flooring in the shack? It'll be used for radio operations, repairs, and building, with a dedicated room and a workbench.</p>
+                <p>Options I'm considering:</p>
+                <ul>
+                    <li>Office low-pile carpet</li>
+                    <li>Luxury vinyl</li>
+                    <li>Wood tiles</li>
+                    <li>Or...?</li>
+                </ul>
+                <p>Thanks &amp; 73, Francis, KB7IP</p>
+            </field>
+        </record>
+        <record id="topic_flooring_for_the_ham_shack_reply1" model="forum.post">
+            <field name="name">Flooring for the ham shack</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_flooring_for_the_ham_shack" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2024-05-10 15:27:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KC6EOA, on May 10, 2024)</p>
+                <p>Hey Francis, a few thoughts. I've got wood flooring in my shack (office) and it works fine - easy to clean, dark colored, and my office chair rolls on it just fine.</p>
+                <p>With vinyl or carpet, watch out for a dropped soldering iron - it'll melt through those fast. Wood will burn too, but ceramic tile won't. Carpet also tends to make a room dustier, which isn't great with radios and other gear around - a throw rug for the dog is fine though.</p>
+                <p>Ceramic tile has grout lines, and chair wheels don't roll smoothly over them. Something without grout lines or depressions is easier to sweep and vacuum. Lighter flooring shows dirt sooner, but makes it easier to spot anything you drop.</p>
+                <p>Hope that helps, have fun with it. Bradley, KC6EOA</p>
+            </field>
+        </record>
+
+        <!-- vanity-licensing -->
+        <record id="topic_vanity_licensing" model="forum.post">
+            <field name="name">Vanity licensing</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2024-05-08 23:04:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KC6EOA, on May 8, 2024)</p>
+                <p>Thinking about getting a vanity callsign to shave some Morse weight off mine and avoid confusion in contests caused by the "6" in my current call. Anyone here changed callsigns before? Was the transition difficult, and was it worth it?</p>
+            </field>
+        </record>
+        <record id="topic_vanity_licensing_reply1" model="forum.post">
+            <field name="name">Vanity licensing</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_vanity_licensing" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-05-05 01:08:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Bradley, KA6R, on May 4, 2025)</p>
+                <p>Follow-up now that I've got my vanity callsign (KA6R) - the transition hasn't been too bad at all. The trickiest part was carefully sorting out my QSL history in LoTW and TQSL; going through the documentation step by step and both LoTW and QRZ support being responsive made it manageable. Everything else on the various sites was easier to update. Would recommend a vanity callsign to anyone considering one - happy with mine.</p>
+            </field>
+        </record>
+
+        <!-- meshtastic-t-echo-needs-firmware-update -->
+        <record id="topic_meshtastic_t_echo_firmware" model="forum.post">
+            <field name="name">Meshtastic T-Echo needs firmware update</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-02-11 03:09:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6STO on February 10, 2025)</p>
+                <p>Picked up a T-Echo after the club presentation on Meshtastic, but the pre-installed firmware turned out to be unsupported and the device won't function. Tried updating from both an iPhone 13 and an iPad with no luck getting the latest stable firmware to flash. Anyone with experience here able to help?</p>
+            </field>
+        </record>
+        <record id="topic_meshtastic_t_echo_firmware_reply1" model="forum.post">
+            <field name="name">Meshtastic T-Echo needs firmware update</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_meshtastic_t_echo_firmware" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-02-11 03:44:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6NOT on February 10, 2025)</p>
+                <p>I've got two T-Echos myself - one's on older firmware that needs updating, the other's on the latest beta. The T-Echo needs to be reset before the firmware can update; let me double check the right procedure before I update mine too.</p>
+            </field>
+        </record>
+        <record id="topic_meshtastic_t_echo_firmware_reply2" model="forum.post">
+            <field name="name">Meshtastic T-Echo needs firmware update</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_meshtastic_t_echo_firmware" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2025-02-20 00:09:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KN6STO on February 19, 2025)</p>
+                <p>Got it sorted! iOS wasn't cooperating, so I dug out an old HP laptop, used Chrome, and followed Meshtastic's official instructions - flashed successfully and the device is working again.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
