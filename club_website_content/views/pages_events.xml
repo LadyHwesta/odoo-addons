@@ -194,6 +194,11 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>Public Service</h1>
+                            <div class="row mb-3">
+                                <div class="col-md-4"><img src="/club_website_content/static/src/img/public-service-1.jpg" class="img-fluid rounded" alt="SCRA operator supporting a public service event" /></div>
+                                <div class="col-md-4"><img src="/club_website_content/static/src/img/public-service-2.jpg" class="img-fluid rounded" alt="SCRA operator supporting a public service event" /></div>
+                                <div class="col-md-4"><img src="/club_website_content/static/src/img/public-service-loaner-kit.jpg" class="img-fluid rounded" alt="Public service loaner radio kit" /></div>
+                            </div>
                             <p>SCRA provides radio communication support for regional events
                             held in areas with limited cellular coverage, and welcomes all
                             amateur radio operators - particularly those new to the hobby - to
@@ -299,6 +304,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>Winter Field Day</h1>
+                            <img src="/club_website_content/static/src/img/winter-field-day-logo.jpeg" class="img-fluid mb-3" alt="Winter Field Day logo" />
                             <p><em>This page describes what Winter Field Day is - specific
                             dates, station assignments, and sign-ups for any given year are
                             time-bound content that belongs in Odoo's own Events app,

@@ -73,6 +73,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>DMR</h1>
+                            <img src="/club_website_content/static/src/img/dmr-association-logo.png" class="img-fluid mb-3" alt="DMR Association logo" />
                             <p>SCRA has a UHF (70cm) DMR repeater in service on English Hill in
                             West Sonoma County. Coverage extends from Sebastopol and nearly all
                             of Santa Rosa, Windsor, and Rohnert Park/Cotati. Thanks go to the
@@ -255,6 +256,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>Yaesu System Fusion - WIRES-X</h1>
+                            <img src="/club_website_content/static/src/img/yaesu-system-fusion.jpg" class="img-fluid rounded mb-3" alt="Yaesu System Fusion" />
                             <p><strong>Frequency:</strong> 441.375 + PL 88.5<br/>
                             <strong>WiRES-X Room:</strong> K6SON-ROOM #80798<br/>
                             <strong>Equipment:</strong> Yaesu DR-2X on Castle Rock, with Fusion

@@ -9,6 +9,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>Our Club</h1>
+                            <img src="/club_website_content/static/src/img/our-club-welcome-1.jpg" class="img-fluid rounded mb-3" alt="SCRA members operating radio equipment" />
                             <h2>About SCRA</h2>
                             <p>SCRA's mission centers on fostering enthusiasm for amateur radio,
                             electronics technology, and associated disciplines. The club
@@ -33,6 +34,7 @@
                                 news</li>
                             </ul>
                             <p><a href="/store">Join today</a></p>
+                            <img src="/club_website_content/static/src/img/our-club-picnic.jpg" class="img-fluid rounded mb-3" alt="SCRA members at the club picnic" />
 
                             <h3>Meetings</h3>
                             <p>SCRA meetings take place at 7pm on the first Wednesday of each
@@ -52,6 +54,7 @@
                             <p><a href="/events/public-service">Public Service</a></p>
 
                             <h3>Field Day</h3>
+                            <img src="/club_website_content/static/src/img/our-club-field-day-gota.jpg" class="img-fluid rounded mb-3" alt="Get On The Air station at a past Field Day" />
                             <p>This annual 24-hour national event challenges operators to
                             maximize contacts while simulating emergency conditions using
                             generators and renewable power sources, during the fourth full

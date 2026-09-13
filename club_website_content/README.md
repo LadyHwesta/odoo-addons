@@ -29,9 +29,26 @@ Donate), matching the original site's navigation structure, plus a
   policies, net scripts, and DMR code plugs are all still linked back
   to the original WordPress site's media URLs. Re-hosting them as Odoo
   attachments is a good follow-up, not done in this pass.
-- **Images** - the scrape was text-focused; no photos (club logo, Field
-  Day photos, repeater sites) were pulled. A separate pass against the
-  WP media library would be needed if those are wanted.
+
+## Images
+
+19 content photos/logos were re-fetched from the original site's media
+library and are bundled directly in the module, under
+`static/src/img/`, referenced with plain `<img>` tags in the pages
+that used them - the DMR Association logo, Yaesu Fusion, Winter Field
+Day, and Emergency Services headers; the public-service and FRS/GMRS
+radio photos; and three "welcome" photos on the homepage (`/our-club`).
+No `ir.attachment` records were created for these - a bundled static
+file behaves identically for this purpose (Odoo's website builder can
+still replace any of them with a new upload, same as an attachment-backed
+image) and is far simpler to review and version in git than binary data
+inlined into XML. Say so if literal `ir.attachment` records are wanted
+instead, e.g. to manage these specific images through Odoo's own
+Attachments/Documents UI going forward.
+
+Not re-hosted: ~13 external event-sponsor logos on the Public Service
+page (Climate Ride, Fish Rock, etc. - third-party branding, not the
+club's own), and the newsletter/insurance/code-plug PDFs noted above.
 
 ## Design choice
 

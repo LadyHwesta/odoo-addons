@@ -65,6 +65,7 @@
                             <p><em>The actual PDF script was not carried over in this import -
                             only this description. Re-uploading it as an Odoo attachment is a
                             good follow-up task.</em></p>
+                            <img src="/club_website_content/static/src/img/public-service-loaner-kit.jpg" class="img-fluid rounded mb-3" alt="Net Control loaner equipment" />
 
                             <h3>Key Guidelines</h3>
                             <ul>
@@ -112,6 +113,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>Emergency Services</h1>
+                            <img src="/club_website_content/static/src/img/emergency-services-header.jpg" class="img-fluid rounded mb-3" alt="SCRA Emergency Services" />
                             <h3>Our Mission</h3>
                             <p>SCRA Emergency Services exists to provide assistance and
                             resources to all radio operators, and the community, in the event
@@ -167,6 +169,10 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>FRS / GMRS</h1>
+                            <div class="row mb-3">
+                                <div class="col-md-6"><img src="/club_website_content/static/src/img/gmrs-base-and-2m-baofeng.jpg" class="img-fluid rounded" alt="GMRS base station and 2-meter handheld" /></div>
+                                <div class="col-md-6"><img src="/club_website_content/static/src/img/frs-gmrs-unsplash.jpg" class="img-fluid rounded" alt="Handheld radio in use outdoors" /></div>
+                            </div>
                             <p>During the 2023 flood on the Russian River, GMRS proved
                             invaluable for communities without power, cell service, or
                             landlines. SCRA's Neighborhood Communications Committee works to
@@ -330,6 +336,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>FRS / GMRS Radios</h1>
+                            <img src="/club_website_content/static/src/img/frs-radios-baofeng-6pack.jpg" class="img-fluid rounded mb-3" alt="A 6-pack of FRS Baofeng radios, $72" />
                             <p>Anything that does not exceed 2 watts is FRS, operating on
                             channels 1-22; anything exceeding 2 watts qualifies as GMRS.</p>
 
@@ -342,12 +349,14 @@
                                 <li><strong>Uniden GMRS 540:</strong> ½ watt across all
                                 channels</li>
                             </ul>
+                            <img src="/club_website_content/static/src/img/frs-radios-table.png" class="img-fluid rounded mb-3" alt="FRS radios comparison table" />
 
                             <h3>GMRS Radios</h3>
                             <p>Handheld models range from around $40 (Retevis RT76P) to $169
                             (Wouxun KG-UV9G PRO), including offerings from Baofeng and other
                             manufacturers. Mobile units cost $200-$250, such as the Baofeng
                             GMRS-50X1 and Midland MXT-400.</p>
+                            <img src="/club_website_content/static/src/img/frs-radios-midland-mxt400.png" class="img-fluid rounded mb-3" alt="Midland MXT-400 mobile GMRS radio" />
 
                             <h3>Antenna Recommendations</h3>
                             <p>Antennas are more important than transmit power, particularly
@@ -359,6 +368,12 @@
                                 <li>Mag-mount antennas - for vehicle installation</li>
                                 <li>Laird FG4603 ($133) - for base station setups</li>
                             </ul>
+                            <div class="row mb-3">
+                                <div class="col-md-4"><img src="/club_website_content/static/src/img/frs-radios-antenna-replacement.png" class="img-fluid rounded" alt="Antenna replacement example" /></div>
+                                <div class="col-md-4"><img src="/club_website_content/static/src/img/frs-radios-mag-mount-1.png" class="img-fluid rounded" alt="Mag-mount antenna setup" /></div>
+                                <div class="col-md-4"><img src="/club_website_content/static/src/img/frs-radios-mag-mount-2.png" class="img-fluid rounded" alt="Mag-mount antenna setup, second example" /></div>
+                            </div>
+                            <img src="/club_website_content/static/src/img/frs-radios-cable-comparison.jpg" class="img-fluid rounded mb-3" alt="Cable comparison chart for base station antennas" />
                         </div>
                     </section>
                 </div>
@@ -377,6 +392,7 @@
                     <section class="pt32 pb16">
                         <div class="container">
                             <h1>Why FRS / GMRS?</h1>
+                            <img src="/club_website_content/static/src/img/gmrs-base-and-2m-baofeng.jpg" class="img-fluid rounded mb-3" alt="GMRS base station and 2-meter handheld" />
                             <p>SCRA's Neighborhood Communications Committee bridges ham radio
                             operators and community groups using GMRS and FRS - emergency
                             communication alternatives when traditional infrastructure

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+
 from odoo.tests.common import HttpCase, tagged
+from odoo.modules.module import get_module_path
 
 # Every page this module creates - kept as one flat list so a missing or
 # broken page shows up immediately rather than needing separate lookups.
@@ -97,3 +100,29 @@ class TestClubWebsiteContentPages(HttpCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b"About SCRA", resp.content,
                        "\"/\" did not render the /our-club page's content")
+
+    def test_every_bundled_image_is_referenced_and_loads(self):
+        # Every file actually shipped under static/src/img should be used
+        # by at least one page (an unused download left behind by mistake
+        # is easy to miss otherwise), and every image actually referenced
+        # from a page should be a real, loadable static file - catches a
+        # typo'd filename in either direction.
+        img_dir = os.path.join(get_module_path("club_website_content"), "static", "src", "img")
+        bundled_files = {f for f in os.listdir(img_dir) if not f.startswith(".")}
+        self.assertTrue(bundled_files, "expected at least one bundled image")
+
+        referenced = set()
+        for url in PAGE_URLS:
+            resp = self.url_open(url)
+            html = resp.content.decode()
+            for fname in bundled_files:
+                if f"/club_website_content/static/src/img/{fname}" in html:
+                    referenced.add(fname)
+
+        unused = bundled_files - referenced
+        self.assertFalse(unused, f"bundled images never referenced by any page: {unused}")
+
+        for fname in bundled_files:
+            with self.subTest(image=fname):
+                resp = self.url_open(f"/club_website_content/static/src/img/{fname}")
+                self.assertEqual(resp.status_code, 200, f"{fname} did not load")
