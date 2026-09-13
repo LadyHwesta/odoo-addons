@@ -48,5 +48,138 @@
             </field>
         </record>
 
+        <!-- volunteers-needed-human-race-may-10 -->
+        <record id="topic_human_race_volunteers" model="forum.post">
+            <field name="name">Volunteers needed: Human Race, May 10</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-04-12 17:43:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on April 12, 2014)</p>
+                <p>Hello all, I've got another event coming up, this time the Human Race on May 10. This is another fun, easy, low-stress event. All but one position are HT-friendly. Radio operators are very important to this event, as the organizers have no other reliable communications system on the course.</p>
+                <p><strong>Positions available:</strong></p>
+                <ul>
+                    <li>4 water stations (3 HT-friendly, 1 requires external antenna)</li>
+                    <li>2-4 bicycle units (fairly level, easy course mostly through Spring Lake Regional Park)</li>
+                </ul>
+                <p>Also need 2-4 APRS trackers or APRS-integrated HTs, depending on how many bicycle units are available.</p>
+                <p>Meeting at 6:45am at Net Control, Herbert Slater Middle School, Santa Rosa. Done around noon.</p>
+                <p>Thanks and 73, Sutter KI6ZON, Human Race Communications Organizer</p>
+            </field>
+        </record>
+
+        <!-- mini-dx-signups -->
+        <record id="topic_mini_dx_signups" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-03 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on June 3, 2014)</p>
+                <p>It's time to sign up for the 2014 Mini-DX event, scheduled for August 15-17 at A.W. Way Park along the Mattole River in Humboldt County. Comfortable camping with running water, flush toilets, and showers, plus gourmet meals and radio activities.</p>
+                <p>Camping is $20/night, with food contributions of $20-$30/person - the club helps offset food expenses. A duty roster distributes meal-prep responsibilities.</p>
+                <p>Confirmed so far: Lisa &amp; Fred AE6SF, Keith AG6CI, Dave W6IBC, Joy KI6ASJ, Jack K6ROW, Marianne &amp; Steve KI6TUR, Darryl KI6MSP, Charlie KZ6T.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply1" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-06 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on June 6, 2014)</p>
+                <p>Signing up for two - myself and my spouse.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply2" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-06 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KE5RI on June 6, 2014)</p>
+                <p>Confirming attendance with my spouse, Marjorie.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply3" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-06 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on June 6, 2014)</p>
+                <p>Steve and Marianne confirmed for attendance.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply4" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-07 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by K6ROW on June 7, 2014)</p>
+                <p>Event added to my calendar.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply5" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-08 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KE5RI on June 8, 2014)</p>
+                <p>Unfortunately have to cancel - a family wedding falls on that weekend.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply6" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-12 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by w6ibc on June 12, 2014)</p>
+                <p>Dave and Joy have it on the calendar and are looking forward to it.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply7" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-14 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by ag6ci on June 14, 2014)</p>
+                <p>Keith confirming attendance.</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply8" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-07-24 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on July 24, 2014)</p>
+                <p>Bump - any more signups or questions?</p>
+            </field>
+        </record>
+        <record id="topic_mini_dx_signups_reply9" model="forum.post">
+            <field name="name">Mini-DX signups</field>
+            <field name="forum_id" ref="forum_activities" />
+            <field name="parent_id" ref="topic_mini_dx_signups" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-08-01 00:00:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by w1ej on August 1, 2014)</p>
+                <p>Ed confirming attendance - cleared my schedule for it.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

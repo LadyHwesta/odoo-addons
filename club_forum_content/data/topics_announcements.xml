@@ -144,5 +144,54 @@
             </field>
         </record>
 
+        <!-- oausa-net-on-irlp -->
+        <record id="topic_oausa_net_on_irlp" model="forum.post">
+            <field name="name">OAUSA net on IRLP</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-20 20:07:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on March 20, 2014)</p>
+                <p>Tonight (3/20/14) at 7:30PM the UHF repeater will be linked to the OAUSA net via IRLP. Tonight's topic: Ham Mobile Radio Install.</p>
+                <p>Discussion will focus on a good, clean, neat installation of your mobile radio to ensure years of noise-free operation. Participants are invited to share best practices, tips, techniques, and clever solutions regarding mobile radio installations, as every vehicle presents unique challenges for antenna placement, power pickup, and radio setup.</p>
+                <p>The net organizers welcome topic suggestions for future sessions.</p>
+            </field>
+        </record>
+
+        <!-- arrl-message-pads -->
+        <record id="topic_arrl_message_pads" model="forum.post">
+            <field name="name">ARRL Message Pads</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-04-05 23:31:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on April 5, 2014)</p>
+                <p>The club has four message pads available for purchase from a group buy. These are carbonless double forms with fifty sheets per pad, measuring 5.5" x 11" and designed after the ARRL Radiogram format. Each pad costs $5.</p>
+            </field>
+        </record>
+
+        <!-- go-kit-information -->
+        <record id="topic_go_kit_information" model="forum.post">
+            <field name="name">Go Kit Information</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-07-15 20:13:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by NH7X on July 15, 2014)</p>
+                <p>A new resources section titled EMCOM has been added to the website, featuring go kit lists developed by Sonoma County ARES. The resources include PDF files and an editable Excel spreadsheet that members can download and customize for their own use.</p>
+            </field>
+        </record>
+        <record id="topic_go_kit_information_reply1" model="forum.post">
+            <field name="name">Go Kit Information</field>
+            <field name="forum_id" ref="forum_announcements" />
+            <field name="parent_id" ref="topic_go_kit_information" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-07-16 02:58:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on July 15, 2014)</p>
+                <p>Scott (kj6qiq) expressed gratitude for the go kit lists, noting that despite being part of an ACS group for two years, he had never received such comprehensive guidance. He praised the detailed nature of the lists, which exceeded his personal preparedness knowledge.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

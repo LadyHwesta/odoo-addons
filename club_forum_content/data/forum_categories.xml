@@ -6,7 +6,7 @@
             <field name="name">Forum Archive Import</field>
             <field name="login">forum-archive-import</field>
             <field name="active" eval="False" />
-            <field name="groups_id" eval="[(6, 0, [ref('base.group_portal')])]" />
+            <field name="group_ids" eval="[(6, 0, [ref('base.group_portal')])]" />
         </record>
 
         <record id="forum_activities" model="forum.forum">

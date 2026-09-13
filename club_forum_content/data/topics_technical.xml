@@ -176,5 +176,90 @@
             </field>
         </record>
 
+        <!-- color-code-for-24vdc-powerpole-connectors -->
+        <record id="topic_powerpole_24vdc_color" model="forum.post">
+            <field name="name">Color code for 24VDC Powerpole connectors</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-24 12:15:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by Fred AE6SF on March 24, 2014)</p>
+                <p>Is there a ham standard for color coding Anderson Powerpole connectors used with a 24VDC battery system?</p>
+            </field>
+        </record>
+        <record id="topic_powerpole_24vdc_color_reply1" model="forum.post">
+            <field name="name">Color code for 24VDC Powerpole connectors</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_powerpole_24vdc_color" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-25 01:16:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on March 24, 2014)</p>
+                <p>Hi Fred. Sorry I can't be of much help - I haven't heard of any standardization for 24V system wiring, amateur, commercial or otherwise! Best of luck.</p>
+                <p>Very 73, John, WB6FRZ</p>
+            </field>
+        </record>
+        <record id="topic_powerpole_24vdc_color_reply2" model="forum.post">
+            <field name="name">Color code for 24VDC Powerpole connectors</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_powerpole_24vdc_color" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2015-03-10 23:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB on March 10, 2015)</p>
+                <p>Fred / John, this question interested me enough that I tried some research. I spoke with Powerwerx and they also have no standard. However, I took a look at the solar power world and found something interesting: in solar controllers, they use red as the baseline battery connector color, and on the solar array side (multiple voltages) they use yellow as the standard connector color. Yellow is enough of a difference in color to make you at least question the voltage if nothing else.</p>
+                <p>Duane, N6DMR</p>
+            </field>
+        </record>
+
+        <!-- install-and-using-ctcss-board -->
+        <record id="topic_ctcss_board" model="forum.post">
+            <field name="name">Install and using CTCSS board</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-24 17:40:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by AA6BD on March 24, 2014)</p>
+                <p>I am thinking about purchasing a CTCSS encoder/decoder board for a Kenwood TR 7200 2m mobile rig. The specific board I am considering is from Communications Specialists. Has anyone installed and used such a board that could talk to me about it?</p>
+                <p>Scott, KJ6QIQ, 707-235-2112</p>
+            </field>
+        </record>
+        <record id="topic_ctcss_board_reply1" model="forum.post">
+            <field name="name">Install and using CTCSS board</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_ctcss_board" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-03-25 01:20:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on March 24, 2014)</p>
+                <p>Hi Scott, yes, I have purchased and installed a few CTCSS boards from Communications Specialists over the years into different radios. They have all worked beautifully. Good company. I'll give you a call and we can talk.</p>
+                <p>Very 73, John, WB6FRZ</p>
+            </field>
+        </record>
+
+        <!-- power-switch-on-yaesu-ft-7800 -->
+        <record id="topic_ft7800_power_switch" model="forum.post">
+            <field name="name">Power switch on Yaesu FT-7800</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-02 06:12:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by KI6UGB / WA6NIV on June 1, 2014)</p>
+                <p>The power switch on my FT-7800 is failing. I have to press it several times to turn on or off. Any suggestions on how to fix or where to go for repair? WA6NIV</p>
+            </field>
+        </record>
+        <record id="topic_ft7800_power_switch_reply1" model="forum.post">
+            <field name="name">Power switch on Yaesu FT-7800</field>
+            <field name="forum_id" ref="forum_technical" />
+            <field name="parent_id" ref="topic_ft7800_power_switch" />
+            <field name="create_uid" ref="import_user" />
+            <field name="create_date" eval="'2014-06-02 07:20:00'" />
+            <field name="content" type="html">
+                <p>(Originally posted by WB6FRZ on June 1, 2014)</p>
+                <p>Hi Bob, sorry you're having trouble with your radio. Before sending it to someone, try a couple of things - I looked online and found a couple of guys that have had the same problem. I'll send you the comments via email.</p>
+                <p>73, John, WB6FRZ</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
