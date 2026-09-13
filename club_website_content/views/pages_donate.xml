@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================= /donate ======================= -->
+        <template id="page_donate_view" name="Donate">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Support Local Amateur Radio!</h1>
+                            <p>Sonoma County Radio Amateurs, Inc. (SCRA) is a ham radio club
+                            with over 200 members. Our mission includes promoting amateur radio
+                            education, providing emergency services support, offering training
+                            opportunities, and maintaining radio repeater systems.</p>
+
+                            <h3>How Donations Help</h3>
+                            <ul>
+                                <li>Amateur radio education and community outreach</li>
+                                <li>Public service and emergency preparedness</li>
+                                <li>Experimentation and operational activities</li>
+                                <li>Repeater system maintenance, providing coverage across
+                                Sonoma County and parts of Marin and Lake Counties</li>
+                            </ul>
+                            <p>During recent wildfires and PSPS events, SCRA's repeaters
+                            remained operational. Following the September 2020 Glass Fire,
+                            which destroyed the Castle Rock repeater station (valued at
+                            $14,000), community donations enabled its restoration by October
+                            2021.</p>
+
+                            <h3>Tax Information</h3>
+                            <p>SCRA is a 501(c)(3) charitable organization (Federal ID
+                            68-0005765). Donations are tax deductible to the full extent
+                            permitted by law. Donation receipts are available upon request with
+                            contact information.</p>
+
+                            <h3>Donation Methods</h3>
+                            <ul>
+                                <li>Cash</li>
+                                <li>Check, made payable to "Sonoma County Radio Amateurs,
+                                Inc.", mailed to PO Box 116, Santa Rosa, CA 95402-0116</li>
+                                <li>PayPal and credit cards</li>
+                                <li>Tangible amateur radio-related goods - contact Curt
+                                Helstrom WA6TIP at
+                                <a href="mailto:curth@sonic.net">curth@sonic.net</a> for
+                                details</li>
+                            </ul>
+                            <p><em>The PayPal donate button itself is functionality, not
+                            content, and needs a real Odoo payment provider set up to work -
+                            see the Payments settings in Odoo, or add a payment link/button
+                            once a provider is configured, rather than treating this as
+                            something to "import."</em></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_donate" model="website.page">
+            <field name="url">/donate</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_donate_view" />
+        </record>
+
+    </data>
+</odoo>

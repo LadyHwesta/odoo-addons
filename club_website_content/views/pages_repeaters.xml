@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================= /repeaters ======================= -->
+        <template id="page_repeaters_view" name="Repeaters">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Repeaters</h1>
+                            <p>We maintain four repeaters that are open and free for all
+                            licensed radio amateurs to use. They cover much of Sonoma County
+                            plus parts of Marin, Napa, and Lake Counties, and even reach into
+                            the East Bay. We also maintain a Winlink packet gateway and an IRLP
+                            node - see the repeater policy for usage guidelines.</p>
+
+                            <h3>Repeater Info</h3>
+                            <ul>
+                                <li><strong>147.315 + PL 88.5</strong> (Analog FM, VHF) - our
+                                most-used repeater, located southwest of Sebastopol on English
+                                Hill.</li>
+                                <li><strong>224.480 - PL 88.5</strong> (Analog FM, VHF) - the
+                                1.25m repeater on English Hill, open to all despite minimal
+                                use.</li>
+                                <li><strong>441.375 + PL 88.5</strong> (Analog FM/YSF, UHF) - set
+                                your analog radio's receive tone to PL 88.5 to avoid YSF digital
+                                noise. Located in eastern Santa Rosa.</li>
+                                <li><strong>443.100 + CC1</strong> (DMR, UHF) - located on
+                                English Hill; see the <a href="/repeaters/dmr">DMR page</a> for
+                                details.</li>
+                            </ul>
+
+                            <h3>Repeater Nets</h3>
+                            <ul>
+                                <li><strong>Ragchew Net</strong> - Mondays 8pm, English Hill
+                                repeater - a moderated conversational net for radio topics,
+                                station setup, hobbies, and travels.</li>
+                                <li><strong>Service Net</strong> - Tuesdays 7pm, English Hill
+                                repeater - club news, Newsline, and radio equipment checks.</li>
+                                <li><strong>DMR Net</strong> - Thursdays 6:30pm, DMR repeater -
+                                open to any amateur operator with DMR capability.</li>
+                                <li><strong>Fusion Net</strong> - Thursdays 7:00pm, YSF repeater
+                                - practice using Fusion and connect with other enthusiasts of
+                                this mode.</li>
+                            </ul>
+
+                            <h3>Other Services</h3>
+                            <p><strong>Winlink Packet System</strong> - Gateway callsign
+                            W6SON-10, frequency 144.910 MHz, Packet/1200, located on English
+                            Hill, digipeater W6SON-1. Currently testing two additional
+                            gateways: W6SON-10 (packet, 146.580, NE Santa Rosa) and W6SON-11
+                            (VARA FM, 441.500, Cotati) - reports welcome to
+                            <a href="mailto:repeater@sonomacountyradioamateurs.com">repeater@sonomacountyradioamateurs.com</a>.</p>
+                            <p><strong>IRLP</strong> - Node 7103, frequency 147.315 + PL 88.5,
+                            located on English Hill. See the <a href="/repeaters/irlp">IRLP
+                            page</a> for details.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters" model="website.page">
+            <field name="url">/repeaters</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_view" />
+        </record>
+
+        <!-- ===================== /repeaters/dmr ===================== -->
+        <template id="page_repeaters_dmr_view" name="DMR">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>DMR</h1>
+                            <p>SCRA has a UHF (70cm) DMR repeater in service on English Hill in
+                            West Sonoma County. Coverage extends from Sebastopol and nearly all
+                            of Santa Rosa, Windsor, and Rohnert Park/Cotati. Thanks go to the
+                            Repeater Committee and particularly Curt WA6TIP for spearheading
+                            the repeater's provisioning.</p>
+                            <p><strong>W6SON DMR: 443.100 (+ offset), Color Code 1</strong><br/>
+                            <a href="https://brandmeister.network/?page=device&amp;id=311176">Repeater status (BrandMeister)</a></p>
+
+                            <h3>Sonoma County DMR Net</h3>
+                            <p>Every Thursday night at 6:30pm Pacific Time, Randy AA6RH runs the
+                            Sonoma County DMR Net on the BrandMeister network, talk group 31707
+                            (Sonoma County). Open to anyone with DMR-capable equipment.</p>
+
+                            <h3>Talk Group Plan</h3>
+                            <p>One static talk group operates full-time: Sonoma County talk
+                            group 31707.</p>
+                            <ul>
+                                <li><strong>Time Slot 1:</strong> general TG use - avoid local
+                                and regional TGs. Any BrandMeister TG is valid, including USA
+                                (3100), California (3106), TAC 310 (310).</li>
+                                <li><strong>Time Slot 2:</strong> local and regional TGs
+                                including SCRA (31707); NorCal-related TGs welcome (Cluster 2,
+                                NorCal 31068); use private calls to AltParrot (TG 310997) for
+                                radio testing.</li>
+                            </ul>
+
+                            <h3>DMR Best Practices</h3>
+                            <ul>
+                                <li>Follow general analog repeater best practices per club
+                                guidelines</li>
+                                <li>Avoid Private/Unit Calls on the repeater, except brief
+                                testing via Echo Test/Parrot</li>
+                                <li>Be mindful of regional talk groups that may light up
+                                repeaters across the region</li>
+                                <li>When connecting to dynamic talk groups, PTT first to check
+                                if the group is clear</li>
+                                <li>Keep conversations brief on high-traffic talk groups</li>
+                                <li>Announce your call sign, talk group, and QTH when joining</li>
+                            </ul>
+
+                            <h3>DMR Nets Schedule</h3>
+                            <ul>
+                                <li>Sunday 5pm PT: TAC 310 Net [TG31001]</li>
+                                <li>Monday 5pm PT: Reddit Net [TG98003]; 8pm PT: PAPA DMR
+                                Roundtable [TG3106]</li>
+                                <li>Tuesday 8pm PT: SNARS Net [TG31328]</li>
+                                <li>Wednesday 7pm PT: HamNation After Show [TG311]</li>
+                                <li>Thursday 6:30pm PT: Sonoma County DMR Net [TG31707]; 7pm PT:
+                                NorCal Net [TG31068]; 8pm PT: PAPA Tech Net [TG31078]</li>
+                                <li>Friday 2pm PT: The Guild [TG31674]</li>
+                                <li>Saturday 9am PT (16:00 UTC): Worldwide Net [TG91]</li>
+                            </ul>
+
+                            <p>More info: <a href="/repeaters/dmr/is-easy">DMR Is Easy</a>
+                            (getting started) and <a href="/repeaters/dmr/code-plugs">DMR Code
+                            Plugs</a> (ready-made configurations).</p>
+
+                            <h3>DMR Links</h3>
+                            <ul>
+                                <li><a href="https://www.radioid.net/">RadioID</a></li>
+                                <li><a href="https://brandmeister.network/">BrandMeister
+                                Network</a></li>
+                                <li><a href="https://norcal-brandmeister.org/">NorCal
+                                BrandMeister</a></li>
+                                <li><a href="https://snars.org/">SNARS (Sierra Nevada ARS)</a></li>
+                                <li><a href="http://papasys.com/dmr/">PAPA System</a></li>
+                                <li><a href="http://trbo.org/">DCI - Digital Communications
+                                Interconnect</a></li>
+                                <li><a href="http://www.miklor.com/DMR">Miklor DMR Info</a></li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters_dmr" model="website.page">
+            <field name="url">/repeaters/dmr</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_dmr_view" />
+        </record>
+
+        <!-- ================ /repeaters/dmr/is-easy ================ -->
+        <template id="page_repeaters_dmr_is_easy_view" name="DMR Is Easy">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>DMR Is Easy</h1>
+                            <p>DMR provides an excellent opportunity to communicate with amateur
+                            radio operators worldwide with ease. It can also facilitate
+                            coordination of traditional point-to-point RF contacts without
+                            requiring DX clusters or similar tools.</p>
+
+                            <h3>Getting Started</h3>
+                            <ol>
+                                <li>Obtain a DMR ID by visiting
+                                <a href="https://www.radioid.net">RadioID</a>. Register for an
+                                account, verify your amateur licence, and receive an ID number
+                                to program into your radio. Processing can take up to 24 hours,
+                                so registering before your radio arrives is worthwhile.</li>
+                                <li>Purchase a DMR radio, handheld or mobile. Budget-friendly
+                                options from China start around $65; mobile radios begin near
+                                $300, with premium brands (Motorola, Kenwood, Hytera) costing
+                                significantly more.</li>
+                            </ol>
+                            <p><a href="https://www.radioid.net/register">Get yourself a DMR
+                            ID!</a></p>
+
+                            <h3>An Introductory Talk</h3>
+                            <p>Randy AA6RH delivered a presentation to the club during its
+                            January 2019 Member Meeting covering DMR fundamentals.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters_dmr_is_easy" model="website.page">
+            <field name="url">/repeaters/dmr/is-easy</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_dmr_is_easy_view" />
+        </record>
+
+        <!-- =============== /repeaters/dmr/code-plugs =============== -->
+        <template id="page_repeaters_dmr_code_plugs_view" name="DMR Code Plugs">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>DMR Code Plugs</h1>
+                            <p>SCRA provides beginner-friendly DMR code plugs for several
+                            popular radio models. These configurations include local repeaters
+                            and curated talk groups for Northern California operators.</p>
+                            <p><strong>Important:</strong> get your own DMR ID before using
+                            these code plugs - they contain an invalid placeholder ID by
+                            default. Register at radioid.net.</p>
+
+                            <h3>Available Code Plugs</h3>
+                            <p><em>The actual code-plug download files were not carried over in
+                            this import - only this description. Re-uploading them as Odoo
+                            attachments is a good follow-up task.</em></p>
+                            <ul>
+                                <li>Connect Systems CS580 (UHF only)</li>
+                                <li>AnyTone AT-D878UV (dual band)</li>
+                                <li>Radioddity/Baofeng RD-5R (dual band)</li>
+                                <li>Ailunce HD1 (dual band)</li>
+                            </ul>
+                            <p>No matching radio? Contact Randy at
+                            <a href="mailto:aa6rh@socorad.io">aa6rh@socorad.io</a> for
+                            assistance.</p>
+
+                            <h3>Included Content</h3>
+                            <p><strong>Repeaters:</strong> four regional repeaters covering West
+                            Sonoma County, Santa Rosa, Sonoma, and Bodega Bay.</p>
+                            <p><strong>Simplex Frequencies:</strong> four DMR simplex channels
+                            configured with Color Code 1, Time Slot 1, and Talk Group 99:
+                            446.5000, 446.0750, 433.4500, 441.5000.</p>
+                            <p><strong>Talk Groups:</strong> sixteen options ranging from local
+                            (Sonoma County) to nationwide and worldwide networks, including
+                            specialized testing and regional DMR groups.</p>
+
+                            <h3>For Advanced Users</h3>
+                            <p>Users seeking more comprehensive configurations can explore code
+                            plugs from BridgeCom Systems or the PAPA System, which cover
+                            broader geographic regions.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters_dmr_code_plugs" model="website.page">
+            <field name="url">/repeaters/dmr/code-plugs</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_dmr_code_plugs_view" />
+        </record>
+
+        <!-- ================ /repeaters/yaesu-fusion ================ -->
+        <template id="page_repeaters_fusion_view" name="Yaesu System Fusion - WIRES-X">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Yaesu System Fusion - WIRES-X</h1>
+                            <p><strong>Frequency:</strong> 441.375 + PL 88.5<br/>
+                            <strong>WiRES-X Room:</strong> K6SON-ROOM #80798<br/>
+                            <strong>Equipment:</strong> Yaesu DR-2X on Castle Rock, with Fusion
+                            AMS (Automatic Mode Switching)</p>
+                            <p>The repeater accepts both analog FM and digital C4FM signals,
+                            retransmitting in the mode received.</p>
+
+                            <h3>Digital Mode Setup</h3>
+                            <ul>
+                                <li>Set radio to DN (Digital Narrow) voice mode</li>
+                                <li>Configure WiRES-X/GM DG-IDs to 07</li>
+                                <li>Participate in the active room, or connect with others on
+                                the frequency</li>
+                            </ul>
+                            <p><strong>Analog users:</strong> set your radio's receive CTCSS to
+                            88.5 to filter out Fusion digital noise.</p>
+
+                            <h3>Weekly Net</h3>
+                            <p>The Thursday Fusion Net meets at 7pm Pacific time on the Castle
+                            Rock repeater and in the K6SON room. Welcomes local operators unable
+                            to reliably access W6SON, and all remote stations with
+                            Fusion-capable equipment.
+                            <a href="https://sonomacountyradioamateurs.com/wp/wp-content/uploads/2025/02/Sonoma-County-YSF-Net-Script-2025_01_09.pdf">Net script (PDF)</a></p>
+
+                            <h3>Room Connection Protocol</h3>
+                            <ol>
+                                <li>Ask if the repeater is busy and identify yourself</li>
+                                <li>Wait a few seconds for confirmation</li>
+                                <li>State your callsign and target room</li>
+                            </ol>
+
+                            <h3>Additional Networks</h3>
+                            <p>The club also monitors several regional and national C4FM nets
+                            across the week.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters_fusion" model="website.page">
+            <field name="url">/repeaters/yaesu-fusion</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_fusion_view" />
+        </record>
+
+        <!-- ===================== /repeaters/irlp ===================== -->
+        <template id="page_repeaters_irlp_view" name="IRLP">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>IRLP</h1>
+                            <p>SCRA operates IRLP Node 7103, connected to our 2-meter repeater
+                            (147.315 + PL 88.5). This lets a user with even a Technician
+                            licence and a basic 2-meter handheld communicate with operators
+                            worldwide.</p>
+                            <p><strong>Node Number:</strong> 7103<br/>
+                            <strong>Frequency:</strong> 147.315 MHz with PL 88.5<br/>
+                            <a href="http://status.irlp.net/?nodeid=7103">Current node
+                            status</a></p>
+
+                            <h3>Operating Guidelines</h3>
+                            <p><strong>Recommended:</strong></p>
+                            <ul>
+                                <li>Review node status and test using Test Node 9990</li>
+                                <li>Pause between transmissions for others to participate</li>
+                                <li>Identify before entering DTMF commands</li>
+                                <li>Allow 5 seconds of PTT hold before speaking</li>
+                                <li>Wait 15 seconds before transmitting on reflectors</li>
+                            </ul>
+                            <p><strong>Prohibited:</strong></p>
+                            <ul>
+                                <li>Conducting local repeater conversations while connected to
+                                reflectors</li>
+                                <li>Leaving the W6SON repeater linked without disconnecting</li>
+                                <li>Starting nets without reflector owner authorization</li>
+                            </ul>
+
+                            <h3>Connection Procedure Example</h3>
+                            <p>To connect to IRLP Node 9250 (Western Reflector): identify
+                            yourself, observe the recommended wait times, then disconnect using
+                            DTMF codes 7-3.</p>
+
+                            <h3>Additional Resources</h3>
+                            <ul>
+                                <li><a href="http://www.irlp.net">Internet Radio Linking
+                                Project</a></li>
+                                <li><a href="http://irlp.net/how-does-it-wrk.html">How IRLP
+                                Works</a></li>
+                                <li><a href="http://www.westernreflector.org">The Western
+                                Reflector</a></li>
+                                <li><a href="https://www.winsystem.org/procedures/">WIN System
+                                Operating Guidelines</a></li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters_irlp" model="website.page">
+            <field name="url">/repeaters/irlp</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_irlp_view" />
+        </record>
+
+        <!-- =================== /repeaters/policy =================== -->
+        <template id="page_repeaters_policy_view" name="Repeater Policy">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Repeater Policy</h1>
+                            <p><em>Adopted 3/12/14</em></p>
+                            <p>The SCRA repeater system is available for appropriate use by
+                            duly licensed radio amateurs and groups.</p>
+
+                            <h3>1. Priority of Usage</h3>
+                            <p>Usage follows this hierarchy: emergency communications,
+                            SCRA-approved directed nets, SCRA member usage, and non-SCRA
+                            related usage. Those seeking to use the system in ways not
+                            currently sanctioned should
+                            <a href="/our-club/contact-us">contact SCRA</a>.</p>
+
+                            <h3>2. Observe Good Operating Practices</h3>
+                            <ul>
+                                <li><strong>Follow Good Amateur Practice</strong> - exercise
+                                courtesy and common sense.</li>
+                                <li><strong>Station Identification</strong> - identify your
+                                station call sign appropriately every ten minutes and at the
+                                end of a conversation.</li>
+                                <li><strong>Testing Protocol</strong> - "kerchunking" without
+                                identification is prohibited; testing should include clear
+                                identification and "clear" when finished.</li>
+                                <li><strong>Language Standards</strong> - no obscene, indecent,
+                                or profane language is tolerated.</li>
+                                <li><strong>Broadcasting Prohibited</strong> - no broadcasting
+                                is allowed on the system.</li>
+                                <li><strong>Operating Procedure</strong> - listen before
+                                transmitting, hold PTT briefly before speaking, state the called
+                                station's callsign first followed by yours, and avoid codes,
+                                Q-words, and excessive phonetics unless requested.</li>
+                                <li><strong>Topic Guidelines</strong> - avoid controversial
+                                subjects, such as politics, religion, or criticisms of other
+                                amateurs or ham radio groups.</li>
+                            </ul>
+
+                            <h3>3. Failure to Follow Policy</h3>
+                            <p>Non-compliance may result in formal denial of repeater access.
+                            The repeater trustee or control operators will shut off the
+                            repeater should a warning of unauthorized or inappropriate use go
+                            unheeded.</p>
+
+                            <h3>4. Become Part of the Team</h3>
+                            <p>Frequent users are encouraged to become active SCRA members to
+                            help support maintenance and improvements.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_repeaters_policy" model="website.page">
+            <field name="url">/repeaters/policy</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_repeaters_policy_view" />
+        </record>
+
+    </data>
+</odoo>

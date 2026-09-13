@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================= /resources ======================= -->
+        <template id="page_resources_view" name="Resources">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Resources</h1>
+                            <h3>Resources on this site</h3>
+                            <ul>
+                                <li><a href="/resources/net-script">Net Script</a></li>
+                                <li><a href="/resources/emergency-services">Emergency
+                                Services</a></li>
+                                <li><a href="/resources/frs-gmrs">FRS / GMRS</a></li>
+                                <li><a href="/resources/useful-links">Useful Links</a></li>
+                                <li><a href="/resources/smartphone-apps">Smartphone Apps</a></li>
+                            </ul>
+
+                            <h3>Resources Available to Members</h3>
+                            <p>SCRA has many resources to offer local hams. Our members have a
+                            wide range of knowledge covering everything from the practical to
+                            the theoretical - support includes programming handheld radios,
+                            setting up amateur radio stations, contest participation guidance,
+                            POTA and SOTA activity instruction, emergency communication skills
+                            development, and electronics assembly and soldering.</p>
+
+                            <h4>Mentorship Program</h4>
+                            <p><a href="/store">Join SCRA</a> to connect with experienced
+                            mentors who can guide skill advancement.</p>
+
+                            <h4>Equipment Loaner Program</h4>
+                            <p>Members can borrow equipment including handheld transceivers, HF
+                            rigs, antennas, tuners, analyzers, Morse code keys and training
+                            devices, and complete SOTA/POTA kits. Three mobile stations are
+                            available for members who
+                            <a href="/events/public-service">volunteer at local community
+                            events</a>.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources" model="website.page">
+            <field name="url">/resources</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_view" />
+        </record>
+
+        <!-- ================== /resources/net-script ================== -->
+        <template id="page_resources_net_script_view" name="Service Net Script">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Service Net Script</h1>
+                            <p>SCRA provides a script for the Tuesday evening Service Net, to
+                            help members practice radio communication skills and serve as Net
+                            Control. A downloadable PDF script plus supporting documents guide
+                            Net Control operators through the weekly net. Members interested in
+                            leading the net are encouraged to contact the club president for
+                            mentoring.</p>
+                            <p><em>The actual PDF script was not carried over in this import -
+                            only this description. Re-uploading it as an Odoo attachment is a
+                            good follow-up task.</em></p>
+
+                            <h3>Key Guidelines</h3>
+                            <ul>
+                                <li>Obtain all materials ahead of time</li>
+                                <li>Research the following week's Net Control operator and
+                                newsline transmitter</li>
+                                <li>Bolded parenthetical text in the script contains
+                                instructions not meant for broadcast</li>
+                                <li>Identify the station every 10 minutes during operations</li>
+                                <li>Release the transmit button between segments, to prevent
+                                repeater timeout and allow emergency communications through</li>
+                            </ul>
+
+                            <h3>Script Structure</h3>
+                            <p>The net script follows a detailed sequence beginning five
+                            minutes before the 7pm Tuesday start time:</p>
+                            <ul>
+                                <li>Opening announcement and emergency traffic check</li>
+                                <li>Club membership information</li>
+                                <li>Meeting details (first Wednesday monthly at Luther Burbank
+                                Art &amp; Garden Center, Santa Rosa; Zoom option available)</li>
+                                <li>Net traffic handling</li>
+                                <li>Check-in roster for regular participants</li>
+                                <li>Amateur Radio Newsline segment (approximately 20
+                                minutes)</li>
+                                <li>Additional check-ins and closing announcements</li>
+                            </ul>
+                            <p>The script concludes by announcing the next week's Net Control
+                            operator and newsline transmitter, then formally ends the net.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_net_script" model="website.page">
+            <field name="url">/resources/net-script</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_net_script_view" />
+        </record>
+
+        <!-- ================ /resources/emergency-services ================ -->
+        <template id="page_resources_emergency_view" name="Emergency Services">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Emergency Services</h1>
+                            <h3>Our Mission</h3>
+                            <p>SCRA Emergency Services exists to provide assistance and
+                            resources to all radio operators, and the community, in the event
+                            of a major disaster. The club does not directly operate emergency
+                            communication nets for agencies - instead it collaborates closely
+                            with local groups and conducts training exercises, often partnered
+                            with the ARRL-sponsored Amateur Radio Emergency Service (ARES), the
+                            City of Santa Rosa's Auxiliary Emergency Communication System
+                            (AECS), and the Sonoma County Auxiliary Communication Service
+                            (ACS).</p>
+
+                            <h3>Resources</h3>
+                            <p>SCRA provides training to neighborhood groups interested in
+                            emergency communications, covering ham radio, Family Radio Service
+                            (FRS), and General Mobile Radio Service (GMRS) operations.</p>
+                            <p><strong>Repeater Access:</strong> the SCRA repeater (147.315 MHz)
+                            is available to all licensed operators during emergencies and
+                            disasters for sharing relevant information.</p>
+                            <p><strong>Storm Watch Net:</strong> during severe weather events,
+                            SCRA operates a Storm Watch Net at 8:00am, 4:00pm, and 8:00pm on the
+                            SCRA repeater (147.315 - PL88.5), or on 147.315 simplex if the
+                            repeater fails. All hams are encouraged to monitor and report
+                            hazardous conditions.</p>
+
+                            <h3>Emergency Service Net</h3>
+                            <p>Rather than a dedicated emergency net, SCRA members are
+                            encouraged to:</p>
+                            <ul>
+                                <li>Join the SCRA Service Net every Tuesday at 7:00pm on the
+                                SCRA repeater</li>
+                                <li>Join the ARES net every Monday at 7:30pm on the SCRA
+                                repeater</li>
+                                <li>Participate in the 10 meter net every Tuesday at 8:30pm on
+                                28.403 MHz</li>
+                            </ul>
+                            <p>For more information, contact SCRA at
+                            <a href="mailto:k6son@arrl.net">k6son@arrl.net</a>.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_emergency" model="website.page">
+            <field name="url">/resources/emergency-services</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_emergency_view" />
+        </record>
+
+        <!-- =================== /resources/frs-gmrs =================== -->
+        <template id="page_resources_frs_gmrs_view" name="FRS / GMRS">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>FRS / GMRS</h1>
+                            <p>During the 2023 flood on the Russian River, GMRS proved
+                            invaluable for communities without power, cell service, or
+                            landlines. SCRA's Neighborhood Communications Committee works to
+                            bridge amateur radio operators with community groups using General
+                            Mobile Radio Service.</p>
+
+                            <h3>Comparing FRS and GMRS</h3>
+                            <p><strong>Family Radio Service (FRS)</strong> is a low-power,
+                            unlicensed, channelized service with no licence fee. It operates on
+                            channels 1-22 but has no repeater capability.</p>
+                            <p><strong>GMRS</strong> shares the same channels but offers
+                            high-power transmission, full-duplex repeater capability on
+                            channels 15-22, and requires an FCC licence ($35 for 10 years,
+                            covering family members) with no exam required.</p>
+                            <p>The services are completely interoperable on simplex channels.
+                            An unlicensed FRS user with a $10 radio can access a GMRS simplex
+                            repeater with permission, providing coverage over roughly a 2-mile
+                            diameter. Licensed GMRS users with 5-watt radios ($40-$200) can
+                            achieve reliable multi-mile communication.</p>
+
+                            <h3>Key Advantages</h3>
+                            <ul>
+                                <li>Lower cost and easier access compared to amateur radio</li>
+                                <li>No testing required for GMRS licensing</li>
+                                <li>Family members can share a single GMRS licence at no
+                                additional cost</li>
+                                <li>Eight widely available GMRS repeater channels, informally
+                                coordinated through mygmrs.com</li>
+                            </ul>
+                            <p>Amateur radio offers superior technical performance, but
+                            FRS/GMRS's accessibility makes it increasingly attractive for
+                            emergency preparedness and community communication.</p>
+
+                            <h3>More on FRS/GMRS</h3>
+                            <ul>
+                                <li><a href="/resources/frs-gmrs/why">Why FRS/GMRS?</a></li>
+                                <li><a href="/resources/frs-gmrs/faqs">FRS/GMRS FAQs</a></li>
+                                <li><a href="/resources/frs-gmrs/radios">FRS/GMRS Radios</a></li>
+                                <li><a href="/resources/frs-gmrs/emergency-ops">GMRS Operations
+                                During an Emergency</a></li>
+                                <li><a href="/resources/frs-gmrs/activity-in-sonoma-county">
+                                FRS/GMRS Activity in Sonoma County</a></li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_frs_gmrs" model="website.page">
+            <field name="url">/resources/frs-gmrs</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_frs_gmrs_view" />
+        </record>
+
+        <!-- ================= /resources/frs-gmrs/faqs ================= -->
+        <template id="page_resources_frs_gmrs_faqs_view" name="FRS / GMRS FAQs">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>FRS / GMRS FAQs</h1>
+
+                            <h3>Licensing Requirements</h3>
+                            <p>FRS radios operating at 2 watts or less on channels 1-7 and
+                            15-22, or ½ watt on channels 8-14, require no licence. GMRS radios
+                            with higher power and repeater capability do require licensing - a
+                            GMRS licence costs $35 for a 10-year term via the FCC.</p>
+                            <h4>License Sharing</h4>
+                            <p>GMRS licensees may allow family members to operate under their
+                            licence - defined as spouse, children, grandchildren, stepchildren,
+                            parents, grandparents, stepparents, brothers, sisters, aunts,
+                            uncles, nieces, nephews, and in-laws. Club/association members may
+                            only use another's licence if that licensee holds grandfathered
+                            rights.</p>
+
+                            <h3>Channels and Power Limits</h3>
+                            <ul>
+                                <li>Channels 1-7: 2W limit (FRS and GMRS)</li>
+                                <li>Channels 8-15: 0.5W limit (FRS and GMRS)</li>
+                                <li>Channels 15-22: 2W limit for FRS; 50W limit for GMRS</li>
+                            </ul>
+                            <p>Eight additional frequencies serve as repeater inputs only
+                            (identified as RP15-RP22 on some radios).</p>
+
+                            <h3>Repeater Information</h3>
+                            <p>Repeaters operate only on channels 15-22 and must be owned and
+                            controlled by GMRS licensees. FRS users (2W or less) may use GMRS
+                            repeaters with owner authorization.</p>
+                            <p><strong>Duplex repeaters</strong> receive on one frequency and
+                            transmit on another simultaneously, requiring GMRS-capable radios
+                            and more complex programming. <strong>Simplex repeaters</strong>
+                            record and echo messages on the same frequency, allowing unlicensed
+                            FRS users to access them if permitted.</p>
+                            <p><strong>Closed repeaters</strong> require owner permission for
+                            use; <strong>open repeaters</strong> are generally available to
+                            authorized operators. Find listings at
+                            <a href="http://www.mygmrs.com">mygmrs.com</a>.</p>
+
+                            <h3>Communication Range</h3>
+                            <p>Sonoma County tests indicate flat-terrain performance of 1W
+                            radios is solid to 1 mile, good to 2 miles. Five-watt units achieve
+                            solid to 2 miles, good to 4 miles. Hilly terrain varies
+                            significantly; coastal 5W radios with roof-mounted antennas can
+                            reach 10+ miles to repeaters.</p>
+
+                            <h3>Radio Features and Selection</h3>
+                            <p>FRS radios require fixed antennas, but GMRS radios permit
+                            antenna upgrades, external antennas, and cables for improved
+                            range. Radios use inaudible tones to filter incoming
+                            transmissions - most offer 38 analog codes, some support 104
+                            digital tones, though this does not eliminate interference from
+                            simultaneous transmissions on different codes.</p>
+                            <ul>
+                                <li>Low-cost FRS radios: $10-$40, no licence needed</li>
+                                <li>5W GMRS handhelds: $40-$200, requires licence</li>
+                                <li>40-50W mobile radios: requires separate power supply,
+                                antenna cable, and exterior antenna, for maximum range</li>
+                            </ul>
+                            <p>Other useful features: scanning, NOAA weather radio, flashlight,
+                            USB charging, VOX, monitor button, flotation, vibrate alert, power
+                            level selectors, and a locking feature.</p>
+
+                            <h3>Operating Rules</h3>
+                            <p>GMRS stations must identify at the end of transmissions or a
+                            series of transmissions, or at least every 15 minutes. FRS
+                            operators aren't required to use call signs.</p>
+                            <p>Regulations allow unlicensed operators to use a licensee's GMRS
+                            radio during an emergency, but unlicensed individuals cannot
+                            operate their own GMRS equipment even in an emergency - get
+                            licensed if you own a GMRS radio.</p>
+                            <p>FRS/GMRS may be used for brief business communications. There is
+                            no privacy on these frequencies - assume all transmissions are
+                            public, avoid indecent language, and yield to emergency traffic.</p>
+
+                            <h3>Battery Management</h3>
+                            <p>For emergency preparedness, consider removing rechargeable
+                            batteries and storing fresh batteries separately in your emergency
+                            kit. Rotate stored batteries every two years, and never store
+                            batteries in radios, as they may leak and damage equipment.</p>
+
+                            <h3>Reference</h3>
+                            <p>For regulatory details, see
+                            <a href="https://www.law.cornell.edu/cfr/text/47/95.1701">47 CFR
+                            95.1701</a>. Contact SCRA with corrections or updates:
+                            <a href="mailto:mikevdpca@aim.com">mikevdpca@aim.com</a>.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_frs_gmrs_faqs" model="website.page">
+            <field name="url">/resources/frs-gmrs/faqs</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_frs_gmrs_faqs_view" />
+        </record>
+
+        <!-- ================ /resources/frs-gmrs/radios ================ -->
+        <template id="page_resources_frs_gmrs_radios_view" name="FRS / GMRS Radios">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>FRS / GMRS Radios</h1>
+                            <p>Anything that does not exceed 2 watts is FRS, operating on
+                            channels 1-22; anything exceeding 2 watts qualifies as GMRS.</p>
+
+                            <h3>FRS Radios</h3>
+                            <ul>
+                                <li><strong>Midland LXT 210:</strong> 1 watt (channels 1-7,
+                                15-22), ½ watt (channels 8-14)</li>
+                                <li><strong>Motorola Talkabout 5000 &amp; 6400:</strong> 1 watt
+                                and ½ watt across the same channel groups</li>
+                                <li><strong>Uniden GMRS 540:</strong> ½ watt across all
+                                channels</li>
+                            </ul>
+
+                            <h3>GMRS Radios</h3>
+                            <p>Handheld models range from around $40 (Retevis RT76P) to $169
+                            (Wouxun KG-UV9G PRO), including offerings from Baofeng and other
+                            manufacturers. Mobile units cost $200-$250, such as the Baofeng
+                            GMRS-50X1 and Midland MXT-400.</p>
+
+                            <h3>Antenna Recommendations</h3>
+                            <p>Antennas are more important than transmit power, particularly
+                            for handheld units. Recommended upgrades:</p>
+                            <ul>
+                                <li>Nagoya NA-701G ($16.99) - GMRS-specific tuning</li>
+                                <li>Smiley 5/8 Slim Duck ($24.50) - noted as superior for
+                                handheld use</li>
+                                <li>Mag-mount antennas - for vehicle installation</li>
+                                <li>Laird FG4603 ($133) - for base station setups</li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_frs_gmrs_radios" model="website.page">
+            <field name="url">/resources/frs-gmrs/radios</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_frs_gmrs_radios_view" />
+        </record>
+
+        <!-- ================= /resources/frs-gmrs/why ================= -->
+        <template id="page_resources_frs_gmrs_why_view" name="Why FRS / GMRS?">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Why FRS / GMRS?</h1>
+                            <p>SCRA's Neighborhood Communications Committee bridges ham radio
+                            operators and community groups using GMRS and FRS - emergency
+                            communication alternatives when traditional infrastructure
+                            fails.</p>
+
+                            <h3>Key Differences</h3>
+                            <p><strong>FRS</strong> operates on channels 1-22 as an unlicensed,
+                            low-power service requiring no exam or fee. It lacks repeater
+                            capability but allows operators to use GMRS simplex repeaters with
+                            permission, enabling "last mile" communications over roughly 2-mile
+                            zones using inexpensive equipment.</p>
+                            <p><strong>GMRS</strong> covers the same channels but offers
+                            high-power transmission and full-duplex repeater options on
+                            channels 15-22. The service requires an FCC licence ($35 for 10
+                            years) with no exam, and licensees may share their licence with
+                            specified family members at no additional cost.</p>
+
+                            <h3>GMRS Licensing Process</h3>
+                            <ol>
+                                <li>Register for an FRN at
+                                <a href="https://apps.fcc.gov/coresWeb/publicHome.do">apps.fcc.gov/coresWeb/publicHome.do</a></li>
+                                <li>Complete FCC Form 605 at
+                                <a href="https://www.fcc.gov/fcc-form-605">fcc.gov/fcc-form-605</a></li>
+                                <li>Apply through the FCC ULS at
+                                <a href="https://www.fcc.gov/wireless/support/universal-licensing-system-uls-resources/applyingnew-license-universal-licensing">fcc.gov/wireless/.../applyingnew-license</a></li>
+                            </ol>
+                            <p>The licence and callsign typically arrive within hours to one
+                            day of submission.</p>
+
+                            <h3>GMRS Emergency Operations</h3>
+                            <p>During emergencies, the first GMRS operator on-air becomes the
+                            Net Control Operator, establishing a directed emergency net.
+                            Responsibilities include assessing communication assets and
+                            establishing contact with emergency services, verifying information
+                            before broadcasting to prevent misinformation, passing emergency
+                            traffic through available resources, and operating 24-hour
+                            monitoring with scheduled check-ins every hour during daytime
+                            shifts. Only verified information should be passed onto others by
+                            the NCO.</p>
+
+                            <p><strong>Mike Von der Porten, AD6YB</strong><br/>
+                            <a href="mailto:mikevdpca@aim.com">mikevdpca@aim.com</a></p>
+                            <p><strong>Bob Dozor, K3FUL</strong><br/>
+                            <a href="mailto:bob@imcsr.com">bob@imcsr.com</a></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_frs_gmrs_why" model="website.page">
+            <field name="url">/resources/frs-gmrs/why</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_frs_gmrs_why_view" />
+        </record>
+
+        <!-- ============ /resources/frs-gmrs/emergency-ops ============ -->
+        <template id="page_resources_frs_gmrs_emergency_view" name="GMRS Operations During an Emergency">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>GMRS Operations During an Emergency</h1>
+                            <p>Guidance for GMRS operations when facing electrical outages,
+                            wildfires, flooding, storms, tsunamis, earthquakes, or other
+                            wide-scale disasters.</p>
+
+                            <h3>Purpose and Role</h3>
+                            <p>GMRS provides emergency communication by operating an Emergency
+                            Net that collects information, distributes updates to operators,
+                            and relays messages between GMRS operators, ham radio operators,
+                            first responders, and government authorities.</p>
+
+                            <h3>Pre-Emergency Preparation</h3>
+                            <ul>
+                                <li>A GMRS volunteer maintains contact lists of potential Net
+                                Control Operators (NCOs) with communication-assets data</li>
+                                <li>Training is offered via Zoom sessions to the GMRS
+                                community</li>
+                                <li>Operators can pursue FEMA training: ICS 100 and ICS 700 at
+                                <a href="https://training.fema.gov/">training.fema.gov</a></li>
+                                <li>Emergency contact lists for operators, nets, and emergency
+                                services are distributed and posted online</li>
+                            </ul>
+
+                            <h3>During an Emergency: NCO Duties</h3>
+                            <p>The first GMRS operator on air becomes the initial NCO. Key
+                            responsibilities: assess personal communication assets; operate as
+                            a directed net with all traffic routed through the NCO; establish
+                            contact with ham radio NCOs, particularly through the Fort Ross
+                            GMRS repeater; make contact with other operators via radio, phone,
+                            cell, or satellite phone; pass emergency message traffic to
+                            appropriate recipients.</p>
+
+                            <h3>Activating the GMRS Emergency Net</h3>
+                            <p>Upon activation, the NCO announces: "The GMRS Emergency Net is
+                            now activated due to [nature of emergency]. My name is [name and
+                            call sign]. I am the first GMRS NCO for this event."</p>
+                            <ul>
+                                <li>2-hour NCO shifts between 0800 and 2400 hours (local
+                                time)</li>
+                                <li>8-hour overnight shift from 2400 to 0800 hours</li>
+                                <li>Hourly 10-minute check-ins at the half-hour during daytime
+                                shifts</li>
+                                <li>NCO monitors constantly during the day; overnight NCO may
+                                sleep with the radio nearby</li>
+                                <li>If severe, overnight shifts can shorten to 2 hours each with
+                                hourly check-ins</li>
+                            </ul>
+
+                            <h3>Information Sources for NCOs</h3>
+                            <ul>
+                                <li>PG&amp;E Public Safety Power Shutoff updates</li>
+                                <li>KGUA (707-884-4883)</li>
+                                <li>KDTE (707-884-3000/4000)</li>
+                                <li>CalFire incidents</li>
+                                <li>Timber Cove Fire Department (707-847-3299)</li>
+                                <li>Fort Ross Fire Department (707-847-3184)</li>
+                            </ul>
+
+                            <h3>Handling Emergency Traffic</h3>
+                            <p>It is critical that only verified information be passed onto
+                            others by the NCO. If something reported is not from a verified
+                            source or is questionable, the NCO must confirm the truth of the
+                            information before it is broadcast. For urgent traffic involving
+                            risk to life or property, the NCO uses available resources to route
+                            the request to 911 or emergency authorities as quickly as
+                            possible.</p>
+
+                            <h3>Ending the Emergency Net</h3>
+                            <p>When the emergency concludes, the NCO announces the net's
+                            termination, and GMRS holds a meeting afterward to discuss outcomes
+                            and lessons learned.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_frs_gmrs_emergency" model="website.page">
+            <field name="url">/resources/frs-gmrs/emergency-ops</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_frs_gmrs_emergency_view" />
+        </record>
+
+        <!-- ========= /resources/frs-gmrs/activity-in-sonoma-county ========= -->
+        <template id="page_resources_frs_gmrs_activity_view" name="FRS / GMRS Activity in Sonoma County">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>FRS / GMRS Activity in Sonoma County</h1>
+                            <p>This page documents FRS and GMRS repeater activity and
+                            emergency communications networks across Sonoma County.</p>
+
+                            <h3>GMRS Repeaters</h3>
+                            <p>Active GMRS repeaters are organized by region:</p>
+                            <ul>
+                                <li><strong>Coastal Hills:</strong> Fort Ross, Timber Cove, and
+                                Muniz repeaters</li>
+                                <li><strong>North County:</strong> Fitch, Cloverdale, Knight,
+                                and Franz repeaters</li>
+                                <li><strong>Lower Russian River:</strong> Mt Jackson and
+                                Hacienda repeaters</li>
+                                <li><strong>Central and East County:</strong> Sonoma Mountain,
+                                Los Alamos, and other locations</li>
+                            </ul>
+                            <p>West Marin County also has its own set of GMRS repeaters with
+                            memory-channel assignments for portable radio programming.</p>
+                            <p><em>The original page's detailed frequency/tone tables per
+                            repeater were summarized rather than transcribed verbatim in this
+                            import - re-fetch the source page directly if the literal table
+                            data is wanted.</em></p>
+
+                            <h3>Community Programs</h3>
+                            <ul>
+                                <li><strong>North County</strong> operates an active CERT
+                                program connecting incident commanders and community leaders
+                                through GMRS.</li>
+                                <li><strong>Sebastopol</strong> has established the Sebastopol
+                                Neighborhood Communications Unit (SNCU) with "quadrant hubs" and
+                                FRS for neighborhood-level communications.</li>
+                                <li><strong>Cazadero</strong> deployed four new repeaters that
+                                performed well during the January 2023 storms.</li>
+                                <li><strong>Petaluma</strong> hosts a weekly net on Tuesday
+                                evenings at 8:30pm.</li>
+                            </ul>
+
+                            <h3>Simplex Channels</h3>
+                            <p>Sebastopol's Map Your Neighborhood program uses a channel plan
+                            designating specific FRS/GMRS channels for quadrant-to-hub and
+                            hub-to-net-control communications.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_frs_gmrs_activity" model="website.page">
+            <field name="url">/resources/frs-gmrs/activity-in-sonoma-county</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_frs_gmrs_activity_view" />
+        </record>
+
+        <!-- ================= /resources/useful-links ================= -->
+        <template id="page_resources_useful_links_view" name="Useful Links">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Useful Links</h1>
+
+                            <h3>Radio Class Instructors Support</h3>
+                            <p>Contact the Education Chair at
+                            <a href="mailto:education@sonomacountyradioamateurs.com">education@sonomacountyradioamateurs.com</a>
+                            for ongoing support.</p>
+
+                            <h3>Baofeng UV-3R Programming</h3>
+                            <p>Dave W6IBC has created a
+                            <a href="https://sonomacountyradioamateurs.com/wp/wp-content/uploads/2024/08/uv3program.pdf">programming guide</a>
+                            for those needing help configuring this radio model.</p>
+
+                            <h3>FCC License Database</h3>
+                            <p>Search for new call signs at the
+                            <a href="http://wireless.fcc.gov/uls/index.htm?job=home">FCC
+                            database</a>.</p>
+
+                            <h3>Knowledge Resources</h3>
+                            <ul>
+                                <li>HamElmer for Q&amp;A support</li>
+                                <li>AC6V comprehensive amateur radio reference</li>
+                                <li>QRZ call sign database and search tools</li>
+                                <li>ARRL band plans and frequency allocations</li>
+                                <li>Power Pole connector installation guides</li>
+                                <li>All About Circuits educational platform</li>
+                            </ul>
+
+                            <h3>Practice Tests</h3>
+                            <p>eHam, AA9PW, QRZ.com, and Hamexam.org provide practice tests for
+                            all licence classes; HamTestOnline offers an alternative study
+                            approach.</p>
+
+                            <h3>Equipment and Supplies</h3>
+                            <p>Ham Radio Outlet, Amateur Electronic Supply, Universal Radio,
+                            and Radio Shack.</p>
+
+                            <h3>Local Organizations</h3>
+                            <p>Regional amateur radio clubs and the national American Radio
+                            Relay League (ARRL), with local section information.</p>
+
+                            <h3>Emergency Services</h3>
+                            <p>Contact information for Sonoma County ARES, AECS, and related
+                            emergency communication services - see also
+                            <a href="/resources/emergency-services">Emergency Services</a>.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_useful_links" model="website.page">
+            <field name="url">/resources/useful-links</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_useful_links_view" />
+        </record>
+
+        <!-- ================ /resources/smartphone-apps ================ -->
+        <template id="page_resources_smartphone_apps_view" name="Smartphone Apps">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Smartphone Apps</h1>
+                            <p>A curated list of smartphone apps for amateur radio enthusiasts
+                            (iOS-focused).</p>
+
+                            <h3>Logging</h3>
+                            <p>Ham Log ($0.99) - a comprehensive logging program for iPhone and
+                            iPad.</p>
+
+                            <h3>Repeaters</h3>
+                            <ul>
+                                <li>EchoLink (free, registration required) - connects to the
+                                EchoLink network without requiring a radio</li>
+                                <li>Emergency Radio (free, optional ad removal) - scanner app
+                                for police and amateur radio repeaters nationwide</li>
+                                <li>WINSystemInfo (free) - GPS-enabled locator for IRLP WIN
+                                System links</li>
+                            </ul>
+
+                            <h3>Operating Modes</h3>
+                            <ul>
+                                <li>HF Beacons ($0.99) - IARU HF beacon frequencies and
+                                locations</li>
+                                <li>iSDR (free) - controls homebrew SDR radios</li>
+                                <li>OpenAPRS ($3.99) - APRS client with network connectivity
+                                and messaging</li>
+                                <li>Morse-It ($0.99) - code reference and training</li>
+                                <li>PSKer ($2.99) - PSK-31 transmission and reception</li>
+                                <li>Satellite Tracker (free / Plus $1.99) - GPS-based tracking
+                                with offline mode</li>
+                                <li>SSTV ($2.99) - SSTV image decoding</li>
+                            </ul>
+
+                            <h3>Calculation &amp; Utilities</h3>
+                            <p>Antenna Array Analyzer, Electrical Toolkit, Engineering Calc,
+                            Ham I Am, Maidenhead Converter, and Part 97 Map are free; Electronic
+                            Assistant is $0.99. QST is a free app with content behind a $40/year
+                            ARRL membership.</p>
+
+                            <h3>Radio-Specific References</h3>
+                            <p>Quick manual-reference apps for Yaesu and Elecraft models,
+                            priced $0.99-$2.99.</p>
+
+                            <h3>Space &amp; Weather</h3>
+                            <p>3D Sun, NASA App, NOAA Now, NOAA Radio Free (optional ad
+                            removal), and The Weather Channel - all free.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_resources_smartphone_apps" model="website.page">
+            <field name="url">/resources/smartphone-apps</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_resources_smartphone_apps_view" />
+        </record>
+
+    </data>
+</odoo>

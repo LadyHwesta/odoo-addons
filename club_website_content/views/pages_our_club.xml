@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================= /our-club ======================= -->
+        <template id="page_our_club_view" name="Our Club">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Our Club</h1>
+                            <h2>About SCRA</h2>
+                            <p>SCRA's mission centers on fostering enthusiasm for amateur radio,
+                            electronics technology, and associated disciplines. The club
+                            accomplishes this through monthly meetings featuring relevant
+                            topics, communication assistance for local events, emergency
+                            preparedness education, and maintenance of community repeater
+                            infrastructure.</p>
+
+                            <h3>Membership</h3>
+                            <p>Membership welcomes all individuals with an interest in amateur
+                            radio, regardless of licensing status. Annual dues are $20 per
+                            person, with reduced rates available for families and members
+                            under 24 years old.</p>
+                            <p><strong>Member benefits include:</strong></p>
+                            <ul>
+                                <li>Access to loaner equipment - handhelds through HF base
+                                stations, antennas, test gear, and complete portable SOTA/POTA
+                                setups</li>
+                                <li>Exclusive tours and activities - mini-DXpeditions, historical
+                                radio site visits, NASA Ames Research Center access</li>
+                                <li>The monthly Short Skip newsletter with articles and industry
+                                news</li>
+                            </ul>
+                            <p><a href="/store">Join today</a></p>
+
+                            <h3>Meetings</h3>
+                            <p>SCRA meetings take place at 7pm on the first Wednesday of each
+                            month at the Luther Burbank Art and Garden Center, 2050 Yulupa
+                            Avenue in Santa Rosa. Admission is free and open to the public.</p>
+                            <p><a href="/our-club/meetings">More about meetings</a></p>
+
+                            <h3>Education</h3>
+                            <p>The club offers diverse instructional programs: Technician
+                            license preparation, General and Extra level study sessions, Morse
+                            code instruction, and kit and station assembly courses.</p>
+                            <p><a href="/events/classes">Technician License Class</a></p>
+
+                            <h3>Community Service</h3>
+                            <p>Volunteer initiatives encompass event communications support,
+                            public demonstrations, and disaster preparedness coordination.</p>
+                            <p><a href="/events/public-service">Public Service</a></p>
+
+                            <h3>Field Day</h3>
+                            <p>This annual 24-hour national event challenges operators to
+                            maximize contacts while simulating emergency conditions using
+                            generators and renewable power sources, during the fourth full
+                            weekend in June.</p>
+                            <p><a href="/events/field-day">Field Day details</a></p>
+
+                            <hr/>
+                            <p><strong>Sonoma County Radio Amateurs, Inc.</strong><br/>
+                            501(c)(3) nonprofit, Federal ID 68-0005765<br/>
+                            PO Box 116, Santa Rosa CA 95402-0116<br/>
+                            <a href="/donate">Donate</a></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_our_club" model="website.page">
+            <field name="url">/our-club</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_our_club_view" />
+        </record>
+
+        <!-- ================= /our-club/meetings ================= -->
+        <template id="page_our_club_meetings_view" name="Meetings">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Meetings</h1>
+                            <p>SCRA welcomes members and guests to hybrid monthly membership
+                            meetings. Each gathering features a presentation or activity
+                            announced via the club's newsletter and calendar.</p>
+
+                            <h3>Meeting Format</h3>
+                            <ul>
+                                <li><strong>Online via Zoom</strong> - meetings occur at 7:00pm
+                                on the first Wednesday of each month. Send an email to the SCRA
+                                president at
+                                <a href="mailto:k6son@arrl.net">k6son@arrl.net</a> with "Zoom MM
+                                request" in the subject line.</li>
+                                <li><strong>In-Person</strong> - arrive at 6:30pm for social time
+                                and light refreshments; the official start time is 7:00pm.</li>
+                            </ul>
+
+                            <h3>Location</h3>
+                            <p><strong>Luther Burbank Art &amp; Garden Center</strong><br/>
+                            2050 Yulupa Avenue<br/>
+                            Santa Rosa, CA</p>
+                            <p><em>Not the Luther Burbank Gardens on Sonoma Ave or the Luther
+                            Burbank Center on River Road!</em></p>
+
+                            <h3>Special Scheduling Notes</h3>
+                            <p>December meetings are replaced with a Holiday Party for members.
+                            When the first Wednesday falls on a major holiday (such as New
+                            Year's Day), the meeting moves to the first Thursday of that month
+                            instead.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_our_club_meetings" model="website.page">
+            <field name="url">/our-club/meetings</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_our_club_meetings_view" />
+        </record>
+
+        <!-- ================ /our-club/club-officials ================ -->
+        <template id="page_our_club_officials_view" name="Club Officials">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Club Officials</h1>
+
+                            <h3>Voting Board Members</h3>
+                            <ul>
+                                <li><strong>President:</strong> Brian Torr N6IIY</li>
+                                <li><strong>Vice President:</strong> Carolita Carr KN6WZU</li>
+                                <li><strong>Secretary:</strong> Open position - contact the
+                                president to volunteer</li>
+                                <li><strong>Treasurer:</strong> Fred Seitel AE6SF</li>
+                                <li><strong>Director:</strong> Sean Haynes KO6BJL</li>
+                                <li><strong>Director:</strong> Gyula Szentirmay KN6WPU</li>
+                                <li><strong>Immediate Past President:</strong> Dennis Colthurst
+                                KI6REO</li>
+                            </ul>
+
+                            <h3>Committee Positions</h3>
+                            <p><strong>Filled positions:</strong></p>
+                            <ul>
+                                <li>Community Outreach: Darryl Paule KI6MSP</li>
+                                <li>Education: Kathy Spicher KM6URP</li>
+                                <li>Emergency Services Liaison: Nick Barber K6NMB</li>
+                                <li>Field Day: Brian Torr N6IIY</li>
+                                <li>FRS/GMRS Liaison: Bob Dozor K3FUL</li>
+                                <li>Historian: Mike Von der Porten AD6YB</li>
+                                <li>License Trustee: Brian Torr N6IIY</li>
+                                <li>Membership: Dan Drummond KK6VIQ</li>
+                                <li>Portable Operations: Peter Murphy KN6AWA</li>
+                                <li>Radio Loaner Program Coordinator: Nick Allen N1CKA</li>
+                                <li>Repeater: Erin Casteel K6ERI</li>
+                                <li>VE Testing: Brian Torr N6IIY</li>
+                                <li>Weekly Blog: Kathy Littman KI6ZMJ</li>
+                            </ul>
+                            <p><strong>Open positions seeking volunteers:</strong></p>
+                            <ul>
+                                <li>Activities Chair</li>
+                                <li>Merchandise Coordinator</li>
+                                <li>Programs Coordinator</li>
+                                <li>Public Service Coordinator</li>
+                                <li>Refreshments Coordinator</li>
+                            </ul>
+
+                            <h3>Short Skip / Web Staff</h3>
+                            <ul>
+                                <li><strong>Short Skip Editor:</strong> Gyula Szentirmay
+                                KN6WPU</li>
+                                <li><strong>Webmaster:</strong> Erin Casteel K6ERI</li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_our_club_officials" model="website.page">
+            <field name="url">/our-club/club-officials</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_our_club_officials_view" />
+        </record>
+
+        <!-- ================= /our-club/contact-us ================= -->
+        <template id="page_our_club_contact_view" name="Contact Us">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Contact Us</h1>
+                            <p>Reach us through a contact form, or consult the directory of
+                            <a href="/our-club/club-officials">officers and committee chairs</a>
+                            to email specific individuals directly.</p>
+
+                            <p><strong>Mailing Address</strong><br/>
+                            Sonoma County Radio Amateurs, Inc.<br/>
+                            PO Box 116<br/>
+                            Santa Rosa CA 95402-0116</p>
+
+                            <p>SCRA is a 501(c)(3) charitable organization, Federal ID
+                            68-0005765. Donations are tax-deductible - see the
+                            <a href="/donate">Donate</a> page for ways to give.</p>
+
+                            <div class="s_website_form">
+                                <!-- A real contact form snippet should be dropped in here via
+                                     the website builder (Website Builder &gt; Forms &gt;
+                                     Contact Us) rather than hand-authored in this import -
+                                     Odoo's own form snippet handles validation and delivery
+                                     to the right inbox out of the box. -->
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_our_club_contact" model="website.page">
+            <field name="url">/our-club/contact-us</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_our_club_contact_view" />
+        </record>
+
+        <!-- ================== /our-club/short-skip ================== -->
+        <template id="page_our_club_short_skip_view" name="Short Skip Newsletter">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Short Skip Newsletter</h1>
+                            <p>The Short Skip is SCRA's monthly newsletter. The old site
+                            carried an archive of issues back to 2019, each as a downloadable
+                            PDF (roughly a dozen a year, some marked with revision indicators
+                            like R, R1, R2 for corrected reissues).</p>
+                            <p><em>The newsletter PDFs themselves were not carried over in this
+                            import - only this description. Re-uploading the archive as Odoo
+                            attachments (or linking out to
+                            <a href="http://www.winepi.com">winepi.com</a>, where archivist
+                            Mike AD6YB maintains earlier issues) is a good follow-up task.</em></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_our_club_short_skip" model="website.page">
+            <field name="url">/our-club/short-skip</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_our_club_short_skip_view" />
+        </record>
+
+        <!-- ================= /our-club/club-insurance ================= -->
+        <template id="page_our_club_insurance_view" name="Club Insurance">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>SCRA Club Insurance</h1>
+                            <p>SCRA carries liability insurance documentation for club members
+                            and activities. The old site offered three policy PDFs for
+                            download - not yet re-hosted here (they still point at the original
+                            WordPress site until someone downloads and re-uploads them as Odoo
+                            attachments):</p>
+                            <ul>
+                                <li><a href="https://sonomacountyradioamateurs.com/wp/wp-content/uploads/2025/04/InsurancePolicySCRA.pdf">Insurance Policy SCRA</a></li>
+                                <li><a href="https://sonomacountyradioamateurs.com/wp/wp-content/uploads/2024/11/InsurancePolicy2025.pdf">Insurance Policy 2025</a></li>
+                                <li><a href="https://sonomacountyradioamateurs.com/wp/wp-content/uploads/2025/12/2026-ClubLiabilityPolicy-RSC28402.pdf">Insurance Policy 2026</a></li>
+                            </ul>
+                            <p>SCRA is a 501(c)(3) charitable organization, Federal ID
+                            68-0005765. Donations are tax-deductible; contributors can request a
+                            receipt by including contact details with their contribution.</p>
+                            <p><strong>Sonoma County Radio Amateurs, Inc.</strong><br/>
+                            PO Box 116, Santa Rosa CA 95402-0116</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_our_club_insurance" model="website.page">
+            <field name="url">/our-club/club-insurance</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_our_club_insurance_view" />
+        </record>
+
+    </data>
+</odoo>

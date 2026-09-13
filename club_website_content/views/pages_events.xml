@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================= /events ======================= -->
+        <template id="page_events_view" name="Events">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Events</h1>
+                            <p>SCRA runs a full calendar of nets, classes, exam sessions, public
+                            service events, and the annual Field Day / Winter Field Day
+                            gatherings. The pages below cover what each one is about; for the
+                            live, up-to-date calendar of specific dates, use Odoo's own Events
+                            app once it's populated rather than this static page.</p>
+                            <ul>
+                                <li><a href="/events/classes">Classes</a></li>
+                                <li><a href="/events/ve-testing">Amateur Radio Exam
+                                Sessions</a></li>
+                                <li><a href="/events/public-service">Public Service</a></li>
+                                <li><a href="/events/field-day">Field Day</a></li>
+                                <li><a href="/events/winter-field-day">Winter Field Day</a></li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_events" model="website.page">
+            <field name="url">/events</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_events_view" />
+        </record>
+
+        <!-- ==================== /events/classes ==================== -->
+        <template id="page_events_classes_view" name="Classes">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Classes</h1>
+                            <h2>Technician License Course</h2>
+                            <p>SCRA's weekend Technician License course has trained over 250
+                            people since 2007, with an emphasis on practical knowledge over
+                            rote memorization - the goal is knowledgeable ham radio operators,
+                            not just licensees.</p>
+
+                            <h3>Course Details</h3>
+                            <p>The program spans three days:</p>
+                            <ul>
+                                <li>Friday: 6pm to 9pm</li>
+                                <li>Saturday: 8am to 5pm</li>
+                                <li>Sunday: 8am to 2:30pm</li>
+                            </ul>
+                            <p>Location details are provided to registered students.</p>
+
+                            <h3>Cost</h3>
+                            <p>The course itself is free, taught entirely by volunteers.
+                            Two fees apply when obtaining a licence:</p>
+                            <ul>
+                                <li>$15 Volunteer Examiner testing fee ($5 for minors)</li>
+                                <li>$35 FCC licensing fee, due only after passing the exam</li>
+                            </ul>
+
+                            <h3>The Exam</h3>
+                            <p>The exam consists of 35 multiple-choice questions covering
+                            electronics theory, antennas, radio etiquette, safety, and
+                            regulations. Passing requires correctly answering at least 26
+                            questions. The FCC issues a 10-year licence on success.</p>
+
+                            <h3>Study Materials</h3>
+                            <p>SCRA recommends the "Gordon West Technician Class Study Guide,
+                            2022-2026 edition" (~$30) for exam preparation. Students who study
+                            beforehand have a much better chance of passing, and nearly all
+                            students pass on their first attempt.</p>
+
+                            <h3>Equipment Costs</h3>
+                            <p>Handheld VHF radios for local communication can cost as little
+                            as $50, while HF equipment for long-distance communication
+                            typically runs around $400 used.</p>
+
+                            <h3>Registration</h3>
+                            <p>Register in advance by emailing Kathy KM6URP at
+                            <a href="mailto:education@sonomacountyradioamateurs.com">education@sonomacountyradioamateurs.com</a>.</p>
+
+                            <h3>License Upgrades</h3>
+                            <p>Club members can get one-on-one mentoring to upgrade to General
+                            Class or Amateur Extra Class - same contact as above.</p>
+
+                            <h3>Post-Licensing Support</h3>
+                            <p>SCRA's mentorship program pairs new licensees with experienced
+                            operators, opening the door to satellite communication, emergency
+                            services, contests, and equipment building.</p>
+
+                            <p><strong>Kathy Spicher KM6URP</strong><br/>
+                            Education Committee Chair<br/>
+                            <a href="mailto:education@sonomacountyradioamateurs.com">education@sonomacountyradioamateurs.com</a></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_events_classes" model="website.page">
+            <field name="url">/events/classes</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_events_classes_view" />
+        </record>
+
+        <!-- =================== /events/ve-testing =================== -->
+        <template id="page_events_ve_testing_view" name="Amateur Radio Exam Sessions">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Amateur Radio Exam Sessions</h1>
+                            <p>SCRA administers amateur radio licence exams using the ExamTools
+                            web application. Candidates may take exams electronically on their
+                            own device, or on paper.</p>
+                            <p><em>Specific upcoming session dates are time-bound content, not
+                            carried over here - re-enter current sessions via Odoo's own Events
+                            app rather than treating this as a static page. Pre-registration
+                            (optional) is available through hamstudy.org.</em></p>
+
+                            <h3>Before the Exam</h3>
+                            <p><strong>FCC Registration Number (FRN):</strong> all applicants
+                            for new licences must obtain an FRN directly from the FCC prior to
+                            the exam session, at
+                            <a href="https://www.fcc.gov/uls">fcc.gov/uls</a>. Exams are held on
+                            weekends, and the FCC's website has occasionally been down on
+                            weekends, so don't leave this to the last minute.</p>
+                            <p><strong>Pre-Exam Registration:</strong> register at hamstudy.org
+                            by clicking "Find a Session" and locating "Sonoma County Radio
+                            Amateurs VE Team." You'll need either your FRN (new applicants) or
+                            your current callsign (upgrades).</p>
+
+                            <h3>Required Items</h3>
+                            <ul>
+                                <li>One photo ID, or two non-photo IDs</li>
+                                <li>FCC Registration Number (FRN)</li>
+                                <li>Exam fee: $15 for adults (18+) or $5 for minors - cash or
+                                check only, payable to "ARRL-VEC" (no cards or electronic
+                                payment)</li>
+                                <li>A #2 pencil and eraser for a paper exam, or a laptop/
+                                tablet/smartphone with internet for an electronic exam</li>
+                                <li>Original and photocopy of your current amateur radio
+                                licence, if upgrading</li>
+                                <li>Original and photocopy of any valid CSCEs, if applicable</li>
+                            </ul>
+                            <p>Calculators may be used if all memory and programs are erased;
+                            cell phone calculator functions are prohibited.</p>
+
+                            <h3>Fees</h3>
+                            <p>The ARRL-VEC charges exam administration fees as above. The FCC
+                            separately charges a $35 application fee, not payable at the exam -
+                            after passing, the FCC emails payment instructions with a 10-day
+                            deadline. Minors may be eligible for reimbursement through the ARRL
+                            Youth Licensing Grant Program.</p>
+
+                            <h3>License Upgrades</h3>
+                            <p>Bring your signed original licence and a photocopy.</p>
+
+                            <h3>Exam Element Credit</h3>
+                            <p>Holders of expired General, Advanced, or Amateur Extra licences
+                            may qualify for partial credit toward retesting, though at minimum
+                            they must still pass the current 35-question Technician exam.</p>
+
+                            <h3>Alternative: Online Exams</h3>
+                            <p>For those unable to attend in person, PARC offers online exam
+                            options - see
+                            <a href="https://parcradio.org/pages/Online_GeneralInfo.html">parcradio.org</a>.</p>
+
+                            <p><strong>Brian Torr, N6IIY</strong><br/>
+                            <a href="mailto:n6iiy@arrl.net">n6iiy@arrl.net</a><br/>
+                            (707) 575-5871</p>
+
+                            <p>Not ready to test yet? See the <a href="/events/classes">
+                            Technician License Course</a>.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_events_ve_testing" model="website.page">
+            <field name="url">/events/ve-testing</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_events_ve_testing_view" />
+        </record>
+
+        <!-- ================== /events/public-service ================== -->
+        <template id="page_events_public_service_view" name="Public Service">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Public Service</h1>
+                            <p>SCRA provides radio communication support for regional events
+                            held in areas with limited cellular coverage, and welcomes all
+                            amateur radio operators - particularly those new to the hobby - to
+                            participate.</p>
+                            <p>Newcomers can join as "Shadows" to learn portable radio
+                            operations from experienced hams while exploring Sonoma County.
+                            SCRA maintains four portable radio kits available for loan to
+                            operators without their own equipment.</p>
+                            <p>For bike events, amateur radio operators can fill support
+                            vehicle (SAG - Support And Gear) positions. Event organizers, not
+                            SCRA, manage SAG driver recruitment - volunteer through the event
+                            organizer's own website and identify yourself as a licensed
+                            operator.</p>
+
+                            <h3>Supported Events</h3>
+                            <p>SCRA provides communications for numerous cycling events
+                            including Climate Ride Wine Country, Fish Rock, Levi's Gran Fondo,
+                            Lake Sonoma Relentless, Giro Bello, Terrible Two, Bike Monkey, Wine
+                            Country Century, Bike MS, and Tour de Cure.</p>
+                            <p><em>Specific upcoming event dates are time-bound content, not
+                            carried over here - re-enter current events via Odoo's own Events
+                            app. Calendar subscriptions are available via Google Calendar and
+                            Apple Calendar on the original site.</em></p>
+
+                            <p>Questions? Contact the
+                            <a href="mailto:pubsvc@sonomacountyradioamateurs.com">Public Service
+                            Coordinator</a>.</p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_events_public_service" model="website.page">
+            <field name="url">/events/public-service</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_events_public_service_view" />
+        </record>
+
+        <!-- ===================== /events/field-day ===================== -->
+        <template id="page_events_field_day_view" name="Field Day">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Field Day</h1>
+                            <p><em>This page describes what Field Day is - the specific dates,
+                            schedule, and volunteer sign-up links for any given year are
+                            time-bound content that belongs in Odoo's own Events app,
+                            re-entered fresh each year, rather than here as static text.</em></p>
+
+                            <h3>Why Field Day?</h3>
+                            <p>The ARRL established Field Day in the 1930s to test amateur
+                            radio operators' emergency communication capabilities. Over time it
+                            has evolved into one of the hobby's most beloved events, extending
+                            beyond emergency preparedness to celebrate amateur radio more
+                            broadly. Field Day offers hands-on experience with station setup,
+                            antenna installation, contest operation, logging, and community
+                            interaction. See the
+                            <a href="http://www.arrl.org/field-day">ARRL Field Day website</a>
+                            for more.</p>
+
+                            <h3>Location</h3>
+                            <p>SCRA's Field Day runs at Youth Community Park, 1750 Fulton Rd,
+                            Santa Rosa (across from Piner High School).</p>
+
+                            <h3>Stations</h3>
+                            <p>SCRA typically runs five operational stations:</p>
+                            <ul>
+                                <li>SSB (Voice)</li>
+                                <li>CW (Morse code)</li>
+                                <li>Digital (PSK-31)</li>
+                                <li>GOTA (Get-On-The-Air, for new/unlicensed operators)</li>
+                                <li>Satellite</li>
+                            </ul>
+
+                            <h3>Get On The Air (GOTA)</h3>
+                            <p>The GOTA station welcomes unlicensed individuals and those
+                            without a General-class licence. Participants can make contacts
+                            under the supervision of a licensed General-class operator.</p>
+
+                            <h3>Volunteering</h3>
+                            <p>Field Day needs volunteers across setup, operating, food, and
+                            teardown - contact the Field Day Chairman to get involved:</p>
+                            <p><strong>Brian Torr, N6IIY</strong><br/>
+                            Field Day Chairman<br/>
+                            (707) 953-0377<br/>
+                            <a href="mailto:n6iiy@arrl.net">n6iiy@arrl.net</a></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_events_field_day" model="website.page">
+            <field name="url">/events/field-day</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_events_field_day_view" />
+        </record>
+
+        <!-- ================= /events/winter-field-day ================= -->
+        <template id="page_events_winter_field_day_view" name="Winter Field Day">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <section class="pt32 pb16">
+                        <div class="container">
+                            <h1>Winter Field Day</h1>
+                            <p><em>This page describes what Winter Field Day is - specific
+                            dates, station assignments, and sign-ups for any given year are
+                            time-bound content that belongs in Odoo's own Events app,
+                            re-entered fresh each year, rather than here as static text.</em></p>
+
+                            <p>SCRA runs Winter Field Day each January at Sugarloaf Ridge State
+                            Park, at the group campsite adjacent to the Robert Ferguson
+                            Observatory.</p>
+
+                            <h3>Operating Stations</h3>
+                            <p>SCRA typically runs five stations: Phone, CW, Digital,
+                            Satellite, and GOTA (Get-On-The-Air, for newer/unlicensed
+                            operators, with an educational/mentorship focus).</p>
+
+                            <h3>Scoring System</h3>
+                            <p>Points are calculated as: (QSO count) x (power output
+                            multiplier) x (band/mode multiplier). Phone contacts earn 1 point;
+                            CW and digital modes earn 2 points. QRP stations (under 5W CW / 10W
+                            phone) receive a 2x multiplier, others 1x. Each band/mode
+                            combination adds 1 to the multiplier.</p>
+
+                            <h3>Practical Information</h3>
+                            <p>Coffee, donuts, and a Saturday pizza dinner are typically
+                            provided. Parking is limited on-site, so carpooling is
+                            encouraged.</p>
+
+                            <p><strong>Nicholas Barber, K6NMB</strong><br/>
+                            (707) 849-2409<br/>
+                            <a href="mailto:K6nmb@sonic.net">K6nmb@sonic.net</a></p>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </template>
+        <record id="page_events_winter_field_day" model="website.page">
+            <field name="url">/events/winter-field-day</field>
+            <field name="is_published">True</field>
+            <field name="view_id" ref="page_events_winter_field_day_view" />
+        </record>
+
+    </data>
+</odoo>
