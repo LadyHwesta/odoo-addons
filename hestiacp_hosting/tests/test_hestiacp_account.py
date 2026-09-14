@@ -60,17 +60,20 @@ class TestHestiaCPAccount(TransactionCase):
         self.assertTrue(account.username, "provisioning should generate a username")
         called_cmds = [c.args[0] for c in client.call.call_args_list]
         self.assertIn('v-add-user', called_cmds)
-        self.assertIn('v-change-user-package', called_cmds)
 
     def test_provision_uses_the_products_package_name(self):
+        # v-add-user's real signature (verified live 2026-09-14):
+        # USER PASSWORD EMAIL PACKAGE NAME LASTNAME - package is arg4,
+        # assigned in the same call rather than a separate
+        # v-change-user-package call.
         client = self._mock_client()
         account = self._create_account()
 
         account.action_provision()
 
-        package_call = next(
-            c for c in client.call.call_args_list if c.args[0] == 'v-change-user-package')
-        self.assertEqual(package_call.args[2], 'basic')
+        add_user_call = next(
+            c for c in client.call.call_args_list if c.args[0] == 'v-add-user')
+        self.assertEqual(add_user_call.args[4], 'basic')
 
     def test_provision_twice_is_rejected(self):
         self._mock_client()

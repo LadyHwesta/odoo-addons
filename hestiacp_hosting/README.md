@@ -21,41 +21,84 @@ tool is lacking.
    adding a second one later isn't a refactor.
 2. **`product.template`** extended with `is_hosting_package`, a
    HestiaCP package name, and resource-limit fields (disk, bandwidth,
-   domains, mailboxes, databases, backups). "Sync Package to Server"
-   pushes them to HestiaCP via `v-add-user-package` /
-   `v-change-user-package-value`.
+   domains, mailboxes, databases, backups) - the latter are
+   **informational only**, see **HestiaCP API notes** below for why.
 3. **Checkout**: plain `website_sale`. Confirming an order (which, on a
    real storefront, only happens after payment succeeds) creates:
    - a `contract.contract` with one recurring `contract.line` matching
      the package's price, billed monthly - `contract`'s own cron takes
      it from there for every renewal after the first.
    - a `hestiacp.account` record, immediately provisioned: creates the
-     HestiaCP user, assigns the package, generates a random password
-     and emails it (never stored in Odoo past that one message - see
-     **Known simplifications** below).
+     HestiaCP user with the package assigned, generates a random
+     password and emails it (never stored in Odoo past that one
+     message - see **Known simplifications** below).
 4. **`hestiacp.account`** - the lifecycle tracker (`draft` → `active` →
    `suspended` → `terminated`), independent of any one order (a renewal
    invoice doesn't touch this record). A daily cron
    (`_cron_check_payment_status`) suspends an active account once its
    contract has an invoice unpaid past 7 days, unsuspends it once caught
    up, and terminates it (deletes the HestiaCP user) after 30 days
-   suspended - not immediately, so a payment hiccup doesn't mean instant
-   data loss.
+   *actually spent suspended* - not immediately, and not merely 30 days
+   invoice-overdue (an account can be very overdue before ever being
+   noticed - e.g. after a cron outage - and still gets the full grace
+   period suspended first; see the `suspended_date` field).
+
+## HestiaCP API notes (verified live 2026-09-14)
+
+A full `v-add-user` → `v-suspend-user` → `v-unsuspend-user` →
+`v-list-user` → `v-delete-user` cycle was run against a real server
+while building this, cross-checked against HestiaCP's actual
+`web/api/index.php` and `func/main.sh` source (not just its docs page).
+A few things came out different from the original assumption, all
+already fixed in the code here:
+
+- **`v-add-user`'s real argument order is `USER PASSWORD EMAIL
+  [PACKAGE] [NAME] [LASTNAME]`** - package is arg4, not name. The
+  package is assigned in this same call; no separate
+  `v-change-user-package` call is needed on first provisioning.
+- **Don't send `returncode=yes`.** It makes HestiaCP discard the real
+  command output and return only the bare exit code - harmless for
+  action commands (which return nothing anyway) but silently breaks
+  any `v-list-*` command's actual data.
+- **Check the always-present `Hestia-Exit-Code` response header**, not
+  the HTTP status code or response body alone - HestiaCP maps its exit
+  codes to a range of HTTP statuses (401 for an auth/permission
+  failure, 422 for a bad argument, etc.), so status-only handling isn't
+  uniform, but the header always carries the real exit code (0 =
+  success). On failure the body is a human-readable `Error: ...`
+  message; on success it's empty (action commands) or the real data
+  (`v-list-*` with a `json` format argument).
+- **HestiaCP's Access Key permission system has exactly 6 built-in
+  categories** (`billing`, `mail-accounts`, `phpmyadmin-sso`,
+  `purge-nginx-cache`, `sync-dns-cluster`, `update-dns-records` - see
+  `install/common/api/*` in the HestiaCP source), not arbitrary
+  per-command grants. Only **`billing`** covers what this module needs
+  for the account lifecycle (`v-add-user`, `v-delete-user`,
+  `v-suspend-user`, `v-unsuspend-user`, `v-change-user-package`,
+  `v-change-user-password`) - grant the key that one category.
+  **No category at all covers `v-add-user-package`,
+  `v-change-user-package-value`, or `v-list-user-packages`** - package
+  *definitions* genuinely cannot be managed through the Access Key API,
+  confirmed by enabling every available category and still getting
+  "doesn't have permission" for those three. Packages have to be
+  created/edited by hand in HestiaCP (Server → Packages); this module
+  only ever assigns an *existing* package name to a new account.
 
 ## Setup
 
-1. On HestiaCP: **Server → Access Keys** → create a key scoped to the
-   `v-*` commands this module uses (`v-add-user`, `v-suspend-user`,
-   `v-unsuspend-user`, `v-delete-user`, `v-change-user-password`,
-   `v-change-user-package`, `v-add-user-package`,
-   `v-change-user-package-value`, `v-list-user-packages`,
-   `v-list-sys-info`). Whitelist the Odoo server's IP.
-2. In Odoo: **Sales → Configuration → HestiaCP Servers** → add the
-   server, then **Test Connection**.
-3. Create a hosting product, tick **Hosting Package**, set the resource
-   limits, pick the server, name the HestiaCP package, and **Sync
-   Package to Server**.
-4. Publish it on the website (`website_sale` as normal) and take a test
+1. On HestiaCP: **Server → Access Keys** → create a key, grant it the
+   **billing** permission category, and add the Odoo server's IP to
+   the key's IP access list (if you haven't set `IP=''`/unrestricted).
+2. Create the actual hosting package(s) by hand under **Server →
+   Packages** first - the API can't do this part (see above).
+3. In Odoo: **Sales → Configuration → HestiaCP Servers** → add the
+   server (hostname like `https://host.example.com:8083`, the Access
+   Key and Secret), then **Test Connection**.
+4. Create a hosting product, tick **Hosting Package**, pick the server,
+   and enter the *exact* name of the package you created in step 2.
+   The resource-limit fields are for your own reference - keep them
+   matching what's actually on the HestiaCP package by hand.
+5. Publish it on the website (`website_sale` as normal) and take a test
    order through checkout.
 
 ## Known simplifications / not yet built
@@ -75,22 +118,19 @@ tool is lacking.
   generates the renewal invoice; actually attempting to charge a saved
   Stripe token against it (rather than waiting for the customer to pay
   it manually, or an admin to trigger it) isn't wired up yet.
-- **The exact HestiaCP API wire format (`models/hestiacp_api.py`) has
-  not been checked against a live server.** It's built from HestiaCP's
-  documented Access Key API conventions (POST to `/api/` with
-  `access_key`/`secret_key`/`cmd`/`arg1..N`, `returncode=yes` appending
-  the exit code as the last line), but this is the first thing to
-  re-verify - and the only file that should need changing - once a real
-  server is reachable. Same goes for the exact argument order HestiaCP
-  expects for `v-add-user-package`/`v-change-user-package-value` in
-  `product_template.py`'s `action_hestiacp_sync_package`.
+- **No package management via the API** - see HestiaCP API notes
+  above. Packages are a one-time-per-plan manual step in HestiaCP
+  itself, not something this module can automate given how HestiaCP's
+  Access Key permissions are actually scoped.
 
 ## Testing
 
 All business logic (provisioning, suspend/unsuspend/terminate, the
 payment-status cron, the sale-order-confirmation hook) is covered by
-tests that mock `hestiacp.server._get_client()` - nothing in the test
-suite makes a real HTTP call. Run via this repo's `testing/` harness:
+tests that mock `hestiacp.server._get_client()` - nothing in the
+automated test suite makes a real HTTP call (the live verification
+above was done by hand, separately, against a real server). Run the
+automated suite via this repo's `testing/` harness:
 
 ```
 cd testing && ./pg_start.sh

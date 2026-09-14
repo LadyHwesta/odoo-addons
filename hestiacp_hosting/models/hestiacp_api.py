@@ -2,20 +2,31 @@
 """Thin HTTP client for the HestiaCP API.
 
 Isolated in its own module (not a mixin on hestiacp.server) so the wire
-format is one small, easy-to-patch surface - both in tests (mock
-HestiaCPClient.call directly) and in real life once this is checked
-against a live server for the first time. HestiaCP's documented API
-uses scoped "Access Keys" (Server > Access Keys in the UI), not a
-full username/password: POST to https://host:8083/api/ with
-access_key, secret_key, cmd, and arg1..argN as form fields.
+format is one small surface, kept correct in one place for both tests
+(mock HestiaCPClient.call directly) and the model code that uses it.
 
-**Not yet verified against a live HestiaCP instance** - built from
-HestiaCP's documented API conventions. The request/response shape
-here (field names, whether returncode=1 is needed, whether errors
-come back as a non-200 status or as text in the body) should be
-confirmed against a real server the first time hestiacp.server.test_connection()
-is run for real, and this file adjusted if anything's off - that's
-deliberately the only place such a fix should be needed.
+**Verified against a live HestiaCP instance on 2026-09-14** (a full
+v-add-user -> v-suspend-user -> v-unsuspend-user -> v-list-user ->
+v-delete-user cycle against a real server), against HestiaCP's actual
+web/api/index.php and func/main.sh source, not just its docs page:
+
+- POST to https://host:port/api/ with access_key, secret_key, cmd, and
+  arg1..argN as form fields - this part matched the original
+  assumption exactly.
+- Do **not** send returncode=yes: it makes HestiaCP discard the actual
+  command output and return only the bare exit code instead - fine for
+  action commands (v-add-user etc., which return nothing on success
+  anyway) but silently breaks any v-list-* command's real data, which
+  callers need.
+- The reliable way to check success/failure is the always-present
+  ``Hestia-Exit-Code`` response header (0 = success), not the response
+  body or HTTP status code alone - HestiaCP maps its exit codes to a
+  range of HTTP statuses (e.g. 401 for an auth/permission failure, 422
+  for a bad argument), so status-code-only handling isn't uniform, but
+  the header always carries the real HestiaCP exit code.
+- On failure the body is a human-readable "Error: ..." message. On
+  success it's either empty (action commands) or the actual output
+  (e.g. JSON for a `v-list-*` command with a `json` format argument).
 """
 import logging
 
@@ -47,17 +58,16 @@ class HestiaCPClient:
 
     def call(self, cmd, *args):
         """Run a single HestiaCP ``v-*`` command and return its raw text
-        output (same as what the CLI command would print), with a
-        trailing newline stripped.
+        output (same as what the CLI command would print - empty for
+        most action commands, real data for a `v-list-*` command).
 
         :raises HestiaCPAPIError: on a network failure or a non-zero
-            HestiaCP return code.
+            HestiaCP exit code.
         """
         payload = {
             'access_key': self.access_key,
             'secret_key': self.secret_key,
             'cmd': cmd,
-            'returncode': 'yes',
         }
         for i, arg in enumerate(args, start=1):
             payload[f'arg{i}'] = '' if arg is None else str(arg)
@@ -71,27 +81,16 @@ class HestiaCPClient:
                 f'Could not reach the HestiaCP server: {exc}'
             ) from exc
 
-        text = response.text.strip()
-        if response.status_code != 200:
+        body = response.text.strip()
+        exit_code_header = response.headers.get('Hestia-Exit-Code')
+        try:
+            code = int(exit_code_header)
+        except (TypeError, ValueError):
             raise HestiaCPAPIError(
-                f'HestiaCP returned HTTP {response.status_code} for {cmd}: {text}'
-            )
+                f'Unexpected response from HestiaCP for {cmd} (HTTP '
+                f'{response.status_code}, no valid Hestia-Exit-Code header): {body}'
+            ) from None
 
-        # With returncode=yes, HestiaCP appends the numeric shell exit
-        # code as the last line of output (0 = success). Split it off
-        # rather than assuming the whole body is just that code, since
-        # list/status commands return real output plus the code.
-        lines = text.splitlines()
-        if lines and lines[-1].strip().lstrip('-').isdigit():
-            code = int(lines[-1].strip())
-            body = '\n'.join(lines[:-1])
-        else:
-            # Unexpected shape - treat the whole response as the body
-            # and don't assume success.
-            code, body = None, text
-
-        if code not in (0, None):
-            raise HestiaCPAPIError(
-                f'HestiaCP command {cmd} failed (exit {code}): {body}'
-            )
+        if code != 0:
+            raise HestiaCPAPIError(f'HestiaCP command {cmd} failed (exit {code}): {body}')
         return body

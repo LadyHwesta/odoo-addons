@@ -23,7 +23,10 @@ class HestiaCPServer(models.Model):
     access_key = fields.Char(
         required=True, groups="base.group_system",
         help="Public half of a HestiaCP Access Key (Server > Access Keys). "
-             "Scope it to only the v-* commands this module actually uses.")
+             "Grant it the \"billing\" permission category - the only one of "
+             "HestiaCP's 6 built-in categories that covers account "
+             "add/suspend/unsuspend/delete/package/password (verified "
+             "2026-09-14; see README's HestiaCP API notes).")
     secret_key = fields.Char(
         required=True, groups="base.group_system")
     active = fields.Boolean(default=True)
@@ -54,7 +57,11 @@ class HestiaCPServer(models.Model):
         self.ensure_one()
         client = self._get_client()
         try:
-            client.call('v-list-sys-info')
+            # v-list-sys-info isn't reachable through any of HestiaCP's
+            # built-in Access Key permission categories (verified
+            # 2026-09-14) - v-list-users is, under "billing", and doubles
+            # as a real check that account-management commands work.
+            client.call('v-list-users', 'json')
         except HestiaCPAPIError as exc:
             raise UserError(
                 self.env._("Connection failed: %(error)s", error=str(exc))
@@ -64,7 +71,7 @@ class HestiaCPServer(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': self.env._("Connection successful"),
-                'message': self.env._("%(name)s responded to v-list-sys-info.", name=self.name),
+                'message': self.env._("%(name)s responded to v-list-users.", name=self.name),
                 'type': 'success',
             },
         }

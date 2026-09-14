@@ -23,11 +23,12 @@ Custom Odoo 19 modules.
 - [`hestiacp_hosting/`](hestiacp_hosting/) - sell hosting packages through
   `website_sale`, bill them recurringly (via vendored OCA `contract`), and
   auto-provision/suspend/terminate the customer's account on a HestiaCP
-  server as payment comes in, lapses, or the plan is cancelled. See
+  server as payment comes in, lapses, or the plan is cancelled. API calls
+  verified live against a real HestiaCP server. See
   [`hestiacp_hosting/README.md`](hestiacp_hosting/README.md) - in
-  particular the "known simplifications" section (no portal page yet, no
-  automatic saved-card renewal charge, and the HestiaCP API wire format
-  itself hasn't been checked against a live server yet).
+  particular "Known simplifications" (no portal page yet, no automatic
+  saved-card renewal charge, and package *definitions* can't be managed
+  via the API at all - only assigning an existing one to an account).
 
 ### Amateur radio club suite
 

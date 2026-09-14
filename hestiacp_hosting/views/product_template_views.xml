@@ -15,12 +15,10 @@
                     <group invisible="not is_hosting_package">
                         <group string="HestiaCP">
                             <field name="hestiacp_server_id" />
-                            <field name="hestiacp_package_name" />
-                            <button name="action_hestiacp_sync_package" type="object"
-                                    string="Sync Package to Server"
-                                    class="btn-secondary" />
+                            <field name="hestiacp_package_name"
+                                   placeholder="Exact name of an existing package on the server" />
                         </group>
-                        <group string="Resource Limits">
+                        <group string="Resource Limits (informational)">
                             <field name="hestiacp_disk_quota" />
                             <field name="hestiacp_bandwidth" />
                             <field name="hestiacp_web_domains" />
@@ -30,6 +28,13 @@
                             <field name="hestiacp_backups" />
                         </group>
                     </group>
+                    <div class="alert alert-info" role="alert" invisible="not is_hosting_package">
+                        The HestiaCP package named above must already exist on the server
+                        (Server &gt; Packages) - create/edit it there by hand and keep the
+                        limits above matching it for reference. HestiaCP's Access Key
+                        permission system has no category covering package management, so
+                        this can't be pushed automatically.
+                    </div>
                 </page>
             </xpath>
         </field>

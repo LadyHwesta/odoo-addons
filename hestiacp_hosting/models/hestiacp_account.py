@@ -94,10 +94,14 @@ class HestiaCPAccount(models.Model):
             account.username = account.username or account._generate_username()
             password = _generate_password()
             client = account.server_id._get_client()
+            # v-add-user's real signature (verified 2026-09-14 against a
+            # live server): USER PASSWORD EMAIL [PACKAGE] [NAME] [LASTNAME]
+            # - the package is assigned right here, no separate
+            # v-change-user-package call needed on first provisioning.
             client.call('v-add-user', account.username, password,
-                        account.partner_id.email or '', account.partner_id.name or '')
-            client.call('v-change-user-package', account.username,
-                        account.product_id.hestiacp_package_name)
+                        account.partner_id.email or '',
+                        account.product_id.hestiacp_package_name,
+                        account.partner_id.name or '')
             account.state = 'active'
             account._send_credentials_email(password)
 

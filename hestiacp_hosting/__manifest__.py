@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HestiaCP Hosting Billing',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales',
     'summary': 'Sell hosting packages and auto-provision HestiaCP accounts on payment',
     'description': """
@@ -18,9 +18,9 @@ comes in, lapses, or the plan is cancelled.
 **What this module does NOT do**: give customers a single-sign-on link
 into HestiaCP - HestiaCP's API has no such facility outside of
 phpMyAdmin, so the portal only ever links to HestiaCP's own login
-page. Customers authenticate with whatever password they set at
-checkout (pushed to HestiaCP via ``v-change-user-password``, never
-emailed in plaintext).
+page. A random password is generated and emailed once on provisioning
+(never stored in Odoo past that message) rather than letting the
+customer choose one at checkout.
 
 See ``README.md`` for the full architecture and setup steps.
 """,
