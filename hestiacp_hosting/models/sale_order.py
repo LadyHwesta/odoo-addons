@@ -43,11 +43,17 @@ class SaleOrder(models.Model):
                     'recurring_invoicing_type': 'pre-paid',
                 })],
             })
+            checkout_tx = self.get_portal_last_transaction()
             account = self.env['hestiacp.account'].create({
                 'partner_id': self.partner_id.id,
                 'server_id': template.hestiacp_server_id.id,
                 'product_id': template.id,
                 'sale_order_id': self.id,
                 'contract_id': contract.id,
+                # Only set if the customer tokenized their card at checkout
+                # (declined, or a non-tokenizing payment method like a bank
+                # transfer, just means renewals wait for manual payment -
+                # see payment_token_id's help text).
+                'payment_token_id': checkout_tx.token_id.id if checkout_tx else False,
             })
             account.action_provision()

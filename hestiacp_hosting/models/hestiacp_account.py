@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
 import secrets
 import string
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 SUSPEND_GRACE_DAYS = 7
 TERMINATE_GRACE_DAYS = 30
@@ -31,6 +34,14 @@ class HestiaCPAccount(models.Model):
     product_id = fields.Many2one('product.template', required=True, string="Package")
     sale_order_id = fields.Many2one('sale.order', string="Originating Order")
     contract_id = fields.Many2one('contract.contract', string="Billing Contract")
+    payment_token_id = fields.Many2one(
+        'payment.token', string="Saved Payment Method",
+        help="Captured from the checkout order's own transaction, if the "
+             "customer tokenized their card there. Renewal invoices get an "
+             "automatic charge attempt against this token; with no token "
+             "(e.g. they paid by bank transfer, or declined to save a "
+             "card), renewals just wait for a manual payment, same as "
+             "before this existed.")
     username = fields.Char(help="The account's login name on the HestiaCP server.")
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -147,13 +158,68 @@ class HestiaCPAccount(models.Model):
         oldest_due = min(overdue_moves.mapped('invoice_date_due'))
         return (fields.Date.context_today(self) - oldest_due).days
 
+    def _charge_invoice(self, invoice):
+        """Attempt to charge this account's saved payment token for one
+        invoice, using Odoo's own server-initiated token-charge API
+        (the same ``_charge_with_token`` a saved-card "pay now" button
+        uses, just invoked here instead of from a customer click).
+        Success/failure is whatever the provider reports - a failure
+        here isn't raised, just left for the payment-status cron to
+        notice as still-unpaid and suspend on schedule same as a
+        customer who never gets charged at all.
+        """
+        self.ensure_one()
+        token = self.payment_token_id
+        tx = self.env['payment.transaction'].sudo().create({
+            'provider_id': token.provider_id.id,
+            'payment_method_id': token.payment_method_id.id,
+            'token_id': token.id,
+            'reference': self.env['payment.transaction']._compute_reference(
+                token.provider_id.code, prefix=invoice.name),
+            'amount': invoice.amount_residual,
+            'currency_id': invoice.currency_id.id,
+            'partner_id': self.partner_id.id,
+            'operation': 'offline',
+            'invoice_ids': [(6, 0, invoice.ids)],
+        })
+        tx._charge_with_token()
+        return tx
+
+    @api.model
+    def _cron_auto_charge_due_invoices(self):
+        """For active accounts with a saved payment token, attempt to
+        charge any posted invoice on their contract that hasn't already
+        had a charge attempt (successful or not - this makes one attempt
+        per invoice, not a retry loop). Called from
+        ``_cron_check_payment_status`` before it evaluates suspend/
+        unsuspend, so a charge made just now is already reflected in
+        that same run - not scheduled as a separate ir.cron, to avoid
+        depending on two crons happening to run in the right order.
+        """
+        for account in self.search([('state', '=', 'active'), ('payment_token_id', '!=', False)]):
+            if not account.contract_id:
+                continue
+            due_invoices = account.contract_id._get_related_invoices().filtered(
+                lambda m: m.state == 'posted'
+                and m.payment_state in ('not_paid', 'partial')
+                and not m.transaction_ids)
+            for invoice in due_invoices:
+                try:
+                    account._charge_invoice(invoice)
+                except Exception:
+                    _logger.exception(
+                        "HestiaCP: auto-charge attempt failed for account %s, invoice %s",
+                        account.username, invoice.name)
+
     @api.model
     def _cron_check_payment_status(self):
-        """Suspend accounts whose payment has lapsed past the grace
-        period, unsuspend ones that have caught up, and terminate
-        accounts that have been suspended too long. Runs daily - see
-        data/ir_cron.xml.
+        """Attempt to auto-charge any due invoices, then suspend accounts
+        whose payment has lapsed past the grace period, unsuspend ones
+        that have caught up, and terminate accounts that have been
+        suspended too long. Runs daily - see data/ir_cron.xml.
         """
+        self._cron_auto_charge_due_invoices()
+
         for account in self.search([('state', '=', 'active')]):
             overdue = account._overdue_days()
             if overdue and overdue >= SUSPEND_GRACE_DAYS:

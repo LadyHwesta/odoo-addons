@@ -33,6 +33,7 @@
                             <field name="sale_order_id" />
                             <field name="contract_id" />
                             <field name="control_panel_url" widget="url" />
+                            <field name="payment_token_id" />
                         </group>
                     </group>
                 </sheet>

@@ -35,13 +35,27 @@ tool is lacking.
 4. **`hestiacp.account`** - the lifecycle tracker (`draft` → `active` →
    `suspended` → `terminated`), independent of any one order (a renewal
    invoice doesn't touch this record). A daily cron
-   (`_cron_check_payment_status`) suspends an active account once its
-   contract has an invoice unpaid past 7 days, unsuspends it once caught
-   up, and terminates it (deletes the HestiaCP user) after 30 days
-   *actually spent suspended* - not immediately, and not merely 30 days
+   (`_cron_check_payment_status`) first attempts to auto-charge any due
+   invoice against the customer's saved payment token (see next point),
+   then suspends an active account once its contract has an invoice
+   still unpaid past 7 days, unsuspends it once caught up, and
+   terminates it (deletes the HestiaCP user) after 30 days *actually
+   spent suspended* - not immediately, and not merely 30 days
    invoice-overdue (an account can be very overdue before ever being
    noticed - e.g. after a cron outage - and still gets the full grace
    period suspended first; see the `suspended_date` field).
+5. **Automatic renewal charging** - if the customer tokenized their
+   card at checkout (`website_sale`'s own "save this card" option), the
+   resulting `payment.token` is captured onto `hestiacp.account` from
+   the order's `get_portal_last_transaction()`. The same cron above
+   then charges that token against any due invoice using Odoo's own
+   server-initiated token-charge API (`payment.transaction.
+   _charge_with_token()` - the same mechanism a "pay with saved card"
+   button uses, just invoked from a cron instead of a click). One
+   attempt per invoice, not a retry loop; a customer with no saved
+   token (declined to save one, or paid by a non-tokenizing method)
+   just falls back to the pre-existing manual-payment/suspend flow,
+   same as before this existed.
 
 ## HestiaCP API notes (verified live 2026-09-14)
 
@@ -98,8 +112,15 @@ already fixed in the code here:
    and enter the *exact* name of the package you created in step 2.
    The resource-limit fields are for your own reference - keep them
    matching what's actually on the HestiaCP package by hand.
-5. Publish it on the website (`website_sale` as normal) and take a test
-   order through checkout.
+5. **Payments → Providers → Stripe** (this module depends on
+   `payment_stripe`, so it's already installed) - enable it, add your
+   Stripe API keys, and make sure tokenization ("Allow saving payment
+   methods" / `allow_tokenization`) is turned on so `website_sale`
+   actually offers customers the option to save a card - without that,
+   no `payment.token` ever gets created and renewals fall back to
+   manual payment for everyone.
+6. Publish the product on the website (`website_sale` as normal) and
+   take a test order through checkout, saving the card when prompted.
 
 ## Known simplifications / not yet built
 
@@ -115,10 +136,12 @@ already fixed in the code here:
     control panel" link (to HestiaCP's own login page - see the module
     description for why there's no true SSO). Portal users only ever
     see their own accounts (`ir.rule` in `security/hestiacp_security.xml`).
-- **No automatic saved-card charge on renewal.** `contract`'s cron
-  generates the renewal invoice; actually attempting to charge a saved
-  Stripe token against it (rather than waiting for the customer to pay
-  it manually, or an admin to trigger it) isn't wired up yet.
+- **Automatic renewal charging done** - see Architecture point 5 above.
+  Not yet built: any customer-facing retry/dunning flow beyond the
+  existing suspend-after-7-days behavior (a failed charge just means
+  the account eventually suspends on schedule, same as an unpaid
+  invoice always did), and no portal "add/update payment method"
+  self-service flow (currently only settable at initial checkout).
 - **No package management via the API** - see HestiaCP API notes
   above. Packages are a one-time-per-plan manual step in HestiaCP
   itself, not something this module can automate given how HestiaCP's

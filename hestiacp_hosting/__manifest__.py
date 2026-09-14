@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HestiaCP Hosting Billing',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Sales',
     'summary': 'Sell hosting packages and auto-provision HestiaCP accounts on payment',
     'description': """
@@ -11,9 +11,10 @@ HestiaCP Hosting Billing
 Sells hosting packages through the normal ``website_sale`` storefront,
 bills them on a recurring basis via OCA's ``contract`` module (Odoo CE
 has no built-in recurring billing - ``sale_subscription`` is
-Enterprise-only), and automatically provisions/suspends/terminates the
-customer's account on a HestiaCP server via its HTTP API as payment
-comes in, lapses, or the plan is cancelled.
+Enterprise-only), attempts to auto-charge the customer's saved Stripe
+card on each renewal, and automatically provisions/suspends/terminates
+the customer's account on a HestiaCP server via its HTTP API as
+payment comes in, lapses, or the plan is cancelled.
 
 **What this module does NOT do**: give customers a single-sign-on link
 into HestiaCP - HestiaCP's API has no such facility outside of
@@ -27,7 +28,10 @@ See ``README.md`` for the full architecture and setup steps.
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['contract', 'contract_sale', 'sale_management', 'website_sale', 'payment', 'portal'],
+    'depends': [
+        'contract', 'contract_sale', 'sale_management', 'website_sale',
+        'payment', 'account_payment', 'payment_stripe', 'portal',
+    ],
     'data': [
         'security/ir.model.access.csv',
         'security/hestiacp_security.xml',

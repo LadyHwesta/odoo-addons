@@ -2,7 +2,7 @@
 <odoo noupdate="1">
 
     <record id="ir_cron_check_payment_status" model="ir.cron">
-        <field name="name">HestiaCP: suspend/unsuspend/terminate accounts by payment status</field>
+        <field name="name">HestiaCP: auto-charge due invoices, then suspend/unsuspend/terminate by payment status</field>
         <field name="model_id" ref="model_hestiacp_account" />
         <field name="state">code</field>
         <field name="code">model._cron_check_payment_status()</field>
