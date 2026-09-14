@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="portal_my_home_hestiacp" name="Portal home: Hosting accounts"
+              customize_show="True" inherit_id="portal.portal_my_home" priority="50">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True" />
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/folder.svg'" />
+                <t t-set="title">Hosting</t>
+                <t t-set="url" t-value="'/my/hosting'" />
+                <t t-set="text">Your hosting account(s) and control panel access</t>
+                <t t-set="placeholder_count" t-value="'hestiacp_account_count'" />
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_hosting" name="My Hosting">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">Hosting</h3>
+
+            <t t-if="not accounts">
+                <p class="alert alert-info">You don't have any hosting accounts with us yet.</p>
+            </t>
+            <t t-else="">
+                <table class="table table-sm o_portal_my_doc_table">
+                    <thead>
+                        <tr class="active">
+                            <th>Package</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Control Panel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="accounts" t-as="account">
+                            <td t-esc="account.product_id.name" />
+                            <td t-esc="account.username or '-'" />
+                            <td>
+                                <span t-if="account.state == 'active'"
+                                      class="badge text-bg-success">Active</span>
+                                <span t-elif="account.state == 'suspended'"
+                                      class="badge text-bg-warning">Suspended - payment needed</span>
+                                <span t-elif="account.state == 'terminated'"
+                                      class="badge text-bg-secondary">Terminated</span>
+                                <span t-else="" class="badge text-bg-light">Setting up</span>
+                            </td>
+                            <td>
+                                <a t-if="account.state in ('active', 'suspended') and account.control_panel_url"
+                                   t-att-href="account.control_panel_url"
+                                   target="_blank" class="btn btn-sm btn-secondary">
+                                    Open control panel
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="text-muted mt-3">
+                    Log in to the control panel with the username above and the password
+                    emailed to you when the account was set up.
+                </p>
+            </t>
+        </t>
+    </template>
+</odoo>

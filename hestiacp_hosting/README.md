@@ -110,10 +110,11 @@ already fixed in the code here:
   first login). A password-reset self-service flow through the portal
   would be a good follow-up if a mailed password isn't desired
   long-term.
-- **No portal "my hosting" page yet.** `hestiacp.account` has the
-  record rule for it (portal users see only their own), but there's no
-  actual portal controller/template surfacing account status or the
-  control-panel link yet - next piece of work.
+- **Portal page done** (`/my/hosting`, with a "Hosting" entry on `/my`)
+  - shows the customer's own package, username, status, and an "Open
+    control panel" link (to HestiaCP's own login page - see the module
+    description for why there's no true SSO). Portal users only ever
+    see their own accounts (`ir.rule` in `security/hestiacp_security.xml`).
 - **No automatic saved-card charge on renewal.** `contract`'s cron
   generates the renewal invoice; actually attempting to charge a saved
   Stripe token against it (rather than waiting for the customer to pay

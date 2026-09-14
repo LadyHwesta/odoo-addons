@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HestiaCP Hosting Billing',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Sales',
     'summary': 'Sell hosting packages and auto-provision HestiaCP accounts on payment',
     'description': """
@@ -27,13 +27,14 @@ See ``README.md`` for the full architecture and setup steps.
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['contract', 'contract_sale', 'sale_management', 'website_sale', 'payment'],
+    'depends': ['contract', 'contract_sale', 'sale_management', 'website_sale', 'payment', 'portal'],
     'data': [
         'security/ir.model.access.csv',
         'security/hestiacp_security.xml',
         'data/ir_cron.xml',
         'views/hestiacp_server_views.xml',
         'views/hestiacp_account_views.xml',
+        'views/hestiacp_account_portal_templates.xml',
         'views/product_template_views.xml',
         'views/menus.xml',
     ],
