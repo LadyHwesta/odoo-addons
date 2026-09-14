@@ -9,6 +9,9 @@
                 <header>
                     <button name="action_provision" type="object" string="Provision"
                             class="btn-primary" invisible="state != 'draft'" />
+                    <button name="%(action_hestiacp_account_change_package)d" type="action"
+                            string="Change Package" context="{'default_account_id': id}"
+                            invisible="state != 'active'" />
                     <button name="action_suspend" type="object" string="Suspend"
                             invisible="state != 'active'" />
                     <button name="action_unsuspend" type="object" string="Unsuspend"

@@ -3,6 +3,7 @@ import logging
 import re
 import secrets
 import string
+from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -140,6 +141,64 @@ class HestiaCPAccount(models.Model):
             return
         template.with_context(hestiacp_password=password).send_mail(
             self.id, force_send=True)
+
+    def _change_billing_line(self, new_product):
+        """Switch this account's recurring billing over to `new_product`,
+        effective at the *next* renewal - not prorated for whatever's
+        left of the period already paid for under the old package. The
+        HestiaCP-side package change (see
+        hestiacp.account.change.package) takes effect immediately
+        regardless; only the price charged going forward is deferred,
+        which keeps this simple (no partial-period credit/charge math)
+        at the cost of a small, deliberate mismatch for the remainder
+        of the current period - the account has the new package's
+        resources but is still billed at the old price for it, in
+        either direction (upgrade or downgrade).
+
+        No-op if the account has no contract (shouldn't happen for an
+        active account, but defensive) or no still-open contract line
+        to end.
+        """
+        self.ensure_one()
+        if not self.contract_id:
+            return
+        today = fields.Date.context_today(self)
+        old_line = self.contract_id.contract_line_ids.filtered(
+            lambda line: not line.date_end or line.date_end >= today)[:1]
+        if not old_line:
+            return
+
+        if not old_line.last_date_invoiced:
+            # Nothing has ever been invoiced on this line yet (e.g. a
+            # same-day change right after provisioning) - there's no
+            # already-paid period to preserve, so just repoint the
+            # existing line at the new product instead of trying to end
+            # it before its own date_start (recurring_next_date equals
+            # date_start until the first invoice ever goes out, which
+            # would otherwise violate contract.line's own start<=end
+            # constraint). The very next invoice is already at the new
+            # price in this case, not deferred.
+            old_line.write({
+                'product_id': new_product.product_variant_id.id,
+                'name': new_product.name,
+                'price_unit': new_product.list_price,
+                'recurring_rule_type': new_product.hestiacp_billing_period,
+            })
+            return
+
+        effective_date = old_line.recurring_next_date or today
+        old_line.date_end = effective_date - timedelta(days=1)
+        self.env['contract.line'].create({
+            'contract_id': self.contract_id.id,
+            'product_id': new_product.product_variant_id.id,
+            'name': new_product.name,
+            'quantity': old_line.quantity,
+            'price_unit': new_product.list_price,
+            'date_start': effective_date,
+            'recurring_interval': 1,
+            'recurring_rule_type': new_product.hestiacp_billing_period,
+            'recurring_invoicing_type': 'pre-paid',
+        })
 
     def action_suspend(self):
         for account in self.filtered(lambda a: a.state == 'active'):

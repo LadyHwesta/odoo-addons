@@ -72,6 +72,51 @@ tool is lacking.
    JS - see **Customer agreement** below for the full flow and why it's
    built this way instead of Odoo's native T&C checkbox or e-signature
    fields.
+7. **Package upgrade/downgrade** - a "Change Package" button on an
+   active `hestiacp.account` (staff-only, not yet self-service) opens a
+   wizard to move it to a different package on the same server. See
+   **Changing an account's package** below.
+
+## Changing an account's package
+
+`hestiacp.account`'s "Change Package" button (only shown while the
+account is `active`) opens a wizard offering any other hosting product
+on the *same* HestiaCP server - moving an account to a different server
+isn't supported here, only reassigning it to a different package on the
+one it's already on.
+
+**Downgrade safety is enforced by HestiaCP itself, not this module.**
+`v-change-user-package` is called without its optional `FORCE`
+argument (verified against the command's own source, 2026-09-14):
+without it, HestiaCP compares the account's actual current usage - web/
+DNS/mail domains, databases, cron jobs, disk, bandwidth - against the
+new package's limits and refuses the whole change if any of them don't
+fit, with a specific "Package doesn't cover ... usage" error. That
+error surfaces as a normal Odoo error dialog (it's a
+`HestiaCPAPIError`, itself a `UserError`) telling staff exactly what
+the customer needs to remove first (an extra domain, mailboxes, etc.)
+before the downgrade can go through - this module doesn't reimplement
+that check itself.
+
+**Billing takes effect at the next renewal, not prorated.** The
+HestiaCP-side package change (and its resource limits) applies
+immediately on success. The recurring price, however, only changes
+starting the account's next invoice:
+
+- If nothing has been invoiced on the account yet (a same-day change
+  right after provisioning), the existing `contract.line` is just
+  repointed at the new product - there's no already-paid period to
+  preserve, so the very next invoice is already at the new price.
+- Otherwise, the current line is ended at its next renewal date and a
+  new line for the new product starts there, leaving the
+  already-invoiced period untouched.
+
+Either way there's a small, deliberate mismatch for whatever's left of
+the currently-paid period: the account has the new package's resources
+but is billed at the old price for the rest of it, in both directions
+(upgrade or downgrade). Real proration (crediting/charging the
+difference for the partial period) isn't built - this trades a bit of
+revenue precision for not having to get partial-period math right.
 
 ## Customer agreement (Hosting Service Agreement)
 
@@ -210,6 +255,11 @@ already fixed in the code here:
   above. Packages are a one-time-per-plan manual step in HestiaCP
   itself, not something this module can automate given how HestiaCP's
   Access Key permissions are actually scoped.
+- **Package upgrade/downgrade done, staff-only** - see **Changing an
+  account's package** above. Not yet built: a portal self-service
+  version (a customer picking their own new plan rather than asking
+  staff to run the wizard), and real proration - both would be good
+  follow-ups if this business ends up wanting either.
 
 ## Testing
 

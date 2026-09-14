@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_hestiacp_account_change_package_form" model="ir.ui.view">
+        <field name="name">hestiacp.account.change.package.form</field>
+        <field name="model">hestiacp.account.change.package</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="account_id" invisible="1" />
+                <field name="server_id" invisible="1" />
+                <group>
+                    <field name="current_product_id" readonly="1" />
+                    <field name="new_product_id" />
+                </group>
+                <div class="alert alert-info" role="alert">
+                    HestiaCP checks the account's current usage (domains, mailboxes,
+                    databases, disk, bandwidth) against the new package's limits before
+                    applying this - a downgrade is refused if the account currently
+                    exceeds what the new package allows, with a message identifying
+                    which limit. Have the customer reduce usage first if that happens.
+                    The package change takes effect on HestiaCP immediately; billing at
+                    the new price starts at the account's next renewal, not prorated.
+                </div>
+                <footer>
+                    <button name="action_confirm" type="object" string="Change Package"
+                            class="btn-primary" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hestiacp_account_change_package" model="ir.actions.act_window">
+        <field name="name">Change Package</field>
+        <field name="res_model">hestiacp.account.change.package</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
