@@ -72,6 +72,18 @@ refused up front rather than silently succeeding and locking them out.
 Not yet re-verified end-to-end against two real IMAP servers in one
 multi-company database.
 
+**Concurrent multi-server auth (19.0.1.2.0)**, covered by
+`tests/test_imap_concurrent_auth.py` (`_authenticate` mocked with
+`time.sleep` stand-ins to prove the timing behavior, not a live
+connection): trying 3 configured servers takes about as long as the
+slowest *one*, not the sum of all three; a fast match returns promptly
+without waiting on slower servers still in flight; a single configured
+server (the common case) calls `_authenticate` directly with no thread
+pool involved at all. Not yet re-verified against multiple real IMAP
+servers at once - the mocked timing is the same shape either way, but
+worth a real check if this ever matters enough to be worth chasing down
+in production (e.g. a genuinely slow/unreachable server in the mix).
+
 ## Known limitations
 
 - The Odoo login and the IMAP username must be the same string (typically
@@ -83,8 +95,8 @@ multi-company database.
   Odoo password - it does not change the actual mailbox password. That's
   probably what you want (don't let Odoo write to the mail server), but it
   does mean the two passwords can diverge from that point on.
-- One connection attempt per configured server, in sequence, on every
-  fallback login *for an IMAP-converted user*. If you have several servers
-  configured and the first one is down, expect each of that user's failed
-  logins to pay that server's connection timeout (15s) before trying the
-  next.
+- With more than one server configured for a company, attempts run
+  concurrently (`_authenticate_any`), not one after another - a wrong
+  password (or a login whose matching server isn't first in `sequence`)
+  costs roughly one server's connection timeout (15s) regardless of how
+  many are configured, not the sum of all of them.

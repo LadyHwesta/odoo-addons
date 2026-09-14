@@ -38,14 +38,14 @@ class ResUsers(models.Model):
                 raise
             passwd_allowed = env['interactive'] or not self.env.user._rpc_api_keys_only()
             if passwd_allowed and self.env.user.active and self._auth_imap_local_password_is_empty():
-                Imap = self.env['res.company.imap']
-                for conf in Imap._get_imap_dicts(self.env.user.company_id):
-                    if Imap._authenticate(conf, self.env.user.login, credential['password']):
-                        return {
-                            'uid': self.env.user.id,
-                            'auth_method': 'imap',
-                            'mfa': 'default',
-                        }
+                authenticated = self.env['res.company.imap']._authenticate_any(
+                    self.env.user.company_id, self.env.user.login, credential['password'])
+                if authenticated:
+                    return {
+                        'uid': self.env.user.id,
+                        'auth_method': 'imap',
+                        'mfa': 'default',
+                    }
             raise
 
     def _auth_imap_local_password_is_empty(self):

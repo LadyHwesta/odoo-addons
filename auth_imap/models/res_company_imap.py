@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import concurrent.futures
 import imaplib
 import logging
 
@@ -51,6 +52,54 @@ class ResCompanyImap(models.Model):
             ['id', 'company', 'imap_server', 'imap_server_port', 'imap_encryption'],
             order='sequence',
         )
+
+    def _authenticate_any(self, company, login, password):
+        """Try every one of `company`'s configured IMAP servers and return
+        True as soon as any of them accepts the credentials, or False once
+        every configured server has been tried and none did.
+
+        Servers are tried concurrently, not sequentially: each
+        `_authenticate` call blocks on real socket I/O for up to
+        `CONNECT_TIMEOUT` seconds per server, so trying N configured
+        servers one after another pays up to N * CONNECT_TIMEOUT in the
+        worst case (a genuinely wrong password, or a login whose matching
+        server isn't first in `sequence`) - every one of those seconds
+        spent holding open the HTTP request (and, in prefork mode, the
+        whole worker) that's checking this user's login. Running them in
+        parallel instead bounds the wait to roughly one server's timeout
+        regardless of how many are configured.
+
+        :param company: res.company record to scope the search to
+        :param login: username (mailbox login)
+        :param password: password to check
+        :return: True if any server accepted the credentials
+        :rtype: bool
+        """
+        confs = self._get_imap_dicts(company)
+        if not confs:
+            return False
+        if len(confs) == 1:
+            # The overwhelmingly common case (one IMAP server per company) -
+            # skip the thread pool entirely rather than pay its setup cost
+            # for a single attempt that gains nothing from concurrency.
+            return self._authenticate(confs[0], login, password)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=len(confs))
+        futures = [executor.submit(self._authenticate, conf, login, password)
+                   for conf in confs]
+        try:
+            for future in concurrent.futures.as_completed(futures):
+                if future.result():
+                    return True
+            return False
+        finally:
+            # Return as soon as the answer is known rather than blocking on
+            # any attempt(s) still in flight against a slow/unreachable
+            # server - cancel_futures skips ones that haven't started yet;
+            # one already mid-connect() keeps running in the background
+            # until its own CONNECT_TIMEOUT elapses, same as it would if
+            # nothing here were waiting on it.
+            executor.shutdown(wait=False, cancel_futures=True)
 
     def _connect(self, conf):
         """
