@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem id="menu_hestiacp_root" name="Hosting"
+              action="action_hestiacp_account"
+              parent="sale.sale_order_menu" sequence="22"
+              groups="sales_team.group_sale_salesman" />
+    <menuitem id="menu_hestiacp_servers" name="HestiaCP Servers"
+              action="action_hestiacp_server"
+              parent="sale.menu_sale_config" sequence="50"
+              groups="base.group_system" />
+
+</odoo>

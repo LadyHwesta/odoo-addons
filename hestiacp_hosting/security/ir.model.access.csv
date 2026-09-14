@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hestiacp_server_system,hestiacp.server system,model_hestiacp_server,base.group_system,1,1,1,1
+access_hestiacp_server_sale,hestiacp.server salesman,model_hestiacp_server,sales_team.group_sale_salesman,1,0,0,0
+access_hestiacp_account_sale_manager,hestiacp.account sales manager,model_hestiacp_account,sales_team.group_sale_manager,1,1,1,1
+access_hestiacp_account_sale,hestiacp.account salesman,model_hestiacp_account,sales_team.group_sale_salesman,1,1,1,0
+access_hestiacp_account_portal,hestiacp.account portal,model_hestiacp_account,base.group_portal,1,0,0,0

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_hestiacp_server_form" model="ir.ui.view">
+        <field name="name">hestiacp.server.form</field>
+        <field name="model">hestiacp.server</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_test_connection" type="object"
+                            string="Test Connection" class="btn-secondary" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_accounts" type="object"
+                                class="oe_stat_button" icon="fa-users">
+                            <field name="account_count" widget="statinfo" string="Accounts" />
+                        </button>
+                    </div>
+                    <group>
+                        <field name="name" />
+                        <field name="hostname" placeholder="https://host.example.com:8083" />
+                        <field name="access_key" password="True" />
+                        <field name="secret_key" password="True" />
+                        <field name="active" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hestiacp_server_list" model="ir.ui.view">
+        <field name="name">hestiacp.server.list</field>
+        <field name="model">hestiacp.server</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="hostname" />
+                <field name="account_count" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hestiacp_server" model="ir.actions.act_window">
+        <field name="name">HestiaCP Servers</field>
+        <field name="res_model">hestiacp.server</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

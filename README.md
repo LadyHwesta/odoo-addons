@@ -20,6 +20,14 @@ Custom Odoo 19 modules.
   Start with [`activitypub/README.md`](activitypub/README.md); for a
   from-scratch setup against a real Fediverse server, follow
   [`TESTING_FEDERATION.md`](TESTING_FEDERATION.md) end to end.
+- [`hestiacp_hosting/`](hestiacp_hosting/) - sell hosting packages through
+  `website_sale`, bill them recurringly (via vendored OCA `contract`), and
+  auto-provision/suspend/terminate the customer's account on a HestiaCP
+  server as payment comes in, lapses, or the plan is cancelled. See
+  [`hestiacp_hosting/README.md`](hestiacp_hosting/README.md) - in
+  particular the "known simplifications" section (no portal page yet, no
+  automatic saved-card renewal charge, and the HestiaCP API wire format
+  itself hasn't been checked against a live server yet).
 
 ### Amateur radio club suite
 
