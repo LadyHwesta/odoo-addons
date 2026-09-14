@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_namecheap_server_form" model="ir.ui.view">
+        <field name="name">namecheap.server.form</field>
+        <field name="model">namecheap.server</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_test_connection" type="object"
+                            string="Test Connection" class="btn-primary" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group string="Credentials">
+                            <field name="api_user" />
+                            <field name="api_key" password="True" />
+                            <field name="username" />
+                            <field name="client_ip"
+                                   placeholder="This server's whitelisted outbound IP" />
+                            <field name="sandbox" />
+                        </group>
+                        <group string="Pricing">
+                            <field name="markup_percentage" />
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert" invisible="not sandbox">
+                        Sandbox mode - calls go to api.sandbox.namecheap.com with fake
+                        domains and fake money, not your real Namecheap account. Turn this
+                        off only once everything's been tested end to end.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_namecheap_server_list" model="ir.ui.view">
+        <field name="name">namecheap.server.list</field>
+        <field name="model">namecheap.server</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="sandbox" />
+                <field name="markup_percentage" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_namecheap_server" model="ir.actions.act_window">
+        <field name="name">Namecheap Accounts</field>
+        <field name="res_model">namecheap.server</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_namecheap_tld_price_list" model="ir.ui.view">
+        <field name="name">namecheap.tld.price.list</field>
+        <field name="model">namecheap.tld.price</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0">
+                <field name="tld" readonly="1" />
+                <field name="register_cost" readonly="1" />
+                <field name="renew_cost" readonly="1" />
+                <field name="sell_register_price" />
+                <field name="sell_renew_price" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_namecheap_tld_price" model="ir.actions.act_window">
+        <field name="name">TLD Pricing</field>
+        <field name="res_model">namecheap.tld.price</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

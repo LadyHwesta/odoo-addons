@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem id="menu_namecheap_root" name="Domains" sequence="90"
+              groups="base.group_system" />
+    <menuitem id="menu_namecheap_servers" name="Namecheap Accounts"
+              action="action_namecheap_server" parent="menu_namecheap_root" sequence="10" />
+    <menuitem id="menu_namecheap_tld_price" name="TLD Pricing"
+              action="action_namecheap_tld_price" parent="menu_namecheap_root" sequence="20" />
+
+</odoo>

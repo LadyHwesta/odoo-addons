@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_namecheap_server_system,namecheap.server system,model_namecheap_server,base.group_system,1,1,1,1
+access_namecheap_tld_price_system,namecheap.tld.price system,model_namecheap_tld_price,base.group_system,1,1,1,1
+access_namecheap_tld_price_user,namecheap.tld.price user,model_namecheap_tld_price,base.group_user,1,0,0,0

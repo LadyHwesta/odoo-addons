@@ -23,12 +23,22 @@ Custom Odoo 19 modules.
 - [`hestiacp_hosting/`](hestiacp_hosting/) - sell hosting packages through
   `website_sale`, bill them recurringly (via vendored OCA `contract`), and
   auto-provision/suspend/terminate the customer's account on a HestiaCP
-  server as payment comes in, lapses, or the plan is cancelled. API calls
-  verified live against a real HestiaCP server. See
+  server as payment comes in, lapses, or the plan is cancelled. Includes a
+  portal page, automatic saved-card renewal charging, a Hosting Service
+  Agreement acceptance gate, and staff-driven package upgrade/downgrade
+  (HestiaCP itself enforces downgrade safety). API calls verified live
+  against a real HestiaCP server. See
   [`hestiacp_hosting/README.md`](hestiacp_hosting/README.md) - in
-  particular "Known simplifications" (no portal page yet, no automatic
-  saved-card renewal charge, and package *definitions* can't be managed
-  via the API at all - only assigning an existing one to an account).
+  particular "Known simplifications" (package *definitions* can't be
+  managed via the API at all - only assigning an existing one to an
+  account).
+- [`namecheap_domains/`](namecheap_domains/) - **Phase 1 of a multi-phase
+  build**: connects to Namecheap's reseller API to check domain
+  availability and cache Namecheap's own per-TLD pricing marked up by a
+  percentage. No storefront, checkout, or actual registration yet - see
+  [`namecheap_domains/README.md`](namecheap_domains/README.md), in
+  particular its note on Namecheap's own docs blocking automated fetching
+  (403), so the wire format here is unverified against a live call so far.
 
 ### Amateur radio club suite
 
