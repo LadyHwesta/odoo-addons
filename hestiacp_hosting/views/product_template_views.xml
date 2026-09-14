@@ -16,6 +16,7 @@
                             <field name="hestiacp_server_id" />
                             <field name="hestiacp_package_name"
                                    placeholder="Exact name of an existing package on the server" />
+                            <field name="hestiacp_billing_period" />
                         </group>
                         <group string="Resource Limits (informational)">
                             <field name="hestiacp_disk_quota" />

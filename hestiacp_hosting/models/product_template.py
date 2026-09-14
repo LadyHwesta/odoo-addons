@@ -21,6 +21,17 @@ class ProductTemplate(models.Model):
              "2026-09-14 - none of its 6 built-in categories include them), "
              "so this module can assign an existing package to an account "
              "but can't define or edit the package itself via the API.")
+    hestiacp_billing_period = fields.Selection([
+        ('monthly', "Monthly"),
+        ('quarterly', "Quarterly"),
+        ('yearly', "Yearly"),
+    ], string="Billing Period", default='monthly',
+        help="How often the recurring contract created from this product "
+             "invoices - contract's own recurring_rule_type, which already "
+             "supports this natively. To offer more than one cadence for "
+             "the same plan (e.g. a cheaper annual option), create a "
+             "separate product per period, same package/server on each - "
+             "there's no single-product cadence picker.")
 
     # Resource limits, named after HestiaCP's own package fields.
     # Informational only - see hestiacp_package_name's help text above for

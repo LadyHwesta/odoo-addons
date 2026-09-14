@@ -61,6 +61,44 @@ class TestSaleOrderHestiaCPProvisioning(TransactionCase):
         self.assertEqual(account.contract_id.contract_line_ids.product_id,
                           self.hosting_template.product_variant_id)
 
+    def test_hosting_contract_defaults_to_monthly_billing(self):
+        self._mock_client()
+        order = self.env['sale.order'].create({
+            'partner_id': self.partner.id,
+            'order_line': [Command.create({
+                'product_id': self.hosting_template.product_variant_id.id,
+                'product_uom_qty': 1,
+            })],
+        })
+
+        order.action_confirm()
+
+        account = self.env['hestiacp.account'].search([('sale_order_id', '=', order.id)])
+        self.assertEqual(account.contract_id.contract_line_ids.recurring_rule_type, 'monthly')
+
+    def test_hosting_contract_uses_the_products_billing_period(self):
+        self._mock_client()
+        annual_template = self.env['product.template'].create({
+            'name': 'Basic Hosting - Annual',
+            'is_hosting_package': True,
+            'hestiacp_server_id': self.server.id,
+            'hestiacp_package_name': 'basic',
+            'hestiacp_billing_period': 'yearly',
+            'list_price': 100.0,
+        })
+        order = self.env['sale.order'].create({
+            'partner_id': self.partner.id,
+            'order_line': [Command.create({
+                'product_id': annual_template.product_variant_id.id,
+                'product_uom_qty': 1,
+            })],
+        })
+
+        order.action_confirm()
+
+        account = self.env['hestiacp.account'].search([('sale_order_id', '=', order.id)])
+        self.assertEqual(account.contract_id.contract_line_ids.recurring_rule_type, 'yearly')
+
     def test_confirming_an_order_without_a_hosting_line_creates_nothing(self):
         self._mock_client()
         order = self.env['sale.order'].create({

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HestiaCP Hosting Billing',
-    'version': '19.0.1.3.1',
+    'version': '19.0.1.4.0',
     'category': 'Sales',
     'summary': 'Sell hosting packages and auto-provision HestiaCP accounts on payment',
     'description': """

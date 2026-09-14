@@ -39,7 +39,7 @@ class SaleOrder(models.Model):
                     'price_unit': line.price_unit,
                     'date_start': fields.Date.context_today(self),
                     'recurring_interval': 1,
-                    'recurring_rule_type': 'monthly',
+                    'recurring_rule_type': template.hestiacp_billing_period,
                     'recurring_invoicing_type': 'pre-paid',
                 })],
             })

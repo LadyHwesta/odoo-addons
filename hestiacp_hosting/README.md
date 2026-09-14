@@ -20,14 +20,19 @@ tool is lacking.
    `product.template` from day one, even with a single server, so
    adding a second one later isn't a refactor.
 2. **`product.template`** extended with `is_hosting_package`, a
-   HestiaCP package name, and resource-limit fields (disk, bandwidth,
-   domains, mailboxes, databases, backups) - the latter are
-   **informational only**, see **HestiaCP API notes** below for why.
+   HestiaCP package name, a billing period (monthly/quarterly/yearly -
+   `contract`'s own `recurring_rule_type`, which already supports all
+   three), and resource-limit fields (disk, bandwidth, domains,
+   mailboxes, databases, backups) - the latter are **informational
+   only**, see **HestiaCP API notes** below for why. To offer more than
+   one cadence for the same plan (e.g. a cheaper annual option),
+   create a separate product per period, same package/server on each -
+   there's no single-product cadence picker on the storefront.
 3. **Checkout**: plain `website_sale`. Confirming an order (which, on a
    real storefront, only happens after payment succeeds) creates:
    - a `contract.contract` with one recurring `contract.line` matching
-     the package's price, billed monthly - `contract`'s own cron takes
-     it from there for every renewal after the first.
+     the package's price and billing period - `contract`'s own cron
+     takes it from there for every renewal after the first.
    - a `hestiacp.account` record, immediately provisioned: creates the
      HestiaCP user with the package assigned, generates a random
      password and emails it (never stored in Odoo past that one
@@ -109,9 +114,12 @@ already fixed in the code here:
    server (hostname like `https://host.example.com:8083`, the Access
    Key and Secret), then **Test Connection**.
 4. Create a hosting product, tick **Hosting Package**, pick the server,
-   and enter the *exact* name of the package you created in step 2.
-   The resource-limit fields are for your own reference - keep them
-   matching what's actually on the HestiaCP package by hand.
+   enter the *exact* name of the package you created in step 2, and
+   pick a **Billing Period**. The resource-limit fields are for your
+   own reference - keep them matching what's actually on the HestiaCP
+   package by hand. Want quarterly and annual options for the same
+   plan? Duplicate the product, change only the price and billing
+   period, and point it at the same server/package name.
 5. **Payments → Providers → Stripe** (this module depends on
    `payment_stripe`, so it's already installed) - enable it, add your
    Stripe API keys, and make sure tokenization ("Allow saving payment
