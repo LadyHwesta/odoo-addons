@@ -36,6 +36,11 @@
                             <field name="payment_token_id" />
                         </group>
                     </group>
+                    <group string="Agreement Acceptance">
+                        <field name="aup_agreement_id" />
+                        <field name="aup_accepted_on" />
+                        <field name="aup_accepted_ip" />
+                    </group>
                 </sheet>
                 <chatter />
             </form>

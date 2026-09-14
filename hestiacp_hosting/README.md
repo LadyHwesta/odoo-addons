@@ -61,6 +61,59 @@ tool is lacking.
    token (declined to save one, or paid by a non-tokenizing method)
    just falls back to the pre-existing manual-payment/suspend flow,
    same as before this existed.
+6. **Hosting Service Agreement gate** - a hosting order can't reach
+   `/shop/payment` until the customer explicitly accepts the current
+   `hestiacp.agreement` (Sales → Configuration → Hosting Agreement),
+   covering acceptable use plus an anti-spam/mandatory-unsubscribe
+   clause. Enforced server-side via website_sale's own
+   `_get_shop_payment_errors` extension point (the same mechanism core
+   uses to block payment when there's no shipping method available),
+   not a client-side-only checkbox, so it can't be skipped by disabling
+   JS - see **Customer agreement** below for the full flow and why it's
+   built this way instead of Odoo's native T&C checkbox or e-signature
+   fields.
+
+## Customer agreement (Hosting Service Agreement)
+
+`website_sale` ships a native "I agree to the terms & conditions"
+checkout checkbox (`accept_terms_and_conditions`), and `sale.order` has
+native e-signature fields (`signature`/`signed_by`/`signed_on`). Neither
+was usable here:
+
+- The native checkbox is a pure client-side UI gate - it has **no
+  persisted field**, so there's no record of what a given customer
+  actually accepted or when.
+- The native signature flow is **deliberately disabled for every
+  website order** - `website_sale`'s own `_compute_require_signature`
+  override forces `require_signature = False` whenever `website_id` is
+  set, specifically so the ecommerce checkout isn't blocked on it.
+
+So this module builds its own, small mechanism instead:
+
+- **`hestiacp.agreement`** holds the agreement text (`body_html`) and a
+  `version` string - edit it under Sales → Configuration → Hosting
+  Agreement. Only one should be `active` at a time; archive rather than
+  edit in place once real customers have accepted it, so a past
+  acceptance still points at the text that was actually agreed to. The
+  seed record in `data/hestiacp_agreement_data.xml` is a **draft
+  template, not legal advice** - see the warning on the record's own
+  form view and the comment at the top of that file; it needs review by
+  a real lawyer for your jurisdiction (especially Section 7,
+  Liability, left as a placeholder) before relying on it.
+- Visiting `/shop/payment` with an unaccepted hosting order in the cart
+  adds an error via `_get_shop_payment_errors` linking to
+  `/hosting/agreement`, which shows the current agreement's text and a
+  required checkbox posting to `/hosting/agreement/accept`. Accepting
+  stamps `sale.order.hestiacp_aup_agreement_id` /
+  `hestiacp_aup_accepted_on` / `hestiacp_aup_accepted_ip` and redirects
+  back to `/shop/payment`, which is now unblocked.
+- On order confirmation those three fields are copied onto the new
+  `hestiacp.account` as a permanent record, independent of the order.
+  A backend-confirmed order that never went through the checkout (e.g.
+  a salesperson confirming a phone quote) has no acceptance to copy -
+  `action_provision` notes that on the account's chatter rather than
+  blocking provisioning, since the business may have gotten agreement
+  some other way.
 
 ## HestiaCP API notes (verified live 2026-09-14)
 
@@ -129,6 +182,9 @@ already fixed in the code here:
    manual payment for everyone.
 6. Publish the product on the website (`website_sale` as normal) and
    take a test order through checkout, saving the card when prompted.
+7. Review and adapt the seeded Hosting Service Agreement (**Sales →
+   Configuration → Hosting Agreement**) before going live - it's a
+   draft template, not legal advice; see **Customer agreement** above.
 
 ## Known simplifications / not yet built
 

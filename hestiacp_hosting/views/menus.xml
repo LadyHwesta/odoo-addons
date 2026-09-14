@@ -9,5 +9,9 @@
               action="action_hestiacp_server"
               parent="sale.menu_sale_config" sequence="50"
               groups="base.group_system" />
+    <menuitem id="menu_hestiacp_agreement" name="Hosting Agreement"
+              action="action_hestiacp_agreement"
+              parent="sale.menu_sale_config" sequence="51"
+              groups="sales_team.group_sale_manager" />
 
 </odoo>

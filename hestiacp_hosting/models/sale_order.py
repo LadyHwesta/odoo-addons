@@ -5,6 +5,26 @@ from odoo import fields, models
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    hestiacp_aup_agreement_id = fields.Many2one(
+        'hestiacp.agreement', string="Hosting Agreement Accepted", readonly=True,
+        help="Which version of the Hosting Service Agreement was accepted "
+             "for this order, and when/from where - see "
+             "hestiacp.agreement.version. Set by the checkout's own "
+             "agreement page (controllers/agreement.py), not editable by "
+             "hand, so it stays real evidence of what the customer saw.")
+    hestiacp_aup_accepted_on = fields.Datetime(readonly=True)
+    hestiacp_aup_accepted_ip = fields.Char(readonly=True)
+
+    def _hestiacp_requires_aup_acceptance(self):
+        """Whether this order needs the customer to accept the Hosting
+        Service Agreement before it can be paid for - true whenever it
+        sells at least one hosting package, regardless of what else is
+        on it.
+        """
+        self.ensure_one()
+        return bool(self.order_line.filtered(
+            lambda line: line.product_id.product_tmpl_id.is_hosting_package))
+
     def _action_confirm(self):
         result = super()._action_confirm()
         for order in self:
@@ -55,5 +75,16 @@ class SaleOrder(models.Model):
                 # transfer, just means renewals wait for manual payment -
                 # see payment_token_id's help text).
                 'payment_token_id': checkout_tx.token_id.id if checkout_tx else False,
+                # Copied from the order, where the checkout's own agreement
+                # page (controllers/agreement.py) recorded it before
+                # payment was ever reachable - see
+                # _hestiacp_requires_aup_acceptance. A backend-confirmed
+                # order (e.g. a salesperson confirming a phone quote)
+                # never goes through that page, so these can be empty;
+                # action_provision logs that on the account's chatter
+                # rather than blocking provisioning outright.
+                'aup_agreement_id': self.hestiacp_aup_agreement_id.id,
+                'aup_accepted_on': self.hestiacp_aup_accepted_on,
+                'aup_accepted_ip': self.hestiacp_aup_accepted_ip,
             })
             account.action_provision()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HestiaCP Hosting Billing',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Sales',
     'summary': 'Sell hosting packages and auto-provision HestiaCP accounts on payment',
     'description': """
@@ -14,7 +14,11 @@ has no built-in recurring billing - ``sale_subscription`` is
 Enterprise-only), attempts to auto-charge the customer's saved Stripe
 card on each renewal, and automatically provisions/suspends/terminates
 the customer's account on a HestiaCP server via its HTTP API as
-payment comes in, lapses, or the plan is cancelled.
+payment comes in, lapses, or the plan is cancelled. A hosting order
+can't reach checkout payment until the customer accepts a Hosting
+Service Agreement (acceptable use, anti-spam, mandatory unsubscribe),
+enforced server-side and recorded with a timestamp/IP/version on the
+order and the resulting account.
 
 **What this module does NOT do**: give customers a single-sign-on link
 into HestiaCP - HestiaCP's API has no such facility outside of
@@ -36,9 +40,12 @@ See ``README.md`` for the full architecture and setup steps.
         'security/ir.model.access.csv',
         'security/hestiacp_security.xml',
         'data/ir_cron.xml',
+        'data/hestiacp_agreement_data.xml',
         'views/hestiacp_server_views.xml',
         'views/hestiacp_account_views.xml',
         'views/hestiacp_account_portal_templates.xml',
+        'views/hestiacp_agreement_views.xml',
+        'views/hestiacp_agreement_templates.xml',
         'views/product_template_views.xml',
         'views/menus.xml',
     ],

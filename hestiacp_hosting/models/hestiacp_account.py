@@ -57,6 +57,15 @@ class HestiaCPAccount(models.Model):
              "ever being noticed (e.g. after a cron outage) still gets a "
              "full grace period suspended before deletion, never straight "
              "to termination in one pass.")
+    aup_agreement_id = fields.Many2one(
+        'hestiacp.agreement', string="Agreement Accepted", readonly=True,
+        help="Which version of the Hosting Service Agreement the customer "
+             "accepted before this account was billed and provisioned - "
+             "copied from the originating order. Empty means no checkout "
+             "acceptance page was ever shown (e.g. a backend-confirmed "
+             "quote), which action_provision notes on the chatter below.")
+    aup_accepted_on = fields.Datetime(readonly=True)
+    aup_accepted_ip = fields.Char(readonly=True)
 
     @api.depends('server_id.hostname')
     def _compute_control_panel_url(self):
@@ -114,6 +123,13 @@ class HestiaCPAccount(models.Model):
                         account.product_id.hestiacp_package_name,
                         account.partner_id.name or '')
             account.state = 'active'
+            if not account.aup_accepted_on:
+                account.message_post(body=_(
+                    "No Hosting Service Agreement acceptance is on record "
+                    "for this account - it wasn't provisioned through the "
+                    "website checkout's agreement page. Confirm the "
+                    "customer agreed some other way (a signed quote, a "
+                    "phone order, etc.) before relying on this account."))
             account._send_credentials_email(password)
 
     def _send_credentials_email(self, password):
