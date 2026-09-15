@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_users_form_inherit_signalwire" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.signalwire</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="voip_oca.view_users_form" />
+        <field name="arch" type="xml">
+            <page name="voip" position="inside">
+                <div class="mb-3">
+                    <button name="action_provision_signalwire_sip" type="object"
+                            string="Provision SignalWire Softphone" class="btn-primary"
+                            invisible="signalwire_sip_endpoint_id" />
+                    <button name="action_release_signalwire_sip" type="object"
+                            string="Release SignalWire Softphone" class="btn-secondary"
+                            invisible="not signalwire_sip_endpoint_id" />
+                </div>
+            </page>
+        </field>
+    </record>
+
+    <record id="view_users_form_simple_modif_inherit_signalwire" model="ir.ui.view">
+        <field name="name">res.users.form.simple.modif.inherit.signalwire</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="voip_oca.view_users_form_simple_modif" />
+        <field name="arch" type="xml">
+            <page name="voip" position="inside">
+                <div class="mb-3">
+                    <button name="action_provision_signalwire_sip" type="object"
+                            string="Provision SignalWire Softphone" class="btn-primary"
+                            invisible="signalwire_sip_endpoint_id" />
+                    <button name="action_release_signalwire_sip" type="object"
+                            string="Release SignalWire Softphone" class="btn-secondary"
+                            invisible="not signalwire_sip_endpoint_id" />
+                </div>
+            </page>
+        </field>
+    </record>
+
+</odoo>

@@ -1,16 +1,18 @@
 # Vendored OCA modules
 
-Seven modules in this repo come from the **Odoo Community Association**, not from us:
+Eight modules in this repo come from the **Odoo Community Association**, not from us:
 `membership/`, `website_membership/`, `membership_prorate/`, `membership_withdrawal/`,
-`contract/`, `contract_sale/`, `base_technical_features/`. The membership four are
-vendored because the club suite (`club_membership` and friends) depends on them and
-Odoo 19 dropped the core Membership app while OCA's proration / withdrawal add-ons
-aren't on a 19.0 channel yet. `contract` and `contract_sale` are vendored because Odoo
-CE has no recurring-billing app at all (`sale_subscription` is Enterprise-only) - they
-back the HestiaCP hosting-billing build (`hestiacp_hosting`).
+`contract/`, `contract_sale/`, `base_technical_features/`, `voip_oca/`. The membership
+four are vendored because the club suite (`club_membership` and friends) depends on
+them and Odoo 19 dropped the core Membership app while OCA's proration / withdrawal
+add-ons aren't on a 19.0 channel yet. `contract` and `contract_sale` are vendored
+because Odoo CE has no recurring-billing app at all (`sale_subscription` is
+Enterprise-only) - they back the HestiaCP hosting-billing build (`hestiacp_hosting`).
 `base_technical_features` is vendored because editing things like email templates or
 automated actions otherwise requires turning on developer mode every time - see its
-own section below.
+own section below. `voip_oca` is vendored because Odoo CE has no in-browser softphone
+app at all (`voip` is Enterprise-only) - it backs the SignalWire click-to-call build
+(`signalwire_voip_click2call`).
 
 Each keeps **its own upstream licence** (see the module's `__manifest__.py`) - they
 are *not* covered by the repo's top-level LGPL-3.
@@ -93,6 +95,30 @@ relies on an onchange implementation that actually lives in `web`. Not a bug in 
 module - every real Odoo deployment always has `web` installed already - just a
 same-pass test-harness ordering artifact, the same category as `contract`'s own CoA-
 timing gotcha above. Install `web` first, or run in two passes, when testing locally.
+
+### `voip_oca`
+
+Source: <https://github.com/OCA/connector-telephony>
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `voip_oca` | `19.0` @ `83df0fb` (2026-06-12) | **verbatim.** AGPL-3. A free, provider-agnostic SIP.js/WebRTC browser softphone - explicitly built as a Community-Edition equivalent to Enterprise's `voip` app (`excludes: ["voip"]` in its own manifest). |
+
+Checked OCA first per [[check-oca-before-building]] before building a simpler REST
+call-bridging click-to-call from scratch for the SignalWire VoIP project - found this
+instead, which needed no vendor-specific code at all: just a `voip.pbx` record
+(`domain`, a `wss://` `ws_server`) and per-`res.users` SIP credentials
+(`voip_username`/`voip_password`). SignalWire's own "SIP Endpoints" are real SIP/WSS-
+registerable credentials that plug straight into it - see `signalwire_voip_click2call`
+for the bridge. The older Asterisk-AMI stack this same OCA repo used to carry
+(`asterisk_click2dial`, `base_phone`) has no `19.0` branch and wasn't considered - this
+is a from-scratch rewrite, not a port of that one.
+
+Its own test suite passes in full (9/9, one further JS test skipped for lacking the
+optional `websocket-client` Python package, not a real failure) - no test-harness
+ordering gotchas like the two modules above, `depends: ['mail']` only. Same
+`readme`/`i18n`/`pyproject.toml` stripping as every other vendored module here (its
+`i18n/` only had one translation, Italian).
 
 ## Updating / removing
 

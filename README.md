@@ -36,12 +36,11 @@ Custom Odoo 19 modules.
   particular "Known simplifications" (package *definitions* can't be
   managed via the API at all - only assigning an existing one to an
   account).
-- [`namecheap_domains/`](namecheap_domains/) - **Phase 1 of a multi-phase
-  build**: connects to Namecheap's reseller API to check domain
-  availability and cache Namecheap's own per-TLD pricing marked up by a
-  percentage, plus a `namecheap.domain` model tracking owned domains. No
-  storefront, checkout, or actual registration yet. Live-verified against
-  a real Namecheap sandbox account - see
+- [`namecheap_domains/`](namecheap_domains/) - connects to Namecheap's
+  reseller API to check domain availability and cache Namecheap's own
+  per-TLD pricing marked up by a percentage, plus a `namecheap.domain`
+  model tracking owned domains. Live-verified against a real Namecheap
+  sandbox account - see
   [`namecheap_domains/README.md`](namecheap_domains/README.md) for what
   came out different from the docs (Namecheap's own pages block automated
   fetching, so this started from a third-party client's source instead).
@@ -49,6 +48,25 @@ Custom Odoo 19 modules.
     module (install only if wanted) that can deploy an owned domain onto a
     `hestiacp_hosting` account: adds it as a web/DNS/mail domain there and
     points its nameservers at HestiaCP.
+  - [`namecheap_domains_sale/`](namecheap_domains_sale/) - the public
+    storefront: a `/domains` search-and-buy website page, real
+    registration via `domains.create` on checkout, and yearly recurring
+    renewal billing (vendored OCA `contract`) that actually calls
+    `domains.renew` rather than just invoicing. Registration and renewal
+    both live-verified end to end against the Namecheap sandbox.
+- [`signalwire_voip/`](signalwire_voip/) - **Phase 1** of a SignalWire
+  VoIP-reselling build: a core connector (project credentials, per-
+  customer "subproject" provisioning, phone number search/purchase) for
+  [SignalWire](https://signalwire.com/), a Twilio-API-compatible
+  communications platform. Live-verified against a real trial account -
+  see [`signalwire_voip/README.md`](signalwire_voip/README.md).
+  - [`signalwire_voip_click2call/`](signalwire_voip_click2call/) -
+    **Phase 2**: a real in-browser softphone, bridging vendored OCA
+    `voip_oca` to SignalWire's SIP Endpoints - one click provisions a
+    user's softphone, another routes an owned number's inbound calls to
+    it. The SIP-over-WebSocket wiring is live-verified; actually placing
+    or answering a call needs a human in a real browser, so that part is
+    still to be done by hand.
 
 ### Amateur radio club suite
 

@@ -1,0 +1,93 @@
+# -*- coding: utf-8 -*-
+from unittest.mock import MagicMock, patch
+
+from odoo.exceptions import UserError
+from odoo.tests.common import TransactionCase, tagged
+
+
+@tagged('post_install', '-at_install')
+class TestResUsersSignalWireSip(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.server = cls.env['signalwire.server'].create({
+            'name': 'Test SignalWire',
+            'space': 'example.signalwire.com',
+            'project_id': 'pid123',
+            'api_token': 'tok456',
+        })
+        cls.user = cls.env['res.users'].create({
+            'name': 'Jane Agent', 'login': 'jane.agent@example.com',
+        })
+
+    def setUp(self):
+        super().setUp()
+        self.signalwire_client = MagicMock()
+        patcher = patch(
+            'odoo.addons.signalwire_voip.models.signalwire_server.'
+            'SignalWireServer._get_client', return_value=self.signalwire_client)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_provision_creates_a_sip_endpoint_and_wires_voip_oca_fields(self):
+        self.signalwire_client.relay_post.return_value = {
+            'id': 'ep-abc', 'username': f'user{self.user.id}',
+        }
+
+        self.user.action_provision_signalwire_sip()
+
+        self.signalwire_client.relay_post.assert_called_once()
+        args, kwargs = self.signalwire_client.relay_post.call_args
+        self.assertEqual(args[0], 'endpoints/sip')
+        self.assertEqual(kwargs['username'], f'user{self.user.id}')
+        self.assertEqual(self.user.signalwire_sip_endpoint_id, 'ep-abc')
+        self.assertEqual(self.user.voip_username, f'user{self.user.id}')
+        self.assertTrue(self.user.voip_password)
+        self.assertEqual(self.user.voip_pbx_id.name, 'Test SignalWire')
+
+    def test_provision_creates_the_pbx_if_missing(self):
+        self.signalwire_client.relay_post.return_value = {
+            'id': 'ep-abc', 'username': f'user{self.user.id}',
+        }
+        self.assertFalse(self.env['voip.pbx'].search([('name', '=', 'Test SignalWire')]))
+
+        self.user.action_provision_signalwire_sip()
+
+        self.assertTrue(self.env['voip.pbx'].search([('name', '=', 'Test SignalWire')]))
+
+    def test_provision_reuses_an_existing_pbx(self):
+        pbx = self.server.action_setup_click2call()
+        self.signalwire_client.relay_post.return_value = {
+            'id': 'ep-abc', 'username': f'user{self.user.id}',
+        }
+
+        self.user.action_provision_signalwire_sip()
+
+        self.assertEqual(self.user.voip_pbx_id, pbx)
+
+    def test_provision_twice_raises(self):
+        self.signalwire_client.relay_post.return_value = {
+            'id': 'ep-abc', 'username': f'user{self.user.id}',
+        }
+        self.user.action_provision_signalwire_sip()
+
+        with self.assertRaises(UserError):
+            self.user.action_provision_signalwire_sip()
+
+    def test_release_calls_the_delete_endpoint_and_clears_fields(self):
+        self.signalwire_client.relay_post.return_value = {
+            'id': 'ep-abc', 'username': f'user{self.user.id}',
+        }
+        self.user.action_provision_signalwire_sip()
+
+        self.user.action_release_signalwire_sip()
+
+        self.signalwire_client.relay_delete.assert_called_once_with('endpoints/sip/ep-abc')
+        self.assertFalse(self.user.signalwire_sip_endpoint_id)
+        self.assertFalse(self.user.voip_username)
+        self.assertFalse(self.user.voip_password)
+
+    def test_release_without_provisioning_raises(self):
+        with self.assertRaises(UserError):
+            self.user.action_release_signalwire_sip()
