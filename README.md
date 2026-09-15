@@ -76,6 +76,14 @@ Custom Odoo 19 modules.
     See its README for a live-confirmed gap (token revocation doesn't
     actually revoke) and why live SMS testing itself is blocked by
     carrier-level 10DLC compliance, not a code issue.
+  - [`signalwire_voip_sale/`](signalwire_voip_sale/) - **Phase 4**: the
+    public storefront - a `/voip` search-and-buy page, real checkout-
+    time provisioning (subproject, purchased number, an auto-issued
+    customer SMS token), and **metered usage billing**: a flat monthly
+    number-rental line plus a second line whose price is computed
+    fresh each period from real SignalWire usage (no new cron needed -
+    it hooks into the vendored `contract` module's own recurring-
+    invoice cron via a `_prepare_invoice_line` override).
 
 ### Amateur radio club suite
 

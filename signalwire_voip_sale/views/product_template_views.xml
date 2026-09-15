@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_product_template_form_signalwire_sale" model="ir.ui.view">
+        <field name="name">product.template.form.signalwire.sale</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="VoIP Number" name="signalwire_sale">
+                    <group>
+                        <field name="is_voip_number" />
+                    </group>
+                    <group invisible="not is_voip_number">
+                        <field name="signalwire_server_id" />
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="not is_voip_number">
+                        There should normally be only one such product - the VoIP
+                        search page always uses the first one found with a SignalWire
+                        account set. This product's own Sales Price is the flat
+                        monthly number-rental fee; actual usage (calls/SMS) bills
+                        separately each period based on real SignalWire usage.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
