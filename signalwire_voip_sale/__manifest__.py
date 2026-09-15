@@ -13,9 +13,12 @@ Phase 4 of the SignalWire VoIP project (see ``signalwire_voip``,
 A ``/voip`` website page where a customer searches for and buys a
 phone number, real provisioning on checkout (a SignalWire subproject +
 the purchased number + an SMS access token), and **metered usage
-billing** - a flat monthly number-rental fee plus a variable line that
-gets its actual price computed fresh each period from real SignalWire
-usage (calls + SMS), marked up, rather than a fixed recurring amount.
+billing** - a flat monthly number-rental fee plus a variable line
+priced by summing real, per-record Call Detail Records (calls + SMS),
+each individually marked up so it carries a genuine customer-facing
+rate. Every metered invoice gets a proper itemized PDF phone bill
+attached (date/type/from/to/duration/rate/amount per call or message)
+rather than folding usage into the invoice as one line per call.
 
 See ``README.md`` for the billing design, what's live-verified, and -
 importantly - the real compliance gate (10DLC/Campaign Registry) that
@@ -29,9 +32,12 @@ blocks any of this from actually carrying live SMS traffic yet.
         'payment', 'account_payment', 'contract', 'contract_sale',
     ],
     'data': [
+        'security/ir.model.access.csv',
         'data/product_signalwire_usage_data.xml',
+        'report/cdr_statement_templates.xml',
         'views/product_template_views.xml',
         'views/voip_search_templates.xml',
+        'views/signalwire_cdr_views.xml',
         'views/menus.xml',
     ],
     'assets': {

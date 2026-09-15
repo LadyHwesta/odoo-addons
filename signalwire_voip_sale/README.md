@@ -21,7 +21,7 @@ checkout, and **metered usage billing**.
 3. Customers reach the search page at **`/voip`** (linked from the
    website's main menu as "Get a Phone Number").
 
-## Billing design: one flat line, one metered line
+## Billing design: one flat line, one metered line, real CDRs
 
 Every purchase creates **one `contract.contract` with two lines**,
 not one - the two parts of a real VoIP bill work fundamentally
@@ -36,12 +36,8 @@ differently:
    *after* the period ends, once the real cost is known - a metered
    line structurally cannot be billed in advance the way a flat fee
    can) and `is_signalwire_metered=True`. Its `price_unit` starts at
-   `0.0` and is meaningless - `contract.line._prepare_invoice_line()`
-   is overridden so that, for a metered line, it's **recomputed from
-   scratch at invoice time** by summing this customer's real
-   SignalWire calls + SMS cost for the exact period being invoiced
-   (via `contract`'s own period-boundary logic, not reimplemented),
-   applying the server's `markup_percentage`.
+   `0.0` and is meaningless on its own - see the CDR mechanism below
+   for how it actually gets priced.
 
 **No new cron was needed for this** - `contract`'s own existing
 recurring-invoice cron already calls `_prepare_invoice_line()` for
@@ -51,6 +47,43 @@ renewal, there's also no separate "renew at the vendor" step needed -
 SignalWire just keeps charging the underlying account for an owned
 number automatically; Odoo's only job here is billing the customer for
 it, not re-provisioning anything periodically.
+
+## Real Call Detail Records, not a lump sum
+
+The metered line's amount is **not** one opaque total. Every call and
+SMS becomes its own persisted `signalwire.cdr` record, priced
+individually:
+
+- `contract.line._prepare_invoice_line()` calls
+  `signalwire.subproject._sync_cdrs()`, which pulls this customer's
+  calls + SMS for the exact period being invoiced (via `contract`'s
+  own period-boundary logic, not reimplemented) and creates a
+  `signalwire.cdr` for each one not already pulled (matched by
+  SignalWire's own SID, so a record can never be double-billed).
+- **The server's markup is applied per record**, not once over a
+  total - each CDR gets its own `rate` (dollars/minute for a call, a
+  flat per-message rate for SMS) and `billed_amount`, both already
+  marked up. This is deliberate: a real phone bill's "rate" column
+  shows what *the customer* was charged per unit, never the reseller's
+  own wholesale cost - summing SignalWire's raw cost and marking up
+  the total once would show the right total but never let a per-call
+  rate be printed anywhere honestly.
+- The metered line's `price_unit` is just the sum of that period's
+  `signalwire.cdr.billed_amount` values.
+- After the invoice is actually created, `contract.contract`'s own
+  `_recurring_create_invoice` is overridden to link each of that
+  period's CDRs to the resulting invoice line
+  (`signalwire.cdr.move_line_id`/`move_id`) and generate a proper
+  **itemized PDF phone bill** (`report/cdr_statement_templates.xml`) -
+  account, invoice number, billing period, and a full call/message
+  detail table (date, type, from, to, duration, rate, amount) -
+  attached to the invoice. Usage never gets folded into the invoice as
+  one line per call; the invoice itself always shows one clean summary
+  line, with the real detail living in the attached statement, exactly
+  like a real phone company's own bill.
+- `signalwire.cdr` records are also browsable directly (Sales -> VoIP
+  -> Call Detail Records) for auditing, independent of which invoice
+  (if any) they ended up on.
 
 ## Checkout flow
 
@@ -101,24 +134,41 @@ browser-softphone access" becomes an actual product to offer.
 
 ## Not live-verified - blocked on the same two things flagged in Phase 3
 
-- **The `price` field's real shape.** `_compute_usage_cost` assumes a
-  lowercase `price` key holding a negative decimal string, per
-  standard (well-documented, not something this project needed to
-  discover) Twilio-compatible convention - but the trial account has
-  no billed usage yet to check this against for real (see
-  `signalwire_sms`'s own README on the 10DLC/Campaign Registry gate
-  blocking that). Confirm this the moment real usage exists.
+- **The `price`/`from`/`to`/`start_time`/`date_sent` field shapes.**
+  `_sync_cdrs` assumes standard (well-documented, not something this
+  project needed to discover) Twilio-compatible field names - a
+  lowercase `price` key holding a negative decimal string, `from`/`to`
+  for the parties, `start_time`/`date_sent` for the timestamp - but the
+  trial account has no billed usage yet to check any of this against
+  for real (see `signalwire_sms`'s own README on the 10DLC/Campaign
+  Registry gate blocking that). The real date-filter query params
+  themselves (`StartTime>`/`<`, `DateSent>`/`<`) **were** live-verified
+  - the API accepted them and returned a clean, correctly-shaped empty
+  result, since no records exist yet to actually return. Confirm the
+  record-level field names the moment real usage exists.
+- **PDF generation itself.** `wkhtmltopdf` isn't installed in this dev
+  environment, so `_render_qweb_pdf` couldn't be exercised for real -
+  the underlying QWeb template *was* verified to render correctly as
+  HTML (`_render_qweb_html`, no wkhtmltopdf needed), catching any
+  template syntax problems, but the actual PDF conversion is
+  unverified. Should just work on a real deployment (which will have
+  wkhtmltopdf, same as any Odoo install that prints invoices at all).
 - **A real end-to-end checkout.** Cart mechanics, contract creation,
-  and the metered-billing override are all covered by mocked tests,
-  but purchasing a real number through the actual website flow (rather
-  than the model methods directly) hasn't been done yet - do that
-  before trusting this in production, same discipline as every other
-  storefront in this project.
+  and the metered-billing/CDR/statement mechanism are all covered by
+  mocked tests, but purchasing a real number through the actual
+  website flow (rather than the model methods directly), then actually
+  waiting for a real invoice with a real attached statement, hasn't
+  been done yet - do that before trusting this in production, same
+  discipline as every other storefront in this project.
 
 ## Testing
 
 Cart line separation, order confirmation (subproject creation/reuse,
 number purchase, token issuance, the two-line contract's own shape),
-usage-cost summing + markup, and the metered-billing
-`_prepare_invoice_line` override are all covered by mocked tests.
+CDR pricing/per-record markup, the metered-billing
+`_prepare_invoice_line` override, and the full
+`_recurring_create_invoice` -> CDR-linking -> PDF-attachment flow
+(with `_render_qweb_pdf` mocked, since this dev environment has no
+`wkhtmltopdf`) are all covered. The QWeb statement template itself was
+separately confirmed to render without error via `_render_qweb_html`.
 Nothing in the automated suite makes a real HTTP call to SignalWire.

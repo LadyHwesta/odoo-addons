@@ -36,21 +36,39 @@ class TestContractLineMeteredBilling(TransactionCase):
         })
         cls.metered_line = cls.contract.contract_line_ids
 
-    def test_prepare_invoice_line_computes_price_from_real_usage(self):
+    def _cdr(self, billed_amount):
+        return self.env['signalwire.cdr'].create({
+            'subproject_id': self.subproject.id, 'sid': f'sid-{billed_amount}',
+            'record_type': 'call', 'date': fields.Datetime.now(),
+            'billed_amount': billed_amount, 'wholesale_cost': billed_amount / 1.2,
+            'rate': billed_amount, 'contract_line_id': self.metered_line.id,
+        })
+
+    def test_prepare_invoice_line_sums_the_periods_cdrs(self):
+        cdrs = self._cdr(10.0) | self._cdr(5.5)
         with patch.object(
-                type(self.subproject), '_compute_billed_usage', return_value=42.50) as mocked:
+                type(self.subproject), '_sync_cdrs', return_value=cdrs) as mocked:
             vals = self.metered_line._prepare_invoice_line()
 
         mocked.assert_called_once()
-        self.assertEqual(vals['price_unit'], 42.50)
+        self.assertEqual(vals['price_unit'], 15.5)
+
+    def test_prepare_invoice_line_stamps_the_billed_period(self):
+        with patch.object(type(self.subproject), '_sync_cdrs', return_value=self.env['signalwire.cdr']):
+            self.metered_line._prepare_invoice_line()
+
+        self.assertEqual(self.metered_line.signalwire_period_start, self.metered_line.date_start)
+        self.assertTrue(self.metered_line.signalwire_period_end)
 
     def test_prepare_invoice_line_passes_the_correct_period(self):
         with patch.object(
-                type(self.subproject), '_compute_billed_usage', return_value=0.0) as mocked:
+                type(self.subproject), '_sync_cdrs',
+                return_value=self.env['signalwire.cdr']) as mocked:
             self.metered_line._prepare_invoice_line()
 
         args, kwargs = mocked.call_args
-        first_date, last_date = args
+        line, first_date, last_date = args
+        self.assertEqual(line, self.metered_line)
         self.assertEqual(first_date, self.metered_line.date_start)
 
     def test_non_metered_line_is_unaffected(self):

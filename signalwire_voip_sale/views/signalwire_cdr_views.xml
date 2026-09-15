@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_cdr_list" model="ir.ui.view">
+        <field name="name">signalwire.cdr.list</field>
+        <field name="model">signalwire.cdr</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="date" />
+                <field name="record_type" />
+                <field name="subproject_id" />
+                <field name="from_number" />
+                <field name="to_number" />
+                <field name="duration" />
+                <field name="rate" />
+                <field name="billed_amount" sum="Total" />
+                <field name="move_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_signalwire_cdr" model="ir.actions.act_window">
+        <field name="name">Call Detail Records</field>
+        <field name="res_model">signalwire.cdr</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="action_report_cdr_statement" model="ir.actions.report">
+        <field name="name">CDR Statement</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">signalwire_voip_sale.cdr_statement_document</field>
+        <field name="report_file">signalwire_voip_sale.cdr_statement_document</field>
+        <field name="print_report_name">'CDR Statement - %s' % (object.name or '')</field>
+        <!-- No automatic attachment here - account.move's own
+             _generate_signalwire_cdr_pdf creates exactly the
+             attachment it wants by hand, right after calling this
+             report, so this report shouldn't also auto-attach one
+             under a different name. -->
+        <field name="attachment" eval="False" />
+    </record>
+
+    <template id="cdr_statement_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Phone Bill</h2>
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Account:</strong>
+                                <span t-field="o.partner_id.name" /><br />
+                                <strong>Item:</strong>
+                                <span t-esc="contract_line.name" />
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Invoice:</strong>
+                                <span t-field="o.name" /><br />
+                                <strong>Period:</strong>
+                                <span t-esc="contract_line.signalwire_period_start" />
+                                to
+                                <span t-esc="contract_line.signalwire_period_end" />
+                            </div>
+                        </div>
+
+                        <h4>Call &amp; Message Detail</h4>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Duration</th>
+                                    <th class="text-end">Rate</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-if="not cdrs">
+                                    <td colspan="7" class="text-muted">
+                                        No calls or messages this period.
+                                    </td>
+                                </tr>
+                                <tr t-foreach="cdrs.sorted('date')" t-as="cdr">
+                                    <td><span t-esc="cdr.date" /></td>
+                                    <td>
+                                        <span t-if="cdr.record_type == 'call'">Call</span>
+                                        <span t-else="">SMS</span>
+                                    </td>
+                                    <td><span t-esc="cdr.from_number" /></td>
+                                    <td><span t-esc="cdr.to_number" /></td>
+                                    <td>
+                                        <t t-if="cdr.record_type == 'call'">
+                                            <span t-esc="'%d:%02d' % divmod(cdr.duration, 60)" />
+                                        </t>
+                                        <t t-else="">-</t>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'%.4f' % cdr.rate" />
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'%.4f' % cdr.billed_amount" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot t-if="cdrs">
+                                <tr>
+                                    <td colspan="6" class="text-end">
+                                        <strong>Total usage this period</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong t-esc="'%.2f' % sum(cdrs.mapped('billed_amount'))" />
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

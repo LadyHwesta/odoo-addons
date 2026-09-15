@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+
+    <menuitem id="menu_signalwire_cdr" name="Call Detail Records"
+              action="action_signalwire_cdr" parent="signalwire_voip.menu_signalwire_root"
+              sequence="16" />
+
     <data noupdate="1">
 
         <record id="website_menu_voip_search" model="website.menu">
