@@ -106,15 +106,26 @@ Three crons (`data/ir_cron.xml`), all on `namecheap.domain`/`namecheap.server`:
   the same class of risk `hestiacp_hosting` accepts for a username
   collision - flagged here explicitly since real money and a whole
   domain are at stake.
-- **Not live-verified against the sandbox yet.** Everything here is
-  built against Namecheap's documented request/response shape (and, for
-  the gaps their docs don't cover, a real open-source client's source -
-  see `namecheap_domains`'s own README for what's already been
-  live-verified there). `domains.create` and `domains.renew`
-  specifically have **not** been exercised against a real sandbox
-  domain yet - do that (register one real free sandbox domain end to
-  end through the actual storefront) before trusting this against a
-  production account.
+- **Live-verified against the sandbox, 2026-09-15.** Ran
+  `action_test_connection`, a real `users.getPricing` sync, an
+  availability check, `register_domain` (`domains.create`), and
+  `renew_domain` (`domains.renew`) back to back against a real
+  Namecheap sandbox account, calling the exact same model methods
+  `_namecheap_register_domain_lines`/the renewal cron use - not a
+  separate hand-rolled request. All five succeeded: the domain
+  registered (`Registered="true"`, charged $14.18 against the sandbox's
+  fake balance), then renewed (`Renew="true"`, charged $18.28), and a
+  follow-up `domains.check` confirmed it now shows `Available="false"` -
+  proof the registration genuinely persisted at Namecheap's end, not
+  just a success flag. Confirms the four-contact-role request shape and
+  `+CountryCode.Digits` phone formatting are both correct as built.
+  One transient `users.getPricing` read-timeout was hit on a cold
+  first call (30s timeout, ~14s actual response time for its ~5MB
+  payload) - retried clean; if this recurs in production, consider
+  raising `TIMEOUT` in `namecheap_domains/models/namecheap_api.py`
+  specifically for this one slow, infrequent (daily cron) endpoint.
+  `set_custom_nameservers` (Phase 1, in `namecheap_domains`) remains
+  the one unverified call in the whole project.
 
 ## Testing
 
@@ -123,5 +134,9 @@ confirmation → registration + contract creation, the renewal and
 balance crons) is covered by tests mocking `namecheap.server._get_client()`
 - nothing here makes a real HTTP call to Namecheap. The website
 controller and JS search page are not covered by automated tests yet
-(no HTTP-level test in this suite) - smoke-test the `/domains` page by
-hand after installing.
+(no HTTP-level test in this suite), but the `/domains` page and its two
+JSON-RPC endpoints were smoke-tested by hand against a live local Odoo
+instance (page renders, `DomainSearch` interaction present in the
+compiled JS bundle, `/domains/search` responds correctly). See "What
+this does NOT do" above for the separate real-sandbox verification
+pass covering `domains.create`/`domains.renew` themselves.
