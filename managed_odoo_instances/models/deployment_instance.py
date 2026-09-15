@@ -126,16 +126,32 @@ class DeploymentInstance(models.Model):
         Returns the next free sequence number for whatever follows.
         """
         self.ensure_one()
+        step = sequence
+
+        if self.server_id.vps_provider == 'upcloud':
+            self.env['project.task'].create({
+                'project_id': self.project_id.id, 'sequence': step,
+                'name': _("Create the UpCloud VPS"),
+                'description': _(
+                    "Click Create UpCloud Server on this deployment's "
+                    "server record, then Check VPS Status a minute or "
+                    "two later before moving on - reaching \"started\" "
+                    "doesn't necessarily mean SSH is up yet."),
+            })
+            step += 10
+
         self.env['project.task'].create({
-            'project_id': self.project_id.id, 'sequence': sequence,
+            'project_id': self.project_id.id, 'sequence': step,
             'name': _("Confirm server access (%(hostname)s)",
                       hostname=self.server_id.hostname),
             'description': _(
                 "Make sure you can SSH into %(hostname)s as root before "
                 "the next step.", hostname=self.server_id.hostname),
         })
+        step += 10
+
         run_task = self.env['project.task'].create({
-            'project_id': self.project_id.id, 'sequence': sequence + 10,
+            'project_id': self.project_id.id, 'sequence': step,
             'name': _("Run the bootstrap script on the server"),
             'description': _(
                 "Copy the attached bootstrap.sh onto %(hostname)s and run "
@@ -145,6 +161,7 @@ class DeploymentInstance(models.Model):
                 "continuing. Never send this script to the customer - "
                 "it's for you to run by hand.", hostname=self.server_id.hostname),
         })
+        step += 10
         with file_open(BOOTSTRAP_SCRIPT_RESOURCE, 'rb') as f:
             script_content = f.read()
         self.env['ir.attachment'].create({
@@ -155,14 +172,16 @@ class DeploymentInstance(models.Model):
             'res_model': 'project.task',
             'res_id': run_task.id,
         })
+
         self.env['project.task'].create({
-            'project_id': self.project_id.id, 'sequence': sequence + 20,
+            'project_id': self.project_id.id, 'sequence': step,
             'name': _("Confirm the agent is reachable"),
             'description': _(
                 "Paste the printed token into this server's Agent Token "
                 "field, then click Test Connection on the server record."),
         })
-        return sequence + 40
+        step += 20
+        return step
 
     def _deployment_task_vals(self, sequence):
         self.ensure_one()

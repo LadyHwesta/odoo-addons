@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Managed Odoo Instances',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Sales/Subscriptions',
     'summary': 'Deploy and bill customer Odoo instances - shared multi-tenant or dedicated VPS',
     'description': """
@@ -37,6 +37,14 @@ shell commands itself.
   nonprofit/club/paramedic suites as presets) mapping to real
   technical module names, each linked to a sellable ``product.template``.
 
+``upcloud.account``/``upcloud_client.py`` optionally automate the one
+prerequisite step the bootstrap script itself can't: creating the VPS
+in the first place, via UpCloud's real API (live-verified 2026-09-15 -
+a real server was created, confirmed reachable over SSH with an
+injected key, then destroyed). The bootstrap script - still run by
+hand, by Tiesa, never the customer - picks up from there exactly as
+before.
+
 See README.md for what's still a manual step by design (deeper
 per-instance configuration, the X-Odoo-Dbfilter routing middleware
 itself) and what's not yet live-verified.
@@ -48,6 +56,7 @@ itself) and what's not yet live-verified.
     'data': [
         'security/ir.model.access.csv',
         'data/deployment_app_data.xml',
+        'views/upcloud_account_views.xml',
         'views/deployment_server_views.xml',
         'views/deployment_instance_views.xml',
         'views/deployment_app_views.xml',

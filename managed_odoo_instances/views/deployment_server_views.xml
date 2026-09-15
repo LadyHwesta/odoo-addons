@@ -24,6 +24,16 @@
                 <header>
                     <button name="action_test_connection" type="object"
                             string="Test Connection" class="btn-primary" />
+                    <button name="action_create_upcloud_server" type="object"
+                            string="Create UpCloud Server" class="btn-primary"
+                            invisible="vps_provider != 'upcloud' or upcloud_uuid" />
+                    <button name="action_check_upcloud_status" type="object"
+                            string="Check VPS Status"
+                            invisible="vps_provider != 'upcloud' or not upcloud_uuid" />
+                    <button name="action_destroy_upcloud_server" type="object"
+                            string="Destroy VPS" class="btn-secondary"
+                            confirm="This deletes the real VPS and its storage. Continue?"
+                            invisible="vps_provider != 'upcloud' or not upcloud_uuid" />
                 </header>
                 <sheet>
                     <group>
@@ -40,6 +50,22 @@
                             <field name="agent_token" password="True" />
                             <field name="last_health_check" readonly="1" />
                             <field name="last_health_ok" readonly="1" />
+                        </group>
+                    </group>
+                    <group string="Automated VPS Creation" invisible="kind != 'dedicated'">
+                        <group>
+                            <field name="vps_provider" />
+                            <field name="upcloud_account_id"
+                                   invisible="vps_provider != 'upcloud'" />
+                            <field name="upcloud_uuid" readonly="1"
+                                   invisible="vps_provider != 'upcloud'" />
+                            <field name="upcloud_state" readonly="1"
+                                   invisible="vps_provider != 'upcloud'" />
+                        </group>
+                        <group invisible="vps_provider != 'upcloud'">
+                            <field name="upcloud_zone" />
+                            <field name="upcloud_plan" />
+                            <field name="upcloud_template_uuid" />
                         </group>
                     </group>
                 </sheet>

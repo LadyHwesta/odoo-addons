@@ -134,8 +134,12 @@ Custom Odoo 19 modules.
   attachment (sent to Tiesa to run by hand, never the customer).
   Bills through `reseller_subscriptions`'s own
   `contract.billing.mixin`, but only starts invoicing once an instance
-  is actually marked live. See its README for what's still a
-  deliberate manual step (the X-Odoo-Dbfilter routing middleware
+  is actually marked live. Optionally automates the one prerequisite
+  the bootstrap script can't - creating a dedicated VPS in the first
+  place - via UpCloud's real API (`upcloud.account`), **live-verified
+  2026-09-15**: a real server was created, confirmed reachable over
+  SSH with an injected key, then destroyed. See its README for what's
+  still a deliberate manual step (the X-Odoo-Dbfilter routing middleware
   itself, deeper per-instance configuration) and
   `meskis-deploy-agent`'s own README for what's not yet live-verified
   (the bootstrap script itself, against a real server).

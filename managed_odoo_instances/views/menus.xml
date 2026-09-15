@@ -8,5 +8,8 @@
               parent="menu_managed_odoo_root" action="action_deployment_server" sequence="20" />
     <menuitem id="menu_deployment_app" name="Deployable Apps"
               parent="menu_managed_odoo_root" action="action_deployment_app" sequence="30" />
+    <menuitem id="menu_upcloud_account" name="UpCloud Accounts"
+              parent="menu_managed_odoo_root" action="action_upcloud_account"
+              groups="base.group_system" sequence="40" />
 
 </odoo>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_upcloud_account_list" model="ir.ui.view">
+        <field name="name">upcloud.account.list</field>
+        <field name="model">upcloud.account</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="default_zone" />
+                <field name="default_plan" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_upcloud_account_form" model="ir.ui.view">
+        <field name="name">upcloud.account.form</field>
+        <field name="model">upcloud.account</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="api_token" password="True" />
+                        </group>
+                        <group>
+                            <field name="default_zone" />
+                            <field name="default_plan" />
+                            <field name="default_template_uuid" />
+                        </group>
+                    </group>
+                    <group string="SSH Access">
+                        <field name="ssh_public_key" nolabel="1" colspan="2"
+                               placeholder="ssh-ed25519 AAAA..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_upcloud_account" model="ir.actions.act_window">
+        <field name="name">UpCloud Accounts</field>
+        <field name="res_model">upcloud.account</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

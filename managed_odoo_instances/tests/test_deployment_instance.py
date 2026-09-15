@@ -28,6 +28,16 @@ class TestDeploymentInstance(TransactionCase):
             'agent_url': 'https://vps2.example.com:8765', 'agent_token': 'vps2-token',
             'bootstrap_state': 'done',
         })
+        cls.upcloud_account = cls.env['upcloud.account'].create({
+            'name': 'Test UpCloud Account', 'api_token': 'ucat_test',
+            'ssh_public_key': 'ssh-ed25519 AAAA...',
+        })
+        cls.dedicated_server_upcloud = cls.env['deployment.server'].create({
+            'name': 'Dedicated - UpCloud', 'hostname': 'pending.example.com',
+            'kind': 'dedicated', 'partner_id': cls.partner.id,
+            'agent_url': 'https://vps3.example.com:8765', 'bootstrap_state': 'pending',
+            'vps_provider': 'upcloud', 'upcloud_account_id': cls.upcloud_account.id,
+        })
         cls.free_app = cls.env['deployment.app'].create({
             'name': 'Test Suite', 'module_names': 'base,mail',
         })
@@ -81,6 +91,20 @@ class TestDeploymentInstance(TransactionCase):
             lambda t: 'bootstrap script' in t.name)
         self.assertTrue(bootstrap_task.attachment_ids)
         self.assertEqual(bootstrap_task.attachment_ids.name, 'bootstrap.sh')
+
+    def test_request_on_an_upcloud_dedicated_server_adds_a_create_vps_task(self):
+        instance = self._instance(self.dedicated_server_upcloud)
+
+        instance.action_request()
+
+        self.assertEqual(len(instance.project_id.task_ids), 9, "3 bootstrap + 1 VPS + 5 deploy")
+        create_vps_task = instance.project_id.task_ids.filtered(
+            lambda t: 'Create the UpCloud VPS' in t.name)
+        self.assertTrue(create_vps_task)
+        # comes before "Confirm server access"
+        confirm_access_task = instance.project_id.task_ids.filtered(
+            lambda t: 'Confirm server access' in t.name)
+        self.assertLess(create_vps_task.sequence, confirm_access_task.sequence)
 
     def test_request_on_an_already_bootstrapped_dedicated_server_skips_bootstrap_tasks(self):
         instance = self._instance(self.dedicated_server_done)
