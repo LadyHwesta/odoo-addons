@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="signalwire_brand_rule_own" model="ir.rule">
+        <field name="name">10DLC Brand: a portal user only sees their own</field>
+        <field name="model_id" ref="model_signalwire_brand" />
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]" />
+    </record>
+
+    <record id="signalwire_campaign_rule_own" model="ir.rule">
+        <field name="name">10DLC Campaign: a portal user only sees their own</field>
+        <field name="model_id" ref="model_signalwire_campaign" />
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]" />
+    </record>
+
+</odoo>

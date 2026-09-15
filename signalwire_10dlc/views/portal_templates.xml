@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Adds an SMS-enablement indicator/action to each number on
+         signalwire_sms's own /my/sms page, right under its own name -
+         doesn't touch that module's controller, just its view. -->
+    <template id="portal_my_sms_10dlc" name="My SMS: 10DLC enablement"
+              inherit_id="signalwire_sms.portal_my_sms">
+        <xpath expr="//h6[@class='mt-3']" position="after">
+            <p t-if="number.campaign_assignment_state == 'approved'" class="text-success">
+                SMS enabled.
+            </p>
+            <p t-elif="number.campaign_assignment_state == 'pending'" class="text-muted">
+                SMS enablement pending carrier approval.
+            </p>
+            <p t-elif="number.campaign_assignment_state == 'rejected'" class="text-danger">
+                SMS enablement was rejected - contact us for details.
+            </p>
+            <form t-else="" t-attf-action="/my/sms/#{number.id}/enable_sms" method="post" class="mb-2">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <button type="submit" class="btn btn-sm btn-outline-primary">Enable SMS</button>
+            </form>
+        </xpath>
+    </template>
+
+    <template id="portal_sms_compliance" name="10DLC Business Registration">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">Register Your Business for SMS</h3>
+            <p class="text-muted">
+                US carriers require every business sending text messages to register
+                their business identity ("brand") and messaging use case ("campaign")
+                before any number can send SMS. This is a one-time registration per
+                business - once approved, enabling SMS on additional numbers is
+                immediate. Approval typically takes 3-5 business days, plus a real,
+                non-refundable registration fee and a recurring monthly campaign fee
+                (3-month minimum) - you'll see both on your account once submitted.
+            </p>
+            <p t-if="error" class="alert alert-danger" t-esc="error" />
+
+            <form action="/my/sms/compliance" method="post">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+
+                <h5 class="mt-4">Already registered elsewhere?</h5>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="csp_self_registered"
+                           name="csp_self_registered" value="1" />
+                    <label class="form-check-label" for="csp_self_registered">
+                        I already have a brand registered with The Campaign Registry
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Existing TCR Brand ID</label>
+                    <input type="text" name="csp_brand_reference" class="form-control" />
+                </div>
+
+                <h5 class="mt-4">Your Business (skip if referencing an existing brand above)</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Marketing/Brand Name</label>
+                        <input type="text" name="name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Legal Company Name</label>
+                        <input type="text" name="company_name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Email</label>
+                        <input type="email" name="contact_email" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Phone</label>
+                        <input type="text" name="contact_phone" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">EIN</label>
+                        <input type="text" name="ein" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">EIN Issuing Country</label>
+                        <input type="text" name="ein_issuing_country" class="form-control" value="US" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Legal Entity Type</label>
+                        <select name="legal_entity_type" class="form-select">
+                            <option value="PRIVATE_PROFIT">Private, For-Profit</option>
+                            <option value="PUBLIC_PROFIT">Public, For-Profit</option>
+                            <option value="NON_PROFIT">Non-Profit</option>
+                            <option value="GOVERNMENT">Government</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Company Website</label>
+                        <input type="url" name="company_website" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Industry</label>
+                        <input type="text" name="company_vertical" class="form-control"
+                               placeholder="e.g. TECHNOLOGY, HEALTHCARE, RETAIL" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Company Address</label>
+                        <textarea name="company_address" class="form-control" rows="2" />
+                    </div>
+                </div>
+
+                <h5 class="mt-4">Your Messaging Campaign</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Campaign Name</label>
+                        <input type="text" name="campaign_name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Use Case</label>
+                        <input type="text" name="sms_use_case" class="form-control"
+                               placeholder="e.g. CUSTOMER_CARE, MARKETING, 2FA" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"
+                                  placeholder="What these messages are for" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Message Flow</label>
+                        <textarea name="message_flow" class="form-control" rows="2"
+                                  placeholder="How a customer ends up receiving these messages" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sample Message 1</label>
+                        <input type="text" name="sample1" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sample Message 2</label>
+                        <input type="text" name="sample2" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sample Message 3</label>
+                        <input type="text" name="sample3" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Opt-In Message</label>
+                        <input type="text" name="opt_in_message" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Opt-Out Message</label>
+                        <input type="text" name="opt_out_message" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Help Message</label>
+                        <input type="text" name="help_message" class="form-control" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4">Submit for Registration</button>
+            </form>
+        </t>
+    </template>
+
+</odoo>

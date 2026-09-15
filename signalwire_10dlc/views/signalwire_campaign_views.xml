@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_campaign_list" model="ir.ui.view">
+        <field name="name">signalwire.campaign.list</field>
+        <field name="model">signalwire.campaign</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="brand_id" />
+                <field name="partner_id" />
+                <field name="sms_use_case" />
+                <field name="state" widget="badge"
+                       decoration-success="state == 'approved'"
+                       decoration-warning="state in ('draft', 'submitted', 'pending')"
+                       decoration-danger="state in ('rejected', 'failed', 'cancelled')" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_signalwire_campaign_form" model="ir.ui.view">
+        <field name="name">signalwire.campaign.form</field>
+        <field name="model">signalwire.campaign</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('submitted', 'pending', 'approved')" />
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,pending,approved" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="brand_id" />
+                            <field name="partner_id" readonly="1" />
+                            <field name="name" />
+                            <field name="sms_use_case" />
+                            <field name="min_commitment_end_date" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="contract_id" readonly="1" />
+                            <field name="payment_token_id" />
+                            <field name="signalwire_campaign_id" readonly="1"
+                                   invisible="not signalwire_campaign_id" />
+                        </group>
+                    </group>
+                    <group string="Use Case">
+                        <field name="description" nolabel="1" colspan="2" />
+                        <field name="message_flow" nolabel="1" colspan="2" />
+                    </group>
+                    <group string="Sample Messages">
+                        <field name="sample1" />
+                        <field name="sample2" />
+                        <field name="sample3" />
+                        <field name="sample4" />
+                        <field name="sample5" />
+                    </group>
+                    <group string="Opt-In / Opt-Out">
+                        <group>
+                            <field name="opt_in_message" />
+                            <field name="opt_in_keywords" />
+                        </group>
+                        <group>
+                            <field name="opt_out_message" />
+                            <field name="opt_out_keywords" />
+                            <field name="help_message" />
+                            <field name="help_keywords" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="action_signalwire_campaign" model="ir.actions.act_window">
+        <field name="name">10DLC Campaigns</field>
+        <field name="res_model">signalwire.campaign</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

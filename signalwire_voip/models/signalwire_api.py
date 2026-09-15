@@ -45,6 +45,21 @@ class SignalWireClient:
       genuinely different base path and response envelope again -
       confirmed live 2026-09-15 (create/list/delete a room, create a
       room token) rather than guessed from docs.
+    - the **Registry (10DLC) API**, rooted at
+      ``/api/relay/rest/registry/beta/`` - A2P 10DLC brand/campaign
+      registration. A fifth base path, and confirmed live 2026-09-15 to
+      have its own real quirk: brands and campaigns are addressed flat
+      (``brands``, ``brands/{brand_id}/campaigns``) with **no
+      subaccount/subproject scoping at all** - a query-string
+      ``account_sid`` was silently ignored - but a campaign's own
+      *numbers*/*orders* sub-resources are addressed directly by
+      ``campaign_id`` alone, no brand prefix needed
+      (``campaigns/{campaign_id}/orders``), and that's genuinely how a
+      specific phone number (identified by its own SID, regardless of
+      which subproject it lives in) gets tied to a specific campaign -
+      confirmed by reading real, live data back from the user's own
+      pending brand/campaign/order, not by guessing from docs (which
+      don't document the exact paths for orders/numbers at all).
 
     One set of parent-project credentials is enough for everything
     here, including managing a subproject's own resources - just pass
@@ -122,6 +137,19 @@ class SignalWireClient:
 
     def _video_url(self, path):
         return f'https://{self.space}/api/video/{path}'
+
+    def registry_get(self, path, **params):
+        """GET a Registry (10DLC) API path, relative to
+        /api/relay/rest/registry/beta/ - e.g. ``'brands'`` or
+        ``f'campaigns/{campaign_id}/numbers'``.
+        """
+        return self._request('get', self._registry_url(path), params=params)
+
+    def registry_post(self, path, **json_body):
+        return self._request('post', self._registry_url(path), json=json_body)
+
+    def _registry_url(self, path):
+        return f'https://{self.space}/api/relay/rest/registry/beta/{path}'
 
     def _request(self, method, url, **kwargs):
         try:

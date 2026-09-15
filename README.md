@@ -74,8 +74,9 @@ Custom Odoo 19 modules.
     portal page (`/my/sms`), with optional webhook forwarding into their
     own system.
     See its README for a live-confirmed gap (token revocation doesn't
-    actually revoke) and why live SMS testing itself is blocked by
-    carrier-level 10DLC compliance, not a code issue.
+    actually revoke). Live SMS testing was blocked by carrier-level
+    10DLC compliance - see `signalwire_10dlc/` below, which now
+    automates that registration.
   - [`signalwire_voip_sale/`](signalwire_voip_sale/) - **Phase 4**: the
     public storefront - a `/voip` search-and-buy page, real checkout-
     time provisioning (subproject, purchased number, an auto-issued
@@ -87,6 +88,20 @@ Custom Odoo 19 modules.
     bill attached, rather than folding usage into the invoice as one
     line per call. No new cron needed - hooks into the vendored
     `contract` module's own recurring-invoice cron.
+  - [`signalwire_10dlc/`](signalwire_10dlc/) - self-service A2P 10DLC
+    brand/campaign registration for resold customers - discovered the
+    hard way that a real SMS send from an unregistered number gets
+    rejected outright (`421717`). Confirmed live against the real
+    account: brands/campaigns live flat at the top-level SignalWire
+    account (no subaccount scoping exists at all), and a specific
+    resold customer's number gets tied to their own campaign via an
+    "order" - a path SignalWire's own docs don't document, found by
+    reading real data back. A customer submits their own business
+    details via a new `/my/sms/compliance` portal form (never the
+    reseller's on their behalf) and opts in per number - never
+    automatic at checkout, since only some customers will ever need
+    SMS. Not live-tested with a real submission - that needs real
+    customer business data and a real, non-refundable fee.
 - [`telehealth_booking/`](telehealth_booking/) - one field
   (`res.users.telehealth_video_tier`) and one hook point on
   `calendar.event` for a "premium video" upgrade path - installed

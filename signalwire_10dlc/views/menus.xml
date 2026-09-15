@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem id="menu_signalwire_brand" name="10DLC Brands"
+              action="action_signalwire_brand" parent="signalwire_voip.menu_signalwire_root"
+              groups="base.group_system" sequence="20" />
+    <menuitem id="menu_signalwire_campaign" name="10DLC Campaigns"
+              action="action_signalwire_campaign" parent="signalwire_voip.menu_signalwire_root"
+              groups="base.group_system" sequence="21" />
+
+</odoo>

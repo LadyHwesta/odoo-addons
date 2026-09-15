@@ -127,6 +127,31 @@ class TestSignalWireClient(TransactionCase):
         self.assertEqual(args[0], 'delete')
         self.assertEqual(args[1], 'https://example.signalwire.com/api/video/rooms/room-1')
 
+    def test_registry_get_hits_the_registry_url(self):
+        client = self._client()
+        with patch(
+                'requests.request',
+                return_value=_mock_response(json_body={'data': []})) as req:
+            client.registry_get('campaigns/camp-1/numbers')
+
+        args, kwargs = req.call_args
+        self.assertEqual(
+            args[1],
+            'https://example.signalwire.com/api/relay/rest/registry/beta/'
+            'campaigns/camp-1/numbers')
+
+    def test_registry_post_hits_the_registry_url_as_json(self):
+        client = self._client()
+        with patch(
+                'requests.request',
+                return_value=_mock_response(json_body={'id': 'brand-1'})) as req:
+            client.registry_post('brands', name='Test Brand')
+
+        args, kwargs = req.call_args
+        self.assertEqual(
+            args[1], 'https://example.signalwire.com/api/relay/rest/registry/beta/brands')
+        self.assertEqual(kwargs['json'], {'name': 'Test Brand'})
+
     def test_delete_with_no_body_returns_empty_dict(self):
         # SIP Endpoint deletion returns 204 with no body - verified
         # live 2026-09-15.
