@@ -4,6 +4,10 @@ Custom Odoo 19 modules.
 
 ## Modules
 
+- [`base_technical_features/`](base_technical_features/) - vendored from OCA
+  (see [`VENDORED.md`](VENDORED.md)): a "Technical feature" checkbox in user
+  preferences gives permanent access to Settings > Technical menus (email
+  templates, automated actions, ...) without ever needing developer mode.
 - [`caldav_calendar/`](caldav_calendar/) - two-way calendar sync with any
   RFC 4791 CalDAV server (Nextcloud, Radicale, Baïkal, Fastmail, iCloud, ...).
 - [`auth_imap/`](auth_imap/) - authenticate existing Odoo users against an
