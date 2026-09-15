@@ -67,6 +67,15 @@ Custom Odoo 19 modules.
     it. The SIP-over-WebSocket wiring is live-verified; actually placing
     or answering a call needs a human in a real browser, so that part is
     still to be done by hand.
+  - [`signalwire_sms/`](signalwire_sms/) - **Phase 3**: two-way SMS,
+    both for the team's own use (every message logs to the matched
+    contact's chatter) and for reselling - a customer gets
+    independently-usable SignalWire API credentials plus a self-service
+    portal page (`/my/sms`), with optional webhook forwarding into their
+    own system.
+    See its README for a live-confirmed gap (token revocation doesn't
+    actually revoke) and why live SMS testing itself is blocked by
+    carrier-level 10DLC compliance, not a code issue.
 
 ### Amateur radio club suite
 
