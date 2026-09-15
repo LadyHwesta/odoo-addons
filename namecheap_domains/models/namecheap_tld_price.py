@@ -35,10 +35,9 @@ class NamecheapTldPrice(models.Model):
         string="Sell Price (renew)", compute='_compute_sell_prices', store=True)
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('tld_server_uniq', 'unique(server_id, tld)',
-         "There's already a cached price for this TLD on this server."),
-    ]
+    _tld_server_uniq = models.Constraint(
+        'unique(server_id, tld)',
+        "There's already a cached price for this TLD on this server.")
 
     @api.depends('register_cost', 'renew_cost', 'server_id.markup_percentage')
     def _compute_sell_prices(self):
@@ -53,33 +52,41 @@ class NamecheapTldPrice(models.Model):
         namecheap.users.getPricing (ProductType "DOMAINS" ->
         ProductCategory "register"/"renew" -> one Product per TLD ->
         a Price child per registration-length tier, of which only the
-        1-year one is kept - not independently verified against a live
-        call yet (see namecheap_api.py's own docstring for why); if the
-        real response nests this differently, this is the method to
-        fix once the first sandbox sync is run.
+        1-year one is kept. **Verified live against the sandbox
+        2026-09-14**: the overall nesting (ProductType > ProductCategory
+        > Product > Price) was right, but two things weren't -
+        ``ProductType`` must be ``'domain'`` (lowercase, singular; the
+        response itself comes back ``Name="domains"``, plural, which
+        doesn't matter here since only the request value is used), and
+        the ``ProductCategory`` request parameter doesn't actually
+        filter anything server-side - every category (register, renew,
+        transfer, redemption, reactivate, landrush, preorder) comes
+        back in a single response regardless of what's requested, so
+        this makes one call and picks out "register"/"renew" from it
+        instead of two calls each assumed to be pre-filtered.
         """
         client = server._get_client()
+        result = client.call('namecheap.users.getPricing', ProductType='domain')
         costs = {}  # tld -> {'register': x, 'renew': y}
-        for category, key in (('register', 'register'), ('renew', 'renew')):
-            result = client.call(
-                'namecheap.users.getPricing',
-                ProductType='DOMAINS', ProductCategory=category)
-            for product_type in result.iter('ProductType'):
-                for product_category in product_type.iter('ProductCategory'):
-                    for product in product_category.iter('Product'):
-                        tld = (product.get('Name') or '').lower()
-                        if not tld:
-                            continue
-                        one_year = next(
-                            (p for p in product.iter('Price') if p.get('Duration') == '1'),
-                            None)
-                        if one_year is None:
-                            continue
-                        price = float(
-                            one_year.get('YourPrice')
-                            or one_year.get('Price')
-                            or one_year.get('RegularPrice') or 0.0)
-                        costs.setdefault(tld, {})[key] = price
+        for product_type in result.iter('ProductType'):
+            for product_category in product_type.iter('ProductCategory'):
+                key = product_category.get('Name')
+                if key not in ('register', 'renew'):
+                    continue
+                for product in product_category.iter('Product'):
+                    tld = (product.get('Name') or '').lower()
+                    if not tld:
+                        continue
+                    one_year = next(
+                        (p for p in product.iter('Price') if p.get('Duration') == '1'),
+                        None)
+                    if one_year is None:
+                        continue
+                    price = float(
+                        one_year.get('YourPrice')
+                        or one_year.get('Price')
+                        or one_year.get('RegularPrice') or 0.0)
+                    costs.setdefault(tld, {})[key] = price
 
         existing = {p.tld: p for p in self.search([('server_id', '=', server.id)])}
         for tld, values in costs.items():
