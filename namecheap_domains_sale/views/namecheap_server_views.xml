@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_namecheap_server_form_inherit_sale" model="ir.ui.view">
+        <field name="name">namecheap.server.form.inherit.sale</field>
+        <field name="model">namecheap.server</field>
+        <field name="inherit_id" ref="namecheap_domains.view_namecheap_server_form" />
+        <field name="arch" type="xml">
+            <group name="namecheap_server_pricing" position="after">
+                <group string="Balance Alert">
+                    <field name="low_balance_threshold" />
+                </group>
+            </group>
+            <xpath expr="//sheet" position="after">
+                <chatter />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

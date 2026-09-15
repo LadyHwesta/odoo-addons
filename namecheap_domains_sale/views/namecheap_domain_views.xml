@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_namecheap_domain_form_inherit_sale" model="ir.ui.view">
+        <field name="name">namecheap.domain.form.inherit.sale</field>
+        <field name="model">namecheap.domain</field>
+        <field name="inherit_id" ref="namecheap_domains.view_namecheap_domain_form" />
+        <field name="arch" type="xml">
+            <group name="namecheap_domain_details" position="after">
+                <group string="Sale / Renewal Billing">
+                    <field name="sale_order_id" />
+                    <field name="contract_id" />
+                    <field name="payment_token_id" />
+                </group>
+            </group>
+        </field>
+    </record>
+
+</odoo>

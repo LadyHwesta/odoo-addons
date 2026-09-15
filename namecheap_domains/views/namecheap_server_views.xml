@@ -23,7 +23,7 @@
                                    placeholder="This server's whitelisted outbound IP" />
                             <field name="sandbox" />
                         </group>
-                        <group string="Pricing">
+                        <group string="Pricing" name="namecheap_server_pricing">
                             <field name="markup_percentage" />
                         </group>
                     </group>
