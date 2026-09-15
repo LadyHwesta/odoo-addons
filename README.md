@@ -79,11 +79,14 @@ Custom Odoo 19 modules.
   - [`signalwire_voip_sale/`](signalwire_voip_sale/) - **Phase 4**: the
     public storefront - a `/voip` search-and-buy page, real checkout-
     time provisioning (subproject, purchased number, an auto-issued
-    customer SMS token), and **metered usage billing**: a flat monthly
-    number-rental line plus a second line whose price is computed
-    fresh each period from real SignalWire usage (no new cron needed -
-    it hooks into the vendored `contract` module's own recurring-
-    invoice cron via a `_prepare_invoice_line` override).
+    customer SMS token), and **metered usage billing on real,
+    itemized Call Detail Records**: a flat monthly number-rental line
+    plus a second line priced by summing per-call/per-SMS CDRs (each
+    individually marked up, so it carries a genuine customer-facing
+    rate) - every metered invoice gets a proper itemized PDF phone
+    bill attached, rather than folding usage into the invoice as one
+    line per call. No new cron needed - hooks into the vendored
+    `contract` module's own recurring-invoice cron.
 
 ### Amateur radio club suite
 
