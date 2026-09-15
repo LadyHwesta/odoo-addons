@@ -35,8 +35,36 @@ this repo.
   however long it takes to actually stand their instance up.
 - **`deployment.app`** - a small curated catalog (seed data covers the
   three existing suites - nonprofit/club/paramedic) mapping to real
-  technical module names, each optionally linked to a sellable
-  `product.template` for billing.
+  technical module names, each linked to a sellable `product.template`
+  for billing (seeded too - `data/product_template_data.xml`).
+
+## Selling one: a Sales-app quote, not a public storefront
+
+`product.template` gains `is_managed_odoo_hosting` +
+`managed_odoo_hosting_kind` (shared/dedicated) - two products are
+seeded (`data/product_template_data.xml`): "Managed Odoo Hosting -
+Shared" and "... - Dedicated VPS". Confirming an order with one of
+these (`sale_order.py`'s own `_action_confirm` override, same pattern
+as `hestiacp_hosting`'s/`namecheap_domains_sale`'s/
+`signalwire_voip_sale`'s own checkout hooks) creates the
+`deployment.instance` - reusing the existing shared server, or
+creating a brand new dedicated one - and bundles in any
+`deployment.app` products on the same order as `app_ids`.
+
+**Deliberately stops one step short of the other three checkout
+flows**: it does NOT call `action_request()` itself. A domain name and
+a database name genuinely aren't known from an order alone (unlike a
+hosting package or a purchased phone number), so `action_request()`
+has its own guard refusing to proceed without them - the checkout
+hook instead schedules an activity for the order's own salesperson:
+"confirm the customer's domain, fill it in, then click Request
+yourself." `admin_email`/`company_name` *are* pre-filled from the
+order's partner, since those are genuinely known at checkout time.
+
+No public storefront (unlike `/domains` or `/voip`) - selling a
+managed instance is a Sales-app quote from here, staff-driven
+throughout, matching how the rest of the deployment checklist already
+works (Tiesa clicking through real steps, never the customer).
 
 ## The generated deployment checklist
 
@@ -142,7 +170,14 @@ convention as `HestiaCPClient`'s/`SignalWireClient`'s own tests.
 `UpCloudClient` and the three `deployment.server` UpCloud actions get
 the same treatment, plus a project-generation test confirming the
 extra "Create the UpCloud VPS" task appears (and in the right order)
-only when `vps_provider == 'upcloud'`.
+only when `vps_provider == 'upcloud'`. The sale_order integration is
+covered end to end - shared vs. dedicated hosting products, app
+products bundling into `app_ids`, admin_email/company_name prefilled
+from the partner, an order with no hosting-tier line doing nothing,
+selling shared hosting with no shared server yet raising a clear
+error, the activity actually getting scheduled, and that the created
+instance genuinely can't have `action_request()` called on it until
+domain/db_name are filled in by hand.
 
 Not run against the real shared Meskis Works server or any real
 dedicated VPS - see `meskis-deploy-agent`'s own README for what's

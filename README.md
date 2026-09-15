@@ -138,7 +138,13 @@ Custom Odoo 19 modules.
   the bootstrap script can't - creating a dedicated VPS in the first
   place - via UpCloud's real API (`upcloud.account`), **live-verified
   2026-09-15**: a real server was created, confirmed reachable over
-  SSH with an injected key, then destroyed. See its README for what's
+  SSH with an injected key, then destroyed. Sellable as a normal
+  Sales-app quote - a "hosting tier" product (shared/dedicated)
+  creates the instance on order confirmation, bundling in whatever
+  `deployment.app` products are on the same order; no public
+  storefront, since the customer's actual domain isn't known from an
+  order alone - it schedules an activity for the salesperson to
+  confirm that and click Request themselves. See its README for what's
   still a deliberate manual step (the X-Odoo-Dbfilter routing middleware
   itself, deeper per-instance configuration) and
   `meskis-deploy-agent`'s own README for what's not yet live-verified

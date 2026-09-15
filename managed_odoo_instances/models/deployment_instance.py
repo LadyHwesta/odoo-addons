@@ -2,7 +2,7 @@
 import re
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import file_open
 
 # Same shape as meskis-deploy-agent's own agent/validators.py - failing
@@ -27,22 +27,27 @@ class DeploymentInstance(models.Model):
     """
     _name = 'deployment.instance'
     _description = 'Managed Customer Odoo Instance'
-    _inherit = ['mail.thread', 'contract.billing.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'contract.billing.mixin']
     _rec_name = 'domain'
 
     partner_id = fields.Many2one('res.partner', required=True, tracking=True)
     server_id = fields.Many2one('deployment.server', required=True, tracking=True)
-    domain = fields.Char(required=True, help="The customer's own domain, e.g. example.com.")
+    domain = fields.Char(
+        help="The customer's own domain, e.g. example.com - not "
+             "required at creation time (a sales order confirmation "
+             "creates the instance before this is necessarily known "
+             "yet), but action_request() won't proceed without it.")
     db_name = fields.Char(
-        required=True,
         help="The actual Postgres/Odoo database name on server_id - "
              "lowercase, starts with a letter, letters/digits/"
-             "underscores only.")
+             "underscores only. Same \"not required yet, but "
+             "action_request() needs it\" reasoning as domain.")
     app_ids = fields.Many2many('deployment.app', string="Apps to Install")
     admin_email = fields.Char(
-        required=True,
-        help="The customer contact who becomes this instance's admin login.")
-    company_name = fields.Char(required=True)
+        help="The customer contact who becomes this instance's admin "
+             "login - pre-filled from the order's partner at checkout "
+             "if known, editable afterward.")
+    company_name = fields.Char()
     state = fields.Selection(
         [('requested', 'Requested'),
          ('bootstrap_pending', 'Server Bootstrap Pending'),
@@ -59,14 +64,14 @@ class DeploymentInstance(models.Model):
     @api.constrains('domain')
     def _check_domain(self):
         for instance in self:
-            if not DOMAIN_RE.match(instance.domain or ''):
+            if instance.domain and not DOMAIN_RE.match(instance.domain):
                 raise ValidationError(_(
                     "%(domain)s doesn't look like a valid domain.", domain=instance.domain))
 
     @api.constrains('db_name')
     def _check_db_name(self):
         for instance in self:
-            if not DB_NAME_RE.match(instance.db_name or ''):
+            if instance.db_name and not DB_NAME_RE.match(instance.db_name):
                 raise ValidationError(_(
                     "%(db)s isn't a valid database name - lowercase, starts with a "
                     "letter, only letters/digits/underscores.", db=instance.db_name))
@@ -86,6 +91,12 @@ class DeploymentInstance(models.Model):
 
     def action_request(self):
         for instance in self:
+            if not instance.domain or not instance.db_name:
+                raise UserError(_(
+                    "%(partner)s's instance needs a domain and database "
+                    "name filled in before it can be requested - a sales "
+                    "order confirmation creates the record, but doesn't "
+                    "know these yet.", partner=instance.partner_id.name))
             if not instance.contract_id:
                 contract = self.env['contract.contract'].create({
                     'name': _("%(domain)s - Managed Odoo", domain=instance.domain),
@@ -127,6 +138,11 @@ class DeploymentInstance(models.Model):
         """
         self.ensure_one()
         step = sequence
+        # A brand-new UpCloud server's hostname isn't set until Create
+        # UpCloud Server actually runs - falls back to a placeholder
+        # string rather than literally rendering "(False)" into a
+        # task's own name/description.
+        hostname_display = self.server_id.hostname or _("(not yet created)")
 
         if self.server_id.vps_provider == 'upcloud':
             self.env['project.task'].create({
@@ -143,10 +159,10 @@ class DeploymentInstance(models.Model):
         self.env['project.task'].create({
             'project_id': self.project_id.id, 'sequence': step,
             'name': _("Confirm server access (%(hostname)s)",
-                      hostname=self.server_id.hostname),
+                      hostname=hostname_display),
             'description': _(
                 "Make sure you can SSH into %(hostname)s as root before "
-                "the next step.", hostname=self.server_id.hostname),
+                "the next step.", hostname=hostname_display),
         })
         step += 10
 
@@ -159,7 +175,7 @@ class DeploymentInstance(models.Model):
                 "token and the Odoo master password once - paste the "
                 "token into this server's own Agent Token field before "
                 "continuing. Never send this script to the customer - "
-                "it's for you to run by hand.", hostname=self.server_id.hostname),
+                "it's for you to run by hand.", hostname=hostname_display),
         })
         step += 10
         with file_open(BOOTSTRAP_SCRIPT_RESOURCE, 'rb') as f:

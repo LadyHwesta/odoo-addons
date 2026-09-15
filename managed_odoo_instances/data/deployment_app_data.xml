@@ -6,20 +6,29 @@
          their own (separate) repos, NOT re-verified against those
          repos' actual current __manifest__.py files while writing
          this - confirm before actually deploying either for a real
-         customer, per this module's own README. -->
+         customer, per this module's own README.
+
+         Each links to the matching product seeded in
+         product_template_data.xml (which loads first - see the
+         manifest's own data order), so selling one of these products
+         alongside a hosting-tier product bundles the app in
+         automatically (see sale_order.py). -->
 
     <record id="deployment_app_club" model="deployment.app">
         <field name="name">Amateur Radio Club Suite</field>
         <field name="module_names">club_amateur_radio,club_membership,membership,membership_prorate,club_equipment_loan</field>
+        <field name="product_template_id" ref="product_managed_odoo_app_club" />
     </record>
 
     <record id="deployment_app_nonprofit" model="deployment.app">
         <field name="name">Nonprofit Suite</field>
         <field name="module_names">nonprofit_base,donation,nonprofit_fund_accounting,volunteer_shift,volunteer_profile</field>
+        <field name="product_template_id" ref="product_managed_odoo_app_nonprofit" />
     </record>
 
     <record id="deployment_app_paramedic" model="deployment.app">
         <field name="name">Paramedical Tattoo Practice Suite</field>
         <field name="module_names">paramedic_base,paramedic_appointment</field>
+        <field name="product_template_id" ref="product_managed_odoo_app_paramedic" />
     </record>
 </odoo>

@@ -4,3 +4,4 @@ from . import test_upcloud_client
 from . import test_deployment_server
 from . import test_deployment_server_upcloud
 from . import test_deployment_instance
+from . import test_sale_order_managed_odoo
