@@ -14,6 +14,19 @@ def _user_info(username, web_limit='5', web_used='1', ns='ns1.example.com,ns2.ex
     }})
 
 
+def _dns_records(include_dkim=True):
+    records = {
+        '1': {'RECORD': 'example.com.', 'TYPE': 'A', 'VALUE': '1.2.3.4'},
+        '2': {'RECORD': 'example.com.', 'TYPE': 'MX', 'VALUE': 'mail.example.com.'},
+    }
+    if include_dkim:
+        records['3'] = {
+            'RECORD': 'mail._domainkey.example.com.', 'TYPE': 'TXT',
+            'VALUE': 'v=DKIM1; k=rsa; p=ABC123FAKEKEYDATA',
+        }
+    return json.dumps(records)
+
+
 @tagged('post_install', '-at_install')
 class TestDeployToHestiaCP(TransactionCase):
 
@@ -56,10 +69,16 @@ class TestDeployToHestiaCP(TransactionCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def _mock_hestia_client(self, user_info_json=None):
+    def _mock_hestia_client(self, user_info_json=None, dns_records_json=None):
         mock_client = MagicMock()
-        mock_client.call.side_effect = lambda cmd, *a: (
-            user_info_json if cmd == 'v-list-user' else '')
+
+        def side_effect(cmd, *a):
+            if cmd == 'v-list-user':
+                return user_info_json
+            if cmd == 'v-list-dns-records':
+                return dns_records_json
+            return ''
+        mock_client.call.side_effect = side_effect
         patcher = patch(
             'odoo.addons.hestiacp_hosting.models.hestiacp_server.HestiaCPServer._get_client',
             return_value=mock_client)
@@ -188,3 +207,46 @@ class TestDeployToHestiaCP(TransactionCase):
 
         self.assertEqual(self.domain.state, 'active')
         self.assertTrue(self.domain.hestiacp_deployed_on)
+
+    # -- DKIM fetching ----------------------------------------------------
+
+    def test_fetch_dkim_requires_a_deployed_account(self):
+        with self.assertRaises(UserError):
+            self.domain.action_fetch_dkim_record()
+
+    def test_fetch_dkim_finds_the_domainkey_txt_record(self):
+        self._mock_hestia_client(dns_records_json=_dns_records())
+        account = self._provisioned_account()
+        self.domain.hestiacp_account_id = account
+
+        self.domain.action_fetch_dkim_record()
+
+        self.assertEqual(self.domain.dkim_record_name, 'mail._domainkey.example.com.')
+        self.assertEqual(self.domain.dkim_record_value, 'v=DKIM1; k=rsa; p=ABC123FAKEKEYDATA')
+
+    def test_fetch_dkim_ignores_unrelated_records(self):
+        self._mock_hestia_client(dns_records_json=_dns_records())
+        account = self._provisioned_account()
+        self.domain.hestiacp_account_id = account
+
+        self.domain.action_fetch_dkim_record()
+
+        self.assertNotIn('1.2.3.4', self.domain.dkim_record_value)
+
+    def test_fetch_dkim_raises_when_no_dkim_record_exists(self):
+        self._mock_hestia_client(dns_records_json=_dns_records(include_dkim=False))
+        account = self._provisioned_account()
+        self.domain.hestiacp_account_id = account
+
+        with self.assertRaises(UserError):
+            self.domain.action_fetch_dkim_record()
+
+    def test_fetch_dkim_logs_a_chatter_message(self):
+        self._mock_hestia_client(dns_records_json=_dns_records())
+        account = self._provisioned_account()
+        self.domain.hestiacp_account_id = account
+
+        self.domain.action_fetch_dkim_record()
+
+        self.assertTrue(any(
+            'ABC123FAKEKEYDATA' in (msg.body or '') for msg in self.domain.message_ids))

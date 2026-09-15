@@ -32,6 +32,54 @@ class NamecheapDomain(models.Model):
              "(both on namecheap.domain itself) to point them at the "
              "other provider once it's set up, by hand, separately.")
     hestiacp_deployed_on = fields.Datetime(readonly=True)
+    dkim_record_name = fields.Char(readonly=True)
+    dkim_record_value = fields.Text(readonly=True)
+
+    def action_fetch_dkim_record(self):
+        """Pull this domain's DKIM TXT record out of HestiaCP's own DNS
+        zone for it - relevant specifically when DNS is managed
+        elsewhere (manage_dns_via_hestiacp off): HestiaCP still
+        generates DKIM for the mail domain and stores it in that
+        otherwise-unused zone, and it needs to be copied by hand into
+        whatever's actually authoritative (Cloudflare, etc.) for mail
+        to pass SPF/DKIM checks there.
+
+        Uses v-list-dns-records, which needs the ``update-dns-records``
+        Access Key category enabled - a different one than everything
+        else in this project, which only ever needed ``billing``.
+        Verified against HestiaCP's own source
+        (2026-09-14): the DKIM record is named ``mail._domainkey`` by
+        default, but this looks for any TXT record containing
+        "_domainkey" rather than that exact name, in case a different
+        selector's in use.
+        """
+        self.ensure_one()
+        account = self.hestiacp_account_id
+        if not account:
+            raise UserError(_("This domain isn't deployed to a HestiaCP account."))
+
+        records_raw = account.server_id._get_client().call(
+            'v-list-dns-records', account.username, self.name, 'json')
+        records = json.loads(records_raw)
+        dkim = next(
+            (r for r in records.values()
+             if r.get('TYPE') == 'TXT' and '_domainkey' in (r.get('RECORD') or '')),
+            None)
+        if not dkim:
+            raise UserError(_(
+                "No DKIM record found for %(domain)s yet on HestiaCP - "
+                "mail may not be fully set up there yet.", domain=self.name))
+
+        self.write({
+            'dkim_record_name': dkim['RECORD'],
+            'dkim_record_value': dkim['VALUE'],
+        })
+        self.message_post(body=_(
+            "DKIM record fetched from HestiaCP - copy this into whatever's "
+            "authoritative for this domain's DNS:<br/>"
+            "<b>Name:</b> %(name)s<br/><b>Type:</b> TXT<br/>"
+            "<b>Value:</b> %(value)s",
+            name=dkim['RECORD'], value=dkim['VALUE']))
 
     def action_deploy_to_hestiacp(self):
         """Add this domain to hestiacp_account_id's HestiaCP account

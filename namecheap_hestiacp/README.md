@@ -54,6 +54,20 @@ HestiaCP" button, which:
    just uses up one of the package's `DNS_DOMAINS` slots for
    bookkeeping purposes without actually doing anything.
 
+## Fetching a DKIM record
+
+With **"Let HestiaCP Manage DNS" off**, HestiaCP still generates DKIM
+for the mail domain and stores it in that otherwise-unused DNS zone -
+it needs to be copied by hand into whatever's actually authoritative
+(Cloudflare, etc.) for mail to pass SPF/DKIM checks there. The **Fetch
+DKIM Record** button (shown once a domain's deployed) pulls it via
+`v-list-dns-records` and shows the exact record name/value to copy.
+
+This needs the **`update-dns-records`** Access Key category enabled -
+a different one than everything else in this project, which only ever
+needed `billing`. Add it alongside `billing` on the same Access Key
+(HestiaCP: Server → Access Keys → the key → permissions).
+
 ## What this does NOT do
 
 - **Doesn't touch domain registration.** `namecheap_domains` itself

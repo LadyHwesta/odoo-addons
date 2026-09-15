@@ -10,6 +10,9 @@
                 <button name="action_deploy_to_hestiacp" type="object"
                         string="Deploy to HestiaCP" class="btn-primary"
                         invisible="not hestiacp_account_id or hestiacp_deployed_on" />
+                <button name="action_fetch_dkim_record" type="object"
+                        string="Fetch DKIM Record"
+                        invisible="not hestiacp_deployed_on" />
             </xpath>
             <group name="namecheap_domain_details" position="after">
                 <group string="HestiaCP">
@@ -17,6 +20,11 @@
                     <field name="manage_dns_via_hestiacp"
                            invisible="not hestiacp_account_id" />
                     <field name="hestiacp_deployed_on" readonly="1" />
+                </group>
+                <group string="DKIM (copy to whatever's authoritative for DNS)"
+                       invisible="not dkim_record_name">
+                    <field name="dkim_record_name" readonly="1" />
+                    <field name="dkim_record_value" readonly="1" />
                 </group>
             </group>
         </field>
