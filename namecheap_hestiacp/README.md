@@ -24,15 +24,35 @@ HestiaCP" button, which:
 2. **Adds the domain to the account** via `v-add-domain` - one call
    handles web, DNS, and mail domain setup together (respecting each
    type's own package limit independently), also `billing`-category.
-3. **Points the domain's nameservers at HestiaCP**, via Namecheap's
-   `domains.dns.setCustom`, using whatever nameservers (`NS`) are
-   already configured on the HestiaCP account (inherited from its
-   package) - without this step the domain would be "added" in
-   HestiaCP but still resolve through Namecheap's own default DNS, so
-   the site wouldn't actually be reachable there. If the account has no
-   `NS` configured, the deploy still completes (the domain is usable in
-   HestiaCP for when nameservers get sorted out by hand) but logs a
+3. **Points the domain's nameservers at HestiaCP** - but only if
+   **"Let HestiaCP Manage DNS"** is on (the default). When it is, this
+   uses Namecheap's `domains.dns.setCustom` with whatever nameservers
+   (`NS`) are already configured on the HestiaCP account (inherited
+   from its package) - without this step the domain would be "added"
+   in HestiaCP but still resolve through Namecheap's own default DNS,
+   so the site wouldn't actually be reachable there. If the account has
+   no `NS` configured, the deploy still completes (the domain is usable
+   in HestiaCP for when nameservers get sorted out by hand) but logs a
    clear chatter note that DNS wasn't touched.
+
+   **Turn "Let HestiaCP Manage DNS" off** for the common real-world
+   case of web/mail hosted on HestiaCP but DNS managed somewhere else -
+   Cloudflare, for its proxy/CDN/DDoS-protection features, being the
+   obvious example. With it off, `v-add-domain` still runs (web/mail
+   get set up on HestiaCP as normal) but this module never touches the
+   domain's nameservers at Namecheap - point them at the other provider
+   using `namecheap.domain`'s own **Nameservers** field + "Update
+   Nameservers" button (in the base `namecheap_domains` module, so it
+   works whether or not HestiaCP's involved at all) once that
+   provider's side is set up.
+
+   One thing worth knowing: `v-add-domain` creates a DNS zone in
+   HestiaCP regardless of this toggle, since `DNS_SYSTEM` is a
+   server-wide HestiaCP feature, not something this module can turn off
+   per domain. With the toggle off, that zone is simply never queried
+   by anything (the domain's real nameservers point elsewhere) - it
+   just uses up one of the package's `DNS_DOMAINS` slots for
+   bookkeeping purposes without actually doing anything.
 
 ## What this does NOT do
 

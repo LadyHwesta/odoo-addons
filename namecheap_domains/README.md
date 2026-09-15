@@ -50,11 +50,17 @@ was scoped.
    from an actual purchase yet - see below), but already the anchor
    point for [`namecheap_hestiacp`](../namecheap_hestiacp/), a small
    separate bridge module that can deploy an owned domain onto a
-   HestiaCP hosting account (web/DNS/mail setup + pointing its
-   nameservers at HestiaCP) without either module depending on the
+   HestiaCP hosting account without either module depending on the
    other - install it only if this business actually uses HestiaCP.
-   Also has `set_custom_nameservers()` on `namecheap.server` for
-   pointing a domain's DNS anywhere else that needs it.
+   Has its own **Nameservers** field + "Update Nameservers" button
+   (calling `namecheap.server.set_custom_nameservers()`) for pointing a
+   domain's DNS anywhere it needs to go - Namecheap's own default DNS
+   if left blank, a hosting provider's nameservers, Cloudflare's
+   (assigned per-zone once added there, for its proxy/CDN/DDoS
+   features), or anywhere else. This is deliberately independent of
+   HestiaCP - a domain doesn't need `hestiacp_account_id` set at all to
+   use it, and `namecheap_hestiacp`'s own DNS toggle (see its README)
+   builds on top of this rather than replacing it.
 
 ## Live-verified against the sandbox (2026-09-14)
 

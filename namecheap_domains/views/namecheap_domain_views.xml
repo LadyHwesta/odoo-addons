@@ -7,6 +7,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button name="action_update_nameservers" type="object"
+                            string="Update Nameservers" invisible="not nameservers" />
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
@@ -22,6 +24,10 @@
                             <field name="registered_on" />
                             <field name="expires_on" />
                         </group>
+                    </group>
+                    <group string="DNS">
+                        <field name="nameservers"
+                               placeholder="Leave blank for Namecheap's own default DNS" />
                     </group>
                 </sheet>
                 <chatter />

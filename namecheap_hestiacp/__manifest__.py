@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Namecheap - HestiaCP Bridge',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales',
     'summary': 'Deploy a Namecheap-owned domain onto a HestiaCP hosting account',
     'description': """

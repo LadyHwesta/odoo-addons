@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class NamecheapDomain(models.Model):
@@ -29,6 +30,14 @@ class NamecheapDomain(models.Model):
         ('active', 'Active'),
         ('expired', 'Expired'),
     ], default='draft', required=True)
+    nameservers = fields.Char(
+        help="Comma-separated, e.g. \"ns1.cloudflare.com,ns2.cloudflare.com\". "
+             "Set this and click Update Nameservers whenever this domain's DNS "
+             "should be managed somewhere other than Namecheap's own default DNS - "
+             "a hosting provider's own nameservers (see hestiacp_deployment's "
+             "\"Let HestiaCP manage DNS\" toggle if that module's installed), "
+             "Cloudflare's (assigned per-zone once the domain's added there), or "
+             "anywhere else. Leave blank to keep Namecheap's own default DNS.")
     active = fields.Boolean(default=True)
 
     _name_uniq = models.Constraint('unique(name)', "This domain is already tracked.")
@@ -37,3 +46,13 @@ class NamecheapDomain(models.Model):
     def _compute_tld(self):
         for domain in self:
             domain.tld = domain.name.split('.', 1)[1] if domain.name and '.' in domain.name else False
+
+    def action_update_nameservers(self):
+        self.ensure_one()
+        if not self.nameservers:
+            raise UserError(_("Enter one or more nameservers first."))
+        nameservers = [ns.strip() for ns in self.nameservers.split(',') if ns.strip()]
+        self.server_id.set_custom_nameservers(self.name, nameservers)
+        self.message_post(body=_(
+            "Nameservers updated at Namecheap: %(nameservers)s.",
+            nameservers=', '.join(nameservers)))

@@ -140,6 +140,45 @@ class TestDeployToHestiaCP(TransactionCase):
         self.assertTrue(any(
             'NOT updated' in (msg.body or '') for msg in self.domain.message_ids))
 
+    def test_deploy_with_dns_managed_elsewhere_still_adds_the_domain(self):
+        """The use case this toggle exists for: web/mail hosted on
+        HestiaCP, DNS managed elsewhere (e.g. Cloudflare, for its
+        proxy/CDN features) - v-add-domain should still run, but
+        Namecheap's nameservers must be left untouched.
+        """
+        client = self._mock_hestia_client(_user_info('janecustomer'))
+        account = self._provisioned_account()
+        self.domain.write({
+            'hestiacp_account_id': account.id,
+            'manage_dns_via_hestiacp': False,
+        })
+
+        self.domain.action_deploy_to_hestiacp()
+
+        client.call.assert_any_call('v-add-domain', account.username, 'example.com')
+
+    def test_deploy_with_dns_managed_elsewhere_does_not_touch_nameservers(self):
+        self._mock_hestia_client(_user_info('janecustomer'))
+        account = self._provisioned_account()
+        self.domain.write({
+            'hestiacp_account_id': account.id,
+            'manage_dns_via_hestiacp': False,
+        })
+
+        self.domain.action_deploy_to_hestiacp()
+
+        self.assertFalse(any(
+            c.args and c.args[0] == 'namecheap.domains.dns.setCustom'
+            for c in self.namecheap_client.call.call_args_list))
+        self.assertTrue(any(
+            'left as-is' in (msg.body or '') for msg in self.domain.message_ids))
+
+    def test_deploy_defaults_to_letting_hestiacp_manage_dns(self):
+        domain = self.env['namecheap.domain'].create({
+            'name': 'default-dns-test.com', 'server_id': self.namecheap_server.id,
+        })
+        self.assertTrue(domain.manage_dns_via_hestiacp)
+
     def test_deploy_marks_state_and_timestamp(self):
         self._mock_hestia_client(_user_info('janecustomer'))
         account = self._provisioned_account()

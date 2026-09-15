@@ -14,11 +14,23 @@ class NamecheapDomain(models.Model):
     hestiacp_account_id = fields.Many2one(
         'hestiacp.account', string="HestiaCP Account",
         help="Deploy this domain onto this hosting account: adds it as "
-             "a web/DNS/mail domain there (v-add-domain) and points "
-             "this domain's own nameservers at that account's HestiaCP "
-             "nameservers so it actually resolves there. Not every "
+             "a web/DNS/mail domain there (v-add-domain). Not every "
              "domain needs this - leave blank for one that isn't going "
              "to HestiaCP.")
+    manage_dns_via_hestiacp = fields.Boolean(
+        string="Let HestiaCP Manage DNS", default=True,
+        help="On deploy, also point this domain's nameservers at "
+             "HestiaCP's own (whatever this account's package already "
+             "has configured), so HestiaCP is fully authoritative for "
+             "this domain's DNS as well as its web/mail. Turn this off "
+             "for a domain that's hosted (web/mail) on HestiaCP but "
+             "has its DNS managed elsewhere instead - e.g. Cloudflare, "
+             "for its proxy/CDN/DDoS features. With this off, deploying "
+             "still adds the web/mail domain to HestiaCP as normal, but "
+             "never touches this domain's nameservers at Namecheap - "
+             "use the Nameservers field and Update Nameservers button "
+             "(both on namecheap.domain itself) to point them at the "
+             "other provider once it's set up, by hand, separately.")
     hestiacp_deployed_on = fields.Datetime(readonly=True)
 
     def action_deploy_to_hestiacp(self):
@@ -66,17 +78,36 @@ class NamecheapDomain(models.Model):
                 username=account.username, used=web_used, limit=web_limit))
 
         hestia_client.call('v-add-domain', account.username, self.name)
+        # DNS_SYSTEM being on for the server means v-add-domain just now
+        # also created a DNS zone for this domain in HestiaCP - harmless
+        # but unused if manage_dns_via_hestiacp is off below, since
+        # nothing on the internet will ever query it while the domain's
+        # real nameservers point elsewhere. There's no per-call flag to
+        # skip that; it's a HestiaCP server-wide feature, not something
+        # this module can turn off just for one domain.
 
-        nameservers = [ns for ns in (user_info.get('NS') or '').split(',') if ns]
-        if nameservers:
-            self.server_id.set_custom_nameservers(self.name, nameservers)
+        if not self.manage_dns_via_hestiacp:
+            ns_note = _(
+                " DNS left as-is (Let HestiaCP Manage DNS is off) - "
+                "set up DNS with whatever provider this domain is using "
+                "instead, and use the Nameservers field/Update "
+                "Nameservers button once that's ready.")
         else:
-            _logger.warning(
-                "Namecheap: %s's HestiaCP user has no NS configured - "
-                "%s was added to HestiaCP but its nameservers were NOT "
-                "updated at Namecheap, so it won't resolve there until "
-                "that's done, by hand or otherwise.",
-                account.username, self.name)
+            nameservers = [ns for ns in (user_info.get('NS') or '').split(',') if ns]
+            if nameservers:
+                self.server_id.set_custom_nameservers(self.name, nameservers)
+                self.nameservers = ','.join(nameservers)
+                ns_note = _(" Nameservers updated at Namecheap.")
+            else:
+                _logger.warning(
+                    "Namecheap: %s's HestiaCP user has no NS configured - "
+                    "%s was added to HestiaCP but its nameservers were NOT "
+                    "updated at Namecheap, so it won't resolve there until "
+                    "that's done, by hand or otherwise.",
+                    account.username, self.name)
+                ns_note = _(
+                    " Nameservers were NOT updated - the account's "
+                    "HestiaCP user has no NS configured.")
 
         self.write({
             'hestiacp_deployed_on': fields.Datetime.now(),
@@ -84,7 +115,4 @@ class NamecheapDomain(models.Model):
         })
         self.message_post(body=_(
             "Deployed to HestiaCP account %(username)s.%(ns_note)s",
-            username=account.username,
-            ns_note=_(" Nameservers updated at Namecheap.") if nameservers else _(
-                " Nameservers were NOT updated - the account's HestiaCP "
-                "user has no NS configured.")))
+            username=account.username, ns_note=ns_note))
