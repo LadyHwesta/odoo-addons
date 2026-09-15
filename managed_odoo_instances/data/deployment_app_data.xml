@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Presets for the suites already built in this project.
+         Club module names are confirmed against this repo directly.
+         Nonprofit/paramedic module names are recalled from memory of
+         their own (separate) repos, NOT re-verified against those
+         repos' actual current __manifest__.py files while writing
+         this - confirm before actually deploying either for a real
+         customer, per this module's own README. -->
+
+    <record id="deployment_app_club" model="deployment.app">
+        <field name="name">Amateur Radio Club Suite</field>
+        <field name="module_names">club_amateur_radio,club_membership,membership,membership_prorate,club_equipment_loan</field>
+    </record>
+
+    <record id="deployment_app_nonprofit" model="deployment.app">
+        <field name="name">Nonprofit Suite</field>
+        <field name="module_names">nonprofit_base,donation,nonprofit_fund_accounting,volunteer_shift,volunteer_profile</field>
+    </record>
+
+    <record id="deployment_app_paramedic" model="deployment.app">
+        <field name="name">Paramedical Tattoo Practice Suite</field>
+        <field name="module_names">paramedic_base,paramedic_appointment</field>
+    </record>
+</odoo>

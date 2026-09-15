@@ -118,6 +118,27 @@ Custom Odoo 19 modules.
   a real gap it surfaces but doesn't fix in this pass
   (`hestiacp.account.action_terminate()` has the same billing-doesn't-
   actually-stop bug `action_release()` had).
+- [`managed_odoo_instances/`](managed_odoo_instances/) - Phase 2:
+  treats "we run a dedicated Odoo instance for you" as a real,
+  billable product - shared multi-tenant server for smaller
+  customers, or a dedicated VPS for anyone who needs their own. The
+  actual system-level work (nginx vhost, SSL via certbot, database
+  creation + app install) is done by a small standalone companion
+  service in its own separate repo,
+  [`meskis-deploy-agent`](https://github.com/LadyHwesta/meskis-deploy-agent) -
+  this module only ever calls it over HTTPS with a bearer token, the
+  same client pattern as everywhere else in this repo; it never holds
+  SSH credentials. Requesting an instance generates a real
+  `project.project` deployment checklist - for a brand-new dedicated
+  server, including the one-time bootstrap script as a task
+  attachment (sent to Tiesa to run by hand, never the customer).
+  Bills through `reseller_subscriptions`'s own
+  `contract.billing.mixin`, but only starts invoicing once an instance
+  is actually marked live. See its README for what's still a
+  deliberate manual step (the X-Odoo-Dbfilter routing middleware
+  itself, deeper per-instance configuration) and
+  `meskis-deploy-agent`'s own README for what's not yet live-verified
+  (the bootstrap script itself, against a real server).
 
 ### Amateur radio club suite
 
