@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Namecheap Domain Reselling',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales',
     'summary': 'Sell domains through Namecheap\'s reseller API with a percentage markup',
     'description': """
@@ -21,11 +21,12 @@ and what's planned next.
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['base'],
+    'depends': ['mail'],
     'data': [
         'security/ir.model.access.csv',
         'data/ir_cron.xml',
         'views/namecheap_server_views.xml',
+        'views/namecheap_domain_views.xml',
         'views/menus.xml',
     ],
     'installable': True,

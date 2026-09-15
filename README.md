@@ -35,10 +35,15 @@ Custom Odoo 19 modules.
 - [`namecheap_domains/`](namecheap_domains/) - **Phase 1 of a multi-phase
   build**: connects to Namecheap's reseller API to check domain
   availability and cache Namecheap's own per-TLD pricing marked up by a
-  percentage. No storefront, checkout, or actual registration yet - see
+  percentage, plus a `namecheap.domain` model tracking owned domains. No
+  storefront, checkout, or actual registration yet - see
   [`namecheap_domains/README.md`](namecheap_domains/README.md), in
   particular its note on Namecheap's own docs blocking automated fetching
   (403), so the wire format here is unverified against a live call so far.
+  - [`namecheap_hestiacp/`](namecheap_hestiacp/) - a small separate bridge
+    module (install only if wanted) that can deploy an owned domain onto a
+    `hestiacp_hosting` account: adds it as a web/DNS/mail domain there and
+    points its nameservers at HestiaCP.
 
 ### Amateur radio club suite
 

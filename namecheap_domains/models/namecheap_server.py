@@ -125,6 +125,29 @@ class NamecheapServer(models.Model):
             })
         return results
 
+    def set_custom_nameservers(self, domain_name, nameservers):
+        """Point `domain_name` at `nameservers` (a list of hostnames)
+        instead of Namecheap's own DNS, via domains.dns.setCustom.
+        Needed for a domain to actually resolve wherever it's hosted -
+        adding it to a hosting account's control panel (HestiaCP or
+        otherwise) doesn't touch DNS at the registrar by itself.
+
+        Note this method's own name: URL forwarding, email forwarding,
+        and Namecheap's Dynamic DNS stop working for a domain once it's
+        on custom nameservers, per Namecheap's own docs for this
+        method - expected and fine once the destination's own DNS
+        (e.g. HestiaCP's) is what's actually serving the domain, but
+        worth knowing before calling this for any other reason.
+        """
+        self.ensure_one()
+        if '.' not in domain_name:
+            raise UserError(_("%(domain)s doesn't look like a valid domain.",
+                               domain=domain_name))
+        sld, tld = domain_name.split('.', 1)
+        self._get_client().call(
+            'namecheap.domains.dns.setCustom',
+            SLD=sld, TLD=tld, NameServers=','.join(nameservers))
+
     def _get_available_balance(self):
         """Namecheap's real account balance right now, in whatever
         currency the account is denominated in - used for the

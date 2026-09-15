@@ -45,6 +45,16 @@ was scoped.
    sheet for a normal domain, or from Namecheap's own ad-hoc
    `PremiumRegistrationPrice` (marked up the same way) for a premium
    domain, since those don't follow the per-TLD sheet rate at all.
+5. **`namecheap.domain`** - one record per domain this business owns.
+   Created by hand for now (Phase 3 hasn't wired up automatic creation
+   from an actual purchase yet - see below), but already the anchor
+   point for [`namecheap_hestiacp`](../namecheap_hestiacp/), a small
+   separate bridge module that can deploy an owned domain onto a
+   HestiaCP hosting account (web/DNS/mail setup + pointing its
+   nameservers at HestiaCP) without either module depending on the
+   other - install it only if this business actually uses HestiaCP.
+   Also has `set_custom_nameservers()` on `namecheap.server` for
+   pointing a domain's DNS anywhere else that needs it.
 
 ## A verification gap, on purpose (read this before trusting the parsing code)
 
@@ -99,6 +109,7 @@ where to fix it.
   info (decided at scoping time: pulled from the customer's existing
   billing address, not a separate WHOIS-contact step) - Phase 3, not
   built. Nothing in this module registers a real domain yet.
+  `namecheap.domain` records are created by hand in the meantime.
 - **No renewal billing.** A real domain needs a recurring
   `contract.contract` (reusing the `contract` module already vendored
   for hosting) *and* an actual call to `namecheap.domains.renew` at
