@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem id="menu_signalwire_root" name="VoIP" sequence="91" />
+    <menuitem id="menu_signalwire_subprojects" name="Subprojects"
+              action="action_signalwire_subproject" parent="menu_signalwire_root"
+              sequence="10" />
+    <menuitem id="menu_signalwire_phone_numbers" name="Phone Numbers"
+              action="action_signalwire_phone_number" parent="menu_signalwire_root"
+              sequence="20" />
+    <menuitem id="menu_signalwire_servers" name="SignalWire Projects"
+              action="action_signalwire_server" parent="menu_signalwire_root"
+              sequence="30" groups="base.group_system" />
+
+</odoo>

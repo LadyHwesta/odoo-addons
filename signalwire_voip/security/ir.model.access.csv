@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_signalwire_server_system,signalwire.server system,model_signalwire_server,base.group_system,1,1,1,1
+access_signalwire_subproject_user,signalwire.subproject user,model_signalwire_subproject,base.group_user,1,1,1,0
+access_signalwire_subproject_system,signalwire.subproject system,model_signalwire_subproject,base.group_system,1,1,1,1
+access_signalwire_phone_number_user,signalwire.phone_number user,model_signalwire_phone_number,base.group_user,1,1,1,0
+access_signalwire_phone_number_system,signalwire.phone_number system,model_signalwire_phone_number,base.group_system,1,1,1,1
+access_signalwire_phone_number_search_user,signalwire.phone_number.search user,model_signalwire_phone_number_search,base.group_user,1,1,1,1
+access_signalwire_phone_number_search_result_user,signalwire.phone_number.search.result user,model_signalwire_phone_number_search_result,base.group_user,1,1,1,1
