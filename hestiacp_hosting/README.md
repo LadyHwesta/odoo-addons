@@ -76,6 +76,10 @@ tool is lacking.
    active `hestiacp.account` (staff-only, not yet self-service) opens a
    wizard to move it to a different package on the same server. See
    **Changing an account's package** below.
+8. **Migrating an existing, already-paid customer** - Sales →
+   Configuration → Hosting → Migrate Existing Customer provisions a
+   real HestiaCP account today without billing for time already paid
+   to a previous host. See **Migrating an existing customer** below.
 
 ## Changing an account's package
 
@@ -117,6 +121,43 @@ but is billed at the old price for the rest of it, in both directions
 (upgrade or downgrade). Real proration (crediting/charging the
 difference for the partial period) isn't built - this trades a bit of
 revenue precision for not having to get partial-period math right.
+
+## Migrating an existing customer
+
+For onboarding a customer moving from another host (Planet Hoster,
+etc.) who's already paid through some future date - **Sales →
+Configuration → Hosting → Migrate Existing Customer**. This exists
+because the normal path (a `sale.order` confirming) always creates a
+recurring line that's due for its first invoice immediately, which
+would bill the customer again for time they've already paid for
+elsewhere.
+
+The wizard asks for the customer, the hosting package, an optional
+username (to preserve one they're already used to, if it's free on
+this server - otherwise the normal auto-generated one), and the date
+their already-paid-for period with their old host actually ends. On
+confirm, it:
+
+1. **Provisions the real HestiaCP account immediately** - the exact
+   same `v-add-user` call a normal checkout makes.
+2. **Creates the recurring contract**, but with the line's
+   `recurring_next_date` set explicitly to the given renewal date
+   instead of today. This works because that field, despite being
+   "computed," is declared `readonly=False` and only auto-computed as
+   a *default* - an explicit value passed at creation sticks, the same
+   way a normal renewal's own advance of that field does later. The
+   invoicing cron leaves the line alone until that date arrives, then
+   bills normally from then on.
+
+No invoice is created and no charge is attempted at migration time -
+only real provisioning happens immediately; billing genuinely waits.
+
+**Domains being migrated alongside hosting need no special handling** -
+`namecheap_domains`/`namecheap_hestiacp` (see that repo's own modules)
+have no billing/contract coupling at all yet (domain registration
+billing is a later phase, not built), so creating a `namecheap.domain`
+record and using its existing "Deploy to HestiaCP" button is already
+exactly as billing-free as this wizard, with no changes needed there.
 
 ## Customer agreement (Hosting Service Agreement)
 
@@ -260,6 +301,10 @@ already fixed in the code here:
   version (a customer picking their own new plan rather than asking
   staff to run the wizard), and real proration - both would be good
   follow-ups if this business ends up wanting either.
+- **Existing-customer migration done** - see **Migrating an existing
+  customer** above. One-at-a-time only; if migrating a large batch of
+  customers turns out to be tedious through the wizard, a CSV-import
+  version would be a reasonable follow-up.
 
 ## Testing
 

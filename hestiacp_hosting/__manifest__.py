@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HestiaCP Hosting Billing',
-    'version': '19.0.1.6.0',
+    'version': '19.0.1.7.0',
     'category': 'Sales',
     'summary': 'Sell hosting packages and auto-provision HestiaCP accounts on payment',
     'description': """
@@ -42,6 +42,7 @@ See ``README.md`` for the full architecture and setup steps.
         'data/ir_cron.xml',
         'data/hestiacp_agreement_data.xml',
         'wizards/hestiacp_account_change_package_views.xml',
+        'wizards/hestiacp_account_migrate_views.xml',
         'views/hestiacp_server_views.xml',
         'views/hestiacp_account_views.xml',
         'views/hestiacp_account_portal_templates.xml',

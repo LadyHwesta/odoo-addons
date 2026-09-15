@@ -4,3 +4,4 @@ from . import test_portal
 from . import test_auto_charge
 from . import test_agreement
 from . import test_change_package
+from . import test_migrate

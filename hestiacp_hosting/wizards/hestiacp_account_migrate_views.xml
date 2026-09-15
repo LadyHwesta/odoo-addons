@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_hestiacp_account_migrate_form" model="ir.ui.view">
+        <field name="name">hestiacp.account.migrate.form</field>
+        <field name="model">hestiacp.account.migrate</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="server_id" invisible="1" />
+                <group>
+                    <field name="partner_id" />
+                    <field name="product_id" />
+                    <field name="username" placeholder="Auto-generated if left blank" />
+                    <field name="next_renewal_date" />
+                </group>
+                <div class="alert alert-info" role="alert">
+                    Provisions the real HestiaCP account today (same as a normal
+                    checkout). Nothing is invoiced or charged until the renewal date
+                    above - use the date the customer's already paid through with
+                    their previous host, not today.
+                </div>
+                <footer>
+                    <button name="action_migrate" type="object" string="Migrate"
+                            class="btn-primary" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hestiacp_account_migrate" model="ir.actions.act_window">
+        <field name="name">Migrate an Existing Customer</field>
+        <field name="res_model">hestiacp.account.migrate</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

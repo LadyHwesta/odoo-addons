@@ -9,3 +9,4 @@ access_hestiacp_agreement_sale_manager,hestiacp.agreement sales manager,model_he
 access_hestiacp_agreement_sale,hestiacp.agreement salesman,model_hestiacp_agreement,sales_team.group_sale_salesman,1,0,0,0
 access_hestiacp_account_change_package_sale_manager,hestiacp.account.change.package sales manager,model_hestiacp_account_change_package,sales_team.group_sale_manager,1,1,1,1
 access_hestiacp_account_change_package_sale,hestiacp.account.change.package salesman,model_hestiacp_account_change_package,sales_team.group_sale_salesman,1,1,1,0
+access_hestiacp_account_migrate_sale_manager,hestiacp.account.migrate sales manager,model_hestiacp_account_migrate,sales_team.group_sale_manager,1,1,1,1
