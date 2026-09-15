@@ -104,6 +104,20 @@ Custom Odoo 19 modules.
     token layer is live-verified end to end through the real Odoo
     models; per-participant usage billing is not, since generating that
     data needs an actual joined WebRTC call.
+- [`reseller_subscriptions/`](reseller_subscriptions/) - one unified
+  self-service "My Subscriptions" portal page across hosting, domains,
+  and SignalWire telecom, instead of three separate (or, for domains
+  and SignalWire, nonexistent) portal experiences. Closes a real
+  billing gap along the way: SignalWire numbers never had their
+  contract linked back to them, so nothing ever auto-charged a
+  SignalWire customer's saved card, and releasing a number never
+  stopped billing for it - both fixed here. Also adds a "stop
+  renewing" action for domains, which had none before. Deliberately
+  doesn't touch `hestiacp_hosting`/`namecheap_domains_sale`'s own
+  already-live billing code - see its README for the full design and
+  a real gap it surfaces but doesn't fix in this pass
+  (`hestiacp.account.action_terminate()` has the same billing-doesn't-
+  actually-stop bug `action_release()` had).
 
 ### Amateur radio club suite
 

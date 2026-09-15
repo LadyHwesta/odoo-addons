@@ -84,7 +84,7 @@ class SaleOrder(models.Model):
 
             today = fields.Date.context_today(self)
             usage_product = self.env.ref(USAGE_PRODUCT_XML_ID)
-            self.env['contract.contract'].create({
+            contract = self.env['contract.contract'].create({
                 'name': f'{number.name} - {self.partner_id.name}',
                 'partner_id': self.partner_id.id,
                 'pricelist_id': self.pricelist_id.id,
@@ -116,3 +116,9 @@ class SaleOrder(models.Model):
                     }),
                 ],
             })
+            # No-op unless reseller_subscriptions (or some other future
+            # module) overrides it - kept here rather than storing the
+            # contract/payment-token back-reference directly, since
+            # this module has no such fields itself and shouldn't
+            # reach forward into an optional extension's own schema.
+            number._signalwire_after_provisioned(contract, self.get_portal_last_transaction())

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <template id="portal_my_home_subscriptions" name="Portal home: My Subscriptions"
+              customize_show="True" inherit_id="portal.portal_my_home" priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True" />
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/folder.svg'" />
+                <t t-set="title">My Subscriptions</t>
+                <t t-set="url" t-value="'/my/subscriptions'" />
+                <t t-set="text">Hosting, domains, and phone numbers - all in one place</t>
+                <t t-set="placeholder_count" t-value="'subscription_count'" />
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_subscriptions" name="My Subscriptions">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">My Subscriptions</h3>
+
+            <t t-if="not rows">
+                <p class="alert alert-info">You don't have any active subscriptions with us yet.</p>
+            </t>
+            <t t-else="">
+                <table class="table table-sm o_portal_my_doc_table">
+                    <thead>
+                        <tr class="active">
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Next Invoice</th>
+                            <th>Monthly</th>
+                            <th>Payment Method</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="rows" t-as="row">
+                            <td t-esc="row['name']" />
+                            <td>
+                                <span t-if="row['state'] == 'active'"
+                                      class="badge text-bg-success">Active</span>
+                                <span t-elif="row['state'] == 'suspended'"
+                                      class="badge text-bg-warning">Suspended - payment needed</span>
+                                <span t-elif="row['state'] in ('terminated', 'cancelled', 'released')"
+                                      class="badge text-bg-secondary" t-esc="row['state'].capitalize()" />
+                                <span t-else="" class="badge text-bg-light">Setting up</span>
+                            </td>
+                            <td t-esc="row['next_invoice_date'] or '-'" />
+                            <td t-esc="'%.2f' % row['monthly_amount']" />
+                            <td>
+                                <span t-if="row['has_payment_method']" class="text-success">On file</span>
+                                <t t-elif="payment_tokens">
+                                    <form t-attf-action="/my/subscriptions/#{row['kind']}/#{row['id']}/payment_method"
+                                          method="post" class="d-flex gap-1">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                        <select name="token_id" class="form-select form-select-sm">
+                                            <t t-foreach="payment_tokens" t-as="tok">
+                                                <option t-att-value="tok.id" t-esc="tok.payment_details" />
+                                            </t>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Use</button>
+                                    </form>
+                                </t>
+                                <span t-else="" class="text-muted">
+                                    None - <a href="/my/payment_method">add a card</a>
+                                </span>
+                            </td>
+                            <td>
+                                <a t-if="row.get('portal_view_url')" t-att-href="row['portal_view_url']"
+                                   class="btn btn-sm btn-link">View</a>
+                                <a t-if="row['kind'] == 'hosting' and row['can_upgrade']"
+                                   t-attf-href="/my/subscriptions/hosting/#{row['id']}/upgrade"
+                                   class="btn btn-sm btn-secondary">Change Package</a>
+                                <form t-if="row['kind'] == 'hosting' and row['can_cancel']"
+                                      t-attf-action="/my/subscriptions/hosting/#{row['id']}/cancel"
+                                      method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Cancel this hosting account? This can\'t be undone.')">
+                                        Cancel</button>
+                                </form>
+                                <form t-if="row['kind'] == 'domain' and row['can_cancel']"
+                                      t-attf-action="/my/subscriptions/domain/#{row['id']}/cancel_renewal"
+                                      method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Stop auto-renewing this domain?')">
+                                        Stop Renewing</button>
+                                </form>
+                                <form t-if="row['kind'] == 'signalwire' and row['can_cancel']"
+                                      t-attf-action="/my/subscriptions/signalwire/#{row['id']}/release"
+                                      method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Release this phone number? This can\'t be undone.')">
+                                        Release</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+            <p class="text-muted mt-3">
+                Add hosting, another domain via <a href="/domains">/domains</a>, or another
+                phone number via <a href="/voip">/voip</a>. Manage saved cards on your
+                <a href="/my/payment_method">Payment Methods</a> page.
+            </p>
+        </t>
+    </template>
+
+    <template id="portal_my_subscriptions_hosting_upgrade" name="Change Hosting Package">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">Change Package - <t t-esc="account.username" /></h3>
+            <p t-if="error" class="alert alert-danger" t-esc="error" />
+            <form t-attf-action="/my/subscriptions/hosting/#{account.id}/upgrade" method="post">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <div class="mb-3">
+                    <label class="form-label">
+                        Current package: <strong t-esc="account.product_id.name" />
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="new_product_id">New package</label>
+                    <select name="new_product_id" class="form-select" required="required">
+                        <t t-foreach="eligible_products" t-as="product">
+                            <option t-att-value="product.id" t-esc="product.name" />
+                        </t>
+                    </select>
+                </div>
+                <p class="text-muted">
+                    Billing at the new price starts at your next renewal - not
+                    prorated for the rest of the current period.
+                </p>
+                <button type="submit" class="btn btn-primary">Confirm Change</button>
+                <a href="/my/subscriptions" class="btn btn-link">Cancel</a>
+            </form>
+        </t>
+    </template>
+
+</odoo>

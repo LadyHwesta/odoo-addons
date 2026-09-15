@@ -2,6 +2,7 @@
 from . import product_template
 from . import sale_order_line
 from . import signalwire_server
+from . import signalwire_phone_number
 from . import signalwire_cdr
 from . import signalwire_subproject
 from . import contract_line

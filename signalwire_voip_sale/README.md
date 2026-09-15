@@ -116,6 +116,16 @@ browser-softphone access" becomes an actual product to offer.
   arguably more consequential here since usage charges could keep
   accruing on a number nobody's paying for. Worth revisiting before
   this handles real paying customers at any volume.
+  - **Auto-charging itself is now fixed** by the optional
+    `reseller_subscriptions` module: this module never stored the
+    contract it creates anywhere on the number, so nothing could ever
+    auto-charge a saved card for it - `reseller_subscriptions` closes
+    that via a small no-op hook added here,
+    `signalwire.phone_number._signalwire_after_provisioned()`, called
+    right after the contract's created (see this file's own
+    `models/signalwire_phone_number.py` and that module's README for
+    the full story). Still no *suspension* on non-payment specifically
+    - only auto-charging.
 - **No re-verification at add-to-cart.** Unlike
   `namecheap_domains_sale`'s domain search (which re-checks
   availability via `domains.check` before adding to cart),
