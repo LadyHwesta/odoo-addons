@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_users_form_inherit_telehealth" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.telehealth</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="telehealth" string="Telehealth">
+                    <group>
+                        <field name="telehealth_video_tier" />
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_users_form_simple_modif_inherit_telehealth" model="ir.ui.view">
+        <field name="name">res.users.form.simple.modif.inherit.telehealth</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="telehealth" string="Telehealth">
+                    <group>
+                        <field name="telehealth_video_tier" readonly="1" />
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

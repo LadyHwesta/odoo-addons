@@ -23,6 +23,16 @@ class ContractLine(models.Model):
         'signalwire.subproject',
         help="Whose usage this line bills - required when "
              "is_signalwire_metered is set.")
+    signalwire_usage_type = fields.Selection(
+        [('telecom', 'Calls + SMS'), ('video', 'Video')],
+        default='telecom', required=True,
+        help="Which of signalwire.subproject's sync methods this "
+             "line's usage comes from at invoice time - Calls+SMS "
+             "(_sync_cdrs) or Video (_sync_video_cdrs, added by "
+             "telehealth_booking_signalwire). Both produce the same "
+             "signalwire.cdr shape either way, so nothing else about "
+             "billing/PDF-statement generation needs to know which "
+             "one a given line uses.")
     signalwire_period_start = fields.Date(
         readonly=True, copy=False,
         help="The exact period this line's most recent invoice "
@@ -43,7 +53,11 @@ class ContractLine(models.Model):
                     'signalwire_period_start': first_date,
                     'signalwire_period_end': last_date,
                 })
-                cdrs = self.signalwire_subproject_id._sync_cdrs(
-                    self, first_date, last_date)
+                if self.signalwire_usage_type == 'video':
+                    cdrs = self.signalwire_subproject_id._sync_video_cdrs(
+                        self, first_date, last_date)
+                else:
+                    cdrs = self.signalwire_subproject_id._sync_cdrs(
+                        self, first_date, last_date)
                 vals['price_unit'] = sum(cdrs.mapped('billed_amount'))
         return vals

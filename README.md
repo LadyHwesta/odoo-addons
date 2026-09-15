@@ -87,6 +87,23 @@ Custom Odoo 19 modules.
     bill attached, rather than folding usage into the invoice as one
     line per call. No new cron needed - hooks into the vendored
     `contract` module's own recurring-invoice cron.
+- [`telehealth_booking/`](telehealth_booking/) - one field
+  (`res.users.telehealth_video_tier`) and one hook point on
+  `calendar.event` for a "premium video" upgrade path - installed
+  alone, every booking just uses Odoo's own built-in Discuss video
+  calling exactly as it already works. See its README for why that
+  built-in calling has a real reliability ceiling worth knowing before
+  promising it to paying patients (peer-to-peer WebRTC, no TURN relay
+  configured by default).
+  - [`telehealth_booking_signalwire/`](telehealth_booking_signalwire/) -
+    fills the hook in with real SignalWire Video: self-service upgrade,
+    lazy per-provider subproject + metered billing provisioning (reusing
+    `signalwire_voip_sale`'s own CDR/PDF-statement mechanism, extended to
+    cover video room-session usage), and an Odoo-hosted join page
+    embedding a vendored copy of SignalWire's browser SDK. The room/
+    token layer is live-verified end to end through the real Odoo
+    models; per-participant usage billing is not, since generating that
+    data needs an actual joined WebRTC call.
 
 ### Amateur radio club suite
 

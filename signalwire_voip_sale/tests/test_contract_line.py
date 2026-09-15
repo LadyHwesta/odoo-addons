@@ -71,6 +71,18 @@ class TestContractLineMeteredBilling(TransactionCase):
         self.assertEqual(line, self.metered_line)
         self.assertEqual(first_date, self.metered_line.date_start)
 
+    def test_usage_type_defaults_to_telecom_and_uses_sync_cdrs(self):
+        # _sync_video_cdrs is only defined once telehealth_booking_signalwire
+        # is installed - this module's own tests must not assume it
+        # exists, so this only checks the default ('telecom') branch.
+        self.assertEqual(self.metered_line.signalwire_usage_type, 'telecom')
+        with patch.object(
+                type(self.subproject), '_sync_cdrs',
+                return_value=self.env['signalwire.cdr']) as mocked_telecom:
+            self.metered_line._prepare_invoice_line()
+
+        mocked_telecom.assert_called_once()
+
     def test_non_metered_line_is_unaffected(self):
         plain_product = self.env['product.template'].create({'name': 'Plain Product'})
         contract = self.env['contract.contract'].create({

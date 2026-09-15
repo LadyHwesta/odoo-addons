@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <template id="join_page" name="Telehealth Video Join">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container py-4">
+                    <h2 class="mb-1" t-esc="event.name" />
+                    <p id="telehealth-video-status" class="text-muted">Connecting...</p>
+                    <div id="telehealth-video-root"
+                         t-att-data-room-token="room_token"
+                         style="width: 100%; height: 70vh; background: #111; border-radius: 8px;" />
+                </div>
+            </div>
+            <script src="/telehealth_booking_signalwire/static/lib/signalwire-js.js" />
+            <script src="/telehealth_booking_signalwire/static/src/js/telehealth_join.js" />
+        </t>
+    </template>
+
+</odoo>

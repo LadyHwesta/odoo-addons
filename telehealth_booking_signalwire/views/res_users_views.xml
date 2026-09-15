@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_users_form_inherit_telehealth_signalwire" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.telehealth.signalwire</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="telehealth_booking.view_users_form_inherit_telehealth" />
+        <field name="arch" type="xml">
+            <field name="telehealth_video_tier" position="after">
+                <field name="signalwire_video_subproject_id" readonly="1"
+                       invisible="not signalwire_video_subproject_id" />
+                <field name="signalwire_video_contract_id" readonly="1"
+                       invisible="not signalwire_video_contract_id" />
+                <button name="action_upgrade_telehealth_video" type="object"
+                        string="Upgrade to Premium Video" class="btn-primary"
+                        invisible="telehealth_video_tier == 'premium'" />
+                <button name="action_downgrade_telehealth_video" type="object"
+                        string="Switch back to Basic"
+                        invisible="telehealth_video_tier == 'basic'" />
+            </field>
+        </field>
+    </record>
+
+</odoo>

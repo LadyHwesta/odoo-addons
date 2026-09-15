@@ -39,6 +39,12 @@ class SignalWireClient:
       Basic Auth username, not the parent project's - a parent-ID/new-
       token pairing returns 200 with an empty body (silently useless)
       where the subproject-ID pairing returns the real data.
+    - the **Video API**, rooted at ``/api/video/`` - rooms, room
+      tokens (for a browser client to actually join one), and room
+      sessions/members (for per-participant usage billing). A fourth,
+      genuinely different base path and response envelope again -
+      confirmed live 2026-09-15 (create/list/delete a room, create a
+      room token) rather than guessed from docs.
 
     One set of parent-project credentials is enough for everything
     here, including managing a subproject's own resources - just pass
@@ -98,6 +104,24 @@ class SignalWireClient:
 
     def _project_url(self, path):
         return f'https://{self.space}/api/{path}'
+
+    def video_get(self, path, **params):
+        """GET a Video API path, relative to /api/video/ - e.g.
+        ``'rooms'`` or ``'room_sessions'``. Confirmed live 2026-09-15:
+        a different response envelope than the Compatibility API's own
+        list shape - ``{"links": {...}, "data": [...]}`` rather than
+        ``{"uri": ..., "<resource>": [...]}``.
+        """
+        return self._request('get', self._video_url(path), params=params)
+
+    def video_post(self, path, **json_body):
+        return self._request('post', self._video_url(path), json=json_body)
+
+    def video_delete(self, path):
+        return self._request('delete', self._video_url(path))
+
+    def _video_url(self, path):
+        return f'https://{self.space}/api/video/{path}'
 
     def _request(self, method, url, **kwargs):
         try:

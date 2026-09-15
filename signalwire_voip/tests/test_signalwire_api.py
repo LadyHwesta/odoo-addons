@@ -94,6 +94,39 @@ class TestSignalWireClient(TransactionCase):
         self.assertEqual(
             args[1], 'https://example.signalwire.com/api/project/tokens/tok-1')
 
+    def test_video_get_hits_the_video_url(self):
+        client = self._client()
+        with patch(
+                'requests.request',
+                return_value=_mock_response(json_body={'data': []})) as req:
+            client.video_get('room_sessions', **{'started_at>': '2026-09-01'})
+
+        args, kwargs = req.call_args
+        self.assertEqual(
+            args[1], 'https://example.signalwire.com/api/video/room_sessions')
+        self.assertEqual(kwargs['params'], {'started_at>': '2026-09-01'})
+
+    def test_video_post_hits_the_video_url_as_json(self):
+        client = self._client()
+        with patch(
+                'requests.request',
+                return_value=_mock_response(json_body={'id': 'room-1'})) as req:
+            client.video_post('rooms', name='test-room')
+
+        args, kwargs = req.call_args
+        self.assertEqual(args[1], 'https://example.signalwire.com/api/video/rooms')
+        self.assertEqual(kwargs['json'], {'name': 'test-room'})
+
+    def test_video_delete_hits_the_video_url(self):
+        client = self._client()
+        with patch(
+                'requests.request', return_value=_mock_response(content=b'')) as req:
+            client.video_delete('rooms/room-1')
+
+        args, kwargs = req.call_args
+        self.assertEqual(args[0], 'delete')
+        self.assertEqual(args[1], 'https://example.signalwire.com/api/video/rooms/room-1')
+
     def test_delete_with_no_body_returns_empty_dict(self):
         # SIP Endpoint deletion returns 204 with no body - verified
         # live 2026-09-15.
