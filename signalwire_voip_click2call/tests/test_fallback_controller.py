@@ -93,6 +93,28 @@ class TestFallbackController(HttpCase):
         self.assertIn(f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}',
                        response.text)
 
+    def test_voicemail_step_requests_transcription_by_default(self):
+        response = self.url_open(self._fallback_url(), data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn('transcribe="true"', response.text)
+        self.assertIn(
+            f'transcribeCallback="/signalwire/voice/voicemail_transcription/'
+            f'{self.user.id}/{self.number.id}"', response.text)
+        self.assertIn(
+            f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}?transcribe=1',
+            response.text)
+
+    def test_voicemail_step_skips_transcription_when_disabled(self):
+        self.user.signalwire_voicemail_transcribe = False
+
+        response = self.url_open(self._fallback_url(), data={'DialCallStatus': 'no-answer'})
+
+        self.assertNotIn('transcribe="true"', response.text)
+        self.assertNotIn('transcribeCallback', response.text)
+        self.assertIn(
+            f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}"',
+            response.text)
+
     def test_forward_and_group_both_configured_uses_forward_first(self):
         number = self.env['signalwire.forwarding.number'].create({
             'user_id': self.user.id, 'name': 'Cell', 'phone_number': '+15559876543',

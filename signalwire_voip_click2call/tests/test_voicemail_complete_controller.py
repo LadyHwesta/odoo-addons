@@ -30,8 +30,10 @@ class TestVoicemailCompleteController(HttpCase):
             'name': 'Caller Contact', 'phone': '+15551234567',
         })
 
-    def _post(self, **form):
+    def _post(self, transcribe=None, **form):
         url = f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}'
+        if transcribe is not None:
+            url += f'?transcribe={transcribe}'
         return self.url_open(url, data=form)
 
     def test_creates_a_voicemail_record(self):
@@ -97,6 +99,27 @@ class TestVoicemailCompleteController(HttpCase):
             [('user_id', '=', self.user.id)])
         self.assertTrue(voicemail.activity_ids)
         self.assertEqual(voicemail.activity_ids.user_id, self.user)
+
+    def test_no_transcribe_param_leaves_status_none(self):
+        with patch('requests.get') as mocked_get:
+            mocked_get.return_value = MagicMock(ok=True, content=b'x')
+            self._post(From='+15551234567', RecordingUrl='https://example.com/rec1',
+                       RecordingDuration='10')
+
+        voicemail = self.env['signalwire.voicemail'].search(
+            [('user_id', '=', self.user.id)])
+        self.assertEqual(voicemail.transcription_status, 'none')
+
+    def test_transcribe_param_sets_pending_and_stores_recording_url(self):
+        with patch('requests.get') as mocked_get:
+            mocked_get.return_value = MagicMock(ok=True, content=b'x')
+            self._post(transcribe='1', From='+15551234567',
+                       RecordingUrl='https://example.com/rec1', RecordingDuration='10')
+
+        voicemail = self.env['signalwire.voicemail'].search(
+            [('user_id', '=', self.user.id)])
+        self.assertEqual(voicemail.transcription_status, 'pending')
+        self.assertEqual(voicemail.recording_url, 'https://example.com/rec1')
 
     def test_failed_recording_fetch_does_not_crash(self):
         import requests

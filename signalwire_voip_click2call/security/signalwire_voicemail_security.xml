@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="signalwire_voicemail_rule_own" model="ir.rule">
+        <field name="name">Voicemail: a plain user only sees/edits/deletes their own</field>
+        <field name="model_id" ref="model_signalwire_voicemail" />
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]" />
+    </record>
+
+</odoo>

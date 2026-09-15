@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.2.0.0',
+    'version': '19.0.3.0.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """
@@ -26,6 +26,16 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
   the full design (SignalWire has no presence/registration API at
   all, confirmed - a timeout-then-fallback chain is the only real
   mechanism available) and what's been live-verified vs. not.
+- **A real voicemail box in the backend**, not just a chatter
+  message and an activity: a topbar systray icon with a live unread
+  badge (updates instantly over the bus, not on a timer) whose
+  dropdown lets you play, read a transcript snippet, or open any
+  recent voicemail without leaving your screen; a full Voicemail list
+  with inline playback, transcript, mark read/unread, and delete -
+  scoped so a plain user only ever sees their own. Optional per-user
+  SignalWire transcription (their own paid add-on, on by default, one
+  toggle to turn off) means you can often tell what a voicemail says
+  before ever pressing play.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
@@ -33,11 +43,23 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     'depends': ['signalwire_voip', 'voip_oca'],
     'data': [
         'security/ir.model.access.csv',
+        'security/signalwire_voicemail_security.xml',
         'views/res_users_views.xml',
         'views/signalwire_phone_number_views.xml',
         'views/signalwire_server_views.xml',
         'views/signalwire_voicemail_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'signalwire_voip_click2call/static/src/components/voicemail_audio_player/voicemail_audio_player.esm.js',
+            'signalwire_voip_click2call/static/src/components/voicemail_audio_player/voicemail_audio_player.xml',
+            'signalwire_voip_click2call/static/src/fields/voicemail_player_field/voicemail_player_field.esm.js',
+            'signalwire_voip_click2call/static/src/fields/voicemail_player_field/voicemail_player_field.xml',
+            'signalwire_voip_click2call/static/src/services/signalwire_voicemail_service.esm.js',
+            'signalwire_voip_click2call/static/src/components/voicemail_systray/voicemail_systray.esm.js',
+            'signalwire_voip_click2call/static/src/components/voicemail_systray/voicemail_systray.xml',
+        ],
+    },
     'installable': True,
     'application': False,
 }

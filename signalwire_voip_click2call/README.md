@@ -142,13 +142,63 @@ against a mocked HTTP response - but nothing here has been exercised
 against a real SignalWire call yet, same category of gap as the base
 inbound webhook above.
 
+## The voicemail box itself: systray, playback, and transcription
+
+Voicemail wasn't meant to just be a chatter message and an activity -
+the follow-up ask was a real voicemail box: a quick way to check it
+from the backend, and (if possible) a transcript so a user can decide
+whether a recording is worth listening to in full.
+
+- **A topbar systray icon** (microphone glyph, unread-count badge)
+  whose dropdown lists recent unread voicemail - caller, duration,
+  transcript snippet once one's ready, and an inline player - without
+  leaving whatever screen you're on. It updates **instantly**, not on
+  a timer: the server pings the user's own bus channel
+  (`user._bus_send('signalwire_voicemail/updated', {})`, the same
+  mechanism core's own `mail.activity` systray badge already relies on
+  for its live count) whenever a voicemail is created, its
+  read/unread state changes, or its transcript lands.
+- **A full Voicemail list/form** (existing menu, unchanged location) -
+  inline HTML5 playback, transcript display, Mark Read/Unread buttons,
+  a "My Voicemails, Unread first" default filter. Pressing play marks
+  a voicemail read automatically (same convention as most mail/
+  voicemail clients: opening and listening implies "seen").
+- **Genuine self-service ownership, not just a read-only inbox**: an
+  `ir.rule` scopes a plain user to their own voicemail records with
+  real read/write/unlink - they can mark read/unread and delete
+  without any admin involvement. `signalwire.voicemail.system`
+  (managers) still sees and can manage everyone's.
+- **Transcription** is SignalWire's own Compatibility API feature
+  (`<Record transcribe="true" transcribeCallback="...">`, confirmed
+  against SignalWire's own docs - not yet live-verified end to end
+  against an actual spoken voicemail, since that needs a real call).
+  It's a paid add-on on SignalWire's end, billed per recording, so
+  it's **on by default but a one-click, per-user toggle**
+  (`signalwire_voicemail_transcribe`) right next to the voicemail
+  setting itself - turning it off only ever gets the audio.
+  `transcribeCallback` fires asynchronously, well after the call has
+  ended, and its payload carries `RecordingUrl` but neither our own
+  `user_id`/`phone_number_id` nor a `CallSid` (confirmed against
+  SignalWire's docs) - so `RecordingUrl`, stored on the voicemail
+  record the moment the recording itself completes, is what
+  correlates that later webhook back to the right row. Once a
+  transcript lands: it's posted to chatter (same places the original
+  voicemail notice went) and folded into the still-open "return this
+  call" activity's own note, so a user scanning the Activities
+  systray sees the transcript without opening anything at all.
+
 ## Testing
 
 `signalwire.server._get_sip_domain`/`action_setup_click2call`,
 `res.users` provisioning/release and the fallback-chain methods
 (profile-phone shortcut, partner matching), `signalwire.phone_number`
-inbound-routing configuration, and both the inbound and fallback-chain
-webhook controllers (real HTTP round trips via `HttpCase`, including
-the voicemail recording fetch mocked at the `requests` layer) are all
-covered - nothing beyond Phase 1's own already-tested API client makes
-a real HTTP call in this suite.
+inbound-routing configuration, and the inbound, fallback-chain,
+voicemail-complete, and voicemail-transcription webhook controllers
+(real HTTP round trips via `HttpCase`, including the voicemail
+recording fetch mocked at the `requests` layer) are all covered, along
+with `signalwire.voicemail`'s own mark-read/unread, systray-data, and
+record-rule (a plain user can't see or touch someone else's) behavior
+- nothing beyond Phase 1's own already-tested API client makes a real
+HTTP call in this suite. The systray/player JS itself isn't unit
+tested - this repo has no JS test harness set up (same gap as every
+other module's own frontend code here).

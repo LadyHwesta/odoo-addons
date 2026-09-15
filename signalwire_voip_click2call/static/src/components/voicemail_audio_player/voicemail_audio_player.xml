@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<t t-name="signalwire_voip_click2call.VoicemailAudioPlayer">
+    <audio t-if="props.url" controls="controls" preload="none" t-att-src="props.url"
+           t-on-play="onPlay" class="o_signalwire_voicemail_player"
+           style="max-width: 300px; height: 32px; vertical-align: middle;" />
+    <span t-else="" class="text-muted fst-italic">No recording available</span>
+</t>
+
+</templates>

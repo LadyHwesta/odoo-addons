@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<t t-name="signalwire_voip_click2call.VoicemailSystray">
+    <Dropdown position="'bottom-end'" state="dropdown" beforeOpen.bind="onBeforeOpen">
+        <button class="dropdown-toggle o-dropdown--no-caret btn position-relative" title="Voicemail">
+            <i class="fa fa-lg fa-microphone" role="img" aria-label="Voicemail" />
+            <span t-if="state.count" class="o_signalwire_voicemail_counter badge rounded-pill bg-danger">
+                <t t-esc="state.count" />
+            </span>
+        </button>
+        <t t-set-slot="content">
+            <div class="o_signalwire_voicemail_menu" style="min-width: 320px; max-width: 380px;">
+                <div t-if="!state.voicemails.length" class="text-muted text-center p-3">
+                    No new voicemail.
+                </div>
+                <div t-foreach="state.voicemails" t-as="voicemail" t-key="voicemail.id"
+                     class="border-bottom p-2">
+                    <div class="d-flex justify-content-between align-items-start cursor-pointer"
+                         t-on-click="() => this.onOpen(voicemail)">
+                        <strong t-esc="voicemail.partner_name || voicemail.from_number" />
+                        <span class="text-muted small"><t t-esc="voicemail.duration" />s</span>
+                    </div>
+                    <div t-if="voicemail.transcription_status === 'completed' and voicemail.transcription_text"
+                         class="text-muted small fst-italic my-1">
+                        "<t t-esc="voicemail.transcription_text" />"
+                    </div>
+                    <div t-elif="voicemail.transcription_status === 'pending'"
+                         class="text-muted small fst-italic my-1">
+                        Transcribing…
+                    </div>
+                    <VoicemailAudioPlayer url="voicemail.recording_download_url"
+                                          onPlay="() => this.onPlay(voicemail)" />
+                </div>
+                <div class="text-center p-2 text-primary cursor-pointer" t-on-click="onViewAll">
+                    View all voicemail
+                </div>
+            </div>
+        </t>
+    </Dropdown>
+</t>
+
+</templates>

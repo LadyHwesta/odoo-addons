@@ -114,16 +114,24 @@ class SignalWireVoiceController(http.Controller):
 
         if next_step == 'voicemail':
             voicemail_action = f'/signalwire/voice/voicemail_complete/{user.id}/{number.id}'
+            record_attrs = f'action="{voicemail_action}" maxLength="120" playBeep="true"'
+            if user.signalwire_voicemail_transcribe:
+                voicemail_action += '?transcribe=1'
+                transcribe_action = (
+                    f'/signalwire/voice/voicemail_transcription/{user.id}/{number.id}')
+                record_attrs = (
+                    f'action="{voicemail_action}" maxLength="120" playBeep="true" '
+                    f'transcribe="true" transcribeCallback="{transcribe_action}"')
             return self._cxml(
                 '<Say>Please leave a message after the tone.</Say>'
-                f'<Record action="{voicemail_action}" maxLength="120" playBeep="true" />')
+                f'<Record {record_attrs} />')
 
         return self._cxml('<Reject/>')
 
     @http.route(
         '/signalwire/voice/voicemail_complete/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
-    def voicemail_complete(self, user_id, phone_number_id, **kwargs):
+    def voicemail_complete(self, user_id, phone_number_id, transcribe=None, **kwargs):
         form = request.httprequest.form
         recording_url = form.get('RecordingUrl')
         duration = int(form.get('RecordingDuration') or 0)
@@ -157,8 +165,42 @@ class SignalWireVoiceController(http.Controller):
             'from_number': from_number,
             'duration': duration,
             'recording_attachment_id': attachment.id or False,
+            'recording_url': recording_url or False,
             'partner_id': partner.id if partner else False,
+            'transcription_status': 'pending' if transcribe == '1' else 'none',
         })
         voicemail._log_and_notify()
 
         return self._cxml('<Hangup/>')
+
+    @http.route(
+        '/signalwire/voice/voicemail_transcription/<int:user_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def voicemail_transcription(self, user_id, phone_number_id, **kwargs):
+        """SignalWire's own transcribeCallback webhook - fires
+        asynchronously, well after the call itself has ended, so this
+        isn't part of the live cXML call flow at all (no <Response>
+        expected back). Its payload carries RecordingUrl but neither
+        our own user_id/phone_number_id nor a CallSid (confirmed via
+        SignalWire's docs), so RecordingUrl - stored on the voicemail
+        record at creation time - is what correlates this callback
+        back to the right row.
+        """
+        form = request.httprequest.form
+        recording_url = form.get('RecordingUrl')
+        status = form.get('TranscriptionStatus')
+        text = form.get('TranscriptionText')
+
+        voicemail = request.env['signalwire.voicemail'].sudo().search([
+            ('user_id', '=', user_id), ('phone_number_id', '=', phone_number_id),
+            ('recording_url', '=', recording_url),
+        ], limit=1, order='create_date desc')
+        if voicemail:
+            voicemail._log_transcription(
+                status if status in ('completed', 'failed') else 'failed', text)
+        else:
+            _logger.warning(
+                "SignalWire: transcription callback for user %s matched no voicemail "
+                "(RecordingUrl %s)", user_id, recording_url)
+
+        return request.make_response('', headers=[('Content-Type', 'text/plain')])

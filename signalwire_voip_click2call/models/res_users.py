@@ -40,6 +40,13 @@ class ResUsers(models.Model):
              "dropped. Recordings get attached to the matched "
              "contact's chatter, if any, and always schedule a "
              "\"return this call\" activity for this user either way.")
+    signalwire_voicemail_transcribe = fields.Boolean(
+        default=True,
+        help="Also ask SignalWire to transcribe each voicemail (a "
+             "paid add-on on their end, billed per recording) so the "
+             "text shows up right in the voicemail systray, letting "
+             "you decide whether it's worth listening to in full "
+             "before you do. Turn off to only ever get the audio.")
 
     def action_use_profile_phone_as_forward(self):
         """Convenience: seed a saved number straight from this user's

@@ -29,6 +29,8 @@
                     <field name="signalwire_ring_group_ids" widget="many2many_tags"
                            domain="[('signalwire_sip_endpoint_id', '!=', False)]" />
                     <field name="signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_transcribe"
+                           invisible="not signalwire_voicemail_enabled" />
                 </group>
             </page>
         </field>
@@ -62,6 +64,8 @@
                     <field name="signalwire_ring_group_ids" widget="many2many_tags"
                            domain="[('signalwire_sip_endpoint_id', '!=', False)]" />
                     <field name="signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_transcribe"
+                           invisible="not signalwire_voicemail_enabled" />
                 </group>
             </page>
         </field>
