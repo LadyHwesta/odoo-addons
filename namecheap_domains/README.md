@@ -56,26 +56,35 @@ was scoped.
    Also has `set_custom_nameservers()` on `namecheap.server` for
    pointing a domain's DNS anywhere else that needs it.
 
-## A verification gap, on purpose (read this before trusting the parsing code)
+## Live-verified against the sandbox (2026-09-14)
 
-Unlike `hestiacp_hosting`'s HestiaCP client - which was checked against
-HestiaCP's own GitHub source and a real live server before being
-trusted - **Namecheap's own documentation pages return HTTP 403 to
-automated fetching**, so the wire format here (parameter names, the
-XML namespace, the pricing sheet's nesting) was built from a real
-third-party open-source client's actual request/response code plus
-community-documented examples, not read directly from Namecheap's own
-docs. The request side (parameter names, POST method, the
-`http://api.namecheap.com/xml.response` namespace) came from reading
-an actual working client's source, so that part is on reasonably solid
-ground. **The `users.getPricing` response nesting
-(ProductType → ProductCategory → Product → Price) is the least certain
-part** - it's assembled from descriptions of the response shape, not a
-real example payload. Treat the first real sandbox call as the actual
-verification, the same way HestiaCP's assumptions got corrected once
-tested live - if the pricing sync comes back empty or wrong against a
-real sandbox account, `namecheap.tld.price._sync_from_namecheap` is
-where to fix it.
+Namecheap's own documentation pages return HTTP 403 to automated
+fetching, so unlike `hestiacp_hosting`'s HestiaCP client (checked
+against HestiaCP's own GitHub source before ever touching a real
+server), this was originally built from a real third-party open-source
+client's request/response code plus community-documented examples -
+and then actually tested against a real Namecheap sandbox account,
+the same way HestiaCP's own assumptions got corrected once tested
+live. Connection, balance check, and `check_domain_availability()` all
+worked exactly as built. The pricing sync (`users.getPricing`) had two
+real bugs, both fixed: `ProductType` must be `'domain'` (lowercase,
+singular - the response itself comes back `Name="domains"`, which
+doesn't matter since only the request value is checked), and the
+`ProductCategory` request parameter **doesn't filter anything
+server-side** - every category (register, renew, transfer, redemption,
+reactivate, landrush, preorder) comes back in one response regardless
+of what's requested, so the sync makes one call and filters
+client-side rather than two calls each wrongly assumed pre-filtered.
+Verified with a real sync of 1088 TLDs and sane real-world prices
+(`.com` $13.98 register / $18.08 renew, matching Namecheap's own public
+pricing closely).
+
+**Still not live-tested**: `set_custom_nameservers()` (used by
+`namecheap_hestiacp`'s deploy action) - its request format was
+confirmed by reading a real client's source rather than assumed
+outright, but calling it for real needs an actual registered domain in
+the sandbox account, which Phase 3 (registration) doesn't create yet.
+Worth a live pass once that exists.
 
 ## Setup
 
