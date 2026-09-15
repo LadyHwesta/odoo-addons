@@ -67,6 +67,33 @@ class TestSignalWireClient(TransactionCase):
             args[1], 'https://example.signalwire.com/api/relay/rest/endpoints/sip')
         self.assertEqual(kwargs['json'], {'username': 'u', 'password': 'p'})
 
+    def test_project_post_hits_the_project_url_as_json(self):
+        client = self._client()
+        with patch(
+                'requests.request',
+                return_value=_mock_response(json_body={'token': 'swapi_abc'})) as req:
+            client.project_post(
+                'project/tokens', name='Customer', permissions=['messaging'],
+                subproject_id='sub-1')
+
+        args, kwargs = req.call_args
+        self.assertEqual(
+            args[1], 'https://example.signalwire.com/api/project/tokens')
+        self.assertEqual(
+            kwargs['json'],
+            {'name': 'Customer', 'permissions': ['messaging'], 'subproject_id': 'sub-1'})
+
+    def test_project_delete_hits_the_project_url(self):
+        client = self._client()
+        with patch(
+                'requests.request', return_value=_mock_response(content=b'')) as req:
+            client.project_delete('project/tokens/tok-1')
+
+        args, kwargs = req.call_args
+        self.assertEqual(args[0], 'delete')
+        self.assertEqual(
+            args[1], 'https://example.signalwire.com/api/project/tokens/tok-1')
+
     def test_delete_with_no_body_returns_empty_dict(self):
         # SIP Endpoint deletion returns 204 with no body - verified
         # live 2026-09-15.

@@ -29,6 +29,16 @@ class SignalWireClient:
       Compatibility API (see ``_extract_error_message``) - verified
       live 2026-09-15 by deliberately triggering a validation error on
       each surface.
+    - the **Project API**, rooted at ``/api/`` directly (not versioned
+      under a date like the Compatibility API) - used for creating a
+      subproject-scoped API token (``project/tokens``), so a resold
+      customer can be handed real, independently-usable SignalWire
+      credentials without ever needing that subproject's own (API-
+      masked) auth_token. Confirmed live 2026-09-15: the resulting
+      token pairs with the **subproject's own Account SID** as the
+      Basic Auth username, not the parent project's - a parent-ID/new-
+      token pairing returns 200 with an empty body (silently useless)
+      where the subproject-ID pairing returns the real data.
 
     One set of parent-project credentials is enough for everything
     here, including managing a subproject's own resources - just pass
@@ -76,6 +86,18 @@ class SignalWireClient:
 
     def _relay_url(self, path):
         return f'https://{self.space}/api/relay/rest/{path}'
+
+    def project_post(self, path, **json_body):
+        """POST a Project API path, relative to /api/ - e.g.
+        ``'project/tokens'``.
+        """
+        return self._request('post', self._project_url(path), json=json_body)
+
+    def project_delete(self, path):
+        return self._request('delete', self._project_url(path))
+
+    def _project_url(self, path):
+        return f'https://{self.space}/api/{path}'
 
     def _request(self, method, url, **kwargs):
         try:

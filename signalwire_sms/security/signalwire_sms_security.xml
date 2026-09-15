@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="signalwire_subproject_portal_own" model="ir.rule">
+        <field name="name">Portal users see only their own SignalWire subproject</field>
+        <field name="model_id" ref="signalwire_voip.model_signalwire_subproject" />
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
+    </record>
+
+    <record id="signalwire_phone_number_portal_own" model="ir.rule">
+        <field name="name">Portal users see only their own SignalWire numbers</field>
+        <field name="model_id" ref="signalwire_voip.model_signalwire_phone_number" />
+        <field name="domain_force">[('subproject_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
+    </record>
+
+    <record id="signalwire_sms_portal_own" model="ir.rule">
+        <field name="name">Portal users see only their own SMS messages</field>
+        <field name="model_id" ref="model_signalwire_sms" />
+        <field name="domain_force">
+            [('phone_number_id.subproject_id.partner_id', '=', user.partner_id.id)]
+        </field>
+        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
+    </record>
+
+    <record id="signalwire_customer_token_portal_own" model="ir.rule">
+        <field name="name">Portal users see only their own access tokens</field>
+        <field name="model_id" ref="model_signalwire_customer_token" />
+        <field name="domain_force">[('subproject_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
+    </record>
+
+</odoo>

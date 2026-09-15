@@ -80,6 +80,26 @@ deferred to whichever later phase first needs a real owned number
 (click-to-call needs one to receive calls on) and will be confirmed
 with the user first.
 
+## A third API surface: Project Tokens (added for Phase 3's reseller access)
+
+**Confirmed live 2026-09-15**: `POST /api/project/tokens` (a third base
+path - `/api/`, not versioned like the Compatibility API) creates a
+named, permission-scoped API token for a specific subproject
+(`subproject_id` param), and - unlike a subproject's own `auth_token` -
+**returns the real secret value**, once, in full. This is how a resold
+customer gets independently-usable SignalWire credentials without ever
+needing that unretrievable masked token: create one of these scoped to
+their subproject instead. See `signalwire_sms`'s own README for how
+this gets used.
+
+One non-obvious thing confirmed by testing both ways: the resulting
+token authenticates as **`{subproject_sid}:{token}`** - the
+subproject's own Account SID as the Basic Auth username, NOT the
+parent project's ID. Pairing the parent's ID with the new token
+returns `200` with an empty body (silently useless) rather than an
+error - easy to misdiagnose as "the token doesn't work" if only the
+parent pairing is tried.
+
 ## Error handling: two different error shapes
 
 The Compatibility API and the newer Relay REST API (used for SIP
