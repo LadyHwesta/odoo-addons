@@ -17,6 +17,64 @@ class ResUsers(models.Model):
         'signalwire.server', copy=False,
         help="Which project this user's SIP Endpoint (if any) lives on.")
 
+    signalwire_forwarding_number_ids = fields.One2many(
+        'signalwire.forwarding.number', 'user_id', string="Saved Numbers")
+    signalwire_active_forward_id = fields.Many2one(
+        'signalwire.forwarding.number', string="Forward Calls To",
+        domain="[('user_id', '=', id)]",
+        help="If set, an inbound call that doesn't reach the softphone "
+             "in time rings this number next. Self-service, and meant "
+             "to be changed on the fly (e.g. before stepping away from "
+             "the desk) - not an admin-only setting.")
+    signalwire_ring_group_ids = fields.Many2many(
+        'res.users', 'signalwire_ring_group_rel', 'user_id', 'teammate_id',
+        string="Also Ring",
+        help="Teammates to ring (all at once) if this user's softphone "
+             "and forwarding number (if any) don't answer. Only "
+             "teammates with their own softphone already provisioned "
+             "actually get rung - see this module's own README.")
+    signalwire_voicemail_enabled = fields.Boolean(
+        default=True,
+        help="Take a voicemail if nothing above answers - the "
+             "guaranteed last resort so a caller is never just "
+             "dropped. Recordings get attached to the matched "
+             "contact's chatter, if any, and always schedule a "
+             "\"return this call\" activity for this user either way.")
+
+    def action_use_profile_phone_as_forward(self):
+        """Convenience: seed a saved number straight from this user's
+        own partner profile phone, rather than requiring it to be
+        retyped - the "use my account's own phone info" shortcut.
+        """
+        self.ensure_one()
+        if not self.partner_id.phone:
+            raise UserError(_(
+                "%(user)s's own profile has no phone number set.", user=self.name))
+        existing = self.signalwire_forwarding_number_ids.filtered(
+            lambda n: n.phone_number == self.partner_id.phone)
+        if existing:
+            return existing[0]
+        return self.env['signalwire.forwarding.number'].create({
+            'user_id': self.id, 'name': 'Profile Phone',
+            'phone_number': self.partner_id.phone,
+        })
+
+    def _signalwire_match_partner(self, other_number):
+        """Best-effort digits-only match, same approach (and same
+        SQL-LIKE-can't-see-past-punctuation reasoning) as
+        signalwire_sms's own _log_to_partner_chatter - duplicated
+        rather than shared since this module doesn't depend on
+        signalwire_sms.
+        """
+        digits = ''.join(filter(str.isdigit, other_number or ''))[-10:]
+        if not digits:
+            return self.env['res.partner']
+        last_four = digits[-4:]
+        candidates = self.env['res.partner'].search([('phone', 'like', last_four)])
+        return candidates.filtered(
+            lambda p: ''.join(filter(str.isdigit, p.phone or ''))[-10:] == digits
+        )[:1]
+
     def action_provision_signalwire_sip(self):
         """One-click softphone setup: creates a real SIP Endpoint at
         SignalWire for this user and wires voip_oca's own

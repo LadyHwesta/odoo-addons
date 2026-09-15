@@ -33,8 +33,16 @@ class TestInboundCallController(HttpCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.text
-        self.assertIn('<Dial>', body)
+        self.assertIn('<Dial ', body)
         self.assertIn('sip:user_jane@example.sip.signalwire.com', body)
+
+    def test_dial_carries_a_timeout_and_a_fallback_action_url(self):
+        response = self.url_open(
+            '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertIn('timeout="20"', body)
+        self.assertIn(f'/signalwire/voice/fallback/{self.user.id}/{self.number.id}', body)
 
     def test_inbound_call_to_an_unknown_number_is_rejected(self):
         response = self.url_open(
