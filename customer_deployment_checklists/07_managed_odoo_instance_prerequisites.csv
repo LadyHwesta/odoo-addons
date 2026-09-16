@@ -1,0 +1,7 @@
+name,sequence,description
+Confirm the deployment.instance record and salesperson activity,10,"sale.order confirmation creates the instance and schedules an activity for the salesperson automatically - find it under Managed Odoo Instances, not a fresh record to create by hand."
+Contact the customer for their domain and a database name,20,"Both are genuinely unknown from the order alone - action_request won't proceed without them, so this conversation has to happen before anything else here."
+Fill in domain and db_name on the instance record,30,"db_name must be lowercase, start with a letter, and use only letters/digits/underscores - the record will reject anything else."
+Confirm the app selection matches what they actually purchased,40,app_ids should already be pre-filled from the order's bundled deployment.app products - double check nothing extra or missing.
+Confirm a saved payment token exists before going live,50,"Billing only starts at Mark Live, but a customer with no saved card yet means the first auto-charge cron run will just fail - get this sorted before, not after."
+Click Request,60,"This is the handoff point - it creates the billing contract shell and auto-generates the full deployment checklist as project tasks (server bootstrap if dedicated, vhost, SSL, database creation, and Mark Live) on this instance's own project. Continue from there, not from this file."

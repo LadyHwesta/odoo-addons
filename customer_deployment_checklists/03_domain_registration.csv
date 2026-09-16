@@ -1,0 +1,6 @@
+name,sequence,description
+Confirm the domain registered successfully,10,"sale.order._action_confirm() calls Namecheap's domains.create automatically on order confirmation - check the namecheap.domain record's own state/chatter for a real success, not just that the order line exists."
+If pointing this domain at hosting: update nameservers,20,Click Update Nameservers on the namecheap.domain record once the hosting account (02) is provisioned and you know its real nameserver values.
+If using email on this domain: fetch/confirm the DKIM record,30,Click Fetch DKIM Record (namecheap_hestiacp bridge) so outbound mail from this domain doesn't land in spam.
+Verify the domain actually resolves,40,"A real dig/nslookup check, not just trusting Odoo's own record of success - DNS propagation can lag behind the API call succeeding."
+Confirm the renewal contract line exists,50,"Yearly auto-renewal only works if a real recurring contract line was created alongside the registration - check it before moving on, not a year from now when it lapses."

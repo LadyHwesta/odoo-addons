@@ -1,0 +1,9 @@
+name,sequence,description
+Confirm the customer's contact record,10,"Check res.partner has a real billing email, phone, and address before anything else - this is who gets invoiced and who the portal login belongs to."
+Confirm the sales order and what was actually purchased,20,"List every product line on the order - hosting package, domain(s), VoIP/SMS, managed Odoo instance - so you know which of the other checklists in this folder apply to this customer."
+Confirm a saved payment method exists,30,reseller_subscriptions' billing cron auto-charges from a saved payment.token - a customer with no saved card on file will silently never get billed until one exists. Check via their portal or Accounting > Customers.
+Run the service-specific checklist(s) for what they bought,40,"Import whichever of 02-07 in this folder match the order: hosting, domain registration, SignalWire VoIP, SignalWire SMS, 10DLC registration, managed Odoo instance."
+Spot-check every provisioned service actually works,50,"Log in as the customer (or ask them to) and confirm each purchased service is real and reachable, not just marked provisioned in Odoo."
+Share portal access with the customer,60,"Point them at /my/subscriptions (reseller_subscriptions' unified hub) - shows hosting, domains, VoIP/SMS, and managed instances all in one place, with self-service cancel where applicable."
+Hold a kickoff call / send a welcome email,70,"Confirm they know how to reach support, where their portal is, and what to expect on their first invoice."
+Close out this checklist,80,Mark this project/task list done once every purchased service's own checklist is finished.

@@ -66,7 +66,13 @@ Custom Odoo 19 modules.
     user's softphone, another routes an owned number's inbound calls to
     it. The SIP-over-WebSocket wiring is live-verified; actually placing
     or answering a call needs a human in a real browser, so that part is
-    still to be done by hand.
+    still to be done by hand. Also includes a real voicemail box
+    (systray, playback, optional SignalWire transcription) and hardware
+    desk phone support - each phone gets its own SIP Endpoint, rings
+    alongside the softphone, and can be zero-touch auto-provisioned
+    (Yealink/Grandstream) by MAC address; the underlying standard-SIP
+    transport was live-verified, the auto-provisioning config files
+    themselves are not yet tested against real hardware.
   - [`signalwire_sms/`](signalwire_sms/) - **Phase 3**: two-way SMS,
     both for the team's own use (every message logs to the matched
     contact's chatter) and for reselling - a customer gets
@@ -164,6 +170,13 @@ Custom Odoo 19 modules.
   itself, deeper per-instance configuration) and
   `meskis-deploy-agent`'s own README for what's not yet live-verified
   (the bootstrap script itself, against a real server).
+- [`customer_deployment_checklists/`](customer_deployment_checklists/) -
+  not an Odoo module, just plain CSV files for Odoo's own generic
+  Project task import - one per service line (hosting, domains,
+  SignalWire VoIP, SignalWire SMS, 10DLC registration, managed Odoo
+  instance prerequisites) plus a universal onboarding one, re-used by
+  hand for every new customer rather than re-derived from scratch each
+  time.
 
 ### Amateur radio club suite
 

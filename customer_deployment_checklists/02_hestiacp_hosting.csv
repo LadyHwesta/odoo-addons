@@ -1,0 +1,8 @@
+name,sequence,description
+Confirm the hosting package order line and hestiacp.account record,10,"Should already exist from checkout - Hosting app > Accounts. If it's missing, the order may not have confirmed correctly."
+Click Provision on the hestiacp.account record,20,Creates the real HestiaCP account on the configured server via the API. Confirm it actually completes rather than erroring silently in the chatter.
+Click Test Connection on the HestiaCP server config,30,"Only needs doing once per underlying server, not per customer - skip if already confirmed working today."
+Confirm the customer accepted the Hosting Service Agreement,40,The Agreement Acceptance gate on the account record should show accepted before you consider this account fully live.
+Confirm the recurring billing contract line exists,50,Check the account's linked contract has a real line and a start date - not just a shell contract with nothing on it.
+Send the customer their hosting login details,60,"HestiaCP panel URL + their login - not their Odoo portal login, a separate credential."
+If this customer also has a domain to point at this hosting,70,"Hand off to 03_domain_registration.csv for nameserver/DNS setup - don't consider hosting ""done"" until the domain actually resolves to it, if one was purchased."

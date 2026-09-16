@@ -1,0 +1,8 @@
+name,sequence,description
+Ask whether the customer already has a TCR brand elsewhere,10,"If yes, they can reference their existing brand ID on the self-service compliance form instead of registering a new one - saves them the brand fee."
+Point the customer at the self-service registration form,20,"/my/sms/compliance - self-service and deliberate: they're the one certifying their own EIN and business details, not you."
+Confirm real prices are set on the brand/campaign fee products,30,These shipped as $0.00 placeholders - check before this customer's submission if you haven't already set real pricing on any previous one.
+Confirm the submission actually went through,40,"Check the signalwire.brand/signalwire.campaign records show a real state (submitted/pending), not still draft."
+Wait for carrier approval,50,Typically 3-5 business days. The daily status-poll cron keeps the record's state in sync automatically - no need to check SignalWire's own dashboard by hand.
+Once approved: enable SMS on the customer's number(s),60,"""Request SMS Enablement"" on each signalwire.phone_number ties it to the now-approved campaign - a number isn't SMS-capable just because the campaign is approved, this step still has to happen per number."
+Send a real test SMS before telling the customer they're live,70,"Confirms the number-to-campaign link actually took, not just that the campaign shows approved."

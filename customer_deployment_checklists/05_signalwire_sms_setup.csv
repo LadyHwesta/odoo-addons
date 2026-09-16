@@ -1,0 +1,6 @@
+name,sequence,description
+Confirm this customer's number can send SMS,10,Blocked entirely until their 10DLC campaign is approved - see 06_signalwire_10dlc_registration.csv if that hasn't happened yet. Don't promise SMS works before checking this.
+If the customer wants their own API access: issue a token,20,"""Issue Customer Access Token"" gives them independently-usable SignalWire credentials scoped to their own subproject, without ever exposing your own project's auth_token."
+Send the customer their token and a brief integration pointer,30,"Confirm they understand it's scoped to their subproject only, and how to revoke/reissue it themselves if needed."
+Confirm inbound SMS logs correctly,40,"Send a real test text to their number and confirm it shows up logged to the matched contact's chatter (or unmatched, if no contact exists yet)."
+If webhook forwarding into the customer's own system is wanted,50,"Confirm their forwarding URL is configured and actually receiving the webhook payload, not just saved in the field."

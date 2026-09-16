@@ -1,0 +1,8 @@
+name,sequence,description
+Confirm or create this customer's signalwire.subproject,10,Keeps their numbers/calls/recordings isolated from other customers' resources on the same SignalWire project.
+Search and purchase the customer's phone number(s),20,"Search Phone Numbers action on the subproject, or from the storefront if this was a self-service /voip purchase."
+Provision a softphone for each of the customer's own users,30,"""Provision SignalWire Softphone"" button on each res.users record who needs one - creates a real SIP Endpoint and wires up the in-browser softphone."
+Assign each purchased number and configure inbound routing,40,"Set the number's Rings field to the right user, then click Configure Inbound Routing - this is what actually makes an inbound call reach their softphone."
+Review the fallback chain with the customer,50,"Forward-to-number, ring group, and voicemail are all self-service from their own Preferences - voicemail defaults on. Make sure they know it's there and how to reach it (topbar systray icon)."
+If the customer wants physical desk phones,60,"Register each phone (name, MAC address, brand) under the right user, click Provision, then either hand them the provisioning URL or point their office DHCP scope's option 66 at it. This is newer and not yet tested against real hardware - say so if it's their first one, and confirm it actually registers before considering it done."
+Place a real test call end to end,70,Call the purchased number from an outside line and confirm it actually rings the right softphone/desk phone(s) before telling the customer they're live.
