@@ -31,8 +31,9 @@ class TestResUsersSignalWireSip(TransactionCase):
         self.addCleanup(patcher.stop)
 
     def test_provision_creates_a_sip_endpoint_and_wires_voip_oca_fields(self):
+        expected_username = f'jane.agent{self.user.id}'
         self.signalwire_client.relay_post.return_value = {
-            'id': 'ep-abc', 'username': f'user{self.user.id}',
+            'id': 'ep-abc', 'username': expected_username,
         }
 
         self.user.action_provision_signalwire_sip()
@@ -40,11 +41,47 @@ class TestResUsersSignalWireSip(TransactionCase):
         self.signalwire_client.relay_post.assert_called_once()
         args, kwargs = self.signalwire_client.relay_post.call_args
         self.assertEqual(args[0], 'endpoints/sip')
-        self.assertEqual(kwargs['username'], f'user{self.user.id}')
+        self.assertEqual(kwargs['username'], expected_username)
         self.assertEqual(self.user.signalwire_sip_endpoint_id, 'ep-abc')
-        self.assertEqual(self.user.voip_username, f'user{self.user.id}')
+        self.assertEqual(self.user.voip_username, expected_username)
         self.assertTrue(self.user.voip_password)
         self.assertEqual(self.user.voip_pbx_id.name, 'Test SignalWire')
+
+    def test_sip_username_is_built_from_the_users_real_name(self):
+        self.assertEqual(
+            self.user._signalwire_sip_username(), f'jane.agent{self.user.id}')
+
+    def test_sip_username_normalizes_accented_characters(self):
+        user = self.env['res.users'].create({
+            'name': 'José Núñez', 'login': 'jose.nunez@example.com',
+        })
+        self.assertEqual(user._signalwire_sip_username(), f'jose.nunez{user.id}')
+
+    def test_sip_username_collapses_punctuation_and_symbols(self):
+        user = self.env['res.users'].create({
+            'name': "O'Brien & Sons, LLC!", 'login': 'obrien@example.com',
+        })
+        self.assertEqual(user._signalwire_sip_username(), f'o.brien.sons.llc{user.id}')
+
+    def test_sip_username_falls_back_to_plain_user_when_nothing_slugifiable_remains(self):
+        # A non-empty name that's still entirely punctuation/symbols -
+        # required=True on the name field means it can't be truly
+        # blank, but this exercises the same "nothing survived
+        # slugification" fallback path.
+        user = self.env['res.users'].create({
+            'name': '!@#$%', 'login': 'symbolname@example.com',
+        })
+        self.assertEqual(user._signalwire_sip_username(), f'user{user.id}')
+
+    def test_sip_username_is_unique_per_user_even_with_identical_names(self):
+        jane1 = self.env['res.users'].create({
+            'name': 'Jane Smith', 'login': 'jane.smith1@example.com',
+        })
+        jane2 = self.env['res.users'].create({
+            'name': 'Jane Smith', 'login': 'jane.smith2@example.com',
+        })
+        self.assertNotEqual(
+            jane1._signalwire_sip_username(), jane2._signalwire_sip_username())
 
     def test_provision_creates_the_pbx_if_missing(self):
         self.signalwire_client.relay_post.return_value = {
