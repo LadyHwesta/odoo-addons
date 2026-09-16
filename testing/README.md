@@ -46,6 +46,16 @@ repo, plus a sibling clone of
 lives there). Clone it at `../nonprofit-addons`, or set `NONPROFIT_ADDONS`
 to wherever it is.
 
+Meskis Works' own private reselling/billing modules
+(`LadyHwesta/meskis-reseller-addons` - hosting/domain/VoIP storefronts,
+10DLC, `reseller_subscriptions`, `managed_odoo_instances`) live in a
+separate private repo and aren't needed to test anything in this repo
+on their own. If you have access and want to test them together (they
+depend on `signalwire_voip`/`signalwire_sms`/`namecheap_domains`,
+which stay here), clone it at `../meskis-reseller-addons`, or set
+`RESELLER_ADDONS` to wherever it is - picked up automatically if
+present, same convention as `NONPROFIT_ADDONS`/`OCA_WEB`.
+
 `web_pwa_icon` depends on OCA's `web_pwa_customize`. Clone
 [`OCA/web`](https://github.com/OCA/web) (19.0 branch) at `~/dev/oca/web`,
 or set `OCA_WEB` to wherever it is - `start.sh` picks it up automatically

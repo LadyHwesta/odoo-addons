@@ -1,8 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_deployment_server_user,deployment.server user,model_deployment_server,base.group_user,1,1,1,0
-access_deployment_server_system,deployment.server system,model_deployment_server,base.group_system,1,1,1,1
-access_deployment_instance_user,deployment.instance user,model_deployment_instance,base.group_user,1,1,1,0
-access_deployment_instance_system,deployment.instance system,model_deployment_instance,base.group_system,1,1,1,1
-access_deployment_app_user,deployment.app user,model_deployment_app,base.group_user,1,0,0,0
-access_deployment_app_system,deployment.app system,model_deployment_app,base.group_system,1,1,1,1
-access_upcloud_account_system,upcloud.account system,model_upcloud_account,base.group_system,1,1,1,1

@@ -2,9 +2,6 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_signalwire_sms_user,signalwire.sms user,model_signalwire_sms,base.group_user,1,1,1,0
 access_signalwire_sms_system,signalwire.sms system,model_signalwire_sms,base.group_system,1,1,1,1
 access_signalwire_sms_portal,signalwire.sms portal,model_signalwire_sms,base.group_portal,1,0,0,0
-access_signalwire_customer_token_user,signalwire.customer.token user,model_signalwire_customer_token,base.group_user,1,1,1,0
-access_signalwire_customer_token_system,signalwire.customer.token system,model_signalwire_customer_token,base.group_system,1,1,1,1
-access_signalwire_customer_token_portal,signalwire.customer.token portal,model_signalwire_customer_token,base.group_portal,1,0,0,0
 access_signalwire_sms_compose_user,signalwire.sms.compose user,model_signalwire_sms_compose,base.group_user,1,1,1,1
 access_signalwire_phone_number_portal,signalwire.phone_number portal,model_signalwire_phone_number,base.group_portal,1,0,0,0
 access_signalwire_subproject_portal,signalwire.subproject portal,signalwire_voip.model_signalwire_subproject,base.group_portal,1,0,0,0
