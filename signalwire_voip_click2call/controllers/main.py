@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
+import re
+from xml.sax import saxutils
 
 import requests
 
@@ -10,6 +12,11 @@ _logger = logging.getLogger(__name__)
 
 CXML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 DIAL_TIMEOUT = 20
+
+# Matches a desk phone's own provisioning filename patterns - see
+# signalwire.desk_phone._provisioning_path for where these are built.
+YEALINK_FILENAME_RE = re.compile(r'^([0-9a-f]{12})\.cfg$')
+GRANDSTREAM_FILENAME_RE = re.compile(r'^cfg([0-9a-f]{12})\.xml$')
 
 # The fallback chain, in order - "softphone" itself isn't in this list
 # since it's always the implicit first attempt, made directly by
@@ -37,11 +44,26 @@ class SignalWireVoiceController(http.Controller):
         for step in steps:
             if step == 'forward' and user.signalwire_active_forward_id:
                 return 'forward'
-            if step == 'group' and user.signalwire_ring_group_ids.filtered('voip_username'):
+            if step == 'group' and any(
+                    teammate.voip_username or teammate.signalwire_desk_phone_ids.filtered(
+                        'voip_username')
+                    for teammate in user.signalwire_ring_group_ids):
                 return 'group'
             if step == 'voicemail' and user.signalwire_voicemail_enabled:
                 return 'voicemail'
         return None
+
+    def _sip_targets(self, user, sip_domain):
+        """Every SIP URI that should ring for `user` right now - their
+        own softphone (if provisioned) plus any of their own desk
+        phones (each its own separate SIP Endpoint, rung together via
+        this single <Dial>'s multiple <Sip> children rather than
+        relying on multi-registration on one shared endpoint).
+        """
+        usernames = [user.voip_username] if user.voip_username else []
+        usernames += user.signalwire_desk_phone_ids.filtered('voip_username').mapped(
+            'voip_username')
+        return ''.join(f'<Sip>sip:{username}@{sip_domain}</Sip>' for username in usernames)
 
     @http.route(
         '/signalwire/voice/inbound', type='http', auth='public',
@@ -61,15 +83,13 @@ class SignalWireVoiceController(http.Controller):
             [('name', '=', to_number)], limit=1)
         user = number.assigned_user_id if number else request.env['res.users']
 
-        if not number or not user or not user.voip_username:
+        sip_domain = number.subproject_id.server_id._get_sip_domain() if number else False
+        targets = self._sip_targets(user, sip_domain) if number and user else ''
+        if not number or not user or not targets:
             return self._cxml('<Reject/>')
 
-        sip_domain = number.subproject_id.server_id._get_sip_domain()
         action = f'/signalwire/voice/fallback/{user.id}/{number.id}'
-        dial = (
-            f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">'
-            f'<Sip>sip:{user.voip_username}@{sip_domain}</Sip></Dial>'
-        )
+        dial = f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{targets}</Dial>'
         return self._cxml(dial)
 
     @http.route(
@@ -105,10 +125,9 @@ class SignalWireVoiceController(http.Controller):
 
         if next_step == 'group':
             sip_domain = number.subproject_id.server_id._get_sip_domain()
-            teammates = user.signalwire_ring_group_ids.filtered('voip_username')
             sips = ''.join(
-                f'<Sip>sip:{teammate.voip_username}@{sip_domain}</Sip>'
-                for teammate in teammates)
+                self._sip_targets(teammate, sip_domain)
+                for teammate in user.signalwire_ring_group_ids)
             return self._cxml(
                 f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{sips}</Dial>')
 
@@ -204,3 +223,74 @@ class SignalWireVoiceController(http.Controller):
                 "(RecordingUrl %s)", user_id, recording_url)
 
         return request.make_response('', headers=[('Content-Type', 'text/plain')])
+
+    @http.route(
+        '/signalwire/provisioning/<string:filename>',
+        type='http', auth='public', methods=['GET'], csrf=False)
+    def desk_phone_provisioning(self, filename, **kwargs):
+        """Zero-touch config-file endpoint a physical desk phone
+        fetches on boot, keyed by its own MAC address - either pasted
+        in by hand as the phone's "Auto Provision Server URL", or
+        reached automatically via a DHCP scope's option 66 (the phone
+        appends its own filename on its own, matching one of the two
+        patterns below - see signalwire.desk_phone._provisioning_path
+        for where each is built).
+
+        A MAC address isn't secret, so this deliberately accepts the
+        same trust model every hosted-PBX provider's auto-provisioning
+        uses: knowing/guessing a valid MAC gets that one phone's own
+        SIP password, never anything account-wide - see this module's
+        README for the tradeoff written out in full, not glossed over.
+        """
+        yealink_match = YEALINK_FILENAME_RE.match(filename)
+        grandstream_match = GRANDSTREAM_FILENAME_RE.match(filename)
+        if not (yealink_match or grandstream_match):
+            return request.not_found()
+
+        mac = (yealink_match or grandstream_match).group(1)
+        phone = request.env['signalwire.desk_phone'].sudo().search(
+            [('mac_address', '=', mac)], limit=1)
+        if not phone or not phone.voip_username:
+            _logger.warning(
+                "SignalWire: provisioning request for an unknown or "
+                "unprovisioned MAC address (%s)", mac)
+            return request.not_found()
+
+        sip_domain = phone.signalwire_server_id._get_sip_domain()
+        if yealink_match:
+            body = self._yealink_config(phone, sip_domain)
+            content_type = 'text/plain'
+        else:
+            body = self._grandstream_config(phone, sip_domain)
+            content_type = 'text/xml'
+        return request.make_response(body, headers=[('Content-Type', content_type)])
+
+    @staticmethod
+    def _yealink_config(phone, sip_domain):
+        return (
+            "account.1.enable = 1\n"
+            f"account.1.label = {phone.name}\n"
+            f"account.1.display_name = {phone.name}\n"
+            f"account.1.user_name = {phone.voip_username}\n"
+            f"account.1.auth_name = {phone.voip_username}\n"
+            f"account.1.password = {phone.voip_password}\n"
+            f"account.1.sip_server.1.address = {sip_domain}\n"
+            "account.1.sip_server.1.port = 5060\n"
+        )
+
+    @staticmethod
+    def _grandstream_config(phone, sip_domain):
+        name = saxutils.escape(phone.name or '')
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<gs_provision version="1">\n'
+            '<config version="1">\n'
+            '<P271>1</P271>\n'
+            f'<P270>{name}</P270>\n'
+            f'<P35>{phone.voip_username}</P35>\n'
+            f'<P36>{phone.voip_username}</P36>\n'
+            f'<P34>{phone.voip_password}</P34>\n'
+            f'<P47>{sip_domain}</P47>\n'
+            '</config>\n'
+            '</gs_provision>\n'
+        )

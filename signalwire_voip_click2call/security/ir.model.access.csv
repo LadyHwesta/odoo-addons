@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_signalwire_forwarding_number_user,signalwire.forwarding.number user,model_signalwire_forwarding_number,base.group_user,1,1,1,1
+access_signalwire_desk_phone_user,signalwire.desk_phone user,model_signalwire_desk_phone,base.group_user,1,1,1,1
 access_signalwire_voicemail_user,signalwire.voicemail user,model_signalwire_voicemail,base.group_user,1,1,0,1
 access_signalwire_voicemail_system,signalwire.voicemail system,model_signalwire_voicemail,base.group_system,1,1,1,1

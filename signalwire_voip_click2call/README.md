@@ -187,6 +187,67 @@ whether a recording is worth listening to in full.
   call" activity's own note, so a user scanning the Activities
   systray sees the transcript without opening anything at all.
 
+## Hardware desk phones
+
+The browser softphone covers a single operator well, but a team wants a
+real phone at each desk. The architectural question that mattered:
+does that need new SignalWire-side infrastructure, or can it reuse
+what's already here?
+
+**Live-verified 2026-09-15, against the user's real trial account**
+(before any code was written): created a real SIP Endpoint (the exact
+`POST /api/relay/rest/endpoints/sip` call `action_provision_signalwire_sip`
+already makes), confirmed it advertises standard telephony codecs
+(PCMU/PCMA/G722, not just WebRTC-only ones), then sent a raw SIP
+REGISTER over UDP directly to `{space}.sip.signalwire.com:5060` and got
+back a genuine `401 Unauthorized` / `WWW-Authenticate: Digest` /
+`Server: SignalWire Proxy` challenge. **A physical desk phone can
+register with the exact same kind of SIP Endpoint credentials already
+used for the softphone - standard SIP-over-UDP is genuinely supported,
+not just WebSocket/WebRTC** - no new SignalWire-side work needed. (A
+hand-rolled digest-auth follow-up to actually complete that REGISTER
+got a second 401 - likely a bug in the toy test client's own MD5 math,
+not worth chasing further, since the one fact that mattered
+architecturally - transport-level support - was already answered by
+that first challenge.)
+
+**Design, per the user's own confirmed choices**: each desk phone gets
+its **own** SIP Endpoint (`signalwire.desk_phone`), not a second
+registration on the user's existing softphone endpoint - sidesteps a
+real, documented gap (RFC 5626/`sip.instance`) in how well modern
+SIP/WebRTC stacks handle multiple simultaneous registrations on one
+shared endpoint. An inbound call rings the softphone and every one of
+the user's desk phones **at once** (`_sip_targets()` builds one `<Sip>`
+per device inside the same `<Dial>` already used for the softphone and
+ring-group fallback step - both now go through this one helper).
+
+**Auto-provisioning is real, not "paste these values into the phone
+by hand"**: `GET /signalwire/provisioning/<filename>` matches either
+brand's own real expected request pattern (`<mac>.cfg` for Yealink,
+`cfg<mac>.xml` for Grandstream) and serves that phone's SIP credentials
+already filled in. Point the phone's own "Auto Provision Server URL"
+at it directly, or - for a whole office at once - point a DHCP scope's
+option 66 at this same URL; the phone appends its own filename
+automatically either way, so adding a phone to the network is genuinely
+zero-touch once its MAC is registered in Odoo.
+
+**A MAC address isn't secret** - this endpoint is deliberately public
+(`auth='public'`, a physical phone can't hold an Odoo session), so
+anyone who guesses or observes a valid MAC can fetch that one phone's
+live SIP password. This is the same trust model every hosted-PBX
+provider's own auto-provisioning uses - the blast radius is one
+already-revocable device credential, not the account - but it's worth
+stating plainly rather than glossing over. An unknown or
+not-yet-provisioned MAC gets a plain 404, logged at `warning` so
+unexpected requests are visible.
+
+**Not live-tested against real hardware** - no physical Yealink or
+Grandstream phone was available to point at this. Everything above
+was verified at the protocol level (the real SIP challenge) and the
+config-file content was checked against each brand's own documented
+key/P-value names, not against an actual device's boot log. The
+user's own first real phone is the real test here.
+
 ## Testing
 
 `signalwire.server._get_sip_domain`/`action_setup_click2call`,
@@ -202,3 +263,12 @@ record-rule (a plain user can't see or touch someone else's) behavior
 HTTP call in this suite. The systray/player JS itself isn't unit
 tested - this repo has no JS test harness set up (same gap as every
 other module's own frontend code here).
+
+`signalwire.desk_phone` (MAC normalization/validation, provision/
+release against a mocked client), the provisioning controller (both
+brands' filename patterns, unknown/unprovisioned MAC -> 404), and the
+multi-device ring behavior (a user's softphone + desk phone(s) both
+appear in the first `<Dial>`, a teammate with only a desk phone still
+gets reached by the ring-group step) are covered the same way - 73
+tests total in this module, all against a mocked SignalWire client;
+nothing here has been exercised against real hardware.

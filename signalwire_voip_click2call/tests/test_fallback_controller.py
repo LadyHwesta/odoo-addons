@@ -115,6 +115,41 @@ class TestFallbackController(HttpCase):
             f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}"',
             response.text)
 
+    def test_group_step_also_rings_a_teammates_desk_phone(self):
+        self.env['signalwire.desk_phone'].create({
+            'user_id': self.teammate.id, 'name': 'Backup Desk',
+            'mac_address': 'aabbccddeeff', 'brand': 'yealink',
+            'signalwire_sip_endpoint_id': 'ep-desk-1',
+            'signalwire_server_id': self.server.id,
+            'voip_username': 'deskphone_backup',
+        })
+        self.user.signalwire_ring_group_ids = [(6, 0, [self.teammate.id])]
+
+        response = self.url_open(
+            self._fallback_url(step='forward'), data={'DialCallStatus': 'no-answer'})
+
+        body = response.text
+        self.assertIn('sip:user_backup@example.sip.signalwire.com', body)
+        self.assertIn('sip:deskphone_backup@example.sip.signalwire.com', body)
+
+    def test_group_reaches_a_teammate_with_only_a_desk_phone(self):
+        desk_only_teammate = self.env['res.users'].create({
+            'name': 'Desk Only', 'login': 'desk.only@example.com',
+        })
+        self.env['signalwire.desk_phone'].create({
+            'user_id': desk_only_teammate.id, 'name': 'Only Desk',
+            'mac_address': '112233445566', 'brand': 'grandstream',
+            'signalwire_sip_endpoint_id': 'ep-desk-2',
+            'signalwire_server_id': self.server.id,
+            'voip_username': 'deskphone_only',
+        })
+        self.user.signalwire_ring_group_ids = [(6, 0, [desk_only_teammate.id])]
+
+        response = self.url_open(
+            self._fallback_url(step='forward'), data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn('sip:deskphone_only@example.sip.signalwire.com', response.text)
+
     def test_forward_and_group_both_configured_uses_forward_first(self):
         number = self.env['signalwire.forwarding.number'].create({
             'user_id': self.user.id, 'name': 'Cell', 'phone_number': '+15559876543',

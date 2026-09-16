@@ -19,6 +19,11 @@ class ResUsers(models.Model):
 
     signalwire_forwarding_number_ids = fields.One2many(
         'signalwire.forwarding.number', 'user_id', string="Saved Numbers")
+    signalwire_desk_phone_ids = fields.One2many(
+        'signalwire.desk_phone', 'user_id', string="Desk Phones",
+        help="Physical SIP desk phones registered to this user - each "
+             "rings alongside the softphone on an inbound call, using "
+             "its own separate SignalWire SIP Endpoint.")
     signalwire_active_forward_id = fields.Many2one(
         'signalwire.forwarding.number', string="Forward Calls To",
         domain="[('user_id', '=', id)]",

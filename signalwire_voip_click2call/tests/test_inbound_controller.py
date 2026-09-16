@@ -58,3 +58,37 @@ class TestInboundCallController(HttpCase):
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
         self.assertIn('<Reject', response.text)
+
+    def test_a_desk_phone_rings_alongside_the_softphone(self):
+        self.env['signalwire.desk_phone'].create({
+            'user_id': self.user.id, 'name': 'Front Desk',
+            'mac_address': 'aabbccddeeff', 'brand': 'yealink',
+            'signalwire_sip_endpoint_id': 'ep-desk-1',
+            'signalwire_server_id': self.server.id,
+            'voip_username': 'deskphone_front',
+        })
+
+        response = self.url_open(
+            '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertEqual(body.count('<Sip>'), 2)
+        self.assertIn('sip:user_jane@example.sip.signalwire.com', body)
+        self.assertIn('sip:deskphone_front@example.sip.signalwire.com', body)
+
+    def test_desk_phone_only_user_with_no_softphone_still_rings(self):
+        self.user.voip_username = False
+        self.env['signalwire.desk_phone'].create({
+            'user_id': self.user.id, 'name': 'Front Desk',
+            'mac_address': 'aabbccddeeff', 'brand': 'yealink',
+            'signalwire_sip_endpoint_id': 'ep-desk-1',
+            'signalwire_server_id': self.server.id,
+            'voip_username': 'deskphone_front',
+        })
+
+        response = self.url_open(
+            '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertEqual(body.count('<Sip>'), 1)
+        self.assertIn('sip:deskphone_front@example.sip.signalwire.com', body)

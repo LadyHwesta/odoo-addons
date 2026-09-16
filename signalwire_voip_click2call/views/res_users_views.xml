@@ -32,6 +32,22 @@
                     <field name="signalwire_voicemail_transcribe"
                            invisible="not signalwire_voicemail_enabled" />
                 </group>
+                <group string="Desk Phones" invisible="not signalwire_sip_endpoint_id">
+                    <field name="signalwire_desk_phone_ids" nolabel="1" colspan="2">
+                        <list editable="bottom">
+                            <field name="name" placeholder="e.g. Front Desk" />
+                            <field name="mac_address" placeholder="aa:bb:cc:dd:ee:ff" />
+                            <field name="brand" />
+                            <field name="provisioning_url" readonly="1" />
+                            <button name="action_provision" type="object"
+                                    string="Provision" class="btn-link"
+                                    invisible="signalwire_sip_endpoint_id" />
+                            <button name="action_release" type="object"
+                                    string="Release" class="btn-link"
+                                    invisible="not signalwire_sip_endpoint_id" />
+                        </list>
+                    </field>
+                </group>
             </page>
         </field>
     </record>
@@ -66,6 +82,22 @@
                     <field name="signalwire_voicemail_enabled" />
                     <field name="signalwire_voicemail_transcribe"
                            invisible="not signalwire_voicemail_enabled" />
+                </group>
+                <group string="Desk Phones" invisible="not signalwire_sip_endpoint_id">
+                    <field name="signalwire_desk_phone_ids" nolabel="1" colspan="2">
+                        <list editable="bottom">
+                            <field name="name" placeholder="e.g. Front Desk" />
+                            <field name="mac_address" placeholder="aa:bb:cc:dd:ee:ff" />
+                            <field name="brand" />
+                            <field name="provisioning_url" readonly="1" />
+                            <button name="action_provision" type="object"
+                                    string="Provision" class="btn-link"
+                                    invisible="signalwire_sip_endpoint_id" />
+                            <button name="action_release" type="object"
+                                    string="Release" class="btn-link"
+                                    invisible="not signalwire_sip_endpoint_id" />
+                        </list>
+                    </field>
                 </group>
             </page>
         </field>

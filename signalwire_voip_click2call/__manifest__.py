@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.3.0.0',
+    'version': '19.0.4.0.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """
@@ -36,6 +36,15 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
   SignalWire transcription (their own paid add-on, on by default, one
   toggle to turn off) means you can often tell what a voicemail says
   before ever pressing play.
+- **Hardware desk phone support**, for teams who want a real phone at
+  their desk alongside (or instead of) the browser softphone. A user
+  can register any number of Yealink or Grandstream desk phones by
+  MAC address; each gets its own SignalWire SIP Endpoint and rings
+  together with the softphone on every inbound call. Zero-touch
+  auto-provisioning is built in - point the phone (or a DHCP scope's
+  option 66) at this module's own provisioning URL and it fetches its
+  SIP credentials automatically, no manual entry needed. See
+  ``README.md`` for what's been live-verified vs. not.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
