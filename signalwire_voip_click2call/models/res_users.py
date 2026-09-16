@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
 import secrets
+import unicodedata
 
 from odoo import _, models, fields
 from odoo.exceptions import UserError
@@ -87,6 +89,27 @@ class ResUsers(models.Model):
             lambda p: ''.join(filter(str.isdigit, p.phone or ''))[-10:] == digits
         )[:1]
 
+    def _signalwire_sip_username(self):
+        """A SIP username built from this user's own real name, not a
+        bare `user{id}` - readable in a raw SIP trace, on a hardware
+        desk phone's own display, or in SignalWire's own dashboard,
+        rather than an opaque number. Still guaranteed unique: the
+        numeric id is always appended, exactly the same uniqueness
+        guarantee the old bare-id scheme had, so two users can never
+        collide even with an identical name (e.g. two "Jane Smith"s
+        both become distinct - jane.smith4 and jane.smith11).
+
+        Normalizes accented characters to their closest plain-ASCII
+        equivalent rather than dropping them outright (SIP usernames
+        are safest kept to a narrow, well-supported character set),
+        then reduces anything else non-alphanumeric to single dots.
+        """
+        self.ensure_one()
+        ascii_name = unicodedata.normalize(
+            'NFKD', self.name or '').encode('ascii', 'ignore').decode('ascii')
+        slug = re.sub(r'[^a-zA-Z0-9]+', '.', ascii_name).strip('.').lower()
+        return f'{slug or "user"}{self.id}'
+
     def action_provision_signalwire_sip(self):
         """One-click softphone setup: creates a real SIP Endpoint at
         SignalWire for this user and wires voip_oca's own
@@ -108,11 +131,7 @@ class ResUsers(models.Model):
         if not pbx:
             pbx = server.action_setup_click2call()
 
-        # A plain user{id} username, not the login - nobody ever needs
-        # to see or type this, it just has to be unique and safe for a
-        # SIP URI, and Odoo's own user IDs already guarantee that
-        # without having to sanitize arbitrary login strings.
-        username = f'user{self.id}'
+        username = self._signalwire_sip_username()
         password = secrets.token_urlsafe(18)
         result = server._get_client().relay_post(
             'endpoints/sip', username=username, password=password)
