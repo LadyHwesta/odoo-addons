@@ -1,7 +1,0 @@
-from . import test_hestiacp_account
-from . import test_sale_order
-from . import test_portal
-from . import test_auto_charge
-from . import test_agreement
-from . import test_change_package
-from . import test_migrate

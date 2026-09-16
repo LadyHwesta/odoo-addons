@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_signalwire_brand_portal,signalwire.brand portal,model_signalwire_brand,base.group_portal,1,0,0,0
-access_signalwire_brand_system,signalwire.brand system,model_signalwire_brand,base.group_system,1,1,1,1
-access_signalwire_campaign_portal,signalwire.campaign portal,model_signalwire_campaign,base.group_portal,1,0,0,0
-access_signalwire_campaign_system,signalwire.campaign system,model_signalwire_campaign,base.group_system,1,1,1,1

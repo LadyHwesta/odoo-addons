@@ -11,6 +11,11 @@
 # ../nonprofit-addons. New modules in this repo just need to exist - no
 # editing this script.
 #
+# Optionally also picks up a sibling clone of the private
+# LadyHwesta/meskis-reseller-addons repo (Meskis Works' own reselling/
+# billing modules) if present at ../meskis-reseller-addons, or wherever
+# RESELLER_ADDONS points - skipped silently if not there, same as OCA_WEB.
+#
 # External OCA repo web_pwa_icon needs (web_pwa_customize). Clone the
 # 19.0 branch under ~/dev/oca/ (one clean parent dir for every plain,
 # unmodified OCA dependency repo), or point this at wherever it lives.
@@ -20,6 +25,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$DIR/.." && pwd)"
 ODOO_SRC="${ODOO_SRC:-$HOME/dev/odoo-19}"
 NONPROFIT_ADDONS="${NONPROFIT_ADDONS:-$REPO_ROOT/../nonprofit-addons}"
+RESELLER_ADDONS="${RESELLER_ADDONS:-$REPO_ROOT/../meskis-reseller-addons}"
 OCA_WEB="${OCA_WEB:-$HOME/dev/oca/web}"
 DB_NAME="${DB_NAME:-odoo_addons_test}"
 HTTP_PORT="${HTTP_PORT:-8069}"
@@ -52,6 +58,7 @@ source "$DIR/.venv/bin/activate"
 ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT,$NONPROFIT_ADDONS"
 [ -d "$NONPROFIT_ADDONS/event_volunteer" ] || echo "WARNING: $NONPROFIT_ADDONS/event_volunteer not found - clone LadyHwesta/nonprofit-addons there (or set NONPROFIT_ADDONS)." >&2
 [ -d "$OCA_WEB" ] && ADDONS_PATH="$ADDONS_PATH,$OCA_WEB"
+[ -d "$RESELLER_ADDONS/reseller_subscriptions" ] && ADDONS_PATH="$ADDONS_PATH,$RESELLER_ADDONS"
 
 echo ""
 echo "Odoo starting at http://localhost:$HTTP_PORT  (db: $DB_NAME, login: admin / admin)"
