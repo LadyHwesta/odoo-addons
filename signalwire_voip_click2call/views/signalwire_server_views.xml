@@ -10,6 +10,9 @@
                 <button name="action_setup_click2call" type="object"
                         string="Setup Click-to-Call" />
             </xpath>
+            <xpath expr="//field[@name='space']" position="after">
+                <field name="sip_domain" />
+            </xpath>
         </field>
     </record>
 

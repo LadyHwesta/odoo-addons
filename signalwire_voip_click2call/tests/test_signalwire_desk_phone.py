@@ -13,6 +13,7 @@ class TestSignalWireDeskPhone(TransactionCase):
         super().setUpClass()
         cls.server = cls.env['signalwire.server'].create({
             'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
             'project_id': 'pid123', 'api_token': 'tok456',
         })
         cls.user = cls.env['res.users'].create({

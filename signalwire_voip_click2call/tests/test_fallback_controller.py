@@ -10,6 +10,7 @@ class TestFallbackController(HttpCase):
         super().setUpClass()
         cls.server = cls.env['signalwire.server'].create({
             'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
             'project_id': 'pid123', 'api_token': 'tok456',
         })
         cls.subproject = cls.env['signalwire.subproject'].create({
@@ -68,7 +69,7 @@ class TestFallbackController(HttpCase):
         response = self.url_open(
             self._fallback_url(step='forward'), data={'DialCallStatus': 'no-answer'})
 
-        self.assertIn('sip:user_backup@example.sip.signalwire.com', response.text)
+        self.assertIn('sip:user_backup@example-abc123.sip.signalwire.com', response.text)
 
     def test_group_only_rings_teammates_with_a_softphone(self):
         no_softphone_teammate = self.env['res.users'].create({
@@ -129,8 +130,8 @@ class TestFallbackController(HttpCase):
             self._fallback_url(step='forward'), data={'DialCallStatus': 'no-answer'})
 
         body = response.text
-        self.assertIn('sip:user_backup@example.sip.signalwire.com', body)
-        self.assertIn('sip:deskphone_backup@example.sip.signalwire.com', body)
+        self.assertIn('sip:user_backup@example-abc123.sip.signalwire.com', body)
+        self.assertIn('sip:deskphone_backup@example-abc123.sip.signalwire.com', body)
 
     def test_group_reaches_a_teammate_with_only_a_desk_phone(self):
         desk_only_teammate = self.env['res.users'].create({
@@ -148,7 +149,7 @@ class TestFallbackController(HttpCase):
         response = self.url_open(
             self._fallback_url(step='forward'), data={'DialCallStatus': 'no-answer'})
 
-        self.assertIn('sip:deskphone_only@example.sip.signalwire.com', response.text)
+        self.assertIn('sip:deskphone_only@example-abc123.sip.signalwire.com', response.text)
 
     def test_forward_and_group_both_configured_uses_forward_first(self):
         number = self.env['signalwire.forwarding.number'].create({

@@ -10,6 +10,7 @@ class TestVoicemailTranscriptionController(HttpCase):
         super().setUpClass()
         cls.server = cls.env['signalwire.server'].create({
             'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
             'project_id': 'pid123', 'api_token': 'tok456',
         })
         cls.subproject = cls.env['signalwire.subproject'].create({

@@ -18,10 +18,15 @@ this got a much more capable result for a smaller build, once found.
 
 ## Setup
 
-1. Have a `signalwire.server` already configured (see `signalwire_voip`).
+1. Have a `signalwire.server` already configured (see `signalwire_voip`),
+   **and its SIP Domain field filled in** - copy the real value from
+   this project's SignalWire dashboard, SIP Profile page
+   (`https://<space>.signalwire.com/sip_profile/edit`). This is **not**
+   the same as the Space domain with `.sip.` inserted - see "The SIP
+   domain gotcha" below for why that distinction matters.
 2. On that server's form, click **Setup Click-to-Call** - creates the
    one `voip.pbx` record every user's softphone shares (idempotent,
-   safe to click again if the server's Space ever changes).
+   safe to click again if the server's SIP Domain ever changes).
 3. On each user who should get a softphone (their own user form,
    Preferences or the admin Users list, VOIP tab): click
    **Provision SignalWire Softphone** - creates a real SIP Endpoint at
@@ -35,17 +40,39 @@ this got a much more capable result for a smaller build, once found.
    already be this database's real, public HTTPS address - SignalWire
    has to be able to reach it to deliver the inbound-call webhook.
 
+## The SIP domain gotcha - a real bug this project shipped, then fixed
+
+**`_get_sip_domain()` used to *guess* the SIP domain** from the Space
+domain (`{space-name}.sip.signalwire.com`) rather than requiring it be
+configured directly. That guess looked solid at every layer available
+from a terminal: it accepted a real WebSocket upgrade
+(`101 Switching Protocols` / `Server: SignalWire Proxy`), and a raw SIP
+REGISTER against it over UDP got back a genuine `401 Unauthorized` /
+`WWW-Authenticate: Digest` challenge rather than a connection failure -
+both looked like confirmation the domain was right.
+
+It wasn't. Every real registration attempt against that guessed domain
+failed with `401 Unauthorized`, even after independently recomputing
+the SIP digest hash by hand (MD5, matching byte-for-byte against the
+client's own `response=` value) proved the credentials themselves were
+cryptographically correct. SignalWire support's own answer (2026-09-20,
+after live troubleshooting against the user's real space): the actual
+SIP domain carries an additional hidden, space-specific suffix beyond
+the space name (e.g. `yourspace-4bfcc2d4e531.sip.signalwire.com`, not
+just `yourspace.sip.signalwire.com`) - visible only on the dashboard's
+own SIP Profile page, not derivable from the space name and not
+returned by the SIP Endpoint creation API response either.
+
+**Fixed 2026-09-20**: `_get_sip_domain()` no longer guesses anything -
+`signalwire.server` now has its own **SIP Domain** field, and the
+method raises a clear error if it isn't set rather than silently
+producing a plausible-but-wrong value again. Every existing server
+record (including the user's real production one) needs this field
+filled in from the dashboard before softphones/desk phones will
+actually register.
+
 ## Live-verified 2026-09-15, against the user's real trial account
 
-- **The SIP-over-WebSocket hostname is NOT the bare Space domain.**
-  `wss://{space}.signalwire.com` (the plain Space domain) serves the
-  web dashboard and refuses/redirects any WebSocket upgrade attempt to
-  the login page. The real endpoint lives at a distinct host with
-  `.sip.` inserted: `wss://{space-name}.sip.signalwire.com` - confirmed
-  via a raw WebSocket handshake (curl 8.21's native `wss://` support),
-  which came back `101 Switching Protocols` / `Server: SignalWire
-  Proxy` with the `sip` subprotocol accepted. `_get_sip_domain()`
-  builds this correctly.
 - **A real phone number was purchased** (`+12084449665`, into a new
   "Internal Team" subproject representing the business's own
   resources rather than a resold customer) specifically to test this
@@ -199,17 +226,18 @@ what's already here?
 `POST /api/relay/rest/endpoints/sip` call `action_provision_signalwire_sip`
 already makes), confirmed it advertises standard telephony codecs
 (PCMU/PCMA/G722, not just WebRTC-only ones), then sent a raw SIP
-REGISTER over UDP directly to `{space}.sip.signalwire.com:5060` and got
-back a genuine `401 Unauthorized` / `WWW-Authenticate: Digest` /
-`Server: SignalWire Proxy` challenge. **A physical desk phone can
-register with the exact same kind of SIP Endpoint credentials already
-used for the softphone - standard SIP-over-UDP is genuinely supported,
-not just WebSocket/WebRTC** - no new SignalWire-side work needed. (A
-hand-rolled digest-auth follow-up to actually complete that REGISTER
-got a second 401 - likely a bug in the toy test client's own MD5 math,
-not worth chasing further, since the one fact that mattered
-architecturally - transport-level support - was already answered by
-that first challenge.)
+REGISTER over UDP directly to the guessed `{space}.sip.signalwire.com:5060`
+and got back a genuine `401 Unauthorized` / `WWW-Authenticate: Digest` /
+`Server: SignalWire Proxy` challenge - confirming standard SIP-over-UDP
+is genuinely supported (not just WebSocket/WebRTC), no new
+SignalWire-side work needed for a physical desk phone to share the
+same kind of SIP Endpoint credentials as the softphone. (A follow-up
+hand-rolled digest-auth REGISTER against that same guessed domain got
+a second 401 - at the time assumed to be a bug in the toy test
+client's own MD5 math; per "The SIP domain gotcha" above, the real
+cause was almost certainly the guessed domain itself being wrong, not
+the digest math, though this specific early test was never re-run
+against the real domain to confirm.)
 
 **Design, per the user's own confirmed choices**: each desk phone gets
 its **own** SIP Endpoint (`signalwire.desk_phone`), not a second

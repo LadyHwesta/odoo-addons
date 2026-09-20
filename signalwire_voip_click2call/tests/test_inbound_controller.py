@@ -11,6 +11,7 @@ class TestInboundCallController(HttpCase):
         cls.server = cls.env['signalwire.server'].create({
             'name': 'Test SignalWire',
             'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
             'project_id': 'pid123',
             'api_token': 'tok456',
         })
@@ -34,7 +35,7 @@ class TestInboundCallController(HttpCase):
         self.assertEqual(response.status_code, 200)
         body = response.text
         self.assertIn('<Dial ', body)
-        self.assertIn('sip:user_jane@example.sip.signalwire.com', body)
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
 
     def test_dial_carries_a_timeout_and_a_fallback_action_url(self):
         response = self.url_open(
@@ -73,8 +74,8 @@ class TestInboundCallController(HttpCase):
 
         body = response.text
         self.assertEqual(body.count('<Sip>'), 2)
-        self.assertIn('sip:user_jane@example.sip.signalwire.com', body)
-        self.assertIn('sip:deskphone_front@example.sip.signalwire.com', body)
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
+        self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)
 
     def test_desk_phone_only_user_with_no_softphone_still_rings(self):
         self.user.voip_username = False
@@ -91,4 +92,4 @@ class TestInboundCallController(HttpCase):
 
         body = response.text
         self.assertEqual(body.count('<Sip>'), 1)
-        self.assertIn('sip:deskphone_front@example.sip.signalwire.com', body)
+        self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)

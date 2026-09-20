@@ -10,6 +10,7 @@ class TestDeskPhoneProvisioningController(HttpCase):
         super().setUpClass()
         cls.server = cls.env['signalwire.server'].create({
             'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
             'project_id': 'pid123', 'api_token': 'tok456',
         })
         cls.user = cls.env['res.users'].create({
@@ -37,7 +38,7 @@ class TestDeskPhoneProvisioningController(HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('account.1.user_name = deskphoneXYZ', response.text)
         self.assertIn('account.1.password = super-secret-pw', response.text)
-        self.assertIn('account.1.sip_server.1.address = example.sip.signalwire.com',
+        self.assertIn('account.1.sip_server.1.address = example-abc123.sip.signalwire.com',
                        response.text)
 
     def test_grandstream_filename_returns_a_matching_xml(self):
@@ -48,7 +49,7 @@ class TestDeskPhoneProvisioningController(HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('<P35>deskphoneXYZ</P35>', response.text)
         self.assertIn('<P34>super-secret-pw</P34>', response.text)
-        self.assertIn('<P47>example.sip.signalwire.com</P47>', response.text)
+        self.assertIn('<P47>example-abc123.sip.signalwire.com</P47>', response.text)
 
     def test_mac_lookup_is_normalized_regardless_of_how_it_was_saved(self):
         self._provisioned_phone('yealink', 'AA:BB:CC:DD:EE:FF')
