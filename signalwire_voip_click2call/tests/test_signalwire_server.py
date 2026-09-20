@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+import base64
+import hashlib
+import hmac
+import time
+
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
@@ -44,3 +49,24 @@ class TestSignalWireServerClick2Call(TransactionCase):
         self.assertEqual(first, second)
         self.assertEqual(
             self.env['voip.pbx'].search_count([('name', '=', 'Test SignalWire')]), 1)
+
+    def test_generate_turn_credentials_returns_false_when_unconfigured(self):
+        self.assertFalse(self.server._generate_turn_credentials())
+
+    def test_generate_turn_credentials_computes_the_correct_hmac(self):
+        self.server.write({'turn_host': '203.0.113.4:3478', 'turn_secret': 'sekrit'})
+
+        result = self.server._generate_turn_credentials(ttl_seconds=3600)
+
+        self.assertEqual(
+            result['urls'],
+            ['turn:203.0.113.4:3478?transport=udp', 'turn:203.0.113.4:3478?transport=tcp'])
+        expiry = int(result['username'].split(':')[0])
+        self.assertAlmostEqual(expiry, int(time.time()) + 3600, delta=5)
+        expected_digest = hmac.new(
+            b'sekrit', result['username'].encode(), hashlib.sha1).digest()
+        self.assertEqual(result['credential'], base64.b64encode(expected_digest).decode())
+
+    def test_generate_turn_credentials_requires_both_host_and_secret(self):
+        self.server.turn_host = '203.0.113.4:3478'
+        self.assertFalse(self.server._generate_turn_credentials())

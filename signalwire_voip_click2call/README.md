@@ -119,6 +119,72 @@ model with a phone field (a lead, for instance) still dials the raw
 digits unchanged - out of scope here since it wasn't the reported
 problem, flagged rather than silently left implicit.
 
+## Outbound calls still failing after all of the above: no TURN server
+
+Even with the correct SIP domain and a correctly country-coded number,
+outbound-to-PSTN calls from a contact still just sat at a dialtone
+forever. Live SIP tracing (DevTools WS frames during a real call
+attempt) narrowed this down precisely, in order:
+
+1. The INVITE itself was correct (right number, right domain) and got
+   a `100 Trying` back from SignalWire - so the call route was being
+   accepted.
+2. It then sat forever with no further response - traced to the SIP
+   Credential's own **Call Handler** setting on SignalWire's dashboard
+   defaulting to *not* allowing outbound PSTN dialing at all (a
+   distinct, explicit "Passthrough (Allow dialing to PSTN)" option
+   exists and must be selected - "Use Default Setting" isn't it).
+3. With that fixed, the INVITE completed but the call still failed
+   with a real SIP `480 Temporarily Unavailable` /
+   `Reason: cause=804 "MEDIA_TIMEOUT"` - the call route was accepted
+   but the actual RTP media path between the browser and SignalWire's
+   gateway never connected.
+
+Root cause of step 3: `voip_oca` only ever configures SIP.js's default
+STUN server (`stun.l.google.com`) - no TURN relay anywhere in
+`voip_oca` or this module. A failing INVITE's own SDP confirmed it:
+only host/server-reflexive (STUN-derived) candidates were ever
+offered, never a relay candidate. STUN alone isn't always enough to
+establish a real media path - that's specifically what TURN exists
+for, and SignalWire's own docs don't advertise a TURN service for
+third-party SIP.js integrators (checked directly).
+
+**Fixed** by standing up a real TURN server and wiring the softphone
+to fetch short-lived credentials for it:
+
+- **coturn was tried first and abandoned** - a confirmed, long-
+  standing upstream bug (`438 Wrong nonce`, reported against coturn
+  since 2017 across many versions, both its `lt-cred-mech` and
+  `use-auth-secret` auth modes) made it reject its own just-issued
+  nonce on literally the first authenticated request of a fresh
+  process. Not a config mistake on our end - independently reproduced
+  and matched to open, unresolved upstream GitHub issues.
+- **[eturnal](https://eturnal.net/)** (an actively maintained,
+  Erlang-based STUN/TURN server) was used instead - no compatibility
+  issue, confirmed working via a standalone ICE test
+  (`https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/`)
+  before ever wiring it into Odoo. No `.deb` package exists for it;
+  built from source (`erlang` + `libyaml-dev` + `build-essential` are
+  the real build dependencies - the source tarball bundles its own
+  `rebar3`), installed to `/opt/eturnal`, running under the official
+  systemd unit template from eturnal's own repo.
+- `signalwire.server` gained `turn_host`/`turn_secret` fields (System
+  group only). `_generate_turn_credentials()` derives a short-lived,
+  HMAC-SHA1 TURN REST API credential per call (the same scheme both
+  coturn and eturnal implement) - `turn_secret` itself never reaches
+  the browser, only the time-limited derived pair, fetched by
+  `res.users.get_signalwire_turn_credentials()` (callable by any
+  softphone user via `sudo()`, since only the safe derived value is
+  ever returned) and wired into SIP.js's ICE config by
+  `voip_agent_turn.esm.js`, patched onto `voip_oca`'s own
+  `VoipAgent.agentConfig`/`connectAgent()`.
+
+**Live-verified 2026-09-20**: the TURN server itself, confirmed via a
+standalone ICE connectivity test (a real `relay` candidate obtained
+against it, independent of Odoo). **Not yet verified**: an actual
+outbound call from a contact going through Odoo/`voip_oca` with this
+credential wired in - that's the next real test, once deployed.
+
 ## Live-verified 2026-09-15, against the user's real trial account
 
 - **A real phone number was purchased** (`+12084449665`, into a new

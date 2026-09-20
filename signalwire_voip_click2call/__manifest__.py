@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.4.3.2',
+    'version': '19.0.4.4.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """
@@ -60,7 +60,7 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     ],
     'assets': {
         'web.assets_backend': [
-            'signalwire_voip_click2call/static/src/services/voip_agent_service_turn_diagnostic.esm.js',
+            'signalwire_voip_click2call/static/src/services/voip_agent_turn.esm.js',
             'signalwire_voip_click2call/static/src/fields/phone_field/phone_field.esm.js',
             'signalwire_voip_click2call/static/src/components/voicemail_audio_player/voicemail_audio_player.esm.js',
             'signalwire_voip_click2call/static/src/components/voicemail_audio_player/voicemail_audio_player.xml',

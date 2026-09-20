@@ -1,10 +1,56 @@
 # -*- coding: utf-8 -*-
+import base64
+import hashlib
+import hmac
+import time
+
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
 
 class SignalWireServer(models.Model):
     _inherit = 'signalwire.server'
+
+    turn_host = fields.Char(
+        string="TURN Server", groups="base.group_system",
+        help="host:port of a TURN relay for WebRTC media, e.g. "
+             "\"146.190.131.239:3478\" - confirmed live 2026-09-20 that "
+             "a real SignalWire outbound-PSTN call reliably fails with "
+             "a SIP 480 / cause=804 \"MEDIA_TIMEOUT\" without one; STUN "
+             "alone (SIP.js's own default) wasn't enough on this "
+             "network. Leave blank to fall back to STUN-only, at the "
+             "risk of the same failure.")
+    turn_secret = fields.Char(
+        string="TURN Shared Secret", groups="base.group_system",
+        help="The shared secret configured on the TURN server itself "
+             "(coturn's static-auth-secret / eturnal's secret) - used "
+             "to derive short-lived, per-call TURN credentials here. "
+             "Never sent to the browser directly - see "
+             "_generate_turn_credentials().")
+
+    def _generate_turn_credentials(self, ttl_seconds=3600):
+        """A short-lived TURN REST API credential (the scheme both
+        coturn and eturnal implement): username is an expiry
+        timestamp, password is HMAC-SHA1(secret, username). The
+        browser only ever receives this derived, time-limited pair -
+        turn_secret itself never leaves the server.
+        """
+        self.ensure_one()
+        if not self.turn_host or not self.turn_secret:
+            return False
+        expiry = int(time.time()) + ttl_seconds
+        username = f'{expiry}:odoo'
+        digest = hmac.new(
+            self.turn_secret.encode(), username.encode(), hashlib.sha1
+        ).digest()
+        return {
+            'urls': [
+                f'turn:{self.turn_host}?transport=udp',
+                f'turn:{self.turn_host}?transport=tcp',
+            ],
+            'username': username,
+            'credential': base64.b64encode(digest).decode(),
+        }
 
     sip_domain = fields.Char(
         string="SIP Domain", groups="base.group_system",

@@ -3,7 +3,7 @@ import re
 import secrets
 import unicodedata
 
-from odoo import _, models, fields
+from odoo import _, api, models, fields
 from odoo.exceptions import UserError
 
 
@@ -54,6 +54,23 @@ class ResUsers(models.Model):
              "text shows up right in the voicemail systray, letting "
              "you decide whether it's worth listening to in full "
              "before you do. Turn off to only ever get the audio.")
+
+    @api.model
+    def get_signalwire_turn_credentials(self):
+        """Called from the softphone's own JS at connect time (see
+        voip_agent_turn.esm.js) to get a short-lived TURN credential -
+        server.turn_secret itself never reaches the browser, only the
+        HMAC-derived, time-limited pair. sudo() because a plain
+        softphone user placing a call doesn't need (and per
+        turn_secret's own groups="base.group_system" shouldn't have)
+        read access to the server record's own restricted fields -
+        this method's return value is the only thing that's safe to
+        hand back, same "elevate internally, return only the derived
+        safe value" shape as _platform_secret_key() elsewhere in this
+        project.
+        """
+        server = self.env['signalwire.server'].sudo().search([], limit=1)
+        return server._generate_turn_credentials() if server else False
 
     def action_use_profile_phone_as_forward(self):
         """Convenience: seed a saved number straight from this user's

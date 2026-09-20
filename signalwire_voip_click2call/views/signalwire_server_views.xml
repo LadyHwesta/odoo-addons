@@ -12,6 +12,8 @@
             </xpath>
             <xpath expr="//field[@name='space']" position="after">
                 <field name="sip_domain" />
+                <field name="turn_host" />
+                <field name="turn_secret" password="True" />
             </xpath>
         </field>
     </record>

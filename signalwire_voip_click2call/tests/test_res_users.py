@@ -129,3 +129,29 @@ class TestResUsersSignalWireSip(TransactionCase):
     def test_release_without_provisioning_raises(self):
         with self.assertRaises(UserError):
             self.user.action_release_signalwire_sip()
+
+    def test_get_turn_credentials_returns_false_when_unconfigured(self):
+        self.assertFalse(self.user.get_signalwire_turn_credentials())
+
+    def test_get_turn_credentials_delegates_to_the_configured_server(self):
+        self.server.write({'turn_host': '203.0.113.4:3478', 'turn_secret': 'sekrit'})
+
+        result = self.user.get_signalwire_turn_credentials()
+
+        self.assertEqual(
+            result['urls'],
+            ['turn:203.0.113.4:3478?transport=udp', 'turn:203.0.113.4:3478?transport=tcp'])
+
+    def test_get_turn_credentials_works_for_a_user_without_server_access(self):
+        # A plain softphone user shouldn't need (and per turn_secret's
+        # own groups="base.group_system" shouldn't have) read access
+        # to the server record - the method must still work via sudo().
+        self.server.write({'turn_host': '203.0.113.4:3478', 'turn_secret': 'sekrit'})
+        plain_user = self.env['res.users'].create({
+            'name': 'Plain Agent', 'login': 'plain.agent@example.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_user').id])],
+        })
+
+        result = plain_user.with_user(plain_user).get_signalwire_turn_credentials()
+
+        self.assertTrue(result)
