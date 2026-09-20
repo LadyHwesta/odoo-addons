@@ -28,7 +28,7 @@ class SignalWireServer(models.Model):
              "Never sent to the browser directly - see "
              "_generate_turn_credentials().")
 
-    def _generate_turn_credentials(self, ttl_seconds=3600):
+    def _generate_turn_credentials(self, ttl_seconds=300):
         """A short-lived TURN REST API credential (the scheme both
         coturn and eturnal implement): username is an expiry
         timestamp, password is HMAC-SHA1(secret, username). The

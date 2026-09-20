@@ -176,14 +176,31 @@ to fetch short-lived credentials for it:
   `res.users.get_signalwire_turn_credentials()` (callable by any
   softphone user via `sudo()`, since only the safe derived value is
   ever returned) and wired into SIP.js's ICE config by
-  `voip_agent_turn.esm.js`, patched onto `voip_oca`'s own
-  `VoipAgent.agentConfig`/`connectAgent()`.
+  `voip_agent_turn.esm.js`, patched onto `voip_oca`'s own `call()`.
 
-**Live-verified 2026-09-20**: the TURN server itself, confirmed via a
-standalone ICE connectivity test (a real `relay` candidate obtained
-against it, independent of Odoo). **Not yet verified**: an actual
-outbound call from a contact going through Odoo/`voip_oca` with this
-credential wired in - that's the next real test, once deployed.
+**A second real bug found deploying this**: the first version of this
+patch fetched the TURN credential once, when the softphone first
+connected, and cached it for the page's lifetime. A softphone can stay
+connected in an open browser tab far longer than a short-lived
+credential's TTL - live testing confirmed exactly this: the SDP
+correctly offered relay candidates, but eturnal's own log showed
+`Rejecting request: credentials expired` the moment a call was placed
+more than the TTL after the page loaded. Fixed by fetching a fresh
+credential on every `call()` instead of once at connect time, and
+mutating the live `UserAgent`'s own `configuration.
+sessionDescriptionHandlerFactoryOptions` directly rather than only
+setting it once at `UserAgent` construction - confirmed by reading
+SIP.js's own source that each new call's session description handler
+reads that config fresh at setup time, so no `UserAgent`
+reconstruction is needed to pick up a new credential.
+
+**Live-verified 2026-09-20**: the TURN server itself (a real `relay`
+candidate obtained against it via a standalone ICE test, independent
+of Odoo), and a real outbound call's SDP correctly offering relay
+candidates sourced from a freshly-fetched, correctly-scoped backend
+credential. **Not yet verified**: a full connected call with two-way
+audio - the credential-expiry bug was caught and fixed before that
+point could be reached; the next real call attempt is the actual test.
 
 ## Live-verified 2026-09-15, against the user's real trial account
 
