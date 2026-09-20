@@ -194,13 +194,34 @@ SIP.js's own source that each new call's session description handler
 reads that config fresh at setup time, so no `UserAgent`
 reconstruction is needed to pick up a new credential.
 
+**A third real bug, found on the very next live test**: with the
+credential-expiry bug fixed, the SDP *still* had no relay candidate at
+all - yet eturnal's own log showed the TURN allocation succeeding
+(both UDP and TCP), just a moment too late, and later reported
+`Relayed 0 KiB` when the unused allocation was torn down. Root cause:
+SIP.js's own default ICE gathering timeout is 5000ms (confirmed by
+reading its source), and a full TURN Allocate handshake
+(unauthenticated request -> 401 challenge -> authenticated retry, for
+both UDP and TCP transports) doesn't reliably finish inside that
+window - SIP.js sends whatever's gathered so far the moment gathering
+finishes *or* that timeout fires, whichever comes first, and there's
+no mechanism to trickle a late-arriving candidate into an
+already-sent SIP INVITE afterward. Fixed by setting
+`iceGatheringTimeout: 10000` in the same `sessionDescriptionHandlerFactoryOptions`
+object as the ICE servers themselves - a sibling key, not nested under
+`peerConnectionConfiguration`.
+
 **Live-verified 2026-09-20**: the TURN server itself (a real `relay`
 candidate obtained against it via a standalone ICE test, independent
-of Odoo), and a real outbound call's SDP correctly offering relay
+of Odoo), a real outbound call's SDP correctly offering relay
 candidates sourced from a freshly-fetched, correctly-scoped backend
-credential. **Not yet verified**: a full connected call with two-way
-audio - the credential-expiry bug was caught and fixed before that
-point could be reached; the next real call attempt is the actual test.
+credential, and (separately) the credential-expiry and gathering-
+timeout bugs each caught by an actual live call attempt failing in a
+new, specific way after the previous fix. **Not yet verified**: a full
+connected call with two-way audio - each fix so far has been
+confirmed correct only up to the point where it exposed the *next*
+real, distinct bug; the next real call attempt is the actual test of
+whether all of them together are finally sufficient.
 
 ## Live-verified 2026-09-15, against the user's real trial account
 

@@ -51,6 +51,17 @@ patch(VoipAgent.prototype, {
             });
         }
         this.agent.configuration.sessionDescriptionHandlerFactoryOptions = {
+            // SIP.js's own default (5000ms, confirmed by reading its
+            // source) isn't always enough for a full TURN Allocate
+            // handshake (unauthenticated request -> 401 challenge ->
+            // authenticated retry, for both UDP and TCP) - confirmed
+            // live: eturnal's own log showed the allocation succeeding
+            // a moment too late to make it into the offer, which
+            // SIP.js sends as soon as ICE gathering finishes or this
+            // timeout fires, whichever comes first - there's no
+            // separate mechanism to trickle a late candidate into an
+            // already-sent SIP INVITE.
+            iceGatheringTimeout: 10000,
             peerConnectionConfiguration: {iceServers},
         };
     },
