@@ -24,6 +24,10 @@ this got a much more capable result for a smaller build, once found.
    (`https://<space>.signalwire.com/sip_profile/edit`). This is **not**
    the same as the Space domain with `.sip.` inserted - see "The SIP
    domain gotcha" below for why that distinction matters.
+   `pip install phonenumbers` into the Odoo server's own Python
+   environment too - see "Calling a contact whose number has no
+   country code" below for why this is required, not optional, for
+   outbound calls to actually connect.
 2. On that server's form, click **Setup Click-to-Call** - creates the
    one `voip.pbx` record every user's softphone shares (idempotent,
    safe to click again if the server's SIP Domain ever changes).
@@ -70,6 +74,50 @@ producing a plausible-but-wrong value again. Every existing server
 record (including the user's real production one) needs this field
 filled in from the dashboard before softphones/desk phones will
 actually register.
+
+## Calling a contact whose number has no country code
+
+Once the SIP domain gotcha above was fixed and inbound calling worked,
+outbound calling from a contact still just sat at a dialtone.
+`voip_oca`'s own dial logic
+(`voip_agent_service.esm.js`'s `call()`) strips a phone number down to
+bare digits and dials exactly that - it never adds a country code. A
+contact entered as `(707) 555-0123` (no `+1`) dials as 10 bare digits,
+which SignalWire's SIP trunk just waits on rather than routing
+anywhere - not a SignalWire bug, a number that was never
+fully-qualified to begin with.
+
+**Fixed without touching `voip_oca`'s own vendored code**: `res.partner.
+format_partner()` (the one method both the softphone's Partner tab and
+call-history redial already go through) is overridden here to run the
+phone number through core's own `_phone_format(force_format='E164')`,
+which derives the country code from the contact's own `country_id`
+(falling back to the company's) - so a contact's phone field can stay
+exactly as entered, no need to re-enter every number with a country
+code by hand. A second small JS patch routes the phone-widget "click
+to call" icon on a contact's own form/list (the more common way to
+call a contact, separate from the softphone's Partner tab) through the
+same fixed method.
+
+**A real, non-obvious prerequisite**: this only works if the
+`phonenumbers` Python library is installed in the Odoo server's own
+environment - it is **not** part of Odoo's own `requirements.txt`,
+confirmed by checking core's actual file. Without it, `_phone_format`
+degrades silently (Odoo core's own designed behavior for this optional
+dependency) rather than raising - the fix would appear to do nothing
+at all, with no error anywhere, and calling would still just sit at a
+dialtone. Caught exactly this way while testing this fix: `pip install
+phonenumbers` was missing from the local test venv, and the new test
+below failed until it was added. **`pip install phonenumbers` into the
+real Odoo server's environment is required**, not optional, for this
+fix to actually take effect there.
+
+Covers dialing sourced from a `res.partner` record specifically (the
+softphone's own Partner tab, call-history redial, and the phone-widget
+click on a contact's form/list). A phone-widget click on a *different*
+model with a phone field (a lead, for instance) still dials the raw
+digits unchanged - out of scope here since it wasn't the reported
+problem, flagged rather than silently left implicit.
 
 ## Live-verified 2026-09-15, against the user's real trial account
 
@@ -279,6 +327,9 @@ user's own first real phone is the real test here.
 ## Testing
 
 `signalwire.server._get_sip_domain`/`action_setup_click2call`,
+`res.partner.format_partner`'s E164 formatting (requires `phonenumbers`
+installed to actually exercise, not just fall back silently - see
+above),
 `res.users` provisioning/release and the fallback-chain methods
 (profile-phone shortcut, partner matching), `signalwire.phone_number`
 inbound-routing configuration, and the inbound, fallback-chain,

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.4.2.0',
+    'version': '19.0.4.3.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """
@@ -49,7 +49,7 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['signalwire_voip', 'voip_oca'],
+    'depends': ['signalwire_voip', 'voip_oca', 'phone_validation'],
     'data': [
         'security/ir.model.access.csv',
         'security/signalwire_voicemail_security.xml',
@@ -60,6 +60,7 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     ],
     'assets': {
         'web.assets_backend': [
+            'signalwire_voip_click2call/static/src/fields/phone_field/phone_field.esm.js',
             'signalwire_voip_click2call/static/src/components/voicemail_audio_player/voicemail_audio_player.esm.js',
             'signalwire_voip_click2call/static/src/components/voicemail_audio_player/voicemail_audio_player.xml',
             'signalwire_voip_click2call/static/src/fields/voicemail_player_field/voicemail_player_field.esm.js',
