@@ -41,6 +41,54 @@ patch(VoipAgent.prototype, {
                 ],
             },
         };
+        console.warn(
+            "SIGNALWIRE TURN DIAGNOSTIC - agentConfig built with:",
+            JSON.stringify(config.sessionDescriptionHandlerFactoryOptions)
+        );
         return config;
     },
 });
+
+/* Also log every ICE candidate SIP.js/the browser actually gathers,
+ * and any ICE candidate errors (e.g. a TURN allocation failing,
+ * which produces no candidate at all and no thrown exception - only
+ * this event reveals it). Patched onto RTCPeerConnection itself since
+ * that's the one place guaranteed to see every attempt regardless of
+ * which layer of voip_oca/SIP.js constructs the connection.
+ */
+const nativeAddEventListener = window.RTCPeerConnection.prototype.addEventListener;
+window.RTCPeerConnection.prototype.addEventListener = function (type, ...rest) {
+    if (type === "icecandidate" || type === "icecandidateerror") {
+        console.warn(`SIGNALWIRE TURN DIAGNOSTIC - listener attached for ${type}`);
+    }
+    return nativeAddEventListener.call(this, type, ...rest);
+};
+const OriginalRTCPeerConnection = window.RTCPeerConnection;
+window.RTCPeerConnection = function (...args) {
+    const pc = new OriginalRTCPeerConnection(...args);
+    console.warn(
+        "SIGNALWIRE TURN DIAGNOSTIC - RTCPeerConnection created with iceServers:",
+        JSON.stringify(args[0] && args[0].iceServers)
+    );
+    pc.addEventListener("icecandidate", (ev) => {
+        if (ev.candidate) {
+            console.warn(
+                "SIGNALWIRE TURN DIAGNOSTIC - candidate:",
+                ev.candidate.type,
+                ev.candidate.candidate
+            );
+        } else {
+            console.warn("SIGNALWIRE TURN DIAGNOSTIC - candidate gathering complete");
+        }
+    });
+    pc.addEventListener("icecandidateerror", (ev) => {
+        console.warn(
+            "SIGNALWIRE TURN DIAGNOSTIC - candidate error:",
+            ev.errorCode,
+            ev.errorText,
+            ev.url
+        );
+    });
+    return pc;
+};
+window.RTCPeerConnection.prototype = OriginalRTCPeerConnection.prototype;
