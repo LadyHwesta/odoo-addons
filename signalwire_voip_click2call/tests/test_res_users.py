@@ -155,3 +155,30 @@ class TestResUsersSignalWireSip(TransactionCase):
         result = plain_user.with_user(plain_user).get_signalwire_turn_credentials()
 
         self.assertTrue(result)
+
+    def test_search_colleagues_only_returns_provisioned_users_excluding_self(self):
+        self.user.voip_username = 'user_jane'
+        no_softphone = self.env['res.users'].create({
+            'name': 'No Phone', 'login': 'no.phone@example.com'})
+
+        result = self.user.with_user(self.user).search_signalwire_colleagues('')
+
+        names = [c['name'] for c in result]
+        self.assertNotIn(self.user.name, names)
+        self.assertNotIn(no_softphone.name, names)
+
+    def test_search_colleagues_filters_by_query_and_company(self):
+        self.user.voip_username = 'user_jane'
+        other_company = self.env['res.company'].create({'name': 'Other Co'})
+        outside_user = self.env['res.users'].create({
+            'name': 'Outsider', 'login': 'outsider4@example.com',
+            'voip_username': 'user_outsider',
+            'company_ids': [(6, 0, [other_company.id])],
+            'company_id': other_company.id,
+        })
+
+        result = self.env['res.users'].search_signalwire_colleagues('jane')
+
+        names = [c['name'] for c in result]
+        self.assertIn('Jane Agent', names)
+        self.assertNotIn(outside_user.name, names)

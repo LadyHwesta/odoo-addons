@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="voip_oca.Call" t-inherit-mode="extension">
+        <xpath expr="//div[span[text()='Call']]" position="inside">
+            <div t-if="agent.consultationSession" class="mt-2 text-center">
+                <div class="small text-muted">Consulting with a colleague...</div>
+                <div class="d-flex justify-content-around my-2">
+                    <button
+                        class="btn btn-success btn-sm"
+                        t-on-click="onCompleteAttendedTransfer"
+                    >Complete Transfer</button>
+                    <button
+                        class="btn btn-danger btn-sm"
+                        t-on-click="onCancelAttendedTransfer"
+                    >Cancel</button>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

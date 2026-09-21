@@ -481,14 +481,59 @@ config-file content was checked against each brand's own documented
 key/P-value names, not against an actual device's boot log. The
 user's own first real phone is the real test here.
 
+## Transferring calls between users
+
+The Transfer button on an active call now offers a colleague search
+(backed by `res.users.search_signalwire_colleagues`, scoped to the
+caller's own company) instead of requiring a raw SIP username to be
+typed by hand, alongside two actions:
+
+- **Transfer** (blind) - the existing, already-working mechanism: a
+  plain SIP REFER, immediate, no confirmation the target actually
+  answers.
+- **Check First** (attended/"warm") - holds the current call, places
+  a separate, ordinary outbound call to the chosen colleague so the
+  agent can confirm they're actually free, then **Complete Transfer**
+  (shown on the active-call view for as long as that consultation call
+  is in progress) bridges the original caller directly to the
+  colleague via SIP.js's own REFER-with-Replaces support, or **Cancel**
+  returns to the original caller if the colleague can't take it.
+
+**A real architectural constraint attended transfer runs into**:
+`voip_oca`'s own `VoipAgent` is built around exactly one call at a
+time - `onInvite` auto-rejects a second *incoming* call with 486 while
+one is active, and `call()`/`hold()`/every lifecycle handler reference
+a single `this.session` field throughout. That guard is about
+receiving a second call, not placing one, so it doesn't block this -
+but it meant patching in a genuinely second, independent
+`consultationSession` slot (`voip_agent_attended_transfer.esm.js`)
+rather than just adding a new method, plus session-parameterized
+audio-routing logic (`_setCallAudioForSession`) so the agent hears the
+colleague, not the held original caller, during consultation.
+
+**Not yet live-tested end to end** (two real provisioned softphones,
+one placing an attended transfer to the other) as of writing - the
+REFER-with-Replaces call shape was confirmed correct by reading
+SIP.js's own vendored source directly (`Session.refer()` accepts
+another `Session` as its target for exactly this, and requires that
+target to already be `Established`), but whether SignalWire's own
+proxy correctly completes the 3-way signaling and actually bridges the
+two remote parties once REFER succeeds - freeing both of the agent's
+own local legs - is genuinely unconfirmed. This module's own JS has no
+automated test coverage at all (established gap, same as every other
+frontend piece here), so this one specifically needs a real live test
+before being considered done, not just a clean code read.
+
 ## Testing
 
 `signalwire.server._get_sip_domain`/`action_setup_click2call`,
 `res.partner.format_partner`'s E164 formatting (requires `phonenumbers`
 installed to actually exercise, not just fall back silently - see
 above),
-`res.users` provisioning/release and the fallback-chain methods
-(profile-phone shortcut, partner matching), `signalwire.phone_number`
+`res.users` provisioning/release, `search_signalwire_colleagues`
+(excludes self and non-provisioned users, scoped by company), and the
+fallback-chain methods (profile-phone shortcut, partner matching),
+`signalwire.phone_number`
 inbound-routing configuration (including Call Group, IVR Menu, and
 business-hours routing, with a real `resource.calendar` record in the
 test setup for the inside/outside-hours cases), `signalwire.call.group`

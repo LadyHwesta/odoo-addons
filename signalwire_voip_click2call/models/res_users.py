@@ -72,6 +72,26 @@ class ResUsers(models.Model):
         server = self.env['signalwire.server'].sudo().search([], limit=1)
         return server._generate_turn_credentials() if server else False
 
+    @api.model
+    def search_signalwire_colleagues(self, query):
+        """Users with a provisioned softphone, in the calling user's
+        own company, for the Transfer popover's own colleague search
+        (see transfer.esm.js) - a name to pick from instead of typing
+        a raw SIP username by hand. Scoped to company like every
+        other routing target in this module, so a transfer can't
+        target someone outside the caller's own company/branch.
+        """
+        colleagues = self.search([
+            ('id', '!=', self.env.uid),
+            ('voip_username', '!=', False),
+            ('company_id', 'in', self.env.companies.ids),
+            ('name', 'ilike', query or ''),
+        ], limit=20)
+        return [
+            {'id': u.id, 'name': u.name, 'voip_username': u.voip_username}
+            for u in colleagues
+        ]
+
     def action_use_profile_phone_as_forward(self):
         """Convenience: seed a saved number straight from this user's
         own partner profile phone, rather than requiring it to be

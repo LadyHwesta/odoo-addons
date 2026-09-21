@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="voip_oca.Transfer" t-inherit-mode="extension">
+        <xpath expr="//input" position="attributes">
+            <attribute name="placeholder">Enter a colleague's name or a number</attribute>
+            <attribute name="list">signalwire_transfer_colleagues</attribute>
+            <attribute name="t-on-focus">onFocusInput</attribute>
+        </xpath>
+        <xpath expr="//input" position="after">
+            <datalist id="signalwire_transfer_colleagues">
+                <t t-foreach="colleagues" t-as="colleague" t-key="colleague.id">
+                    <option t-att-value="colleague.name" />
+                </t>
+            </datalist>
+        </xpath>
+        <xpath expr="//button[hasclass('btn-primary')]" position="after">
+            <button class="btn btn-secondary ms-2" t-on-click="checkFirst">
+                Check First
+            </button>
+        </xpath>
+    </t>
+</templates>
