@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="action_signalwire_receptionist_panel" model="ir.actions.client">
+        <field name="name">Receptionist Panel</field>
+        <field name="tag">signalwire_receptionist_panel</field>
+    </record>
+
+    <menuitem id="menu_signalwire_receptionist_panel" name="Receptionist Panel"
+              parent="signalwire_voip.menu_signalwire_root"
+              action="action_signalwire_receptionist_panel"
+              groups="group_signalwire_receptionist" sequence="1" />
+
+</odoo>

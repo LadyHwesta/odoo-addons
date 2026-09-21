@@ -249,3 +249,56 @@ class TestInboundCallController(HttpCase):
 
         self.assertIn('not a valid option', response.text)
         self.assertIn('Press 1 for sales.', response.text)
+
+    def test_inbound_call_with_a_call_sid_creates_a_live_call(self):
+        self.url_open('/signalwire/voice/inbound', data={
+            'To': '+12084449665', 'From': '+15551234567', 'CallSid': 'CA999'})
+
+        live_call = self.env['signalwire.live_call'].search([('call_sid', '=', 'CA999')])
+        self.assertTrue(live_call)
+        self.assertEqual(live_call.state, 'ringing')
+        self.assertEqual(live_call.from_number, '+15551234567')
+        self.assertEqual(live_call.assigned_user_id, self.user)
+
+    def test_inbound_call_without_a_call_sid_creates_no_live_call(self):
+        before = self.env['signalwire.live_call'].search_count([])
+
+        self.url_open(
+            '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
+
+        self.assertEqual(self.env['signalwire.live_call'].search_count([]), before)
+
+    def test_fallback_completed_marks_the_live_call_ended(self):
+        self.env['signalwire.live_call'].create({
+            'call_sid': 'CA888', 'phone_number_id': self.number.id,
+            'from_number': '+15551234567', 'assigned_user_id': self.user.id,
+        })
+
+        self.url_open(
+            f'/signalwire/voice/fallback/{self.user.id}/{self.number.id}',
+            data={'DialCallStatus': 'completed', 'CallSid': 'CA888'})
+
+        live_call = self.env['signalwire.live_call'].search([('call_sid', '=', 'CA888')])
+        self.assertEqual(live_call.state, 'ended')
+
+    def test_route_to_user_dials_that_users_sip_uri(self):
+        response = self.url_open(
+            f'/signalwire/voice/route_to_user/{self.user.id}/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', response.text)
+
+    def test_route_to_voicemail_records_a_message(self):
+        response = self.url_open(
+            f'/signalwire/voice/route_to_voicemail/{self.user.id}/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn('<Record', response.text)
+        self.assertIn(
+            f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}',
+            response.text)
+
+    def test_hold_loop_plays_a_message_and_pauses(self):
+        response = self.url_open(
+            f'/signalwire/voice/hold_loop/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn('<Say>', response.text)
+        self.assertIn('<Pause', response.text)

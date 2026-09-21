@@ -54,6 +54,56 @@ class ResUsers(models.Model):
              "text shows up right in the voicemail systray, letting "
              "you decide whether it's worth listening to in full "
              "before you do. Turn off to only ever get the audio.")
+    signalwire_call_state = fields.Selection(
+        [('idle', "Available"), ('ringing', "Ringing"), ('on_call', "On a Call")],
+        default='idle', copy=False,
+        help="Reported live by this user's own softphone whenever its "
+             "call state changes (see voip_agent_receptionist_status."
+             "esm.js) - what the live receptionist panel shows "
+             "alongside Odoo's own online/away/offline status "
+             "(im_status), which only reflects browser activity, not "
+             "whether this user is actually on a phone call.")
+
+    @property
+    def SELF_READABLE_FIELDS(self):
+        # A real, pre-existing gap caught while adding
+        # signalwire_call_state: none of this module's own "self-
+        # service" fields were ever actually added here (only
+        # voip_oca's own voip_username/voip_password/voip_pbx_id
+        # were, in voip_oca/models/res_users.py) - a plain user has
+        # never actually been able to edit their own forwarding
+        # number/ring group/voicemail preferences despite the
+        # Preferences tab and this module's own README both saying
+        # so, confirmed live via with_user() against a real non-admin
+        # user (an AccessError, not a silent no-op this time).
+        return super().SELF_READABLE_FIELDS + [
+            'signalwire_forwarding_number_ids', 'signalwire_desk_phone_ids',
+            'signalwire_active_forward_id', 'signalwire_ring_group_ids',
+            'signalwire_voicemail_enabled', 'signalwire_voicemail_transcribe',
+            'signalwire_call_state',
+        ]
+
+    @property
+    def SELF_WRITEABLE_FIELDS(self):
+        return super().SELF_WRITEABLE_FIELDS + [
+            'signalwire_active_forward_id', 'signalwire_ring_group_ids',
+            'signalwire_voicemail_enabled', 'signalwire_voicemail_transcribe',
+            'signalwire_call_state',
+        ]
+
+    def set_signalwire_call_state(self, state):
+        """Called from the softphone's own JS - deliberately not
+        api.model, since it's always about "my own" state (self is
+        the calling user, enforced by only ever writing to self.id
+        below regardless of what record this gets called on).
+        """
+        valid_states = dict(self._fields['signalwire_call_state'].selection)
+        if state not in valid_states:
+            return
+        self.env.user.signalwire_call_state = state
+        group = self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist')
+        self.env['bus.bus']._sendone(
+            group, 'signalwire_live_call/updated', {})
 
     @api.model
     def get_signalwire_turn_credentials(self):
@@ -71,6 +121,31 @@ class ResUsers(models.Model):
         """
         server = self.env['signalwire.server'].sudo().search([], limit=1)
         return server._generate_turn_credentials() if server else False
+
+    @api.model
+    def get_signalwire_receptionist_roster(self):
+        """Every user in the calling receptionist's own company, with
+        Odoo's own im_status (browser online/away/offline, already
+        live via mail.presence/bus) alongside signalwire_call_state
+        (this module's own addition - im_status says nothing about
+        whether someone's actually on a phone call). Explicitly
+        group-checked here rather than relying only on the client
+        action/menu being hidden from non-receptionists - a method
+        call bypasses ir.model.access's own model-level restriction
+        entirely (that only gates direct search/read/write), so this
+        needs its own real guard.
+        """
+        if not self.env.user.has_group('signalwire_voip_click2call.group_signalwire_receptionist'):
+            raise UserError(_("You don't have access to the SignalWire receptionist panel."))
+        users = self.search([('company_id', 'in', self.env.companies.ids)])
+        return [
+            {
+                'id': u.id, 'name': u.name, 'partner_id': u.partner_id.id,
+                'im_status': u.im_status, 'call_state': u.signalwire_call_state,
+                'voip_username': u.voip_username, 'has_softphone': bool(u.voip_username),
+            }
+            for u in users
+        ]
 
     @api.model
     def search_signalwire_colleagues(self, query):

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="group_signalwire_receptionist" model="res.groups">
+        <field name="name">SignalWire Receptionist</field>
+        <field name="comment">
+            Sees every user's live SignalWire call status and can route
+            an in-progress inbound call to them - blind, after checking
+            with them first, or straight to their voicemail.
+        </field>
+    </record>
+
+    <record id="signalwire_live_call_receptionist_rule" model="ir.rule">
+        <field name="name">SignalWire Live Call: receptionists see their own company's calls</field>
+        <field name="model_id" ref="model_signalwire_live_call" />
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_signalwire_receptionist'))]" />
+    </record>
+
+</odoo>

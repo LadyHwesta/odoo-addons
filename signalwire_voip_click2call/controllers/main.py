@@ -116,6 +116,19 @@ class SignalWireVoiceController(http.Controller):
             action = f'/signalwire/voice/fallback/{target.id}/{number.id}'
         return f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{targets}</Dial>'
 
+    def _mark_live_call_ended(self):
+        """Called from every terminal point in the routing chain
+        (answered-and-done, voicemail, or rejected) - CallSid is
+        present on every one of SignalWire's own webhook POSTs for a
+        call, not just the first, so this can be called generically
+        rather than needing the id threaded through every route.
+        """
+        call_sid = request.httprequest.form.get('CallSid', '')
+        if call_sid:
+            request.env['signalwire.live_call'].sudo().search(
+                [('call_sid', '=', call_sid), ('state', '!=', 'ended')]
+            ).write({'state': 'ended'})
+
     def _ivr_menu_cxml(self, menu, number):
         """The <Gather> prompt for `menu` - a re-prompt if the caller
         presses nothing or an unrecognized digit falls through to
@@ -151,6 +164,8 @@ class SignalWireVoiceController(http.Controller):
         the caller a menu with no timeout-driven fallback of its own.
         """
         to_number = request.httprequest.form.get('To', '')
+        from_number = request.httprequest.form.get('From', '')
+        call_sid = request.httprequest.form.get('CallSid', '')
         number = request.env['signalwire.phone_number'].sudo().search(
             [('name', '=', to_number)], limit=1)
         if not number:
@@ -158,14 +173,23 @@ class SignalWireVoiceController(http.Controller):
 
         route_type, target = number._effective_route()
 
+        if call_sid:
+            request.env['signalwire.live_call'].sudo().create({
+                'call_sid': call_sid, 'phone_number_id': number.id,
+                'from_number': from_number,
+                'assigned_user_id': target.id if route_type == 'user' else False,
+            })
+
         if route_type == 'ivr':
             if not target:
+                self._mark_live_call_ended()
                 return self._cxml('<Reject/>')
             return self._cxml(self._ivr_menu_cxml(target, number))
 
         sip_domain = number.subproject_id.server_id._get_sip_domain()
         dial = self._route_dial_cxml(route_type, target, number, sip_domain)
         if not dial:
+            self._mark_live_call_ended()
             return self._cxml('<Reject/>')
         return self._cxml(dial)
 
@@ -182,15 +206,18 @@ class SignalWireVoiceController(http.Controller):
         """
         status = request.httprequest.form.get('DialCallStatus')
         if status == 'completed':
+            self._mark_live_call_ended()
             return self._cxml('')
 
         group = request.env['signalwire.call.group'].sudo().browse(group_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not group.exists() or not number.exists():
+            self._mark_live_call_ended()
             return self._cxml('<Reject/>')
 
         voicemail_user = group.voicemail_user_id
         if not voicemail_user:
+            self._mark_live_call_ended()
             return self._cxml('<Say>Sorry, no one is available to take your call.</Say>')
 
         return self._cxml(self._user_voicemail_cxml(voicemail_user, number))
@@ -231,9 +258,11 @@ class SignalWireVoiceController(http.Controller):
                 + self._ivr_menu_cxml(menu, number))
 
         if option.action_type == 'hangup':
+            self._mark_live_call_ended()
             return self._cxml('<Hangup/>')
         if option.action_type == 'submenu':
             if not option.target_submenu_id:
+                self._mark_live_call_ended()
                 return self._cxml('<Reject/>')
             return self._cxml(self._ivr_menu_cxml(option.target_submenu_id, number))
         if option.action_type == 'voicemail':
@@ -266,11 +295,13 @@ class SignalWireVoiceController(http.Controller):
         if status == 'completed':
             # Was actually answered somewhere in the chain, and the
             # call already ended normally - nothing more to do.
+            self._mark_live_call_ended()
             return self._cxml('')
 
         user = request.env['res.users'].sudo().browse(user_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not user.exists() or not number.exists():
+            self._mark_live_call_ended()
             return self._cxml('<Reject/>')
 
         next_step = self._next_step(user, after=step)
@@ -293,6 +324,7 @@ class SignalWireVoiceController(http.Controller):
         if next_step == 'voicemail':
             return self._cxml(self._user_voicemail_cxml(user, number))
 
+        self._mark_live_call_ended()
         return self._cxml('<Reject/>')
 
     @http.route(
@@ -307,6 +339,7 @@ class SignalWireVoiceController(http.Controller):
         user = request.env['res.users'].sudo().browse(user_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not user.exists() or not number.exists():
+            self._mark_live_call_ended()
             return self._cxml('<Hangup/>')
 
         attachment = request.env['ir.attachment'].sudo()
@@ -337,6 +370,7 @@ class SignalWireVoiceController(http.Controller):
             'transcription_status': 'pending' if transcribe == '1' else 'none',
         })
         voicemail._log_and_notify()
+        self._mark_live_call_ended()
 
         return self._cxml('<Hangup/>')
 
@@ -371,6 +405,67 @@ class SignalWireVoiceController(http.Controller):
                 "(RecordingUrl %s)", user_id, recording_url)
 
         return request.make_response('', headers=[('Content-Type', 'text/plain')])
+
+    @http.route(
+        '/signalwire/voice/route_to_user/<int:user_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def route_to_user(self, user_id, phone_number_id, **kwargs):
+        """A receptionist panel's own redirect target - see
+        signalwire.live_call.action_route_to_user(). A plain one-shot
+        dial with no further fallback chain of its own: once the
+        panel has decided the destination, an unanswered call needs
+        the receptionist to intervene again, the same way a real PBX
+        attendant console works - it doesn't automatically keep
+        hunting on its own.
+        """
+        user = request.env['res.users'].sudo().browse(user_id)
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not user.exists() or not number.exists():
+            self._mark_live_call_ended()
+            return self._cxml('<Reject/>')
+        sip_domain = number.subproject_id.server_id._get_sip_domain()
+        dial = self._route_dial_cxml('user', user, number, sip_domain)
+        if not dial:
+            self._mark_live_call_ended()
+            return self._cxml('<Reject/>')
+        return self._cxml(dial)
+
+    @http.route(
+        '/signalwire/voice/route_to_voicemail/<int:user_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def route_to_voicemail(self, user_id, phone_number_id, **kwargs):
+        """A receptionist panel's own redirect target - see
+        signalwire.live_call.action_send_to_voicemail().
+        """
+        user = request.env['res.users'].sudo().browse(user_id)
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not user.exists() or not number.exists():
+            self._mark_live_call_ended()
+            return self._cxml('<Reject/>')
+        return self._cxml(self._user_voicemail_cxml(user, number))
+
+    @http.route(
+        '/signalwire/voice/hold_loop/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def hold_loop(self, phone_number_id, **kwargs):
+        """A receptionist panel's own redirect target while the
+        receptionist places a separate, ordinary outbound call to
+        check whether a colleague can take it - see
+        signalwire.live_call.action_park() and this module's own
+        README for why this deliberately isn't a 3-way conference
+        bridge. Says a message once, then holds silently rather than
+        looping <Say> (which would repeat jarringly) - SignalWire
+        itself has no <Pause>-forever primitive, so a long single
+        <Pause> is the practical way to keep the call alive without
+        the caller thinking they've been disconnected.
+        """
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not number.exists():
+            self._mark_live_call_ended()
+            return self._cxml('<Reject/>')
+        return self._cxml(
+            '<Say>Please hold while we connect you.</Say>'
+            '<Pause length="120" />')
 
     @http.route(
         '/signalwire/provisioning/<string:filename>',

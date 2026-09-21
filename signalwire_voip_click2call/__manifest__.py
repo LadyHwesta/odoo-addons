@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.4.7.0',
+    'version': '19.0.4.8.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """
@@ -49,8 +49,9 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['signalwire_voip', 'voip_oca', 'phone_validation'],
+    'depends': ['signalwire_voip', 'voip_oca', 'phone_validation', 'mail'],
     'data': [
+        'security/signalwire_receptionist_security.xml',
         'security/ir.model.access.csv',
         'security/signalwire_voicemail_security.xml',
         'security/signalwire_call_routing_security.xml',
@@ -59,11 +60,15 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
         'views/signalwire_ivr_menu_views.xml',
         'views/signalwire_server_views.xml',
         'views/signalwire_voicemail_views.xml',
+        'views/signalwire_receptionist_panel_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
             'signalwire_voip_click2call/static/src/services/voip_agent_turn.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_attended_transfer.esm.js',
+            'signalwire_voip_click2call/static/src/services/voip_agent_receptionist_status.esm.js',
+            'signalwire_voip_click2call/static/src/components/receptionist_panel/receptionist_panel.esm.js',
+            'signalwire_voip_click2call/static/src/components/receptionist_panel/receptionist_panel.xml',
             'signalwire_voip_click2call/static/src/components/transfer/transfer.esm.js',
             'signalwire_voip_click2call/static/src/components/transfer/transfer.xml',
             'signalwire_voip_click2call/static/src/components/call/call.esm.js',

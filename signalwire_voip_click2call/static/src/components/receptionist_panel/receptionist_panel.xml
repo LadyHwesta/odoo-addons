@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="signalwire_voip_click2call.ReceptionistPanel">
+        <div class="o_signalwire_receptionist_panel p-3">
+            <h3>Active Calls</h3>
+            <table class="table table-sm" t-if="state.calls.length">
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>Currently Ringing</th>
+                        <th>Status</th>
+                        <th>Route To</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="state.calls" t-as="call" t-key="call.id">
+                        <td t-esc="call.from_number" />
+                        <td t-esc="call.assigned_user_id ? call.assigned_user_id[1] : '-'" />
+                        <td t-esc="call.state" />
+                        <td>
+                            <select
+                                class="form-select form-select-sm"
+                                t-on-change="(ev) => this.setRouteTarget(call.id, parseInt(ev.target.value, 10))"
+                            >
+                                <option value="">Pick a colleague...</option>
+                                <t t-foreach="availableRoster" t-as="user" t-key="user.id">
+                                    <option t-att-value="user.id" t-esc="user.name" />
+                                </t>
+                            </select>
+                        </td>
+                        <td class="d-flex gap-1">
+                            <button
+                                class="btn btn-sm btn-primary"
+                                t-on-click="() => this.routeCall(call)"
+                            >Send</button>
+                            <button
+                                class="btn btn-sm btn-secondary"
+                                t-on-click="() => this.checkFirst(call)"
+                            >Check First</button>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                t-on-click="() => this.sendToVoicemail(call)"
+                            >Voicemail</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p t-else="" class="text-muted">No active calls right now.</p>
+
+            <h3 class="mt-4">Team</h3>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Odoo Status</th>
+                        <th>Phone Status</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="state.roster" t-as="user" t-key="user.id">
+                        <td t-esc="user.name" />
+                        <td t-esc="user.im_status" />
+                        <td t-esc="callStateLabels[user.call_state] || user.call_state" />
+                        <td>
+                            <button
+                                class="btn btn-sm btn-outline-primary"
+                                t-on-click="() => this.messageUser(user.id)"
+                            >Message</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</templates>

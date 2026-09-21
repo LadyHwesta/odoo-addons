@@ -9,3 +9,5 @@ access_signalwire_ivr_menu_user,signalwire.ivr.menu user,model_signalwire_ivr_me
 access_signalwire_ivr_menu_system,signalwire.ivr.menu system,model_signalwire_ivr_menu,base.group_system,1,1,1,1
 access_signalwire_ivr_menu_option_user,signalwire.ivr.menu.option user,model_signalwire_ivr_menu_option,base.group_user,1,1,1,1
 access_signalwire_ivr_menu_option_system,signalwire.ivr.menu.option system,model_signalwire_ivr_menu_option,base.group_system,1,1,1,1
+access_signalwire_live_call_receptionist,signalwire.live_call receptionist,model_signalwire_live_call,group_signalwire_receptionist,1,1,0,0
+access_signalwire_live_call_system,signalwire.live_call system,model_signalwire_live_call,base.group_system,1,1,1,1

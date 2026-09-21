@@ -182,3 +182,36 @@ class TestResUsersSignalWireSip(TransactionCase):
         names = [c['name'] for c in result]
         self.assertIn('Jane Agent', names)
         self.assertNotIn(outside_user.name, names)
+
+    def test_plain_user_can_self_write_voicemail_preferences(self):
+        # Real, pre-existing gap caught while adding
+        # signalwire_call_state: none of this module's own fields
+        # were ever added to res.users' own SELF_WRITEABLE_FIELDS -
+        # a plain (non-admin) user editing their own record was
+        # always rejected with a real AccessError, contradicting the
+        # module's own "self-service, not admin-only" documentation.
+        plain_user = self.env['res.users'].create({
+            'name': 'Plain Agent 2', 'login': 'plain.agent2@example.com'})
+
+        plain_user.with_user(plain_user).signalwire_voicemail_enabled = False
+        plain_user.with_user(plain_user).signalwire_voicemail_transcribe = False
+        plain_user.with_user(plain_user).signalwire_call_state = 'on_call'
+
+        self.assertFalse(plain_user.signalwire_voicemail_enabled)
+        self.assertFalse(plain_user.signalwire_voicemail_transcribe)
+        self.assertEqual(plain_user.signalwire_call_state, 'on_call')
+
+    def test_set_signalwire_call_state_writes_the_calling_users_own_state(self):
+        plain_user = self.env['res.users'].create({
+            'name': 'Plain Agent 3', 'login': 'plain.agent3@example.com'})
+
+        plain_user.with_user(plain_user).set_signalwire_call_state('ringing')
+
+        self.assertEqual(plain_user.signalwire_call_state, 'ringing')
+
+    def test_set_signalwire_call_state_ignores_an_invalid_value(self):
+        self.user.signalwire_call_state = 'idle'
+
+        self.user.set_signalwire_call_state('not_a_real_state')
+
+        self.assertEqual(self.user.signalwire_call_state, 'idle')

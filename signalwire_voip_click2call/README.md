@@ -524,6 +524,69 @@ automated test coverage at all (established gap, same as every other
 frontend piece here), so this one specifically needs a real live test
 before being considered done, not just a clean code read.
 
+## The live receptionist panel
+
+A new **Receptionist Panel** menu (visible only to the SignalWire
+Receptionist security group) shows two things in real time: every
+active inbound call, and the whole team's status.
+
+**A real inbound call** (`signalwire.live_call`, distinct from
+`voip_oca`'s own `voip.call` - that's a per-user call *log* entry,
+this is the call's own routing-journey record, tracked by SignalWire's
+own `CallSid` from the moment the inbound webhook fires until it ends)
+can be routed straight from the panel:
+
+- **Send** (blind) - redirects the live call to a chosen colleague's
+  SIP targets via SignalWire's Compatibility API "Update a call"
+  endpoint. The caller never hangs up and calls back; the call's own
+  live cXML flow just changes.
+- **Check First** - parks the caller on a "please hold" loop (the same
+  redirect mechanism, pointed at a small new hold-loop route) while
+  the receptionist places a perfectly normal, separate outbound call
+  via their own already-working softphone to confirm the colleague can
+  take it. **Deliberately not a 3-way conference bridge** - no new
+  SIP/media complexity, no second session on the caller's own leg at
+  all, matching the same "server-side call control, not browser-side
+  session juggling" principle Phase C's attended transfer needed
+  vendored-code surgery to achieve for a *different* problem (two
+  parties the *agent themselves* is bridging). Once ready, **Send**
+  completes the actual transfer the normal way.
+- **Voicemail** - redirects into the exact same `<Say>`+`<Record>`
+  flow the personal fallback chain already uses.
+
+**Team status** combines two genuinely different signals rather than
+inventing a new presence system: Odoo core's own `im_status` (browser
+online/away/offline, driven by `mail.presence`/`bus` - confirmed by
+reading Odoo 19's own source rather than assuming) says whether
+someone's logged into Odoo at all, and this module's own new
+`signalwire_call_state` (idle/ringing/on a call, reported live by each
+user's own softphone - patched onto `VoipAgent`'s lifecycle handlers)
+says whether they're actually on the phone, since SignalWire itself
+has no presence API at all (confirmed earlier in this project). A
+**Message** button per person reuses core's own `useOpenChat` hook -
+the exact same one `AvatarCardPopover`'s "Send message" button already
+uses - to open a real Discuss chat, no new backend needed for that
+part at all.
+
+**A real, pre-existing bug caught while building this**: none of this
+module's own "self-service" `res.users` fields (forwarding number,
+personal ring group, voicemail toggles) had ever actually been added
+to `SELF_WRITEABLE_FIELDS`/`SELF_READABLE_FIELDS` - only `voip_oca`'s
+own fields were, in its own `res_users.py`. A plain (non-admin) user
+editing their own Preferences got a real `AccessError`, confirmed live
+via `with_user()` against an actual non-admin user, contradicting this
+module's own long-standing documentation that these were self-service.
+Fixed alongside adding `signalwire_call_state` to the same list.
+
+**Not live-tested** - the bus broadcast targets the Receptionist
+security group directly (`bus.bus._sendone()` requires an actual
+record, not a plain string; every connected user is already auto-
+subscribed to their own group records via
+`ir_websocket._build_bus_channel_list()`, confirmed by reading Odoo
+19's own source, so this needed no extra client-side subscription
+code) - the mechanism is sound by inspection but hasn't been exercised
+against a real inbound call and a real second browser tab yet.
+
 ## Testing
 
 `signalwire.server._get_sip_domain`/`action_setup_click2call`,
@@ -531,25 +594,31 @@ before being considered done, not just a clean code read.
 installed to actually exercise, not just fall back silently - see
 above),
 `res.users` provisioning/release, `search_signalwire_colleagues`
-(excludes self and non-provisioned users, scoped by company), and the
-fallback-chain methods (profile-phone shortcut, partner matching),
-`signalwire.phone_number`
-inbound-routing configuration (including Call Group, IVR Menu, and
-business-hours routing, with a real `resource.calendar` record in the
-test setup for the inside/outside-hours cases), `signalwire.call.group`
-and `signalwire.ivr.menu`/`.option` (including a second real
-`res.company` record to prove `check_company` actually rejects a
-cross-company target, not just that the field exists), and the
-inbound, fallback-chain, group-fallback, IVR entry/digit-handling, and
-voicemail-complete/voicemail-transcription webhook controllers
-(real HTTP round trips via `HttpCase`, including the voicemail
-recording fetch mocked at the `requests` layer) are all covered, along
-with `signalwire.voicemail`'s own mark-read/unread, systray-data, and
-record-rule (a plain user can't see or touch someone else's) behavior
-- nothing beyond Phase 1's own already-tested API client makes a real
-HTTP call in this suite. The systray/player JS itself isn't unit
-tested - this repo has no JS test harness set up (same gap as every
-other module's own frontend code here).
+(excludes self and non-provisioned users, scoped by company),
+`set_signalwire_call_state`, `get_signalwire_receptionist_roster`
+(group-gated), self-write access to this module's own "self-service"
+fields (the real pre-existing gap above, tested against an actual
+non-admin user via `with_user()`, not just admin/superuser context),
+and the fallback-chain methods (profile-phone shortcut, partner
+matching), `signalwire.phone_number` inbound-routing configuration
+(including Call Group, IVR Menu, and business-hours routing, with a
+real `resource.calendar` record in the test setup for the inside/
+outside-hours cases), `signalwire.call.group`, `signalwire.ivr.menu`/
+`.option` (including a second real `res.company` record to prove
+`check_company` actually rejects a cross-company target, not just that
+the field exists), `signalwire.live_call` (redirect URLs, state
+transitions, the provisioned-softphone guard), and the inbound,
+fallback-chain, group-fallback, IVR entry/digit-handling,
+route-to-user/route-to-voicemail/hold-loop, and voicemail-complete/
+voicemail-transcription webhook controllers (real HTTP round trips via
+`HttpCase`, including the voicemail recording fetch mocked at the
+`requests` layer) are all covered, along with `signalwire.voicemail`'s
+own mark-read/unread, systray-data, and record-rule (a plain user
+can't see or touch someone else's) behavior - nothing beyond Phase 1's
+own already-tested API client makes a real HTTP call in this suite.
+The systray/player and receptionist panel JS itself isn't unit tested
+- this repo has no JS test harness set up (same gap as every other
+module's own frontend code here).
 
 `signalwire.desk_phone` (MAC normalization/validation, provision/
 release against a mocked client), the provisioning controller (both
