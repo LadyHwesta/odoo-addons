@@ -93,3 +93,61 @@ class TestInboundCallController(HttpCase):
         body = response.text
         self.assertEqual(body.count('<Sip>'), 1)
         self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)
+
+    def test_inbound_call_to_a_group_routed_number_dials_every_member(self):
+        teammate = self.env['res.users'].create({
+            'name': 'Bob Agent', 'login': 'bob.agent@example.com',
+            'voip_username': 'user_bob',
+        })
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id, teammate.id])],
+        })
+        self.number.write({'route_type': 'group', 'call_group_id': group.id})
+
+        response = self.url_open(
+            '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
+        self.assertIn('sip:user_bob@example-abc123.sip.signalwire.com', body)
+        self.assertIn(f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}', body)
+
+    def test_group_fallback_with_no_answer_and_no_voicemail_user_apologizes(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn('<Say>', response.text)
+        self.assertNotIn('<Record', response.text)
+
+    def test_group_fallback_with_no_answer_and_a_voicemail_user_records_one(self):
+        voicemail_user = self.env['res.users'].create({
+            'name': 'Voicemail Catcher', 'login': 'catcher@example.com'})
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'voicemail_user_id': voicemail_user.id,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn(
+            f'/signalwire/voice/voicemail_complete/{voicemail_user.id}/{self.number.id}',
+            response.text)
+
+    def test_group_fallback_when_the_call_completed_does_nothing_further(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'completed'})
+
+        self.assertNotIn('<Say', response.text)
+        self.assertNotIn('<Record', response.text)

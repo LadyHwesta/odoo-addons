@@ -65,6 +65,24 @@ class SignalWireVoiceController(http.Controller):
             'voip_username')
         return ''.join(f'<Sip>sip:{username}@{sip_domain}</Sip>' for username in usernames)
 
+    def _group_sip_targets(self, group, sip_domain):
+        return ''.join(self._sip_targets(member, sip_domain) for member in group.member_ids)
+
+    def _voicemail_cxml(self, user, voicemail_action, transcribe_action=None):
+        """The <Say>+<Record> block used both by a user's own personal
+        fallback chain and by an unanswered call group's voicemail
+        target - factored out so both call sites build the exact same
+        shape rather than drifting apart over time.
+        """
+        record_attrs = f'action="{voicemail_action}" maxLength="120" playBeep="true"'
+        if user.signalwire_voicemail_transcribe and transcribe_action:
+            record_attrs = (
+                f'action="{voicemail_action}?transcribe=1" maxLength="120" playBeep="true" '
+                f'transcribe="true" transcribeCallback="{transcribe_action}"')
+        return (
+            '<Say>Please leave a message after the tone.</Say>'
+            f'<Record {record_attrs} />')
+
     @http.route(
         '/signalwire/voice/inbound', type='http', auth='public',
         methods=['POST'], csrf=False)
@@ -73,24 +91,69 @@ class SignalWireVoiceController(http.Controller):
         here on every inbound call to any number whose Voice URL
         points here - looked up by the call's To field, same one-
         webhook-for-every-number convention as the SMS inbound
-        webhook. Always tries the assigned user's own softphone
-        first; a User-configured fallback chain (forward/ring group/
-        voicemail - see res.users' own fields) only kicks in from
-        here on if that doesn't get answered within DIAL_TIMEOUT.
+        webhook. Resolves the number's own effective route (a single
+        user, or a Call Group - swapped for an After-Hours target
+        instead if a Business Hours calendar is set and now falls
+        outside it - see signalwire.phone_number._effective_route()).
+        A user route falls through to that user's own personal
+        fallback chain (forward/ring group/voicemail) if unanswered;
+        a group route falls through to group_fallback instead.
         """
         to_number = request.httprequest.form.get('To', '')
         number = request.env['signalwire.phone_number'].sudo().search(
             [('name', '=', to_number)], limit=1)
-        user = number.assigned_user_id if number else request.env['res.users']
+        if not number:
+            return self._cxml('<Reject/>')
 
-        sip_domain = number.subproject_id.server_id._get_sip_domain() if number else False
-        targets = self._sip_targets(user, sip_domain) if number and user else ''
-        if not number or not user or not targets:
+        route_type, target = number._effective_route()
+        sip_domain = number.subproject_id.server_id._get_sip_domain()
+
+        if route_type == 'group':
+            targets = self._group_sip_targets(target, sip_domain) if target else ''
+            if not targets:
+                return self._cxml('<Reject/>')
+            action = f'/signalwire/voice/group_fallback/{target.id}/{number.id}'
+            dial = f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{targets}</Dial>'
+            return self._cxml(dial)
+
+        user = target
+        targets = self._sip_targets(user, sip_domain) if user else ''
+        if not user or not targets:
             return self._cxml('<Reject/>')
 
         action = f'/signalwire/voice/fallback/{user.id}/{number.id}'
         dial = f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{targets}</Dial>'
         return self._cxml(dial)
+
+    @http.route(
+        '/signalwire/voice/group_fallback/<int:group_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def group_fallback(self, group_id, phone_number_id, **kwargs):
+        """Called after a Call Group's own <Dial> ends unanswered.
+        Routes to the group's own voicemail_user_id's voicemail box if
+        one is set, otherwise ends the call with a plain apology -
+        deliberately not a full per-user fallback chain (forward/ring
+        group/voicemail) the way a direct user route gets, since a
+        group has no single natural owner for that chain.
+        """
+        status = request.httprequest.form.get('DialCallStatus')
+        if status == 'completed':
+            return self._cxml('')
+
+        group = request.env['signalwire.call.group'].sudo().browse(group_id)
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not group.exists() or not number.exists():
+            return self._cxml('<Reject/>')
+
+        voicemail_user = group.voicemail_user_id
+        if not voicemail_user:
+            return self._cxml('<Say>Sorry, no one is available to take your call.</Say>')
+
+        voicemail_action = f'/signalwire/voice/voicemail_complete/{voicemail_user.id}/{number.id}'
+        transcribe_action = (
+            f'/signalwire/voice/voicemail_transcription/{voicemail_user.id}/{number.id}'
+            if voicemail_user.signalwire_voicemail_transcribe else None)
+        return self._cxml(self._voicemail_cxml(voicemail_user, voicemail_action, transcribe_action))
 
     @http.route(
         '/signalwire/voice/fallback/<int:user_id>/<int:phone_number_id>',
@@ -133,17 +196,11 @@ class SignalWireVoiceController(http.Controller):
 
         if next_step == 'voicemail':
             voicemail_action = f'/signalwire/voice/voicemail_complete/{user.id}/{number.id}'
-            record_attrs = f'action="{voicemail_action}" maxLength="120" playBeep="true"'
-            if user.signalwire_voicemail_transcribe:
-                voicemail_action += '?transcribe=1'
-                transcribe_action = (
-                    f'/signalwire/voice/voicemail_transcription/{user.id}/{number.id}')
-                record_attrs = (
-                    f'action="{voicemail_action}" maxLength="120" playBeep="true" '
-                    f'transcribe="true" transcribeCallback="{transcribe_action}"')
+            transcribe_action = (
+                f'/signalwire/voice/voicemail_transcription/{user.id}/{number.id}'
+                if user.signalwire_voicemail_transcribe else None)
             return self._cxml(
-                '<Say>Please leave a message after the tone.</Say>'
-                f'<Record {record_attrs} />')
+                self._voicemail_cxml(user, voicemail_action, transcribe_action))
 
         return self._cxml('<Reject/>')
 

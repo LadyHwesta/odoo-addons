@@ -3,3 +3,5 @@ access_signalwire_forwarding_number_user,signalwire.forwarding.number user,model
 access_signalwire_desk_phone_user,signalwire.desk_phone user,model_signalwire_desk_phone,base.group_user,1,1,1,1
 access_signalwire_voicemail_user,signalwire.voicemail user,model_signalwire_voicemail,base.group_user,1,1,0,1
 access_signalwire_voicemail_system,signalwire.voicemail system,model_signalwire_voicemail,base.group_system,1,1,1,1
+access_signalwire_call_group_user,signalwire.call.group user,model_signalwire_call_group,base.group_user,1,1,1,0
+access_signalwire_call_group_system,signalwire.call.group system,model_signalwire_call_group,base.group_system,1,1,1,1

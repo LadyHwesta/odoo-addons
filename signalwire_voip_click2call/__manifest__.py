@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.4.4.2',
+    'version': '19.0.4.5.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """

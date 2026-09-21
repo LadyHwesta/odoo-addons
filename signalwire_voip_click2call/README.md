@@ -44,6 +44,32 @@ this got a much more capable result for a smaller build, once found.
    already be this database's real, public HTTPS address - SignalWire
    has to be able to reach it to deliver the inbound-call webhook.
 
+## Call Groups and business-hours routing
+
+A `signalwire.phone_number`'s **Rings** field can point at either a
+single user (as above) or a **Call Group** (`signalwire.call.group`) -
+a named, reusable list of members whose softphones (and desk phones)
+all ring at once. Distinct from a personal **Also Ring** list a user
+sets up for their own fallback chain (see the voicemail section below)
+- a Call Group is a shared record other numbers, or an IVR menu
+option once that exists, can point at too, not something tied to one
+person's own settings.
+
+If a Call Group's own call goes unanswered, it falls through to
+whichever user's **Unanswered Calls Go To** field is set on the group
+itself (their own voicemail box) - or just a spoken apology if that's
+left blank, since a group has no single natural owner for a full
+personal fallback chain the way a directly-routed user gets.
+
+Optionally set a **Business Hours** calendar (a real `resource.
+calendar` record - the same thing HR/attendance uses to define a
+weekly schedule and holidays) on a number, plus an **After-Hours**
+route - a call arriving outside those hours uses the after-hours
+target instead of the regular one, checked live on every call via
+`resource.calendar`'s own working-interval API rather than a
+hand-rolled day/time comparison. Leave the calendar blank for a
+number that should always route the same way regardless of time.
+
 ## The SIP domain gotcha - a real bug this project shipped, then fixed
 
 **`_get_sip_domain()` used to *guess* the SIP domain** from the Space
@@ -436,8 +462,11 @@ installed to actually exercise, not just fall back silently - see
 above),
 `res.users` provisioning/release and the fallback-chain methods
 (profile-phone shortcut, partner matching), `signalwire.phone_number`
-inbound-routing configuration, and the inbound, fallback-chain,
-voicemail-complete, and voicemail-transcription webhook controllers
+inbound-routing configuration (including Call Group and business-
+hours routing, with a real `resource.calendar` record in the test
+setup for the inside/outside-hours cases), `signalwire.call.group`,
+and the inbound, fallback-chain, group-fallback, voicemail-complete,
+and voicemail-transcription webhook controllers
 (real HTTP round trips via `HttpCase`, including the voicemail
 recording fetch mocked at the `requests` layer) are all covered, along
 with `signalwire.voicemail`'s own mark-read/unread, systray-data, and
