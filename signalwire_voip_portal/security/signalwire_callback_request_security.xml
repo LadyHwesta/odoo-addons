@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="group_signalwire_portal_calling" model="res.groups">
+        <field name="name">SignalWire Portal Calling</field>
+        <field name="comment">
+            Auto-granted to a portal contact's own login when their
+            signalwire_portal_support_tier is set to anything other
+            than "None" - see res.partner._sync_signalwire_portal_group().
+            Gates access to the portal support-calling pages/models;
+            the tier field itself is the actual business-facing flag
+            an admin edits, this group is what access control checks.
+        </field>
+    </record>
+
+    <record id="signalwire_callback_request_rule_portal_own" model="ir.rule">
+        <field name="name">Callback Request: a portal user only sees their own</field>
+        <field name="model_id" ref="model_signalwire_callback_request" />
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]" />
+    </record>
+
+    <record id="signalwire_callback_request_rule_receptionist" model="ir.rule">
+        <field name="name">Callback Request: receptionists see every request</field>
+        <field name="model_id" ref="model_signalwire_callback_request" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('signalwire_voip_click2call.group_signalwire_receptionist'))]" />
+    </record>
+
+</odoo>

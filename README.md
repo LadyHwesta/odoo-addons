@@ -56,6 +56,12 @@ Custom Odoo 19 modules.
     optional per-number forwarding webhook into another system. Genuinely
     generic - a customer's own separate Odoo instance can install this
     directly to send/receive real SMS through whatever number(s) it has.
+  - [`signalwire_voip_portal/`](signalwire_voip_portal/) - extends
+    call routing out to the customer *portal*: an external contact can
+    request a support callback (built), gated per-contact with room
+    for tiers, structurally unable to ever reach an outside number -
+    see its own README for the live browser-to-agent calling half,
+    deliberately not yet built.
 - [`telehealth_booking/`](telehealth_booking/) - one field
   (`res.users.telehealth_video_tier`) and one hook point on
   `calendar.event` for a "premium video" upgrade path - installed

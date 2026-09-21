@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_signalwire_callback_request_portal,signalwire.callback_request portal caller,model_signalwire_callback_request,group_signalwire_portal_calling,1,0,1,0
+access_signalwire_callback_request_receptionist,signalwire.callback_request receptionist,model_signalwire_callback_request,signalwire_voip_click2call.group_signalwire_receptionist,1,1,0,0
+access_signalwire_callback_request_system,signalwire.callback_request system,model_signalwire_callback_request,base.group_system,1,1,1,1

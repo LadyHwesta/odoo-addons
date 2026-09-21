@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="signalwire_voip_click2call.ReceptionistPanel" t-inherit-mode="extension">
+        <xpath expr="//h3[2]" position="before">
+            <h3>Callback Requests</h3>
+            <table class="table table-sm" t-if="state.callbackRequests.length">
+                <thead>
+                    <tr>
+                        <th>Contact</th>
+                        <th>Number</th>
+                        <th>Note</th>
+                        <th>Status</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="state.callbackRequests" t-as="req" t-key="req.id">
+                        <td t-esc="req.partner_id ? req.partner_id[1] : '-'" />
+                        <td t-esc="req.phone_number" />
+                        <td t-esc="req.note or '-'" />
+                        <td t-esc="req.state" />
+                        <td class="d-flex gap-1">
+                            <button
+                                t-if="req.state === 'pending'"
+                                class="btn btn-sm btn-primary"
+                                t-on-click="() => this.claimRequest(req)"
+                            >Claim</button>
+                            <button
+                                class="btn btn-sm btn-secondary"
+                                t-on-click="() => this.callNow(req)"
+                            >Call Now</button>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                t-on-click="() => this.completeRequest(req)"
+                            >Done</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p t-else="" class="text-muted">No pending callback requests.</p>
+        </xpath>
+    </t>
+</templates>
