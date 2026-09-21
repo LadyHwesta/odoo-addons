@@ -20,6 +20,12 @@
 # 19.0 branch under ~/dev/oca/ (one clean parent dir for every plain,
 # unmodified OCA dependency repo), or point this at wherever it lives.
 # Missing it just skips web_pwa_icon (won't install).
+#
+# dms_onlyoffice needs both OCA/dms (~/dev/oca/dms, same convention as
+# OCA_WEB above) and ONLYOFFICE's own onlyoffice_odoo repo (its
+# `onlyoffice_odoo` subfolder only, at ~/dev/onlyoffice/onlyoffice_odoo_repo
+# - override with ONLYOFFICE_ODOO). onlyoffice_odoo also needs `pyjwt` in
+# this venv (`pip install pyjwt`). Missing either just skips dms_onlyoffice.
 set -uo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$DIR/.." && pwd)"
@@ -27,6 +33,8 @@ ODOO_SRC="${ODOO_SRC:-$HOME/dev/odoo-19}"
 NONPROFIT_ADDONS="${NONPROFIT_ADDONS:-$REPO_ROOT/../nonprofit-addons}"
 RESELLER_ADDONS="${RESELLER_ADDONS:-$REPO_ROOT/../meskis-reseller-addons}"
 OCA_WEB="${OCA_WEB:-$HOME/dev/oca/web}"
+OCA_DMS="${OCA_DMS:-$HOME/dev/oca/dms}"
+ONLYOFFICE_ODOO="${ONLYOFFICE_ODOO:-$HOME/dev/onlyoffice/onlyoffice_odoo_repo}"
 DB_NAME="${DB_NAME:-odoo_addons_test}"
 HTTP_PORT="${HTTP_PORT:-8069}"
 
@@ -59,6 +67,8 @@ ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT,$NONPROFIT_ADDONS
 [ -d "$NONPROFIT_ADDONS/event_volunteer" ] || echo "WARNING: $NONPROFIT_ADDONS/event_volunteer not found - clone LadyHwesta/nonprofit-addons there (or set NONPROFIT_ADDONS)." >&2
 [ -d "$OCA_WEB" ] && ADDONS_PATH="$ADDONS_PATH,$OCA_WEB"
 [ -d "$RESELLER_ADDONS/reseller_subscriptions" ] && ADDONS_PATH="$ADDONS_PATH,$RESELLER_ADDONS"
+[ -d "$OCA_DMS/dms" ] && ADDONS_PATH="$ADDONS_PATH,$OCA_DMS"
+[ -d "$ONLYOFFICE_ODOO/onlyoffice_odoo" ] && ADDONS_PATH="$ADDONS_PATH,$ONLYOFFICE_ODOO"
 
 echo ""
 echo "Odoo starting at http://localhost:$HTTP_PORT  (db: $DB_NAME, login: admin / admin)"

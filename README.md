@@ -77,6 +77,14 @@ Custom Odoo 19 modules.
   instance prerequisites) plus a universal onboarding one, re-used by
   hand for every new customer rather than re-derived from scratch each
   time.
+- [`dms_onlyoffice/`](dms_onlyoffice/) - bridges ONLYOFFICE's own
+  generic document-editing engine (`onlyoffice_odoo`) to OCA's
+  Community-Edition-compatible `dms` module, filling the gap left by
+  ONLYOFFICE's own ready-made bridge (`onlyoffice_odoo_documents`),
+  which only works with Odoo's Enterprise-only `documents` app. A
+  general-use connector, not tied to any one server - see its own
+  README for the three real prerequisites and a scope limitation worth
+  knowing before installing.
 
 **Meskis Works' own reselling/billing modules are private.** Everything
 that exists purely to run Meskis' own reselling business - hosting and

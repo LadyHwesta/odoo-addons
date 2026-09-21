@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_dms_file_form_onlyoffice" model="ir.ui.view">
+        <field name="name">dms_file.form.onlyoffice</field>
+        <field name="model">dms.file</field>
+        <field name="inherit_id" ref="dms.view_dms_file_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="can_view_with_onlyoffice" invisible="1" />
+                <button
+                    class="oe_highlight"
+                    name="action_open_onlyoffice_editor"
+                    type="object"
+                    string="Open in ONLYOFFICE"
+                    invisible="not can_view_with_onlyoffice"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_dms_file_kanban_onlyoffice" model="ir.ui.view">
+        <field name="name">dms_file.kanban.onlyoffice</field>
+        <field name="model">dms.file</field>
+        <field name="inherit_id" ref="dms.view_dms_file_kanban" />
+        <field name="arch" type="xml">
+            <field name="permission_write" position="after">
+                <field name="can_view_with_onlyoffice" />
+            </field>
+            <div name="card_menu_Operations" position="inside">
+                <div role="menuitem" t-if="record.can_view_with_onlyoffice.raw_value">
+                    <a name="action_open_onlyoffice_editor" type="object">
+                        <i class="fa fa-edit" />
+                        Open in ONLYOFFICE
+                    </a>
+                </div>
+            </div>
+        </field>
+    </record>
+
+</odoo>

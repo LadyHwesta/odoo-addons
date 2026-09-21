@@ -65,6 +65,23 @@ if present, skips it (and `web_pwa_icon` won't install) if not:
 git clone --branch 19.0 --single-branch --depth 1 https://github.com/OCA/web.git ~/dev/oca/web
 ```
 
+`dms_onlyoffice` depends on OCA's `dms` and ONLYOFFICE's own
+`onlyoffice_odoo`. Same convention - clone both, and install `pyjwt`
+(`onlyoffice_odoo`'s own Python dependency) into this venv:
+
+```
+git clone --branch 19.0 --single-branch --depth 1 https://github.com/OCA/dms.git ~/dev/oca/dms
+git clone --branch 19.0 --single-branch --depth 1 https://github.com/ONLYOFFICE/onlyoffice_odoo.git ~/dev/onlyoffice/onlyoffice_odoo_repo
+source .venv/bin/activate && pip install pyjwt
+```
+
+`start.sh` picks both up automatically if present (override with
+`OCA_DMS`/`ONLYOFFICE_ODOO`), skips `dms_onlyoffice` (won't install) if
+not. Note `onlyoffice_odoo_repo` holds three addons
+(`onlyoffice_odoo`/`onlyoffice_odoo_documents`/`onlyoffice_odoo_templates`)
+- only the first is needed here; `onlyoffice_odoo_documents` requires
+Odoo's Enterprise-only `documents` app and won't install on this stack.
+
 First run creates the `odoo_addons_test` database with no modules
 installed yet. Install what you want to test:
 
