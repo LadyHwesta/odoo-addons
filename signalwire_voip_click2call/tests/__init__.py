@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import test_res_partner
 from . import test_signalwire_call_group
+from . import test_signalwire_ivr_menu
 from . import test_signalwire_server
 from . import test_res_users
 from . import test_res_users_fallback

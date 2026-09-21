@@ -151,3 +151,101 @@ class TestInboundCallController(HttpCase):
 
         self.assertNotIn('<Say', response.text)
         self.assertNotIn('<Record', response.text)
+
+    def test_inbound_call_to_an_ivr_routed_number_gathers_a_digit(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 1 for sales.'})
+        self.number.write({'route_type': 'ivr', 'ivr_menu_id': menu.id})
+
+        response = self.url_open(
+            '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertIn('<Gather', body)
+        self.assertIn('Press 1 for sales.', body)
+        self.assertIn(f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', body)
+
+    def test_ivr_digit_rings_the_targeted_user(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 1 for sales.'})
+        self.env['signalwire.ivr.menu.option'].create({
+            'menu_id': menu.id, 'digit': '1', 'action_type': 'user',
+            'target_user_id': self.user.id,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '1'})
+
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', response.text)
+
+    def test_ivr_digit_rings_the_targeted_group(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 2 for support.'})
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Support', 'member_ids': [(6, 0, [self.user.id])]})
+        self.env['signalwire.ivr.menu.option'].create({
+            'menu_id': menu.id, 'digit': '2', 'action_type': 'group',
+            'target_call_group_id': group.id,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '2'})
+
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', response.text)
+        self.assertIn(f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+                       response.text)
+
+    def test_ivr_digit_takes_a_voicemail(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 3 to leave a message.'})
+        self.env['signalwire.ivr.menu.option'].create({
+            'menu_id': menu.id, 'digit': '3', 'action_type': 'voicemail',
+            'target_user_id': self.user.id,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '3'})
+
+        self.assertIn('<Record', response.text)
+        self.assertIn(
+            f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}',
+            response.text)
+
+    def test_ivr_digit_hangs_up(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 9 to hang up.'})
+        self.env['signalwire.ivr.menu.option'].create({
+            'menu_id': menu.id, 'digit': '9', 'action_type': 'hangup'})
+
+        response = self.url_open(
+            f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '9'})
+
+        self.assertIn('<Hangup', response.text)
+
+    def test_ivr_digit_enters_a_submenu(self):
+        submenu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Sales Submenu', 'greeting_text': 'Press 1 for new sales.'})
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 4 for sales.'})
+        self.env['signalwire.ivr.menu.option'].create({
+            'menu_id': menu.id, 'digit': '4', 'action_type': 'submenu',
+            'target_submenu_id': submenu.id,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '4'})
+
+        self.assertIn('Press 1 for new sales.', response.text)
+        self.assertIn(f'/signalwire/voice/ivr/{submenu.id}/{self.number.id}/digit', response.text)
+
+    def test_ivr_digit_with_no_match_reprompts_the_same_menu(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 1 for sales.'})
+        self.env['signalwire.ivr.menu.option'].create({
+            'menu_id': menu.id, 'digit': '1', 'action_type': 'hangup'})
+
+        response = self.url_open(
+            f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '5'})
+
+        self.assertIn('not a valid option', response.text)
+        self.assertIn('Press 1 for sales.', response.text)

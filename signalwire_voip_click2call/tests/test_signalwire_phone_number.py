@@ -128,3 +128,22 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
             route_type, target = self.number._effective_route()
 
         self.assertEqual((route_type, target), ('user', after_hours_user))
+
+    def test_effective_route_via_ivr_menu(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Main Menu', 'greeting_text': 'Press 1 for sales.'})
+        self.number.write({'route_type': 'ivr', 'ivr_menu_id': menu.id})
+
+        route_type, target = self.number._effective_route()
+
+        self.assertEqual((route_type, target), ('ivr', menu))
+
+    def test_assigned_user_from_a_different_company_is_rejected(self):
+        other_company = self.env['res.company'].create({'name': 'Other Co'})
+        outside_user = self.env['res.users'].create({
+            'name': 'Outsider', 'login': 'outsider3@example.com',
+            'company_ids': [(6, 0, [other_company.id])],
+            'company_id': other_company.id,
+        })
+        with self.assertRaises(UserError):
+            self.number.assigned_user_id = outside_user

@@ -5,3 +5,7 @@ access_signalwire_voicemail_user,signalwire.voicemail user,model_signalwire_voic
 access_signalwire_voicemail_system,signalwire.voicemail system,model_signalwire_voicemail,base.group_system,1,1,1,1
 access_signalwire_call_group_user,signalwire.call.group user,model_signalwire_call_group,base.group_user,1,1,1,0
 access_signalwire_call_group_system,signalwire.call.group system,model_signalwire_call_group,base.group_system,1,1,1,1
+access_signalwire_ivr_menu_user,signalwire.ivr.menu user,model_signalwire_ivr_menu,base.group_user,1,1,1,0
+access_signalwire_ivr_menu_system,signalwire.ivr.menu system,model_signalwire_ivr_menu,base.group_system,1,1,1,1
+access_signalwire_ivr_menu_option_user,signalwire.ivr.menu.option user,model_signalwire_ivr_menu_option,base.group_user,1,1,1,1
+access_signalwire_ivr_menu_option_system,signalwire.ivr.menu.option system,model_signalwire_ivr_menu_option,base.group_system,1,1,1,1

@@ -70,6 +70,33 @@ target instead of the regular one, checked live on every call via
 hand-rolled day/time comparison. Leave the calendar blank for a
 number that should always route the same way regardless of time.
 
+A number's **Rings** field can also be set to **An IVR Menu**
+(`signalwire.ivr.menu`) - a caller-facing "Press 1 for Sales" menu.
+Each menu has a spoken greeting (text-to-speech, no audio upload in
+v1) and a list of single-digit options, each either ringing a user,
+ringing a Call Group, jumping into another menu, taking a voicemail,
+or hanging up. An unrecognized digit re-prompts the same menu rather
+than rejecting the call outright.
+
+### Multi-company
+
+A single SignalWire account (one `signalwire.server`/subproject setup)
+can serve every company in a multi-company database - each
+`signalwire.phone_number` has its own `company_id`, and every routing
+target (assigned user, Call Group, IVR Menu, and their after-hours
+equivalents) is constrained to that same company via Odoo's own
+`check_company` mechanism (`_check_company_auto = True` on the models
+involved - `check_company=True` alone does nothing without this,
+confirmed by reading `_check_company_auto`'s own real effect in
+Odoo 19's `orm/models.py` rather than assuming). A Call Group's own
+members and an IVR Menu option's own targets are checked the same
+way, so a number belonging to Branch A can never be configured to
+accidentally ring Branch B's own people. `res.users`'s own
+`_check_company_domain` override compares against a user's real
+`company_ids` (multi-company membership), not a single `company_id`,
+so a user genuinely shared across companies isn't incorrectly
+excluded.
+
 ## The SIP domain gotcha - a real bug this project shipped, then fixed
 
 **`_get_sip_domain()` used to *guess* the SIP domain** from the Space
@@ -462,11 +489,14 @@ installed to actually exercise, not just fall back silently - see
 above),
 `res.users` provisioning/release and the fallback-chain methods
 (profile-phone shortcut, partner matching), `signalwire.phone_number`
-inbound-routing configuration (including Call Group and business-
-hours routing, with a real `resource.calendar` record in the test
-setup for the inside/outside-hours cases), `signalwire.call.group`,
-and the inbound, fallback-chain, group-fallback, voicemail-complete,
-and voicemail-transcription webhook controllers
+inbound-routing configuration (including Call Group, IVR Menu, and
+business-hours routing, with a real `resource.calendar` record in the
+test setup for the inside/outside-hours cases), `signalwire.call.group`
+and `signalwire.ivr.menu`/`.option` (including a second real
+`res.company` record to prove `check_company` actually rejects a
+cross-company target, not just that the field exists), and the
+inbound, fallback-chain, group-fallback, IVR entry/digit-handling, and
+voicemail-complete/voicemail-transcription webhook controllers
 (real HTTP round trips via `HttpCase`, including the voicemail
 recording fetch mocked at the `requests` layer) are all covered, along
 with `signalwire.voicemail`'s own mark-read/unread, systray-data, and

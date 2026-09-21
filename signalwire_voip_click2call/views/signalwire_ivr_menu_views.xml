@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_ivr_menu_list" model="ir.ui.view">
+        <field name="name">signalwire.ivr.menu.list</field>
+        <field name="model">signalwire.ivr.menu</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="company_id" groups="base.group_multi_company" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_signalwire_ivr_menu_form" model="ir.ui.view">
+        <field name="name">signalwire.ivr.menu.form</field>
+        <field name="model">signalwire.ivr.menu</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company" />
+                        <field name="greeting_text" />
+                    </group>
+                    <field name="option_ids">
+                        <list editable="bottom">
+                            <field name="digit" />
+                            <field name="action_type" />
+                            <field name="target_user_id"
+                                   invisible="action_type not in ('user', 'voicemail')" />
+                            <field name="target_call_group_id"
+                                   invisible="action_type != 'group'" />
+                            <field name="target_submenu_id"
+                                   invisible="action_type != 'submenu'" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_signalwire_ivr_menu" model="ir.actions.act_window">
+        <field name="name">IVR Menus</field>
+        <field name="res_model">signalwire.ivr.menu</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_signalwire_ivr_menu" name="IVR Menus"
+              parent="signalwire_voip.menu_signalwire_root"
+              action="action_signalwire_ivr_menu" sequence="21" />
+
+</odoo>

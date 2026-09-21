@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Click-to-Call',
-    'version': '19.0.4.5.0',
+    'version': '19.0.4.6.0',
     'category': 'Productivity/VOIP',
     'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
     'description': """
@@ -53,8 +53,10 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     'data': [
         'security/ir.model.access.csv',
         'security/signalwire_voicemail_security.xml',
+        'security/signalwire_call_routing_security.xml',
         'views/res_users_views.xml',
         'views/signalwire_phone_number_views.xml',
+        'views/signalwire_ivr_menu_views.xml',
         'views/signalwire_server_views.xml',
         'views/signalwire_voicemail_views.xml',
     ],
