@@ -21,6 +21,13 @@ class SignalWirePhoneNumber(models.Model):
         'signalwire.subproject', required=True, ondelete='cascade')
     partner_id = fields.Many2one(
         related='subproject_id.partner_id', store=True, string="Customer")
+    company_id = fields.Many2one(
+        'res.company', required=True, default=lambda self: self.env.company,
+        help="Which company this number belongs to - a single "
+             "SignalWire account can serve every company in a multi-"
+             "company database, but each number's own inbound "
+             "routing (see signalwire_voip_click2call) only ever "
+             "targets that same company's own users/groups/menus.")
     active = fields.Boolean(default=True)
 
     def action_release(self):

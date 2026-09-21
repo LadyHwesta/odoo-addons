@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire VoIP',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Productivity/VOIP',
     'summary': 'Core SignalWire connector - projects, subprojects, phone numbers',
     'description': """
@@ -32,6 +32,7 @@ SignalWire account and what hasn't yet.
     'depends': ['mail'],
     'data': [
         'security/ir.model.access.csv',
+        'security/signalwire_phone_number_security.xml',
         'wizards/signalwire_phone_number_search_views.xml',
         'views/signalwire_server_views.xml',
         'views/signalwire_subproject_views.xml',
