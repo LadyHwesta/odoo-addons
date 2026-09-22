@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_voicemail_attach_ticket_wizard_form" model="ir.ui.view">
+        <field name="name">signalwire.voicemail.attach.ticket.wizard.form</field>
+        <field name="model">signalwire.voicemail.attach.ticket.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="voicemail_id" invisible="1" />
+                    <field name="partner_id" readonly="1" />
+                    <field name="ticket_id" options="{'no_create': True}" />
+                </group>
+                <footer>
+                    <button name="action_attach" type="object" string="Attach"
+                            class="btn-primary" />
+                    <button special="cancel" string="Cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

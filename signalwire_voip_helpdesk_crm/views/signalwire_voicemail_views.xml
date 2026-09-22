@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_voicemail_form_inherit_helpdesk_crm" model="ir.ui.view">
+        <field name="name">signalwire.voicemail.form.inherit.helpdesk.crm</field>
+        <field name="model">signalwire.voicemail</field>
+        <field name="inherit_id" ref="signalwire_voip_click2call.view_signalwire_voicemail_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_helpdesk_ticket" type="object"
+                        string="Create Helpdesk Ticket"
+                        invisible="not partner_id or helpdesk_ticket_id" />
+                <button name="action_attach_to_ticket" type="object"
+                        string="Attach to Existing Ticket"
+                        invisible="not partner_id or helpdesk_ticket_id" />
+                <button name="action_create_lead" type="object"
+                        string="Create Lead/Opportunity" />
+            </xpath>
+            <field name="phone_number_id" position="after">
+                <field name="helpdesk_ticket_id" invisible="not helpdesk_ticket_id" />
+            </field>
+        </field>
+    </record>
+
+</odoo>

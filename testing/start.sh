@@ -26,6 +26,10 @@
 # `onlyoffice_odoo` subfolder only, at ~/dev/onlyoffice/onlyoffice_odoo_repo
 # - override with ONLYOFFICE_ODOO). onlyoffice_odoo also needs `pyjwt` in
 # this venv (`pip install pyjwt`). Missing either just skips dms_onlyoffice.
+#
+# signalwire_voip_helpdesk_crm needs OCA's helpdesk (~/dev/oca/helpdesk,
+# same convention - override with OCA_HELPDESK), for its helpdesk_mgmt
+# module. Missing it just skips signalwire_voip_helpdesk_crm.
 set -uo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$DIR/.." && pwd)"
@@ -35,6 +39,7 @@ RESELLER_ADDONS="${RESELLER_ADDONS:-$REPO_ROOT/../meskis-reseller-addons}"
 OCA_WEB="${OCA_WEB:-$HOME/dev/oca/web}"
 OCA_DMS="${OCA_DMS:-$HOME/dev/oca/dms}"
 ONLYOFFICE_ODOO="${ONLYOFFICE_ODOO:-$HOME/dev/onlyoffice/onlyoffice_odoo_repo}"
+OCA_HELPDESK="${OCA_HELPDESK:-$HOME/dev/oca/helpdesk}"
 DB_NAME="${DB_NAME:-odoo_addons_test}"
 HTTP_PORT="${HTTP_PORT:-8069}"
 
@@ -69,6 +74,7 @@ ADDONS_PATH="$ODOO_SRC/addons,$ODOO_SRC/odoo/addons,$REPO_ROOT,$NONPROFIT_ADDONS
 [ -d "$RESELLER_ADDONS/reseller_subscriptions" ] && ADDONS_PATH="$ADDONS_PATH,$RESELLER_ADDONS"
 [ -d "$OCA_DMS/dms" ] && ADDONS_PATH="$ADDONS_PATH,$OCA_DMS"
 [ -d "$ONLYOFFICE_ODOO/onlyoffice_odoo" ] && ADDONS_PATH="$ADDONS_PATH,$ONLYOFFICE_ODOO"
+[ -d "$OCA_HELPDESK/helpdesk_mgmt" ] && ADDONS_PATH="$ADDONS_PATH,$OCA_HELPDESK"
 
 echo ""
 echo "Odoo starting at http://localhost:$HTTP_PORT  (db: $DB_NAME, login: admin / admin)"

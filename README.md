@@ -62,6 +62,11 @@ Custom Odoo 19 modules.
     for tiers, structurally unable to ever reach an outside number -
     see its own README for the live browser-to-agent calling half,
     deliberately not yet built.
+  - [`signalwire_voip_helpdesk_crm/`](signalwire_voip_helpdesk_crm/) -
+    create or attach a helpdesk ticket, or create a CRM lead, straight
+    from a voicemail - gated on whether the caller matched a known
+    contact. Bridges to OCA's `helpdesk_mgmt` (Odoo's own `helpdesk`
+    app is Enterprise-only) and core `crm`.
 - [`telehealth_booking/`](telehealth_booking/) - one field
   (`res.users.telehealth_video_tier`) and one hook point on
   `calendar.event` for a "premium video" upgrade path - installed

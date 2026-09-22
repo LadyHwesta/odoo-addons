@@ -82,6 +82,17 @@ not. Note `onlyoffice_odoo_repo` holds three addons
 - only the first is needed here; `onlyoffice_odoo_documents` requires
 Odoo's Enterprise-only `documents` app and won't install on this stack.
 
+`signalwire_voip_helpdesk_crm` depends on OCA's `helpdesk_mgmt`
+(Odoo's own `helpdesk` app is Enterprise-only, same reasoning as
+above). Same convention:
+
+```
+git clone --branch 19.0 --single-branch --depth 1 https://github.com/OCA/helpdesk.git ~/dev/oca/helpdesk
+```
+
+`start.sh` picks it up automatically if present (override with
+`OCA_HELPDESK`), skips `signalwire_voip_helpdesk_crm` if not.
+
 First run creates the `odoo_addons_test` database with no modules
 installed yet. Install what you want to test:
 
