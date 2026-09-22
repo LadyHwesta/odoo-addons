@@ -303,21 +303,92 @@ the TURN/STUN/gathering-timeout work above was wrong - the relay truly
 is healthy - it just never got a chance to do anything, because the
 browser never knew where to send a permission request to.
 
-**Fixed**: `earlyMedia` is only settable via the `Inviter` constructor's
-own options, with no shared/UserAgent-level default (confirmed by
-reading `voip_oca`'s vendored `sip.js`), so - per this project's
-standing rule against hand-editing `voip_oca` itself - the fix is a
-new patch, `voip_agent_early_media.esm.js`, that fully reimplements
-`VoipAgent.call()` with the one changed line, loaded **first** in the
-manifest's own explicit asset list so the existing `voip_agent_turn.
-esm.js`/`voip_agent_receptionist_status.esm.js` patches' own
-`super.call()` chains land on this fixed version rather than
-`voip_oca`'s untouched original. The attended-transfer consultation
-call (`voip_agent_attended_transfer.esm.js`, already our own code, no
-patching gymnastics needed) got the same one-line fix directly. 164
-tests still green. **Not yet live-tested** - this is the next real
-call attempt to make, and per this saga's own repeated lesson, treat
-it as a live test rather than an assumed-working fix until confirmed.
+**First fix attempt**: `earlyMedia` is only settable via the `Inviter`
+constructor's own options, with no shared/UserAgent-level default
+(confirmed by reading `voip_oca`'s vendored `sip.js`), so - per this
+project's standing rule against hand-editing `voip_oca` itself - the
+fix was a new patch, `voip_agent_early_media.esm.js`, fully
+reimplementing `VoipAgent.call()` with the one changed line
+(`{earlyMedia: true}` on the `Inviter`). 164 tests green, deployed to
+the branch, but genuinely not yet live-tested at the time.
+
+### A second bug, found live-testing the first fix: `earlyMedia: true` connects, then immediately hangs up
+
+The first fix worked exactly as diagnosed - the call now genuinely
+connects. But right at answer, SIP.js itself tears it down with a
+client-generated 488, logging:
+
+```
+"Early media dialog does not equal confirmed dialog, terminating session"
+```
+
+That message is SIP.js's own "this INVITE forked" guard - the whole
+reason `earlyMedia` needs it is that a WebRTC offer can't be forked
+(RFC-level limitation, not a SIP.js choice). Sent SignalWire the exact
+SIP trace; their engineer's own server-side analysis proved the dialog
+**never changed** - identical Call-ID/To-tag/From-tag, byte-identical
+SDP (down to the ICE credentials and DTLS fingerprint) on both the 183
+and the 200 OK. They also confirmed the `earlyMedia` fix itself
+worked correctly on their end: ICE selected a real candidate pair,
+DTLS completed, SRTP was flowing both directions - this call was
+never actually a fork. They suspected their 183 being *unreliable*
+(no `100rel`/`RSeq` - our INVITE doesn't request it) might be
+confusing SIP.js's own internal tracking, and asked for the SIP.js
+debug log naming the exact check that fired.
+
+Captured it (Odoo developer mode ties directly into `voip_oca`'s own
+SIP.js log level - no separate config needed) and read
+`onProgress`/`onAccept` directly in the vendored `sip.js` to find the
+real mechanism: `onProgress` (handling the 183) sets
+`this.earlyMediaDialog = session`, where `session` is a *per-response*
+wrapper object (`inviteResponse.session`). `onAccept` (handling the
+200 OK) later compares `this.earlyMediaDialog !== session` by plain
+JS reference equality against a **different** per-response wrapper
+for the exact same real dialog - confirmed independently on our own
+side too, since our client's own `sip.invite-dialog` logger tracks a
+single persistent dialog object (same id string) from `constructed` at
+the 183 straight through to the ACK/BYE we send ourselves. Both
+wrappers represent the identical SIP dialog; they're just different JS
+object instances. The check is comparing the wrong thing - a genuine
+SIP.js library defect, not fixable upstream (last release 0.21.2,
+October 2022 - our exact vendored version; no newer release exists,
+no matching public issue found either).
+
+**The actual fix**: `Session.setAnswer()` (`sip.js:2330`) operates on
+`this` (the `Inviter` instance itself, which persists for the whole
+call) and its own lazily-created `SessionDescriptionHandler` - never
+on the buggy per-response `session` wrapper at all. So the real work
+that establishes ICE/DTLS doesn't need SIP.js's own `earlyMedia`
+machinery in the first place. Rewrote `voip_agent_early_media.esm.js`
+entirely: every `Inviter` now stays at SIP.js's own default
+(`earlyMedia: false`, so `earlyMediaDialog` is never assigned and
+`onAccept`'s buggy branch is structurally unreachable - `onAccept`
+itself needed **zero** changes), and a new patch on
+`SIP.Inviter.prototype.onProgress` calls `this.setAnswer(answer,
+options)` directly the moment a provisional response carries a
+matching SDP answer - the same call SIP.js's own `earlyMedia` path
+would have made, just without ever touching `earlyMediaDialog`. When
+the real 200 OK arrives, stock `onAccept` reapplies its own answer via
+that same unmodified `setAnswer()` call it already makes today -
+harmless and idempotent here, since SignalWire's SDP is byte-identical
+between the 183 and the 200 OK. `voip_agent_attended_transfer.esm.js`
+went back to a plain `new SIP.Inviter(...)` with no options, since the
+new prototype patch covers every `Inviter` constructed anywhere.
+
+One real sequencing gotcha found while implementing this: `sip.js`
+isn't part of `voip_oca`'s regular asset bundle - it's a separate lazy
+bundle (`voip_oca.agent_assets`) loaded inside
+`VoipAgent.connectAgent()`, so the global `SIP` object doesn't exist
+at page load. The `SIP.Inviter.prototype` patch has to be applied from
+inside a `connectAgent()` patch instead (after confirming `SIP` is
+actually loaded, since `connectAgent()` itself returns early without
+loading it in several cases - non-prod mode, no RTC support, missing
+PBX config), guarded so reconnecting never stacks duplicate patches
+onto the same shared prototype.
+
+191 tests still green. **Not yet live-tested** - this is genuinely the
+next real call attempt to make, now grounded in the actual confirmed
+bug rather than a guess.
 
 ## Live-verified 2026-09-15, against the user's real trial account
 
