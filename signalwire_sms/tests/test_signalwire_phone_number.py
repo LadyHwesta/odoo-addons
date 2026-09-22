@@ -60,3 +60,24 @@ class TestSignalWirePhoneNumberSms(TransactionCase):
         self.number.send_sms('+15556102107', 'two')
 
         self.assertEqual(self.number.sms_count, 2)
+
+    def test_form_view_extends_rather_than_replaces_the_base_one(self):
+        """Regression test: this module's own phone number form view
+        used to be a second, independent root view for the same model
+        (no inherit_id at all, just a record sharing the base view's
+        own name) rather than a real extension - Odoo's default view
+        resolution then arbitrarily picked whichever root view was
+        installed last, silently dropping every field any other
+        module (routing, IVR, call groups, business hours) had added
+        to the real base view. Confirmed live: a phone number's own
+        form showed only this module's own fields and nothing else.
+        Now a proper inherit_id extension - confirm the composed view
+        still carries the base view's own fields alongside this
+        module's own addition.
+        """
+        view = self.number.get_view(
+            view_id=self.env.ref('signalwire_voip.view_signalwire_phone_number_form').id,
+            view_type='form')
+
+        self.assertIn('sms_webhook_url', view['arch'])
+        self.assertIn('sid', view['arch'])

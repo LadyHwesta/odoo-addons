@@ -1,46 +1,32 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-    <record id="view_signalwire_phone_number_form" model="ir.ui.view">
-        <field name="name">signalwire.phone_number.form</field>
+    <record id="view_signalwire_phone_number_form_inherit_sms" model="ir.ui.view">
+        <field name="name">signalwire.phone_number.form.inherit.sms</field>
         <field name="model">signalwire.phone_number</field>
+        <field name="inherit_id" ref="signalwire_voip.view_signalwire_phone_number_form" />
         <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <div class="oe_title">
-                        <h1><field name="name" /></h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="subproject_id" />
-                            <field name="partner_id" />
-                        </group>
-                        <group>
-                            <field name="sms_webhook_url"
-                                   placeholder="https://customer-system.example.com/webhook" />
-                        </group>
-                    </group>
-                    <notebook>
-                        <page string="Messages" name="messages">
-                            <field name="sms_ids" readonly="1">
-                                <list>
-                                    <field name="create_date" />
-                                    <field name="direction" />
-                                    <field name="from_number" />
-                                    <field name="to_number" />
-                                    <field name="body" />
-                                    <field name="state" />
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
+            <field name="company_id" position="after">
+                <field name="sms_webhook_url"
+                       placeholder="https://customer-system.example.com/webhook" />
+            </field>
+            <sheet position="inside">
+                <notebook>
+                    <page string="Messages" name="messages">
+                        <field name="sms_ids" readonly="1">
+                            <list>
+                                <field name="create_date" />
+                                <field name="direction" />
+                                <field name="from_number" />
+                                <field name="to_number" />
+                                <field name="body" />
+                                <field name="state" />
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
         </field>
-    </record>
-
-    <record id="signalwire_voip.action_signalwire_phone_number" model="ir.actions.act_window">
-        <field name="view_mode">list,form</field>
     </record>
 
 </odoo>
