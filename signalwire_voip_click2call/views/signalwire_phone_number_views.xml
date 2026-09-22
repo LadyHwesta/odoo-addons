@@ -7,9 +7,13 @@
         <field name="inherit_id" ref="signalwire_voip.view_signalwire_phone_number_list" />
         <field name="arch" type="xml">
             <field name="partner_id" position="after">
+                <field name="route_type" column_invisible="1" />
+                <field name="call_group_id" column_invisible="1" />
+                <field name="ivr_menu_id" column_invisible="1" />
                 <field name="assigned_user_id" />
                 <button name="action_configure_inbound_routing" type="object"
-                        string="Configure Inbound Routing" />
+                        string="Configure Inbound Routing"
+                        invisible="(route_type == 'user' and not assigned_user_id) or (route_type == 'group' and not call_group_id) or (route_type == 'ivr' and not ivr_menu_id)" />
             </field>
         </field>
     </record>

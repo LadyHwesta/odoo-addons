@@ -138,6 +138,21 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
 
         self.assertEqual((route_type, target), ('ivr', menu))
 
+    def test_list_view_button_is_hidden_until_routing_is_configured(self):
+        """Regression test: the list view's own "Configure Inbound
+        Routing" button used to have no guard at all (unlike the form's
+        own copy of the same button), so clicking it on a freshly
+        purchased number - route_type defaults to 'user' with no
+        assigned_user_id yet - always hit the "Set who... should ring"
+        UserError with no way to fix it from that same screen. Mirrors
+        the form button's own invisible condition."""
+        view = self.env['signalwire.phone_number'].get_view(
+            view_id=self.env.ref(
+                'signalwire_voip.view_signalwire_phone_number_list').id,
+            view_type='list')
+        self.assertIn(
+            'route_type == \'user\' and not assigned_user_id', view['arch'])
+
     def test_assigned_user_from_a_different_company_is_rejected(self):
         other_company = self.env['res.company'].create({'name': 'Other Co'})
         outside_user = self.env['res.users'].create({
