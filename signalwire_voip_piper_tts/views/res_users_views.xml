@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_users_form_inherit_piper_tts" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.piper.tts</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="voip_oca.view_users_form" />
+        <field name="arch" type="xml">
+            <field name="signalwire_voicemail_greeting_text" position="after">
+                <field name="signalwire_voicemail_piper_voice"
+                       invisible="not signalwire_voicemail_enabled" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_users_form_simple_modif_inherit_piper_tts" model="ir.ui.view">
+        <field name="name">res.users.form.simple.modif.inherit.piper.tts</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="voip_oca.view_users_form_simple_modif" />
+        <field name="arch" type="xml">
+            <field name="signalwire_voicemail_greeting_text" position="after">
+                <field name="signalwire_voicemail_piper_voice"
+                       invisible="not signalwire_voicemail_enabled" />
+            </field>
+        </field>
+    </record>
+
+</odoo>
