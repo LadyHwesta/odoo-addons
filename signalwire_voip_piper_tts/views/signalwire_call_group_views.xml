@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_call_group_form_inherit_piper_tts" model="ir.ui.view">
+        <field name="name">signalwire.call.group.form.inherit.piper.tts</field>
+        <field name="model">signalwire.call.group</field>
+        <field name="inherit_id" ref="signalwire_voip_click2call.view_signalwire_call_group_form" />
+        <field name="arch" type="xml">
+            <field name="voicemail_user_id" position="after">
+                <field name="voicemail_piper_voice" invisible="voicemail_mode != 'group'" />
+            </field>
+        </field>
+    </record>
+
+</odoo>

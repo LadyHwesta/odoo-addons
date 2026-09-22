@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_server_form_inherit_piper_tts" model="ir.ui.view">
+        <field name="name">signalwire.server.form.inherit.piper.tts</field>
+        <field name="model">signalwire.server</field>
+        <field name="inherit_id" ref="signalwire_voip.view_signalwire_server_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='space']" position="after">
+                <field name="piper_url" placeholder="http://localhost:5000" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

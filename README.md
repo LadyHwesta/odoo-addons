@@ -67,6 +67,14 @@ Custom Odoo 19 modules.
     from a voicemail - gated on whether the caller matched a known
     contact. Bridges to OCA's `helpdesk_mgmt` (Odoo's own `helpdesk`
     app is Enterprise-only) and core `crm`.
+  - [`signalwire_voip_piper_tts/`](signalwire_voip_piper_tts/) -
+    replaces the plain built-in voice on IVR menu and voicemail
+    greetings with a self-hosted [Piper](https://github.com/OHF-Voice/piper1-gpl)
+    TTS voice, scoped to two individually license-checked voices after
+    catching that Piper's own example voice prohibits commercial use -
+    see its README. Synthesis is eager (on save, never on a live call)
+    with an always-on fallback to the plain voice; not yet live-verified
+    against a real Piper server.
 - [`telehealth_booking/`](telehealth_booking/) - one field
   (`res.users.telehealth_video_tier`) and one hook point on
   `calendar.event` for a "premium video" upgrade path - installed

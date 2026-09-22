@@ -70,10 +70,40 @@ class SignalWireVoiceController(http.Controller):
 
     DEFAULT_VOICEMAIL_GREETING = 'Please leave a message after the tone.'
 
+    def _say(self, text):
+        """A plain <Say> tag (SignalWire's own built-in voice),
+        escaping `text` - always user-entered, never trusted markup.
+        """
+        return f'<Say>{saxutils.escape(text or "")}</Say>'
+
+    def _say_or_play(self, text, piper_voice):
+        """The same spoken content as _say(), but via a self-hosted
+        Piper voice instead of SignalWire's own built-in one, if
+        `piper_voice` is set and audio for this exact (voice, text)
+        pair is already cached - `signalwire_piper_tts` (optional,
+        may not be installed) is the only thing that ever populates
+        that cache, and only ever does so eagerly, when a greeting's
+        own text/voice is saved, never from here. This method never
+        calls Piper itself and never blocks a live call on it being
+        up - no cached audio (Piper not installed/configured, or the
+        one synthesis attempt for this text failed) always falls back
+        to the plain _say() above.
+        """
+        if piper_voice and 'signalwire.piper.audio.cache' in request.env:
+            attachment = request.env['signalwire.piper.audio.cache'].sudo().get_cached(
+                piper_voice, text)
+            if attachment:
+                base_url = request.env['ir.config_parameter'].sudo().get_param(
+                    'web.base.url')
+                return (
+                    f'<Play>{base_url}/signalwire/voice/piper_audio/'
+                    f'{attachment.id}</Play>')
+        return self._say(text)
+
     def _voicemail_cxml(
             self, voicemail_action, transcribe_action=None,
             greeting_attachment=None, greeting_text=None,
-            max_length=120, beep=True):
+            max_length=120, beep=True, piper_voice=None):
         """The <Say>/<Play>+<Record> block used both by a user's own
         personal fallback chain and by an unanswered call group's
         voicemail target - factored out so both call sites build the
@@ -86,8 +116,8 @@ class SignalWireVoiceController(http.Controller):
             base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             greeting = f'<Play>{base_url}/signalwire/voice/greeting/{greeting_attachment.id}</Play>'
         else:
-            text = saxutils.escape(greeting_text or self.DEFAULT_VOICEMAIL_GREETING)
-            greeting = f'<Say>{text}</Say>'
+            text = greeting_text or self.DEFAULT_VOICEMAIL_GREETING
+            greeting = self._say_or_play(text, piper_voice)
         beep_attr = 'true' if beep else 'false'
         record_attrs = f'action="{voicemail_action}" maxLength="{max_length}" playBeep="{beep_attr}"'
         if transcribe_action:
@@ -117,7 +147,8 @@ class SignalWireVoiceController(http.Controller):
             greeting_attachment=greeting_attachment,
             greeting_text=user.signalwire_voicemail_greeting_text,
             max_length=user.signalwire_voicemail_max_length,
-            beep=user.signalwire_voicemail_beep)
+            beep=user.signalwire_voicemail_beep,
+            piper_voice=getattr(user, 'signalwire_voicemail_piper_voice', False))
 
     def _group_voicemail_cxml(self, group, number):
         """A call group's own shared mailbox - deliberately uses the
@@ -129,7 +160,9 @@ class SignalWireVoiceController(http.Controller):
         here.
         """
         voicemail_action = f'/signalwire/voice/group_voicemail_complete/{group.id}/{number.id}'
-        return self._voicemail_cxml(voicemail_action)
+        return self._voicemail_cxml(
+            voicemail_action,
+            piper_voice=getattr(group, 'voicemail_piper_voice', False))
 
     def _route_dial_cxml(self, route_type, target, number, sip_domain):
         """The <Dial> block for a resolved 'user' or 'group' route -
@@ -172,12 +205,21 @@ class SignalWireVoiceController(http.Controller):
         behavior: falling through to whatever cXML follows it).
         """
         digit_action = f'/signalwire/voice/ivr/{menu.id}/{number.id}/digit'
-        greeting = saxutils.escape(menu.greeting_text or '')
+        piper_voice = getattr(menu, 'piper_voice', False)
+        greeting = self._say_or_play(menu.greeting_text or '', piper_voice)
+        # This exact literal (not translated - matched byte-for-byte
+        # against signalwire_voip_piper_tts's own eager-synthesis cache
+        # key, if that module's installed; a translated string here
+        # could silently never hit that cache) is duplicated in
+        # signalwire_voip_piper_tts/models/signalwire_ivr_menu.py's own
+        # IVR_NO_SELECTION_MESSAGE constant - keep them in sync.
+        no_selection = self._say_or_play(
+            'We did not receive a selection. Goodbye.', piper_voice)
         return (
             f'<Gather numDigits="1" timeout="5" action="{digit_action}">'
-            f'<Say>{greeting}</Say>'
+            f'{greeting}'
             '</Gather>'
-            '<Say>We did not receive a selection. Goodbye.</Say>'
+            f'{no_selection}'
             '<Hangup/>')
 
     @http.route(
@@ -306,9 +348,13 @@ class SignalWireVoiceController(http.Controller):
 
         option = menu.option_ids.filtered(lambda o: o.digit == digit)[:1]
         if not option:
-            return self._cxml(
-                '<Say>Sorry, that is not a valid option.</Say>'
-                + self._ivr_menu_cxml(menu, number))
+            # Same "exact literal, not translated" note as
+            # _ivr_menu_cxml's own "no selection" message - kept in
+            # sync with signalwire_voip_piper_tts's own
+            # IVR_INVALID_OPTION_MESSAGE constant.
+            invalid_option = self._say_or_play(
+                'Sorry, that is not a valid option.', getattr(menu, 'piper_voice', False))
+            return self._cxml(invalid_option + self._ivr_menu_cxml(menu, number))
 
         if option.action_type == 'hangup':
             self._mark_live_call_ended()

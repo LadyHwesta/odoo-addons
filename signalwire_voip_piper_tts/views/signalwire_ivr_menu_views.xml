@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_ivr_menu_form_inherit_piper_tts" model="ir.ui.view">
+        <field name="name">signalwire.ivr.menu.form.inherit.piper.tts</field>
+        <field name="model">signalwire.ivr.menu</field>
+        <field name="inherit_id" ref="signalwire_voip_click2call.view_signalwire_ivr_menu_form" />
+        <field name="arch" type="xml">
+            <field name="greeting_text" position="after">
+                <field name="piper_voice" />
+            </field>
+        </field>
+    </record>
+
+</odoo>
