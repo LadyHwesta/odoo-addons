@@ -73,6 +73,12 @@
                         <field name="voicemail_mode" widget="radio" />
                         <field name="voicemail_user_id"
                                invisible="voicemail_mode != 'user'" />
+                        <field name="voicemail_greeting_text"
+                               invisible="voicemail_mode != 'group'" />
+                        <field name="voicemail_greeting_filename" invisible="1" />
+                        <field name="voicemail_greeting"
+                               filename="voicemail_greeting_filename"
+                               invisible="voicemail_mode != 'group'" />
                     </group>
                 </sheet>
                 <chatter/>

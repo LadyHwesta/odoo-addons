@@ -8,6 +8,8 @@
         <field name="arch" type="xml">
             <field name="greeting_text" position="after">
                 <field name="piper_voice" />
+                <field name="piper_speaker_id"
+                       invisible="piper_voice != 'en_US-libritts_r-medium'" />
             </field>
         </field>
     </record>

@@ -44,7 +44,7 @@ class TestSignalWirePiperAudioCache(TransactionCase):
         self.assertTrue(attachment)
         self.assertEqual(attachment.raw, b'RIFF....WAVE')
         self.piper_client.synthesize.assert_called_once_with(
-            'Hello there', 'en_US-ljspeech-medium')
+            'Hello there', 'en_US-ljspeech-medium', None)
 
     def test_get_or_synthesize_reuses_the_cache_on_a_second_call(self):
         self.piper_client.synthesize.return_value = b'RIFF....WAVE'
@@ -90,6 +90,40 @@ class TestSignalWirePiperAudioCache(TransactionCase):
             False, 'Hello there')
         self.assertFalse(result)
         self.piper_client.synthesize.assert_not_called()
+
+    def test_different_speaker_id_gets_a_different_cache_entry(self):
+        self.piper_client.synthesize.return_value = b'RIFF....WAVE'
+        default_speaker = self.env['signalwire.piper.audio.cache'].get_or_synthesize(
+            'en_US-libritts_r-medium', 'Hello there')
+
+        speaker_42 = self.env['signalwire.piper.audio.cache'].get_or_synthesize(
+            'en_US-libritts_r-medium', 'Hello there', speaker_id=42)
+
+        self.assertNotEqual(default_speaker, speaker_42)
+        self.piper_client.synthesize.assert_any_call('Hello there', 'en_US-libritts_r-medium', None)
+        self.piper_client.synthesize.assert_any_call('Hello there', 'en_US-libritts_r-medium', 42)
+
+    def test_get_cached_finds_a_specific_speakers_own_entry(self):
+        self.piper_client.synthesize.return_value = b'RIFF....WAVE'
+        created = self.env['signalwire.piper.audio.cache'].get_or_synthesize(
+            'en_US-libritts_r-medium', 'Hello there', speaker_id=42)
+
+        found = self.env['signalwire.piper.audio.cache'].get_cached(
+            'en_US-libritts_r-medium', 'Hello there', speaker_id=42)
+        not_found = self.env['signalwire.piper.audio.cache'].get_cached(
+            'en_US-libritts_r-medium', 'Hello there')
+
+        self.assertEqual(found, created)
+        self.assertFalse(not_found)
+
+    def test_cache_key_for_the_default_speaker_matches_the_pre_speaker_format(self):
+        # Confirms the cache key hasn't changed shape for the common
+        # case (no speaker override) - real cached rows from before
+        # speaker selection existed must still hit.
+        cache = self.env['signalwire.piper.audio.cache']
+        self.assertEqual(
+            cache._make_cache_key('en_US-ljspeech-medium', 'Hello there'),
+            cache._make_cache_key('en_US-ljspeech-medium', 'Hello there', speaker_id=None))
 
     def test_different_text_gets_a_different_cache_entry(self):
         self.piper_client.synthesize.return_value = b'RIFF....WAVE'

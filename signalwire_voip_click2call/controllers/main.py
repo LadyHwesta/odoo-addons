@@ -76,22 +76,22 @@ class SignalWireVoiceController(http.Controller):
         """
         return f'<Say>{saxutils.escape(text or "")}</Say>'
 
-    def _say_or_play(self, text, piper_voice):
+    def _say_or_play(self, text, piper_voice, piper_speaker_id=None):
         """The same spoken content as _say(), but via a self-hosted
         Piper voice instead of SignalWire's own built-in one, if
-        `piper_voice` is set and audio for this exact (voice, text)
-        pair is already cached - `signalwire_piper_tts` (optional,
-        may not be installed) is the only thing that ever populates
-        that cache, and only ever does so eagerly, when a greeting's
-        own text/voice is saved, never from here. This method never
-        calls Piper itself and never blocks a live call on it being
-        up - no cached audio (Piper not installed/configured, or the
-        one synthesis attempt for this text failed) always falls back
-        to the plain _say() above.
+        `piper_voice` is set and audio for this exact (voice, speaker,
+        text) triple is already cached - `signalwire_piper_tts`
+        (optional, may not be installed) is the only thing that ever
+        populates that cache, and only ever does so eagerly, when a
+        greeting's own text/voice is saved, never from here. This
+        method never calls Piper itself and never blocks a live call
+        on it being up - no cached audio (Piper not installed/
+        configured, or the one synthesis attempt for this text
+        failed) always falls back to the plain _say() above.
         """
         if piper_voice and 'signalwire.piper.audio.cache' in request.env:
             attachment = request.env['signalwire.piper.audio.cache'].sudo().get_cached(
-                piper_voice, text)
+                piper_voice, text, piper_speaker_id)
             if attachment:
                 base_url = request.env['ir.config_parameter'].sudo().get_param(
                     'web.base.url')
@@ -103,21 +103,21 @@ class SignalWireVoiceController(http.Controller):
     def _voicemail_cxml(
             self, voicemail_action, transcribe_action=None,
             greeting_attachment=None, greeting_text=None,
-            max_length=120, beep=True, piper_voice=None):
+            max_length=120, beep=True, piper_voice=None, piper_speaker_id=None):
         """The <Say>/<Play>+<Record> block used both by a user's own
         personal fallback chain and by an unanswered call group's
         voicemail target - factored out so both call sites build the
         exact same shape rather than drifting apart over time. Takes
         already-resolved settings rather than a res.users record, so
-        it works equally for a group's own generic mailbox (no single
-        owner to pull settings from - see _group_voicemail_cxml).
+        it works equally for a group's own mailbox (see
+        _group_voicemail_cxml).
         """
         if greeting_attachment:
             base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             greeting = f'<Play>{base_url}/signalwire/voice/greeting/{greeting_attachment.id}</Play>'
         else:
             text = greeting_text or self.DEFAULT_VOICEMAIL_GREETING
-            greeting = self._say_or_play(text, piper_voice)
+            greeting = self._say_or_play(text, piper_voice, piper_speaker_id)
         beep_attr = 'true' if beep else 'false'
         record_attrs = f'action="{voicemail_action}" maxLength="{max_length}" playBeep="{beep_attr}"'
         if transcribe_action:
@@ -148,21 +148,28 @@ class SignalWireVoiceController(http.Controller):
             greeting_text=user.signalwire_voicemail_greeting_text,
             max_length=user.signalwire_voicemail_max_length,
             beep=user.signalwire_voicemail_beep,
-            piper_voice=getattr(user, 'signalwire_voicemail_piper_voice', False))
+            piper_voice=getattr(user, 'signalwire_voicemail_piper_voice', False),
+            piper_speaker_id=getattr(user, 'signalwire_voicemail_piper_speaker_id', False))
 
     def _group_voicemail_cxml(self, group, number):
-        """A call group's own shared mailbox - deliberately uses the
-        generic default greeting/length/beep rather than any one
-        member's own settings (a group has no single natural owner to
-        pull them from, same reasoning signalwire.call.group's own
-        docstring gives for not building it a full personal fallback
-        chain). A real, natural follow-up if ever wanted, not built
-        here.
+        """A call group's own shared mailbox - has its own greeting
+        (custom recording or text), but still uses the generic
+        default max length/beep rather than any one member's own
+        settings (a group has no single natural owner to pull those
+        from, same reasoning signalwire.call.group's own docstring
+        gives for not building it a full personal fallback chain).
         """
         voicemail_action = f'/signalwire/voice/group_voicemail_complete/{group.id}/{number.id}'
+        greeting_attachment = request.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'signalwire.call.group'), ('res_id', '=', group.id),
+            ('res_field', '=', 'voicemail_greeting'),
+        ], limit=1)
         return self._voicemail_cxml(
             voicemail_action,
-            piper_voice=getattr(group, 'voicemail_piper_voice', False))
+            greeting_attachment=greeting_attachment,
+            greeting_text=getattr(group, 'voicemail_greeting_text', False),
+            piper_voice=getattr(group, 'voicemail_piper_voice', False),
+            piper_speaker_id=getattr(group, 'voicemail_piper_speaker_id', False))
 
     def _route_dial_cxml(self, route_type, target, number, sip_domain):
         """The <Dial> block for a resolved 'user' or 'group' route -
@@ -206,7 +213,8 @@ class SignalWireVoiceController(http.Controller):
         """
         digit_action = f'/signalwire/voice/ivr/{menu.id}/{number.id}/digit'
         piper_voice = getattr(menu, 'piper_voice', False)
-        greeting = self._say_or_play(menu.greeting_text or '', piper_voice)
+        piper_speaker_id = getattr(menu, 'piper_speaker_id', False)
+        greeting = self._say_or_play(menu.greeting_text or '', piper_voice, piper_speaker_id)
         # This exact literal (not translated - matched byte-for-byte
         # against signalwire_voip_piper_tts's own eager-synthesis cache
         # key, if that module's installed; a translated string here
@@ -214,7 +222,7 @@ class SignalWireVoiceController(http.Controller):
         # signalwire_voip_piper_tts/models/signalwire_ivr_menu.py's own
         # IVR_NO_SELECTION_MESSAGE constant - keep them in sync.
         no_selection = self._say_or_play(
-            'We did not receive a selection. Goodbye.', piper_voice)
+            'We did not receive a selection. Goodbye.', piper_voice, piper_speaker_id)
         return (
             f'<Gather numDigits="1" timeout="5" action="{digit_action}">'
             f'{greeting}'
@@ -353,7 +361,8 @@ class SignalWireVoiceController(http.Controller):
             # sync with signalwire_voip_piper_tts's own
             # IVR_INVALID_OPTION_MESSAGE constant.
             invalid_option = self._say_or_play(
-                'Sorry, that is not a valid option.', getattr(menu, 'piper_voice', False))
+                'Sorry, that is not a valid option.', getattr(menu, 'piper_voice', False),
+                getattr(menu, 'piper_speaker_id', False))
             return self._cxml(invalid_option + self._ivr_menu_cxml(menu, number))
 
         if option.action_type == 'hangup':
@@ -503,19 +512,23 @@ class SignalWireVoiceController(http.Controller):
         '/signalwire/voice/greeting/<int:attachment_id>',
         type='http', auth='public', methods=['GET'])
     def voice_greeting(self, attachment_id, **kwargs):
-        """Serves a user's own custom voicemail greeting recording to
-        SignalWire's media server, which fetches <Play> URLs directly
-        and unauthenticated - the normal backend playback route
-        (/web/content/...) needs a logged-in session and won't work
-        here. Scoped to attachments actually currently set as
-        somebody's greeting (not an open-ended attachment-id fetch) -
-        same accepted-risk shape as this module's own desk-phone
-        auto-provisioning route: low-sensitivity content, publicly
-        reachable by necessity, narrowly scoped rather than wide open.
+        """Serves a user's or call group's own custom voicemail
+        greeting recording to SignalWire's media server, which
+        fetches <Play> URLs directly and unauthenticated - the normal
+        backend playback route (/web/content/...) needs a logged-in
+        session and won't work here. Scoped to attachments actually
+        currently set as somebody's/some group's greeting (not an
+        open-ended attachment-id fetch) - same accepted-risk shape as
+        this module's own desk-phone auto-provisioning route: low-
+        sensitivity content, publicly reachable by necessity, narrowly
+        scoped rather than wide open.
         """
         attachment = request.env['ir.attachment'].sudo().search([
-            ('id', '=', attachment_id), ('res_model', '=', 'res.users'),
+            ('id', '=', attachment_id), '|',
+            '&', ('res_model', '=', 'res.users'),
             ('res_field', '=', 'signalwire_voicemail_greeting'),
+            '&', ('res_model', '=', 'signalwire.call.group'),
+            ('res_field', '=', 'voicemail_greeting'),
         ], limit=1)
         if not attachment:
             return request.not_found()

@@ -37,9 +37,9 @@ class TestInboundControllerPiper(HttpCase):
         self.env['ir.config_parameter'].sudo().set_param(
             'web.base.url', 'https://odoo.example.com')
 
-    def _cached_attachment_id(self, voice, text):
+    def _cached_attachment_id(self, voice, text, speaker_id=0):
         cache = self.env['signalwire.piper.audio.cache'].search([
-            ('voice', '=', voice)])
+            ('voice', '=', voice), ('speaker_id', '=', speaker_id)])
         row = cache.filtered(lambda c: c.text == text)
         self.assertTrue(row, "expected a cached row for this text")
         return row.audio_attachment_id.id
@@ -136,6 +136,51 @@ class TestInboundControllerPiper(HttpCase):
         })
         attachment_id = self._cached_attachment_id(
             'en_US-libritts_r-medium', 'Please leave a message after the tone.')
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn(
+            f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
+            f'{attachment_id}</Play>', response.text)
+
+    def test_ivr_menu_greeting_uses_the_chosen_speaker_id(self):
+        menu = self.env['signalwire.ivr.menu'].create({
+            'name': 'Multi-speaker Menu', 'greeting_text': 'Press 1 for sales.',
+            'piper_voice': 'en_US-libritts_r-medium', 'piper_speaker_id': 42,
+        })
+        number = self.env['signalwire.phone_number'].create({
+            'name': '+12084449671', 'sid': 'pn-piper-7',
+            'subproject_id': self.subproject.id,
+            'route_type': 'ivr', 'ivr_menu_id': menu.id,
+        })
+        self.piper_client.synthesize.assert_any_call(
+            'Press 1 for sales.', 'en_US-libritts_r-medium', 42)
+        attachment_id = self._cached_attachment_id(
+            'en_US-libritts_r-medium', 'Press 1 for sales.', speaker_id=42)
+
+        response = self.url_open(
+            '/signalwire/voice/inbound',
+            data={'To': '+12084449671', 'From': '+15551234567'})
+
+        self.assertIn(
+            f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
+            f'{attachment_id}</Play>', response.text)
+
+    def test_group_voicemail_uses_its_own_custom_greeting_text_via_piper(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'voicemail_mode': 'group',
+            'voicemail_piper_voice': 'en_US-ljspeech-medium',
+            'voicemail_greeting_text': "You've reached Sales. Leave a message!",
+        })
+        number = self.env['signalwire.phone_number'].create({
+            'name': '+12084449672', 'sid': 'pn-piper-8',
+            'subproject_id': self.subproject.id,
+            'route_type': 'group', 'call_group_id': group.id,
+        })
+        attachment_id = self._cached_attachment_id(
+            'en_US-ljspeech-medium', "You've reached Sales. Leave a message!")
 
         response = self.url_open(
             f'/signalwire/voice/group_fallback/{group.id}/{number.id}',

@@ -22,6 +22,24 @@ class TestPiperClient(TransactionCase):
             timeout=30)
         self.assertEqual(result, b'RIFF....WAVE')
 
+    def test_synthesize_omits_speaker_id_when_not_given(self):
+        client = PiperClient('http://localhost:5000')
+        with patch('requests.post') as mocked_post:
+            mocked_post.return_value = MagicMock(status_code=200, content=b'x')
+            client.synthesize('Hi', 'en_US-ljspeech-medium')
+
+        _args, kwargs = mocked_post.call_args
+        self.assertNotIn('speaker_id', kwargs['json'])
+
+    def test_synthesize_includes_speaker_id_when_given(self):
+        client = PiperClient('http://localhost:5000')
+        with patch('requests.post') as mocked_post:
+            mocked_post.return_value = MagicMock(status_code=200, content=b'x')
+            client.synthesize('Hi', 'en_US-libritts_r-medium', speaker_id=42)
+
+        _args, kwargs = mocked_post.call_args
+        self.assertEqual(kwargs['json']['speaker_id'], 42)
+
     def test_synthesize_strips_a_trailing_slash_from_the_base_url(self):
         client = PiperClient('http://localhost:5000/')
         with patch('requests.post') as mocked_post:

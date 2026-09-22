@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -44,6 +44,18 @@ class SignalWireCallGroup(models.Model):
         help="Whose personal voicemail box unanswered calls go to - "
              "used when \"If Nobody Answers\" is set to \"A Specific "
              "User's Voicemail.\"")
+    voicemail_greeting = fields.Binary(
+        string="Custom Greeting Recording", attachment=True, copy=False,
+        help="An uploaded audio file played to callers instead of the "
+             "text-to-speech greeting below - used when \"If Nobody "
+             "Answers\" is set to this group's own shared voicemail "
+             "box. Leave unset to use the text greeting instead.")
+    voicemail_greeting_filename = fields.Char(copy=False)
+    voicemail_greeting_text = fields.Text(
+        string="Greeting (spoken)",
+        default=lambda self: _("Please leave a message after the tone."),
+        help="Read aloud (text-to-speech) to callers when no custom "
+             "greeting recording is set above.")
     active = fields.Boolean(default=True)
 
     @api.constrains('company_id', 'member_ids')

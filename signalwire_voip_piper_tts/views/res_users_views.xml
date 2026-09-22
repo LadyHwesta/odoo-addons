@@ -9,6 +9,8 @@
             <field name="signalwire_voicemail_greeting_text" position="after">
                 <field name="signalwire_voicemail_piper_voice"
                        invisible="not signalwire_voicemail_enabled" />
+                <field name="signalwire_voicemail_piper_speaker_id"
+                       invisible="not signalwire_voicemail_enabled or signalwire_voicemail_piper_voice != 'en_US-libritts_r-medium'" />
             </field>
         </field>
     </record>
@@ -21,6 +23,8 @@
             <field name="signalwire_voicemail_greeting_text" position="after">
                 <field name="signalwire_voicemail_piper_voice"
                        invisible="not signalwire_voicemail_enabled" />
+                <field name="signalwire_voicemail_piper_speaker_id"
+                       invisible="not signalwire_voicemail_enabled or signalwire_voicemail_piper_voice != 'en_US-libritts_r-medium'" />
             </field>
         </field>
     </record>
