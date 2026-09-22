@@ -407,6 +407,22 @@ timeout, the SIP-domain-suffix discovery, the `earlyMediaDialog`
 SIP.js library defect, and the `SignalingState` public-API crash.
 Outbound calling genuinely works end to end.
 
+### A ring instead of a dial tone while a call connects
+
+Follow-up once outbound calling actually worked: `voip_oca`'s own
+`call()` plays a real dial tone while a call is being established
+(the same sound while establishing this module's own attended-
+transfer consultation call too) - can read as confusing or alarming
+to a caller not expecting one, since a dial tone normally means "pick
+up and dial," not "your call is connecting." `voip_oca` already ships
+a proper `ringbacktone.mp3` asset, wired into the exact same
+`playTone("dialtone")`/`tones` mechanism, just never used for this.
+Rather than hand-edit `voip_oca`'s own `call()` (or patch `playTone()`
+in JS at all), `res_users.py` overrides `_voip_get_info()` (a plain
+Python model override, not a vendored-file edit) and simply remaps
+which audio file the `"dialtone"` key resolves to - fixes both call
+sites at once, no JS changes needed.
+
 ## Live-verified 2026-09-15, against the user's real trial account
 
 - **A real phone number was purchased** (`+12084449665`, into a new

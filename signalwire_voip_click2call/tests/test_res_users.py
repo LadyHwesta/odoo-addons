@@ -216,6 +216,13 @@ class TestResUsersSignalWireSip(TransactionCase):
 
         self.assertEqual(plain_user.signalwire_call_state, 'ringing')
 
+    def test_voip_get_info_uses_the_ringback_tone_for_dialtone(self):
+        info = self.user._voip_get_info()
+
+        self.assertEqual(
+            info['tones']['dialtone'], info['tones']['ringbacktone'])
+        self.assertIn('ringbacktone.mp3', info['tones']['dialtone'])
+
     def test_set_signalwire_call_state_ignores_an_invalid_value(self):
         self.user.signalwire_call_state = 'idle'
 

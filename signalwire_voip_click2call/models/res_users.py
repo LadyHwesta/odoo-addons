@@ -10,6 +10,26 @@ from odoo.exceptions import UserError
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
+    def _voip_get_info(self):
+        """voip_oca's own call() plays its "dialtone" sound while an
+        outbound call is being established (both the primary call and
+        this module's own attended-transfer consultation call -
+        voip_agent_attended_transfer.esm.js plays the exact same
+        "dialtone" key) - a real dial tone can read as confusing or
+        alarming to a caller who isn't expecting one (it normally
+        means "pick up the phone and dial", not "your call is being
+        connected"). Rather than hand-edit voip_oca's own call() (or
+        patch playTone() in JS), simply remap which audio file the
+        "dialtone" key resolves to - voip_oca already ships a proper
+        ringbacktone.mp3 asset, already wired into this exact
+        mechanism, just unused for outbound calls. Fixes both call
+        sites at once, no JS changes needed at all.
+        """
+        info = super()._voip_get_info()
+        if info.get('tones', {}).get('dialtone'):
+            info['tones']['dialtone'] = info['tones']['ringbacktone']
+        return info
+
     signalwire_sip_endpoint_id = fields.Char(
         string="SignalWire SIP Endpoint ID", copy=False,
         help="SignalWire's own ID for this user's SIP Endpoint - "
