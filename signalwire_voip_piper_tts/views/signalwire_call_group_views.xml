@@ -8,6 +8,8 @@
         <field name="arch" type="xml">
             <field name="voicemail_user_id" position="after">
                 <field name="voicemail_piper_voice" invisible="voicemail_mode != 'group'" />
+                <field name="voicemail_piper_speaker_id"
+                       invisible="voicemail_mode != 'group' or voicemail_piper_voice != 'en_US-libritts_r-medium'" />
             </field>
         </field>
     </record>

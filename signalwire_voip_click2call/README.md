@@ -609,10 +609,15 @@ by a new `ir.rule` scoping group members to their own groups' shared
 records) - **deliberately no per-member "return this call" activity**
 the way a personal voicemail gets, since a group has no single natural
 owner for that (same reasoning already given for why a group has no
-full personal fallback chain). A group mailbox also deliberately uses
-the same generic default greeting/length/beep a personal mailbox falls
-back to, not its own separate settings - a real, natural follow-up if
-ever wanted, not built here.
+full personal fallback chain). A group mailbox still uses the same
+generic default message length/beep a personal mailbox falls back to
+(no single member to pull those from) - **but does have its own
+greeting now** (`voicemail_greeting`/`voicemail_greeting_text`, same
+upload-or-text-to-speech shape as a personal mailbox's own greeting,
+served through the same `/signalwire/voice/greeting/<attachment_id>`
+route above) - a real, previously-deferred gap, closed after a user
+went looking for it and found there was no group greeting field at
+all.
 
 Not yet live-verified against a real call reaching a customized
 greeting or a group mailbox - same category of gap as the rest of this

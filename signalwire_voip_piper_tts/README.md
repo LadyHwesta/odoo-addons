@@ -37,9 +37,8 @@ confirmed clean for commercial use:
   voice.
 - **`libritts_r`** - CC BY 4.0 (commercial use explicitly permitted,
   attribution required - see the [LibriTTS-R project](https://google.github.io/df-conformer/librittsr/)),
-  904 speakers (this module uses the default speaker only - picking
-  specific good speaker IDs needs someone to actually listen to
-  samples, a natural follow-up, not built here).
+  904 speakers (id 0-903), selectable via the **Speaker ID** field
+  next to the Voice picker - see "Picking a LibriTTS-R speaker" below.
 
 If you want a different Piper voice, check that specific voice's own
 `MODEL_CARD` (on [Hugging Face](https://huggingface.co/rhasspy/piper-voices))
@@ -123,6 +122,34 @@ shell login, or access to anything outside its own directory.
 6. On an IVR menu, a user's own voicemail Preferences, or a call
    group's own shared voicemail settings, pick a **Voice**.
 
+## Picking a LibriTTS-R speaker
+
+LibriTTS-R has 904 speakers (id 0-903), but there's no built-in way
+to preview one by ear before picking it - checked Piper's own bundled
+web UI (`http://<piper-host>:5000/` in a browser) directly, and it
+only *displays* the speaker count, it doesn't let you choose one to
+audition. The only way to find one you like is to synthesize a few
+speaker IDs directly and listen:
+
+```bash
+for id in 0 50 100 200 400 600 800; do
+    curl -s -X POST http://127.0.0.1:5000/synthesize \
+        -H "Content-Type: application/json" \
+        -d "{\"text\": \"Hello there, this is a test.\", \"voice\": \"en_US-libritts_r-medium\", \"speaker_id\": $id}" \
+        -o "/tmp/speaker_$id.wav"
+done
+```
+
+Play each `/tmp/speaker_*.wav`, pick one you like, then set that
+number in the **Speaker ID** field next to the Voice picker on an IVR
+menu, a user's voicemail Preferences, or a call group's shared
+voicemail settings. Leave it blank to use LibriTTS-R's own default
+speaker. Speaker IDs are arbitrary numbers (LibriTTS-R reader IDs,
+confirmed by inspecting the voice's own `.onnx.json` config) with no
+metadata about voice/gender/quality - there's no shortcut around
+listening. Speaker ID is ignored for LJSpeech, which only has one
+voice.
+
 ## How it works
 
 Synthesis happens **eagerly**, when a greeting's text or voice choice
@@ -138,16 +165,12 @@ successful sync, it falls back to the plain built-in voice instead -
 
 ## Verification status
 
-Automated tests confirm the plumbing end to end against a mocked
-Piper server. A real Piper server has since been stood up (systemd
-unit above) and confirmed to synthesize real, noticeably more natural
-audio - the `libritts_r`/`ljspeech` voices genuinely sound better than
-the plain built-in one.
-
-**Still to confirm**: the full path through Odoo on a real phone
-call - `piper_url` set on `signalwire.server`, a voice picked on an
-IVR menu/mailbox, and an actual inbound call playing the cached
-`<Play>` audio rather than falling back to `<Say>`. The pieces are
-each independently confirmed (Piper itself synthesizes correctly; the
-Odoo-side caching/fallback/route logic is covered by the automated
-suite) but not yet exercised together on one real call.
+**Confirmed live end to end**: a real Piper server, `piper_url` set
+on `signalwire.server`, a voice picked on an IVR menu, and a real
+inbound call actually playing the cached Piper audio - the
+`libritts_r`/`ljspeech` voices are confirmed to sound meaningfully
+more natural than the plain built-in one. Per-speaker selection
+(`piper_speaker_id`) is covered by the automated suite but not yet
+confirmed on a real call - the speaker-selection UI came from a
+follow-up request after the base module's own live call already
+worked, so it's newer ground.

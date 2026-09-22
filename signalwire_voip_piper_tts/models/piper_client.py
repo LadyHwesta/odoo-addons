@@ -29,9 +29,12 @@ class PiperClient:
     def __init__(self, base_url):
         self.base_url = (base_url or '').rstrip('/')
 
-    def synthesize(self, text, voice):
+    def synthesize(self, text, voice, speaker_id=None):
         """Returns raw WAV bytes for `text` spoken in `voice` (a
-        Piper voice name, e.g. "en_US-ljspeech-medium"). Raises
+        Piper voice name, e.g. "en_US-ljspeech-medium"). `speaker_id`
+        only applies to a multi-speaker voice (e.g. libritts_r's 904
+        speakers) - omitted entirely from the request unless set, so
+        a single-speaker voice's request shape is unchanged. Raises
         PiperError on any failure - callers decide whether that's
         fatal (a config-time save) or something to swallow and fall
         back from (never true for this method itself, always true for
@@ -40,10 +43,13 @@ class PiperClient:
         """
         if not self.base_url:
             raise PiperError("No Piper server URL configured.")
+        payload = {'text': text, 'voice': voice}
+        if speaker_id:
+            payload['speaker_id'] = speaker_id
         try:
             response = requests.post(
                 f'{self.base_url}/synthesize',
-                json={'text': text, 'voice': voice},
+                json=payload,
                 timeout=TIMEOUT)
         except requests.RequestException as exc:
             raise PiperError(f'Could not reach Piper: {exc}') from exc

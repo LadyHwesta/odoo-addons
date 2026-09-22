@@ -28,6 +28,10 @@ class SignalWirePiperAudioCache(models.Model):
     _description = 'SignalWire Piper TTS Audio Cache'
 
     voice = fields.Char(required=True)
+    speaker_id = fields.Integer(
+        help="Only set for a multi-speaker voice where a specific "
+             "speaker was chosen - blank means the voice's own "
+             "default speaker.")
     text = fields.Text(required=True)
     cache_key = fields.Char(required=True, index=True)
     audio_attachment_id = fields.Many2one(
@@ -35,19 +39,24 @@ class SignalWirePiperAudioCache(models.Model):
 
     _cache_key_unique = models.Constraint(
         'unique(cache_key)',
-        "This voice/text combination is already cached.",
+        "This voice/speaker/text combination is already cached.",
     )
 
     @api.model
-    def _make_cache_key(self, voice, text):
+    def _make_cache_key(self, voice, text, speaker_id=None):
         # A hash-backed key, not a unique constraint directly on the
         # (voice, text) columns themselves - text is unbounded, and a
         # btree index has a real per-value size limit; hashing sidesteps
         # that entirely regardless of how long a greeting ever gets.
-        digest = hashlib.sha1(f'{voice}\n{text}'.encode()).hexdigest()
+        # speaker_id is only folded into the key when actually set, so
+        # the default (no speaker override) case hashes identically to
+        # before speaker selection existed - no need to re-synthesize
+        # everything already cached under the old two-part key.
+        key_input = f'{voice}\n{text}' if not speaker_id else f'{voice}\n{speaker_id}\n{text}'
+        digest = hashlib.sha1(key_input.encode()).hexdigest()
         return digest
 
-    def get_cached(self, voice, text):
+    def get_cached(self, voice, text, speaker_id=None):
         """Read-only - never synthesizes, never calls Piper. Returns
         the cached ir.attachment, or an empty recordset if nothing's
         cached (Piper never configured, or the one synthesis attempt
@@ -56,13 +65,13 @@ class SignalWirePiperAudioCache(models.Model):
         """
         if not voice:
             return self.env['ir.attachment']
-        key = self._make_cache_key(voice, text or '')
+        key = self._make_cache_key(voice, text or '', speaker_id)
         row = self.sudo().search([('cache_key', '=', key)], limit=1)
         if row and row.audio_attachment_id.exists():
             return row.audio_attachment_id
         return self.env['ir.attachment']
 
-    def get_or_synthesize(self, voice, text):
+    def get_or_synthesize(self, voice, text, speaker_id=None):
         """Eager, config-time lookup-or-create - called when a
         greeting's own text/voice is saved, never from a live call.
         Returns the attachment, or an empty recordset if Piper isn't
@@ -73,24 +82,24 @@ class SignalWirePiperAudioCache(models.Model):
         if not voice:
             return self.env['ir.attachment']
         text = text or ''
-        cached = self.get_cached(voice, text)
+        cached = self.get_cached(voice, text, speaker_id)
         if cached:
             return cached
         server = self.env['signalwire.server'].sudo().search([], limit=1)
         if not server or not server.piper_url:
             return self.env['ir.attachment']
         try:
-            wav_bytes = server._get_piper_client().synthesize(text, voice)
+            wav_bytes = server._get_piper_client().synthesize(text, voice, speaker_id)
         except PiperError:
             _logger.exception("Piper: failed to synthesize audio for voice %s", voice)
             return self.env['ir.attachment']
-        key = self._make_cache_key(voice, text)
+        key = self._make_cache_key(voice, text, speaker_id)
         attachment = self.env['ir.attachment'].sudo().create({
             'name': f'piper-{voice}-{key[:12]}.wav',
             'type': 'binary', 'raw': wav_bytes, 'mimetype': 'audio/wav',
         })
         self.sudo().create({
-            'voice': voice, 'text': text, 'cache_key': key,
+            'voice': voice, 'speaker_id': speaker_id or 0, 'text': text, 'cache_key': key,
             'audio_attachment_id': attachment.id,
         })
         return attachment

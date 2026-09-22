@@ -159,6 +159,54 @@ class TestInboundCallController(HttpCase):
             f'/signalwire/voice/group_voicemail_complete/{group.id}/{self.number.id}',
             response.text)
 
+    def test_group_fallback_uses_the_default_greeting_text_by_default(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'voicemail_mode': 'group',
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn('<Say>Please leave a message after the tone.</Say>', response.text)
+
+    def test_group_fallback_uses_the_groups_own_custom_greeting_text(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'voicemail_mode': 'group',
+            'voicemail_greeting_text': "You've reached Sales. Leave a message!",
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn("<Say>You've reached Sales. Leave a message!</Say>", response.text)
+
+    def test_group_fallback_uses_the_groups_own_uploaded_greeting_recording(self):
+        self.env['ir.config_parameter'].sudo().set_param(
+            'web.base.url', 'https://odoo.example.com')
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'voicemail_mode': 'group',
+        })
+        group.voicemail_greeting = 'ZmFrZS1hdWRpbw=='  # base64 "fake-audio"
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'signalwire.call.group'), ('res_id', '=', group.id),
+            ('res_field', '=', 'voicemail_greeting'),
+        ])
+        self.assertTrue(attachment)
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn(
+            f'<Play>https://odoo.example.com/signalwire/voice/greeting/{attachment.id}</Play>',
+            response.text)
+        self.assertNotIn('<Say>', response.text)
+
     def test_group_fallback_when_the_call_completed_does_nothing_further(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
@@ -367,6 +415,22 @@ class TestInboundCallController(HttpCase):
         attachment = self.env['ir.attachment'].sudo().search([
             ('res_model', '=', 'res.users'), ('res_id', '=', self.user.id),
             ('res_field', '=', 'signalwire_voicemail_greeting'),
+        ])
+
+        response = self.url_open(f'/signalwire/voice/greeting/{attachment.id}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'fake-audio')
+
+    def test_voice_greeting_serves_a_call_groups_own_attachment_too(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'voicemail_mode': 'group',
+        })
+        group.voicemail_greeting = 'ZmFrZS1hdWRpbw=='
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'signalwire.call.group'), ('res_id', '=', group.id),
+            ('res_field', '=', 'voicemail_greeting'),
         ])
 
         response = self.url_open(f'/signalwire/voice/greeting/{attachment.id}')
