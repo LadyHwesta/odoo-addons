@@ -386,9 +386,26 @@ loading it in several cases - non-prod mode, no RTC support, missing
 PBX config), guarded so reconnecting never stacks duplicate patches
 onto the same shared prototype.
 
-191 tests still green. **Not yet live-tested** - this is genuinely the
-next real call attempt to make, now grounded in the actual confirmed
-bug rather than a guess.
+191 tests still green.
+
+One more real bug caught on the actual first live call attempt:
+`SIP.SignalingState` (used in the new `onProgress` patch's own switch
+statement) turned out not to be part of SIP.js's public namespace at
+all - it's visible via an intermediate webpack re-export chain (which
+is what a plain grep finds), but genuinely absent from the vendored
+bundle's true top-level export block, unlike `SessionState`/`Grammar`/
+`Inviter`. Crashed immediately: `"Cannot read properties of undefined
+(reading 'Initial')"`. Fixed by using the plain string literal values
+directly (`SignalingState` is a string enum in the vendored source -
+`SignalingState.Stable === "Stable"`, etc.) instead of depending on an
+export that was never guaranteed public.
+
+**Confirmed live 2026-09-22**: a real outbound call connected and
+stayed connected. This closes out the whole saga - country-code
+handling, PSTN passthrough, TURN/coturn/eturnal, ICE-gathering-
+timeout, the SIP-domain-suffix discovery, the `earlyMediaDialog`
+SIP.js library defect, and the `SignalingState` public-API crash.
+Outbound calling genuinely works end to end.
 
 ## Live-verified 2026-09-15, against the user's real trial account
 
