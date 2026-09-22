@@ -55,10 +55,11 @@ sets up for their own fallback chain (see the voicemail section below)
 option once that exists, can point at too, not something tied to one
 person's own settings.
 
-If a Call Group's own call goes unanswered, it falls through to
-whichever user's **Unanswered Calls Go To** field is set on the group
-itself (their own voicemail box) - or just a spoken apology if that's
-left blank, since a group has no single natural owner for a full
+If a Call Group's own call goes unanswered, its own **If Nobody
+Answers** setting decides what happens next - end the call with a
+spoken apology, go to one specific member's own personal voicemail
+box, or the group's own shared mailbox (see "Custom greetings..."
+below) - since a group has no single natural owner for a full
 personal fallback chain the way a directly-routed user gets.
 
 Optionally set a **Business Hours** calendar (a real `resource.
@@ -69,6 +70,13 @@ target instead of the regular one, checked live on every call via
 `resource.calendar`'s own working-interval API rather than a
 hand-rolled day/time comparison. Leave the calendar blank for a
 number that should always route the same way regardless of time.
+After-hours routing has two options day-mode routing doesn't: **"
+Straight to a User's Voicemail"** and **"Straight to a Call Group's
+Voicemail"** - skip ringing entirely and record a message right away,
+the usual choice after hours since nobody's actually expected to
+answer. Reuses the same After-Hours User/Call Group field either way
+(ringing that target, or going straight to their voicemail, depending
+on which "After-Hours Rings" option is picked).
 
 A number's **Rings** field can also be set to **An IVR Menu**
 (`signalwire.ivr.menu`) - a caller-facing "Press 1 for Sales" menu.

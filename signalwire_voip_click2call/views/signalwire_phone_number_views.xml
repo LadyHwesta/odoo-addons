@@ -37,9 +37,9 @@
                 <field name="after_hours_route_type" invisible="not calendar_id"
                        widget="radio" options="{'horizontal': true}" />
                 <field name="after_hours_user_id"
-                       invisible="not calendar_id or after_hours_route_type != 'user'" />
+                       invisible="not calendar_id or after_hours_route_type not in ('user', 'user_voicemail')" />
                 <field name="after_hours_call_group_id"
-                       invisible="not calendar_id or after_hours_route_type != 'group'" />
+                       invisible="not calendar_id or after_hours_route_type not in ('group', 'group_voicemail')" />
                 <field name="after_hours_ivr_menu_id"
                        invisible="not calendar_id or after_hours_route_type != 'ivr'" />
             </field>

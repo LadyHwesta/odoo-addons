@@ -196,7 +196,9 @@ class SignalWireVoiceController(http.Controller):
         falls through to that user's own personal fallback chain
         (forward/ring group/voicemail) if unanswered; a group route
         falls through to group_fallback instead; an IVR route hands
-        the caller a menu with no timeout-driven fallback of its own.
+        the caller a menu with no timeout-driven fallback of its own;
+        the two after-hours-only "straight to voicemail" routes skip
+        ringing entirely.
         """
         to_number = request.httprequest.form.get('To', '')
         from_number = request.httprequest.form.get('From', '')
@@ -220,6 +222,20 @@ class SignalWireVoiceController(http.Controller):
                 self._mark_live_call_ended()
                 return self._cxml('<Reject/>')
             return self._cxml(self._ivr_menu_cxml(target, number))
+
+        if route_type in ('user_voicemail', 'group_voicemail'):
+            # An after-hours-only pair: skip ringing entirely (nobody's
+            # actually expected to answer) and record a message right
+            # away. _mark_live_call_ended() isn't called here - the
+            # voicemail_complete/group_voicemail_complete webhook does
+            # that itself once the recording actually finishes, same as
+            # every other voicemail entry point in this controller.
+            if not target:
+                self._mark_live_call_ended()
+                return self._cxml('<Reject/>')
+            if route_type == 'user_voicemail':
+                return self._cxml(self._user_voicemail_cxml(target, number))
+            return self._cxml(self._group_voicemail_cxml(target, number))
 
         sip_domain = number.subproject_id.server_id._get_sip_domain()
         dial = self._route_dial_cxml(route_type, target, number, sip_domain)

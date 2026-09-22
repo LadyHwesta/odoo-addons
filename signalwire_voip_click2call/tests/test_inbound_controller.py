@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+from unittest.mock import patch
+
+from odoo.fields import Datetime
 from odoo.tests.common import HttpCase, tagged
 
 
@@ -377,6 +381,49 @@ class TestInboundCallController(HttpCase):
         response = self.url_open(f'/signalwire/voice/greeting/{attachment.id}')
 
         self.assertEqual(response.status_code, 404)
+
+    def _with_after_hours_calendar(self, **route_vals):
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test Hours', 'tz': 'UTC',
+            'attendance_ids': [(0, 0, {
+                'name': 'All Day Monday', 'dayofweek': '0',
+                'hour_from': 0.0, 'hour_to': 24.0, 'day_period': 'morning',
+            })],
+        })
+        self.number.write({'calendar_id': calendar.id, **route_vals})
+
+    def test_inbound_call_after_hours_straight_to_user_voicemail(self):
+        self._with_after_hours_calendar(
+            after_hours_route_type='user_voicemail', after_hours_user_id=self.user.id)
+        sunday = Datetime.to_string(datetime(2026, 9, 20, 12, 0, 0))  # a real Sunday
+
+        with patch('odoo.fields.Datetime.now', return_value=Datetime.from_string(sunday)):
+            response = self.url_open(
+                '/signalwire/voice/inbound',
+                data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertIn('<Record', body)
+        self.assertIn(
+            f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}', body)
+        self.assertNotIn('<Dial', body)
+
+    def test_inbound_call_after_hours_straight_to_group_voicemail(self):
+        group = self.env['signalwire.call.group'].create({'name': 'Sales'})
+        self._with_after_hours_calendar(
+            after_hours_route_type='group_voicemail', after_hours_call_group_id=group.id)
+        sunday = Datetime.to_string(datetime(2026, 9, 20, 12, 0, 0))  # a real Sunday
+
+        with patch('odoo.fields.Datetime.now', return_value=Datetime.from_string(sunday)):
+            response = self.url_open(
+                '/signalwire/voice/inbound',
+                data={'To': '+12084449665', 'From': '+15551234567'})
+
+        body = response.text
+        self.assertIn('<Record', body)
+        self.assertIn(
+            f'/signalwire/voice/group_voicemail_complete/{group.id}/{self.number.id}', body)
+        self.assertNotIn('<Dial', body)
 
     def test_hold_loop_plays_a_message_and_pauses(self):
         response = self.url_open(

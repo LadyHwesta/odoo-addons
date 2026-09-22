@@ -42,8 +42,15 @@ class SignalWirePhoneNumber(models.Model):
              "regular one above. Leave blank for a number that "
              "should always route the same way regardless of time.")
     after_hours_route_type = fields.Selection(
-        [('user', "A User"), ('group', "A Call Group"), ('ivr', "An IVR Menu")],
-        string="After-Hours Rings", default='user')
+        [('user', "A User"), ('group', "A Call Group"), ('ivr', "An IVR Menu"),
+         ('user_voicemail', "Straight to a User's Voicemail"),
+         ('group_voicemail', "Straight to a Call Group's Voicemail")],
+        string="After-Hours Rings", default='user',
+        help="The two \"Straight to...\" options skip ringing "
+             "entirely and record a message right away - the usual "
+             "choice for after-hours, when nobody's actually expected "
+             "to pick up. Reuses the same After-Hours User/Call Group "
+             "field below as the target either way.")
     after_hours_user_id = fields.Many2one(
         'res.users', string="After-Hours User", check_company=True)
     after_hours_call_group_id = fields.Many2one(
@@ -82,6 +89,10 @@ class SignalWirePhoneNumber(models.Model):
                 return 'group', self.after_hours_call_group_id
             if self.after_hours_route_type == 'ivr':
                 return 'ivr', self.after_hours_ivr_menu_id
+            if self.after_hours_route_type == 'user_voicemail':
+                return 'user_voicemail', self.after_hours_user_id
+            if self.after_hours_route_type == 'group_voicemail':
+                return 'group_voicemail', self.after_hours_call_group_id
             return 'user', self.after_hours_user_id
         if self.route_type == 'group':
             return 'group', self.call_group_id

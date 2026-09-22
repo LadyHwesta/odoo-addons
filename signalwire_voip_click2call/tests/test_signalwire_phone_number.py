@@ -143,6 +143,51 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
 
         self.assertEqual((route_type, target), ('user', after_hours_user))
 
+    def test_effective_route_after_hours_straight_to_user_voicemail(self):
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test Hours', 'tz': 'UTC',
+            'attendance_ids': [(0, 0, {
+                'name': 'All Day Monday', 'dayofweek': '0',
+                'hour_from': 0.0, 'hour_to': 24.0, 'day_period': 'morning',
+            })],
+        })
+        after_hours_user = self.env['res.users'].create({
+            'name': 'Night Owl', 'login': 'night.owl.vm@example.com'})
+        self.number.write({
+            'route_type': 'user', 'assigned_user_id': self.user.id,
+            'calendar_id': calendar.id,
+            'after_hours_route_type': 'user_voicemail',
+            'after_hours_user_id': after_hours_user.id,
+        })
+        sunday = Datetime.to_string(datetime(2026, 9, 20, 12, 0, 0))  # a real Sunday
+
+        with patch('odoo.fields.Datetime.now', return_value=Datetime.from_string(sunday)):
+            route_type, target = self.number._effective_route()
+
+        self.assertEqual((route_type, target), ('user_voicemail', after_hours_user))
+
+    def test_effective_route_after_hours_straight_to_group_voicemail(self):
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test Hours', 'tz': 'UTC',
+            'attendance_ids': [(0, 0, {
+                'name': 'All Day Monday', 'dayofweek': '0',
+                'hour_from': 0.0, 'hour_to': 24.0, 'day_period': 'morning',
+            })],
+        })
+        group = self.env['signalwire.call.group'].create({'name': 'Sales'})
+        self.number.write({
+            'route_type': 'user', 'assigned_user_id': self.user.id,
+            'calendar_id': calendar.id,
+            'after_hours_route_type': 'group_voicemail',
+            'after_hours_call_group_id': group.id,
+        })
+        sunday = Datetime.to_string(datetime(2026, 9, 20, 12, 0, 0))  # a real Sunday
+
+        with patch('odoo.fields.Datetime.now', return_value=Datetime.from_string(sunday)):
+            route_type, target = self.number._effective_route()
+
+        self.assertEqual((route_type, target), ('group_voicemail', group))
+
     def test_effective_route_via_ivr_menu(self):
         menu = self.env['signalwire.ivr.menu'].create({
             'name': 'Main Menu', 'greeting_text': 'Press 1 for sales.'})
@@ -166,6 +211,16 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
             view_type='list')
         self.assertIn(
             'route_type == \'user\' and not assigned_user_id', view['arch'])
+
+    def test_form_view_shows_after_hours_user_field_for_voicemail_route(self):
+        view = self.env['signalwire.phone_number'].get_view(
+            view_id=self.env.ref(
+                'signalwire_voip.view_signalwire_phone_number_form').id,
+            view_type='form')
+        self.assertIn(
+            "after_hours_route_type not in ('user', 'user_voicemail')", view['arch'])
+        self.assertIn(
+            "after_hours_route_type not in ('group', 'group_voicemail')", view['arch'])
 
     def test_assigned_user_from_a_different_company_is_rejected(self):
         other_company = self.env['res.company'].create({'name': 'Other Co'})
