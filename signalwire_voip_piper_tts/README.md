@@ -48,27 +48,79 @@ automatically commercial-safe.
 
 ## Setup
 
-1. On a server reachable from your Odoo instance (can be the same
-   box, or a separate one - Piper's own HTTP server has **no
-   authentication of its own**, so keep it on a private/internal
-   network, never exposed to the public internet):
+Piper's own HTTP server has **no authentication of its own**, so run
+it on a private/internal network, never exposed to the public
+internet - it only needs to be reachable from your Odoo instance.
+Below runs it as its own unprivileged system user (`piper`), with its
+own venv and data directory, under systemd - it never needs root,
+shell login, or access to anything outside its own directory.
+
+1. **Create a dedicated, locked-down system user** (no login shell, no
+   home directory outside its own service directory):
    ```
-   pip install piper-tts[http]
-   python3 -m piper.download_voices en_US-ljspeech-medium
-   python3 -m piper.download_voices en_US-libritts_r-medium
-   python3 -m piper.http_server -m en_US-ljspeech-medium --data-dir .
+   sudo useradd --system --no-create-home --home-dir /opt/piper \
+       --shell /usr/sbin/nologin piper
+   sudo mkdir -p /opt/piper
+   sudo chown piper:piper /opt/piper
    ```
-   Run this as a real, persistent service (a systemd unit, same as
-   any other long-running service in this project) - `--data-dir`
-   just needs to contain both downloaded voices; `-m` only sets the
-   *default* voice, `/synthesize` accepts a `voice` field per request
-   for either one.
-2. In Odoo, on your `signalwire.server` record, set **Piper TTS
+2. **Set up its own venv and download the two voices**, as that user:
+   ```
+   sudo -u piper python3 -m venv /opt/piper/venv
+   sudo -u piper /opt/piper/venv/bin/pip install 'piper-tts[http]'
+   sudo -u piper /opt/piper/venv/bin/python3 -m piper.download_voices \
+       en_US-ljspeech-medium --data-dir /opt/piper/voices
+   sudo -u piper /opt/piper/venv/bin/python3 -m piper.download_voices \
+       en_US-libritts_r-medium --data-dir /opt/piper/voices
+   ```
+3. **Create the systemd unit**, `/etc/systemd/system/piper-tts.service`:
+
+   ```ini
+   [Unit]
+   Description=Piper TTS HTTP server
+   After=network.target
+
+   [Service]
+   Type=simple
+   User=piper
+   Group=piper
+   ExecStart=/opt/piper/venv/bin/python3 -m piper.http_server \
+       -m en_US-ljspeech-medium --data-dir /opt/piper/voices \
+       --host 127.0.0.1 --port 5000
+   Restart=on-failure
+   NoNewPrivileges=true
+   ProtectSystem=strict
+   ProtectHome=true
+   ReadWritePaths=/opt/piper/voices
+   PrivateTmp=true
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+   `--host 127.0.0.1` keeps it off the network entirely if Odoo runs
+   on the same box - drop that flag (and bind to the box's private
+   interface instead) if Odoo is elsewhere on the same private
+   network. `-m` only sets the *default* voice; `/synthesize` accepts
+   a `voice` field per request, so one running instance serves both
+   downloaded voices. `ProtectSystem=strict`/`ReadWritePaths` mean
+   this service can't write anywhere on disk except its own voices
+   directory, even if compromised.
+4. **Enable and start it**:
+
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now piper-tts
+   sudo systemctl status piper-tts
+   curl http://127.0.0.1:5000/voices
+   ```
+
+   The last command should list both installed voices.
+5. In Odoo, on your `signalwire.server` record, set **Piper TTS
    Server URL** to wherever that's reachable (e.g.
-   `http://localhost:5000`). Leave it blank to keep every IVR menu/
-   voicemail greeting on the plain built-in voice - Piper is entirely
-   optional, nothing breaks without it.
-3. On an IVR menu, a user's own voicemail Preferences, or a call
+   `http://localhost:5000`, or the private IP if Odoo is on a
+   different box). Leave it blank to keep every IVR menu/voicemail
+   greeting on the plain built-in voice - Piper is entirely optional,
+   nothing breaks without it.
+6. On an IVR menu, a user's own voicemail Preferences, or a call
    group's own shared voicemail settings, pick a **Voice**.
 
 ## How it works
@@ -84,10 +136,18 @@ synthesis attempt failed, or the text changed since the last
 successful sync, it falls back to the plain built-in voice instead -
 **a phone call is never blocked waiting on Piper**.
 
-## Not yet live-verified
+## Verification status
 
 Automated tests confirm the plumbing end to end against a mocked
-Piper server - they can't confirm what a real synthesized greeting
-actually sounds like. That needs a real Piper server actually running
-and one real call placed against a Piper-enabled IVR menu or
-voicemail box.
+Piper server. A real Piper server has since been stood up (systemd
+unit above) and confirmed to synthesize real, noticeably more natural
+audio - the `libritts_r`/`ljspeech` voices genuinely sound better than
+the plain built-in one.
+
+**Still to confirm**: the full path through Odoo on a real phone
+call - `piper_url` set on `signalwire.server`, a voice picked on an
+IVR menu/mailbox, and an actual inbound call playing the cached
+`<Play>` audio rather than falling back to `<Say>`. The pieces are
+each independently confirmed (Piper itself synthesizes correctly; the
+Odoo-side caching/fallback/route logic is covered by the automated
+suite) but not yet exercised together on one real call.
