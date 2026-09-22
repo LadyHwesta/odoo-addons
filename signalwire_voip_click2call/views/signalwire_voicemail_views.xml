@@ -9,6 +9,7 @@
                 <field name="is_read" column_invisible="1" />
                 <field name="create_date" />
                 <field name="user_id" />
+                <field name="call_group_id" />
                 <field name="from_number" widget="phone" />
                 <field name="partner_id" />
                 <field name="duration" />
@@ -45,6 +46,7 @@
                     <group>
                         <group>
                             <field name="user_id" />
+                            <field name="call_group_id" />
                             <field name="from_number" widget="phone" />
                             <field name="partner_id" />
                         </group>
@@ -75,13 +77,18 @@
                 <field name="from_number" />
                 <field name="partner_id" />
                 <field name="user_id" />
+                <field name="call_group_id" />
                 <field name="transcription_text" string="Transcript" />
                 <filter name="my" string="My Voicemails" domain="[('user_id', '=', uid)]" />
+                <filter name="my_groups" string="My Groups' Voicemails"
+                        domain="[('call_group_id.member_ids', 'in', [uid])]" />
                 <filter name="unread" string="Unread" domain="[('is_read', '=', False)]" />
                 <filter name="transcribed" string="Transcribed"
                         domain="[('transcription_status', '=', 'completed')]" />
                 <group>
                     <filter name="group_by_user" string="User" context="{'group_by': 'user_id'}" />
+                    <filter name="group_by_call_group" string="Call Group"
+                            context="{'group_by': 'call_group_id'}" />
                 </group>
             </search>
         </field>

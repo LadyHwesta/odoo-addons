@@ -462,6 +462,50 @@ whether a recording is worth listening to in full.
   call" activity's own note, so a user scanning the Activities
   systray sees the transcript without opening anything at all.
 
+## Custom greetings, message length/beep, and call-group shared mailboxes
+
+Every mailbox used to play the same hardcoded greeting with the same
+fixed 120s cap and beep always on. Self-service now, next to the
+existing voicemail toggle on a user's own Preferences:
+
+- **A custom greeting** - either a real uploaded audio file
+  (`signalwire_voicemail_greeting`, a plain Odoo file upload, played
+  via `<Play>`) or, if none is set, editable text-to-speech
+  (`signalwire_voicemail_greeting_text`, via `<Say>`, same convention
+  the IVR menu greeting already uses). **Deliberately file-upload
+  only, not in-browser mic recording** - a meaningfully bigger JS lift
+  nobody explicitly asked for; record it however you like (phone voice
+  memo, etc.) and upload the file.
+- **Max message length** (`signalwire_voicemail_max_length`, seconds)
+  and **beep on/off** (`signalwire_voicemail_beep`), both self-service.
+- SignalWire fetches an uploaded greeting from a new public route,
+  `/signalwire/voice/greeting/<attachment_id>` - unauthenticated by
+  necessity (SignalWire's own media server fetches `<Play>` URLs
+  directly, same reason `/signalwire/voice/inbound` itself is public),
+  but scoped to attachments actually currently set as somebody's own
+  greeting rather than an open-ended attachment-id fetch - same
+  accepted-risk shape as this module's own desk-phone auto-
+  provisioning route.
+
+**Call groups can now have their own shared voicemail box**, not just
+route to one member's personal one. `signalwire.call.group.
+voicemail_mode` picks between ending the call, a specific member's own
+box, or the group's own shared mailbox. A group mailbox posts to the
+**group's own chatter** (any member can see and manage it there, or
+via the Voicemail list's own "My Groups' Voicemails" filter, granted
+by a new `ir.rule` scoping group members to their own groups' shared
+records) - **deliberately no per-member "return this call" activity**
+the way a personal voicemail gets, since a group has no single natural
+owner for that (same reasoning already given for why a group has no
+full personal fallback chain). A group mailbox also deliberately uses
+the same generic default greeting/length/beep a personal mailbox falls
+back to, not its own separate settings - a real, natural follow-up if
+ever wanted, not built here.
+
+Not yet live-verified against a real call reaching a customized
+greeting or a group mailbox - same category of gap as the rest of this
+module's voicemail/routing features.
+
 ## Hardware desk phones
 
 The browser softphone covers a single operator well, but a team wants a

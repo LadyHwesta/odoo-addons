@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -79,3 +79,28 @@ class TestSignalWireVoicemail(TransactionCase):
     def test_a_plain_user_can_delete_their_own_voicemail(self):
         self.voicemail.with_user(self.user).unlink()
         self.assertFalse(self.voicemail.exists())
+
+    def test_cannot_create_with_neither_user_nor_group(self):
+        with self.assertRaises(ValidationError):
+            self.env['signalwire.voicemail'].create({
+                'phone_number_id': self.number.id,
+                'from_number': '+15551234567', 'duration': 5,
+            })
+
+    def test_cannot_create_with_both_user_and_group(self):
+        group = self.env['signalwire.call.group'].create({'name': 'Sales'})
+        with self.assertRaises(ValidationError):
+            self.env['signalwire.voicemail'].create({
+                'phone_number_id': self.number.id, 'user_id': self.user.id,
+                'call_group_id': group.id,
+                'from_number': '+15551234567', 'duration': 5,
+            })
+
+    def test_group_owned_voicemail_is_valid(self):
+        group = self.env['signalwire.call.group'].create({'name': 'Sales'})
+        voicemail = self.env['signalwire.voicemail'].create({
+            'phone_number_id': self.number.id, 'call_group_id': group.id,
+            'from_number': '+15551234567', 'duration': 5,
+        })
+        self.assertFalse(voicemail.user_id)
+        self.assertEqual(voicemail.call_group_id, group)

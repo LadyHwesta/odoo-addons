@@ -15,10 +15,11 @@ class SignalWireCallGroup(models.Model):
     enhancement, not built here.
     """
     _name = 'signalwire.call.group'
+    _inherit = ['mail.thread']
     _description = 'SignalWire Call Group'
     _check_company_auto = True
 
-    name = fields.Char(required=True)
+    name = fields.Char(required=True, tracking=True)
     company_id = fields.Many2one(
         'res.company', required=True, default=lambda self: self.env.company,
         help="Which company this group belongs to - a number can "
@@ -27,13 +28,22 @@ class SignalWireCallGroup(models.Model):
              "its own independent set of groups even on a single "
              "shared SignalWire account.")
     member_ids = fields.Many2many('res.users', string="Members")
+    voicemail_mode = fields.Selection(
+        [('none', "End the Call"), ('user', "A Specific User's Voicemail"),
+         ('group', "This Group's Own Shared Voicemail Box")],
+        string="If Nobody Answers", default='none', required=True,
+        help="What happens when nobody in the group picks up: just "
+             "end the call with a spoken apology, send it to one "
+             "specific member's own personal voicemail box, or to a "
+             "shared mailbox that belongs to the group itself - any "
+             "member can see and manage messages left there (posted "
+             "to this group's own chatter below), unlike a personal "
+             "box which is just that one user's own.")
     voicemail_user_id = fields.Many2one(
-        'res.users', string="Unanswered Calls Go To", check_company=True,
-        help="If nobody in the group answers, the call goes to this "
-             "user's own voicemail box. Leave blank to just end an "
-             "unanswered call with a spoken apology instead - a "
-             "group has no single natural owner for a full personal "
-             "fallback chain the way a directly-routed user does.")
+        'res.users', string="Voicemail User", check_company=True,
+        help="Whose personal voicemail box unanswered calls go to - "
+             "used when \"If Nobody Answers\" is set to \"A Specific "
+             "User's Voicemail.\"")
     active = fields.Boolean(default=True)
 
     @api.constrains('company_id', 'member_ids')

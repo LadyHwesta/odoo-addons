@@ -129,7 +129,7 @@ class TestInboundCallController(HttpCase):
             'name': 'Voicemail Catcher', 'login': 'catcher@example.com'})
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
-            'voicemail_user_id': voicemail_user.id,
+            'voicemail_mode': 'user', 'voicemail_user_id': voicemail_user.id,
         })
 
         response = self.url_open(
@@ -138,6 +138,21 @@ class TestInboundCallController(HttpCase):
 
         self.assertIn(
             f'/signalwire/voice/voicemail_complete/{voicemail_user.id}/{self.number.id}',
+            response.text)
+
+    def test_group_fallback_with_no_answer_and_a_shared_group_box_records_one(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'voicemail_mode': 'group',
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn('<Record', response.text)
+        self.assertIn(
+            f'/signalwire/voice/group_voicemail_complete/{group.id}/{self.number.id}',
             response.text)
 
     def test_group_fallback_when_the_call_completed_does_nothing_further(self):
@@ -295,6 +310,73 @@ class TestInboundCallController(HttpCase):
         self.assertIn(
             f'/signalwire/voice/voicemail_complete/{self.user.id}/{self.number.id}',
             response.text)
+
+    def test_route_to_voicemail_uses_the_default_greeting_and_settings(self):
+        response = self.url_open(
+            f'/signalwire/voice/route_to_voicemail/{self.user.id}/{self.number.id}', data={'CallSid': 'CA000'})
+
+        body = response.text
+        self.assertIn('<Say>Please leave a message after the tone.</Say>', body)
+        self.assertIn('maxLength="120"', body)
+        self.assertIn('playBeep="true"', body)
+
+    def test_route_to_voicemail_uses_the_users_own_custom_greeting_text(self):
+        self.user.signalwire_voicemail_greeting_text = "Hi, you've reached Jane. Leave a note!"
+
+        response = self.url_open(
+            f'/signalwire/voice/route_to_voicemail/{self.user.id}/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn(
+            "<Say>Hi, you've reached Jane. Leave a note!</Say>", response.text)
+
+    def test_route_to_voicemail_uses_the_users_own_max_length_and_beep(self):
+        self.user.write({
+            'signalwire_voicemail_max_length': 60, 'signalwire_voicemail_beep': False})
+
+        response = self.url_open(
+            f'/signalwire/voice/route_to_voicemail/{self.user.id}/{self.number.id}', data={'CallSid': 'CA000'})
+
+        body = response.text
+        self.assertIn('maxLength="60"', body)
+        self.assertIn('playBeep="false"', body)
+
+    def test_route_to_voicemail_plays_a_custom_recorded_greeting_when_set(self):
+        self.env['ir.config_parameter'].sudo().set_param(
+            'web.base.url', 'https://odoo.example.com')
+        self.user.signalwire_voicemail_greeting = 'ZmFrZS1hdWRpbw=='  # base64 "fake-audio"
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'res.users'), ('res_id', '=', self.user.id),
+            ('res_field', '=', 'signalwire_voicemail_greeting'),
+        ])
+        self.assertTrue(attachment)
+
+        response = self.url_open(
+            f'/signalwire/voice/route_to_voicemail/{self.user.id}/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn(
+            f'<Play>https://odoo.example.com/signalwire/voice/greeting/{attachment.id}</Play>',
+            response.text)
+        self.assertNotIn('<Say>', response.text)
+
+    def test_voice_greeting_serves_the_attachment(self):
+        self.user.signalwire_voicemail_greeting = 'ZmFrZS1hdWRpbw=='
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'res.users'), ('res_id', '=', self.user.id),
+            ('res_field', '=', 'signalwire_voicemail_greeting'),
+        ])
+
+        response = self.url_open(f'/signalwire/voice/greeting/{attachment.id}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'fake-audio')
+
+    def test_voice_greeting_404s_for_an_unrelated_attachment(self):
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': 'unrelated.txt', 'raw': b'not a greeting'})
+
+        response = self.url_open(f'/signalwire/voice/greeting/{attachment.id}')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_hold_loop_plays_a_message_and_pauses(self):
         response = self.url_open(

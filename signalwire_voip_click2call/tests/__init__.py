@@ -12,5 +12,6 @@ from . import test_inbound_controller
 from . import test_fallback_controller
 from . import test_provisioning_controller
 from . import test_voicemail_complete_controller
+from . import test_group_voicemail_complete_controller
 from . import test_signalwire_voicemail
 from . import test_voicemail_transcription_controller

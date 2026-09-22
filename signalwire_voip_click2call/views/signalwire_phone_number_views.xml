@@ -71,9 +71,12 @@
                     <group>
                         <field name="company_id" groups="base.group_multi_company" />
                         <field name="member_ids" widget="many2many_tags" />
-                        <field name="voicemail_user_id" />
+                        <field name="voicemail_mode" widget="radio" />
+                        <field name="voicemail_user_id"
+                               invisible="voicemail_mode != 'user'" />
                     </group>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>

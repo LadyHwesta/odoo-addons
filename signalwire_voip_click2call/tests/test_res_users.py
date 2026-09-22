@@ -196,10 +196,17 @@ class TestResUsersSignalWireSip(TransactionCase):
         plain_user.with_user(plain_user).signalwire_voicemail_enabled = False
         plain_user.with_user(plain_user).signalwire_voicemail_transcribe = False
         plain_user.with_user(plain_user).signalwire_call_state = 'on_call'
+        plain_user.with_user(plain_user).signalwire_voicemail_greeting_text = 'Hi, leave a note.'
+        plain_user.with_user(plain_user).signalwire_voicemail_max_length = 60
+        plain_user.with_user(plain_user).signalwire_voicemail_beep = False
 
         self.assertFalse(plain_user.signalwire_voicemail_enabled)
         self.assertFalse(plain_user.signalwire_voicemail_transcribe)
         self.assertEqual(plain_user.signalwire_call_state, 'on_call')
+        self.assertEqual(
+            plain_user.signalwire_voicemail_greeting_text, 'Hi, leave a note.')
+        self.assertEqual(plain_user.signalwire_voicemail_max_length, 60)
+        self.assertFalse(plain_user.signalwire_voicemail_beep)
 
     def test_set_signalwire_call_state_writes_the_calling_users_own_state(self):
         plain_user = self.env['res.users'].create({

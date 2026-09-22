@@ -54,6 +54,21 @@ class ResUsers(models.Model):
              "text shows up right in the voicemail systray, letting "
              "you decide whether it's worth listening to in full "
              "before you do. Turn off to only ever get the audio.")
+    signalwire_voicemail_greeting = fields.Binary(
+        string="Custom Greeting Recording", attachment=True, copy=False,
+        help="An uploaded audio file played to callers instead of the "
+             "text-to-speech greeting below. Leave unset to use the "
+             "text greeting instead.")
+    signalwire_voicemail_greeting_filename = fields.Char(copy=False)
+    signalwire_voicemail_greeting_text = fields.Text(
+        string="Greeting (spoken)",
+        default=lambda self: _("Please leave a message after the tone."),
+        help="Read aloud (text-to-speech) to callers when no custom "
+             "greeting recording is set above.")
+    signalwire_voicemail_max_length = fields.Integer(
+        string="Max Message Length (seconds)", default=120)
+    signalwire_voicemail_beep = fields.Boolean(
+        string="Play Beep Before Recording", default=True)
     signalwire_call_state = fields.Selection(
         [('idle', "Available"), ('ringing', "Ringing"), ('on_call', "On a Call")],
         default='idle', copy=False,
@@ -80,7 +95,9 @@ class ResUsers(models.Model):
             'signalwire_forwarding_number_ids', 'signalwire_desk_phone_ids',
             'signalwire_active_forward_id', 'signalwire_ring_group_ids',
             'signalwire_voicemail_enabled', 'signalwire_voicemail_transcribe',
-            'signalwire_call_state',
+            'signalwire_voicemail_greeting', 'signalwire_voicemail_greeting_filename',
+            'signalwire_voicemail_greeting_text', 'signalwire_voicemail_max_length',
+            'signalwire_voicemail_beep', 'signalwire_call_state',
         ]
 
     @property
@@ -88,6 +105,9 @@ class ResUsers(models.Model):
         return super().SELF_WRITEABLE_FIELDS + [
             'signalwire_active_forward_id', 'signalwire_ring_group_ids',
             'signalwire_voicemail_enabled', 'signalwire_voicemail_transcribe',
+            'signalwire_voicemail_greeting', 'signalwire_voicemail_greeting_filename',
+            'signalwire_voicemail_greeting_text', 'signalwire_voicemail_max_length',
+            'signalwire_voicemail_beep',
             'signalwire_call_state',
         ]
 

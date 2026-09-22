@@ -2,6 +2,7 @@
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SignalWireVoicemail(models.Model):
@@ -29,8 +30,22 @@ class SignalWireVoicemail(models.Model):
 
     phone_number_id = fields.Many2one('signalwire.phone_number', required=True, ondelete='cascade')
     user_id = fields.Many2one(
-        'res.users', required=True, ondelete='cascade',
-        help="Who this voicemail was left for.")
+        'res.users', ondelete='cascade', default=False,
+        help="Who this voicemail was left for - set for a personal "
+             "voicemail box, unset for a call group's own shared one "
+             "(see call_group_id instead). Exactly one of the two is "
+             "always set, enforced below. The explicit default=False "
+             "(same as leaving it unset would give anyway) matters "
+             "for real: Odoo's own _validate_fields() only runs a "
+             "constrains method for fields that were actually part of "
+             "a create() call's resolved values - without an explicit "
+             "default here, creating a record naming neither field at "
+             "all would silently skip _check_owner below entirely.")
+    call_group_id = fields.Many2one(
+        'signalwire.call.group', ondelete='cascade', default=False,
+        help="Which call group's own shared voicemail box this "
+             "belongs to - set instead of user_id for a group mailbox. "
+             "See user_id's own help for why default=False is here.")
     from_number = fields.Char(required=True)
     duration = fields.Integer(help="Seconds.")
     recording_attachment_id = fields.Many2one('ir.attachment', readonly=True)
@@ -64,6 +79,14 @@ class SignalWireVoicemail(models.Model):
              "transcribeCallback on the <Record> verb), not yet live-"
              "verified end to end against a real spoken voicemail.")
     transcription_text = fields.Text(readonly=True)
+
+    @api.constrains('user_id', 'call_group_id')
+    def _check_owner(self):
+        for voicemail in self:
+            if bool(voicemail.user_id) == bool(voicemail.call_group_id):
+                raise ValidationError(_(
+                    "A voicemail belongs to either a user or a call group, "
+                    "never both and never neither."))
 
     def _compute_recording_download_url(self):
         for voicemail in self:
@@ -113,11 +136,16 @@ class SignalWireVoicemail(models.Model):
         }
 
     def _log_and_notify(self):
-        """Cross-post to the matched contact's chatter (if any) and
-        schedule a "return this call" activity for the intended agent
-        either way - the guaranteed notification, since a caller not
-        matching any contact shouldn't mean the voicemail goes
-        unnoticed.
+        """Cross-post to the matched contact's chatter (if any) either
+        way, then either the personal or the shared-mailbox notice
+        below - a personal voicemail schedules a guaranteed "return
+        this call" activity for that one user (unchanged behavior); a
+        call group's own shared mailbox deliberately does not - a
+        group has no single natural owner for a personal activity the
+        way a directly-routed user does, so the message just posts to
+        the group's own chatter (any member can see it there, and via
+        this model's own list, per the ir.rule scoping group members
+        to their own group's records).
         """
         for voicemail in self:
             attachments = voicemail.recording_attachment_id.ids
@@ -127,11 +155,14 @@ class SignalWireVoicemail(models.Model):
             voicemail.message_post(body=body, attachment_ids=attachments)
             if voicemail.partner_id:
                 voicemail.partner_id.message_post(body=body, attachment_ids=attachments)
-            voicemail.activity_schedule(
-                'mail.mail_activity_data_todo',
-                user_id=voicemail.user_id.id,
-                summary=_("Return voicemail from %(number)s", number=voicemail.from_number),
-                note=body)
+            if voicemail.call_group_id:
+                voicemail.call_group_id.message_post(body=body, attachment_ids=attachments)
+            else:
+                voicemail.activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    user_id=voicemail.user_id.id,
+                    summary=_("Return voicemail from %(number)s", number=voicemail.from_number),
+                    note=body)
         self._notify_systray()
 
     def _log_transcription(self, status, text):

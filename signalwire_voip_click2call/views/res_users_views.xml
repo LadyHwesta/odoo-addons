@@ -31,6 +31,16 @@
                     <field name="signalwire_voicemail_enabled" />
                     <field name="signalwire_voicemail_transcribe"
                            invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_max_length"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_beep"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_greeting_text"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_greeting_filename" invisible="1" />
+                    <field name="signalwire_voicemail_greeting"
+                           filename="signalwire_voicemail_greeting_filename"
+                           invisible="not signalwire_voicemail_enabled" />
                 </group>
                 <group string="Desk Phones" invisible="not signalwire_sip_endpoint_id">
                     <field name="signalwire_desk_phone_ids" nolabel="1" colspan="2">
@@ -81,6 +91,16 @@
                            domain="[('signalwire_sip_endpoint_id', '!=', False)]" />
                     <field name="signalwire_voicemail_enabled" />
                     <field name="signalwire_voicemail_transcribe"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_max_length"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_beep"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_greeting_text"
+                           invisible="not signalwire_voicemail_enabled" />
+                    <field name="signalwire_voicemail_greeting_filename" invisible="1" />
+                    <field name="signalwire_voicemail_greeting"
+                           filename="signalwire_voicemail_greeting_filename"
                            invisible="not signalwire_voicemail_enabled" />
                 </group>
                 <group string="Desk Phones" invisible="not signalwire_sip_endpoint_id">

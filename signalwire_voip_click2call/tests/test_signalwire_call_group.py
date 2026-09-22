@@ -20,3 +20,7 @@ class TestSignalWireCallGroup(TransactionCase):
     def test_voicemail_user_is_optional(self):
         group = self.env['signalwire.call.group'].create({'name': 'Support'})
         self.assertFalse(group.voicemail_user_id)
+
+    def test_voicemail_mode_defaults_to_none(self):
+        group = self.env['signalwire.call.group'].create({'name': 'Support'})
+        self.assertEqual(group.voicemail_mode, 'none')

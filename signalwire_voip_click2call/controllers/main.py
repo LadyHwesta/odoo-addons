@@ -68,20 +68,34 @@ class SignalWireVoiceController(http.Controller):
     def _group_sip_targets(self, group, sip_domain):
         return ''.join(self._sip_targets(member, sip_domain) for member in group.member_ids)
 
-    def _voicemail_cxml(self, user, voicemail_action, transcribe_action=None):
-        """The <Say>+<Record> block used both by a user's own personal
-        fallback chain and by an unanswered call group's voicemail
-        target - factored out so both call sites build the exact same
-        shape rather than drifting apart over time.
+    DEFAULT_VOICEMAIL_GREETING = 'Please leave a message after the tone.'
+
+    def _voicemail_cxml(
+            self, voicemail_action, transcribe_action=None,
+            greeting_attachment=None, greeting_text=None,
+            max_length=120, beep=True):
+        """The <Say>/<Play>+<Record> block used both by a user's own
+        personal fallback chain and by an unanswered call group's
+        voicemail target - factored out so both call sites build the
+        exact same shape rather than drifting apart over time. Takes
+        already-resolved settings rather than a res.users record, so
+        it works equally for a group's own generic mailbox (no single
+        owner to pull settings from - see _group_voicemail_cxml).
         """
-        record_attrs = f'action="{voicemail_action}" maxLength="120" playBeep="true"'
-        if user.signalwire_voicemail_transcribe and transcribe_action:
+        if greeting_attachment:
+            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            greeting = f'<Play>{base_url}/signalwire/voice/greeting/{greeting_attachment.id}</Play>'
+        else:
+            text = saxutils.escape(greeting_text or self.DEFAULT_VOICEMAIL_GREETING)
+            greeting = f'<Say>{text}</Say>'
+        beep_attr = 'true' if beep else 'false'
+        record_attrs = f'action="{voicemail_action}" maxLength="{max_length}" playBeep="{beep_attr}"'
+        if transcribe_action:
             record_attrs = (
-                f'action="{voicemail_action}?transcribe=1" maxLength="120" playBeep="true" '
-                f'transcribe="true" transcribeCallback="{transcribe_action}"')
-        return (
-            '<Say>Please leave a message after the tone.</Say>'
-            f'<Record {record_attrs} />')
+                f'action="{voicemail_action}?transcribe=1" maxLength="{max_length}" '
+                f'playBeep="{beep_attr}" transcribe="true" '
+                f'transcribeCallback="{transcribe_action}"')
+        return f'{greeting}<Record {record_attrs} />'
 
     def _user_voicemail_cxml(self, user, number):
         """A user's own personal voicemail box, addressed by user_id/
@@ -94,7 +108,28 @@ class SignalWireVoiceController(http.Controller):
         transcribe_action = (
             f'/signalwire/voice/voicemail_transcription/{user.id}/{number.id}'
             if user.signalwire_voicemail_transcribe else None)
-        return self._voicemail_cxml(user, voicemail_action, transcribe_action)
+        greeting_attachment = request.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'res.users'), ('res_id', '=', user.id),
+            ('res_field', '=', 'signalwire_voicemail_greeting'),
+        ], limit=1)
+        return self._voicemail_cxml(
+            voicemail_action, transcribe_action,
+            greeting_attachment=greeting_attachment,
+            greeting_text=user.signalwire_voicemail_greeting_text,
+            max_length=user.signalwire_voicemail_max_length,
+            beep=user.signalwire_voicemail_beep)
+
+    def _group_voicemail_cxml(self, group, number):
+        """A call group's own shared mailbox - deliberately uses the
+        generic default greeting/length/beep rather than any one
+        member's own settings (a group has no single natural owner to
+        pull them from, same reasoning signalwire.call.group's own
+        docstring gives for not building it a full personal fallback
+        chain). A real, natural follow-up if ever wanted, not built
+        here.
+        """
+        voicemail_action = f'/signalwire/voice/group_voicemail_complete/{group.id}/{number.id}'
+        return self._voicemail_cxml(voicemail_action)
 
     def _route_dial_cxml(self, route_type, target, number, sip_domain):
         """The <Dial> block for a resolved 'user' or 'group' route -
@@ -198,8 +233,9 @@ class SignalWireVoiceController(http.Controller):
         type='http', auth='public', methods=['POST'], csrf=False)
     def group_fallback(self, group_id, phone_number_id, **kwargs):
         """Called after a Call Group's own <Dial> ends unanswered.
-        Routes to the group's own voicemail_user_id's voicemail box if
-        one is set, otherwise ends the call with a plain apology -
+        Routes to the group's own voicemail_mode: a specific member's
+        personal voicemail box, the group's own shared mailbox, or
+        (if neither is set) just ends the call with a plain apology -
         deliberately not a full per-user fallback chain (forward/ring
         group/voicemail) the way a direct user route gets, since a
         group has no single natural owner for that chain.
@@ -215,12 +251,13 @@ class SignalWireVoiceController(http.Controller):
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
 
-        voicemail_user = group.voicemail_user_id
-        if not voicemail_user:
-            self._mark_live_call_ended()
-            return self._cxml('<Say>Sorry, no one is available to take your call.</Say>')
+        if group.voicemail_mode == 'user' and group.voicemail_user_id:
+            return self._cxml(self._user_voicemail_cxml(group.voicemail_user_id, number))
+        if group.voicemail_mode == 'group':
+            return self._cxml(self._group_voicemail_cxml(group, number))
 
-        return self._cxml(self._user_voicemail_cxml(voicemail_user, number))
+        self._mark_live_call_ended()
+        return self._cxml('<Say>Sorry, no one is available to take your call.</Say>')
 
     @http.route(
         '/signalwire/voice/ivr/<int:menu_id>/<int:phone_number_id>',
@@ -327,21 +364,15 @@ class SignalWireVoiceController(http.Controller):
         self._mark_live_call_ended()
         return self._cxml('<Reject/>')
 
-    @http.route(
-        '/signalwire/voice/voicemail_complete/<int:user_id>/<int:phone_number_id>',
-        type='http', auth='public', methods=['POST'], csrf=False)
-    def voicemail_complete(self, user_id, phone_number_id, transcribe=None, **kwargs):
-        form = request.httprequest.form
-        recording_url = form.get('RecordingUrl')
-        duration = int(form.get('RecordingDuration') or 0)
-        from_number = form.get('From', '')
-
-        user = request.env['res.users'].sudo().browse(user_id)
-        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
-        if not user.exists() or not number.exists():
-            self._mark_live_call_ended()
-            return self._cxml('<Hangup/>')
-
+    def _create_voicemail(self, number, from_number, duration, recording_url, transcribe, extra_vals):
+        """Shared by a personal and a group voicemail box - fetches
+        the recording into a real ir.attachment (SignalWire's own
+        RecordingUrl needs our project credentials to fetch, same auth
+        used everywhere else in this project), matches the caller
+        against a contact, and creates+notifies the resulting
+        signalwire.voicemail. `extra_vals` carries whichever of
+        user_id/call_group_id actually owns this mailbox.
+        """
         attachment = request.env['ir.attachment'].sudo()
         if recording_url:
             server = number.subproject_id.server_id
@@ -355,24 +386,79 @@ class SignalWireVoiceController(http.Controller):
                         'type': 'binary', 'raw': resp.content, 'mimetype': 'audio/mpeg',
                     })
             except requests.RequestException:
-                _logger.exception(
-                    "SignalWire: could not fetch voicemail recording for user %s", user_id)
+                _logger.exception("SignalWire: could not fetch voicemail recording")
 
-        partner = user._signalwire_match_partner(from_number)
-        voicemail = request.env['signalwire.voicemail'].sudo().create({
+        partner = request.env['res.users'].sudo()._signalwire_match_partner(from_number)
+        vals = {
             'phone_number_id': number.id,
-            'user_id': user.id,
             'from_number': from_number,
             'duration': duration,
             'recording_attachment_id': attachment.id or False,
             'recording_url': recording_url or False,
             'partner_id': partner.id if partner else False,
             'transcription_status': 'pending' if transcribe == '1' else 'none',
-        })
+        }
+        vals.update(extra_vals)
+        voicemail = request.env['signalwire.voicemail'].sudo().create(vals)
         voicemail._log_and_notify()
-        self._mark_live_call_ended()
+        return voicemail
 
+    @http.route(
+        '/signalwire/voice/voicemail_complete/<int:user_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def voicemail_complete(self, user_id, phone_number_id, transcribe=None, **kwargs):
+        form = request.httprequest.form
+        user = request.env['res.users'].sudo().browse(user_id)
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not user.exists() or not number.exists():
+            self._mark_live_call_ended()
+            return self._cxml('<Hangup/>')
+
+        self._create_voicemail(
+            number, form.get('From', ''), int(form.get('RecordingDuration') or 0),
+            form.get('RecordingUrl'), transcribe, {'user_id': user.id})
+        self._mark_live_call_ended()
         return self._cxml('<Hangup/>')
+
+    @http.route(
+        '/signalwire/voice/group_voicemail_complete/<int:group_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    def group_voicemail_complete(self, group_id, phone_number_id, **kwargs):
+        form = request.httprequest.form
+        group = request.env['signalwire.call.group'].sudo().browse(group_id)
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not group.exists() or not number.exists():
+            self._mark_live_call_ended()
+            return self._cxml('<Hangup/>')
+
+        self._create_voicemail(
+            number, form.get('From', ''), int(form.get('RecordingDuration') or 0),
+            form.get('RecordingUrl'), None, {'call_group_id': group.id})
+        self._mark_live_call_ended()
+        return self._cxml('<Hangup/>')
+
+    @http.route(
+        '/signalwire/voice/greeting/<int:attachment_id>',
+        type='http', auth='public', methods=['GET'])
+    def voice_greeting(self, attachment_id, **kwargs):
+        """Serves a user's own custom voicemail greeting recording to
+        SignalWire's media server, which fetches <Play> URLs directly
+        and unauthenticated - the normal backend playback route
+        (/web/content/...) needs a logged-in session and won't work
+        here. Scoped to attachments actually currently set as
+        somebody's greeting (not an open-ended attachment-id fetch) -
+        same accepted-risk shape as this module's own desk-phone
+        auto-provisioning route: low-sensitivity content, publicly
+        reachable by necessity, narrowly scoped rather than wide open.
+        """
+        attachment = request.env['ir.attachment'].sudo().search([
+            ('id', '=', attachment_id), ('res_model', '=', 'res.users'),
+            ('res_field', '=', 'signalwire_voicemail_greeting'),
+        ], limit=1)
+        if not attachment:
+            return request.not_found()
+        stream = request.env['ir.binary']._get_stream_from(attachment, 'raw')
+        return stream.get_response(as_attachment=False, max_age=None)
 
     @http.route(
         '/signalwire/voice/voicemail_transcription/<int:user_id>/<int:phone_number_id>',
