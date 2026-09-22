@@ -5,7 +5,7 @@
         <field name="name">signalwire.phone_number.list</field>
         <field name="model">signalwire.phone_number</field>
         <field name="arch" type="xml">
-            <list>
+            <list create="0">
                 <field name="name" />
                 <field name="subproject_id" />
                 <field name="partner_id" />
@@ -18,7 +18,7 @@
         <field name="name">signalwire.phone_number.form</field>
         <field name="model">signalwire.phone_number</field>
         <field name="arch" type="xml">
-            <form>
+            <form create="0">
                 <header />
                 <sheet>
                     <div class="oe_title">

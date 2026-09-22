@@ -46,3 +46,21 @@ class TestSignalWirePhoneNumber(TransactionCase):
     def test_release_deactivates_the_record(self):
         self.number.action_release()
         self.assertFalse(self.number.active)
+
+    def test_list_view_disallows_manual_creation(self):
+        """Regression test: name/subproject_id/sid are all readonly with
+        no defaults on the form, so a manually-created record is
+        guaranteed to fail sid's required check. The only valid way to
+        create one is signalwire.subproject.purchase_number()."""
+        view = self.env['signalwire.phone_number'].get_view(
+            view_id=self.env.ref(
+                'signalwire_voip.view_signalwire_phone_number_list').id,
+            view_type='list')
+        self.assertIn('create="0"', view['arch'])
+
+    def test_form_view_disallows_manual_creation(self):
+        view = self.env['signalwire.phone_number'].get_view(
+            view_id=self.env.ref(
+                'signalwire_voip.view_signalwire_phone_number_form').id,
+            view_type='form')
+        self.assertIn('create="0"', view['arch'])

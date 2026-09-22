@@ -49,7 +49,8 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['signalwire_voip', 'voip_oca', 'phone_validation', 'mail'],
+    'depends': [
+        'signalwire_voip', 'voip_oca', 'phone_validation', 'mail', 'resource'],
     'data': [
         'security/signalwire_receptionist_security.xml',
         'security/ir.model.access.csv',
