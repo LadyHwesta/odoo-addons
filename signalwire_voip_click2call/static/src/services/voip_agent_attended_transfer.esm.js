@@ -40,7 +40,13 @@ patch(VoipAgent.prototype, {
         const destination = SIP.UserAgent.makeURI(
             `sip:${phoneNumber.replace(/\D/g, "")}@${this.voip.pbx_domain}`
         );
-        this.consultationSession = new SIP.Inviter(this.agent, destination);
+        // earlyMedia: see voip_agent_early_media.esm.js's own docstring -
+        // without it SIP.js never applies SignalWire's SDP answer when it
+        // arrives in a 183, and the call MEDIA_TIMEOUTs the same way the
+        // primary call did before that fix.
+        this.consultationSession = new SIP.Inviter(this.agent, destination, {
+            earlyMedia: true,
+        });
         this.consultationSession.delegate = {
             onBye: this._onConsultationEnded.bind(this),
         };

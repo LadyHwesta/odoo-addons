@@ -65,6 +65,7 @@ free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
     ],
     'assets': {
         'web.assets_backend': [
+            'signalwire_voip_click2call/static/src/services/voip_agent_early_media.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_turn.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_attended_transfer.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_receptionist_status.esm.js',

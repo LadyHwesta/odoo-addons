@@ -270,11 +270,54 @@ of Odoo), a real outbound call's SDP correctly offering relay
 candidates sourced from a freshly-fetched, correctly-scoped backend
 credential, and (separately) the credential-expiry and gathering-
 timeout bugs each caught by an actual live call attempt failing in a
-new, specific way after the previous fix. **Not yet verified**: a full
-connected call with two-way audio - each fix so far has been
-confirmed correct only up to the point where it exposed the *next*
-real, distinct bug; the next real call attempt is the actual test of
-whether all of them together are finally sufficient.
+new, specific way after the previous fix.
+
+### The actual root cause, found 2026-09-22 via SignalWire support + a packet capture
+
+Every fix above was correct but not sufficient - outbound calls still
+MEDIA_TIMEOUT'd. Escalated to SignalWire support with a real Call SID/
+timestamp and a `tcpdump` capture of one failing attempt (captured on
+the TURN server itself, not filtered to port 5060 - this project's
+softphone signaling runs over encrypted WSS, not raw SIP, so that
+filter caught nothing on a first attempt). Reading the capture without
+`tshark` still showed something concrete: our own TURN relay completed
+a clean allocation and stayed healthy throughout (sub-200ms round
+trips, steady keepalives), while SignalWire's media server sent 30
+STUN connectivity-check probes to each of two relay candidate ports,
+once a second for the full 30-second call, and got zero response back.
+
+SignalWire support confirmed the mechanism from that same capture:
+they deliver their SDP answer in the **183 Session Progress**, a
+provisional response - and **SIP.js only applies an answer carried in
+a provisional response when the `Inviter` is constructed with
+`earlyMedia: true`**, which defaults to `false`. Without it, the
+answer is never applied, the ICE agent never receives SignalWire's
+candidates to pair against, never installs a `CreatePermission` for
+SignalWire's media address on our own TURN relay, and our relay
+correctly (per RFC 8656 9.4) silently drops every connectivity check
+from a peer with no installed permission - which is exactly the STUN-
+requests-with-no-response pattern the capture showed. The call then
+runs out SignalWire's own 30-second DTLS timer and fails with the
+480/`cause=804 MEDIA_TIMEOUT` seen throughout this whole saga. None of
+the TURN/STUN/gathering-timeout work above was wrong - the relay truly
+is healthy - it just never got a chance to do anything, because the
+browser never knew where to send a permission request to.
+
+**Fixed**: `earlyMedia` is only settable via the `Inviter` constructor's
+own options, with no shared/UserAgent-level default (confirmed by
+reading `voip_oca`'s vendored `sip.js`), so - per this project's
+standing rule against hand-editing `voip_oca` itself - the fix is a
+new patch, `voip_agent_early_media.esm.js`, that fully reimplements
+`VoipAgent.call()` with the one changed line, loaded **first** in the
+manifest's own explicit asset list so the existing `voip_agent_turn.
+esm.js`/`voip_agent_receptionist_status.esm.js` patches' own
+`super.call()` chains land on this fixed version rather than
+`voip_oca`'s untouched original. The attended-transfer consultation
+call (`voip_agent_attended_transfer.esm.js`, already our own code, no
+patching gymnastics needed) got the same one-line fix directly. 164
+tests still green. **Not yet live-tested** - this is the next real
+call attempt to make, and per this saga's own repeated lesson, treat
+it as a live test rather than an assumed-working fix until confirmed.
 
 ## Live-verified 2026-09-15, against the user's real trial account
 
