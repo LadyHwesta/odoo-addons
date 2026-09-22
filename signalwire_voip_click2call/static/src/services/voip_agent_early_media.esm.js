@@ -113,18 +113,25 @@ function patchSipInviterEarlyAnswer() {
                     "RAck: " + response.getHeader("rseq") + " " + response.getHeader("cseq")
                 );
             }
+            // SIP.SignalingState isn't actually part of SIP.js's public
+            // namespace (unlike SIP.SessionState, which is - confirmed
+            // live, "Cannot read properties of undefined (reading
+            // 'Initial')" on a real call). It's a plain string enum in the
+            // vendored source (SignalingState.Stable === "Stable", etc.),
+            // so the literal string values are used directly here instead
+            // of depending on an export that isn't guaranteed public.
             switch (session.signalingState) {
-                case SIP.SignalingState.Initial:
+                case "Initial":
                     if (responseReliable) {
                         inviteResponse.prack({extraHeaders});
                     }
                     return Promise.resolve();
-                case SIP.SignalingState.HaveLocalOffer:
+                case "HaveLocalOffer":
                     if (responseReliable) {
                         inviteResponse.prack({extraHeaders});
                     }
                     return Promise.resolve();
-                case SIP.SignalingState.HaveRemoteOffer: {
+                case "HaveRemoteOffer": {
                     if (!responseReliable) {
                         this.logger.warn(
                             "Non-reliable provisional response MUST NOT contain an " +
@@ -166,7 +173,7 @@ function patchSipInviterEarlyAnswer() {
                             throw error;
                         });
                 }
-                case SIP.SignalingState.Stable: {
+                case "Stable": {
                     if (responseReliable) {
                         inviteResponse.prack({extraHeaders});
                     }
@@ -201,7 +208,7 @@ function patchSipInviterEarlyAnswer() {
                     }
                     return Promise.resolve();
                 }
-                case SIP.SignalingState.Closed:
+                case "Closed":
                     return Promise.reject(new Error("Terminated."));
                 default:
                     throw new Error("Unknown session signaling state.");
