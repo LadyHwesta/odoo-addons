@@ -122,3 +122,20 @@ class SignalWirePhoneNumber(models.Model):
             f'Accounts/{self.subproject_id.account_sid}/'
             f'IncomingPhoneNumbers/{self.sid}.json',
             VoiceUrl=f'{base_url}/signalwire/voice/inbound')
+        # A real, pre-existing gap: this call previously returned nothing
+        # at all on success - no error, no confirmation, nothing visibly
+        # different on screen, so from the user's own point of view
+        # clicking the button "did nothing" even when it worked
+        # perfectly. A plain toast closes that gap.
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Inbound routing updated"),
+                'message': _(
+                    "%(number)s now rings %(target)s.",
+                    number=self.name, target=target.display_name),
+                'type': 'success',
+                'sticky': False,
+            },
+        }

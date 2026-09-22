@@ -62,6 +62,20 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
             'Accounts/sub-abc/IncomingPhoneNumbers/pn-123.json',
             VoiceUrl='https://odoo.example.com/signalwire/voice/inbound')
 
+    def test_configure_routing_confirms_success_with_a_notification(self):
+        # Regression test: this used to return nothing at all on
+        # success - no error, no visible change on screen, so clicking
+        # the button looked like it "did nothing" even when it worked.
+        self.user.write({'voip_username': f'user{self.user.id}'})
+        self.number.assigned_user_id = self.user
+
+        result = self.number.action_configure_inbound_routing()
+
+        self.assertEqual(result['type'], 'ir.actions.client')
+        self.assertEqual(result['tag'], 'display_notification')
+        self.assertEqual(result['params']['type'], 'success')
+        self.assertIn(self.user.name, result['params']['message'])
+
     def test_configure_routing_via_group_requires_a_provisioned_member(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])]})
