@@ -37,8 +37,8 @@ confirmed clean for commercial use:
   voice.
 - **`libritts_r`** - CC BY 4.0 (commercial use explicitly permitted,
   attribution required - see the [LibriTTS-R project](https://google.github.io/df-conformer/librittsr/)),
-  904 speakers (id 0-903), selectable via the **Speaker ID** field
-  next to the Voice picker - see "Picking a LibriTTS-R speaker" below.
+  904 speakers, selectable by name via the **Speaker** field next to
+  the Voice picker - see "Picking a LibriTTS-R speaker" below.
 
 If you want a different Piper voice, check that specific voice's own
 `MODEL_CARD` (on [Hugging Face](https://huggingface.co/rhasspy/piper-voices))
@@ -124,31 +124,36 @@ shell login, or access to anything outside its own directory.
 
 ## Picking a LibriTTS-R speaker
 
-LibriTTS-R has 904 speakers (id 0-903), but there's no built-in way
-to preview one by ear before picking it - checked Piper's own bundled
-web UI (`http://<piper-host>:5000/` in a browser) directly, and it
-only *displays* the speaker count, it doesn't let you choose one to
-audition. The only way to find one you like is to synthesize a few
-speaker IDs directly and listen:
+The **Speaker** field next to the Voice picker (on an IVR menu, a
+user's voicemail Preferences, or a call group's shared voicemail
+settings) lists all 904 by name and gender - e.g. "Kristin LeMoine
+(Female)" - not a bare number. That metadata is real: LibriTTS-R's
+own `speakers.tsv` (published alongside the corpus on
+[OpenSLR](https://www.openslr.org/141/)) gives the gender and the
+reader's registered [LibriVox](https://librivox.org/) name for every
+one of Piper's 904 speaker IDs - cross-checked directly against this
+voice's own `speaker_id_map` (in its `.onnx.json` config) and
+confirmed a full 904/904 match, no gaps. Leave the field blank to use
+LibriTTS-R's own default speaker. Ignored for LJSpeech, which only
+has one voice.
+
+**A name is not a quality guarantee** - this is real per-speaker
+identity, not a curated "best of" list. Nobody's actually listened to
+all 904 to rate which sound best, and Piper's own bundled web UI
+(`http://<piper-host>:5000/` in a browser) has no speaker picker
+either - it only displays the total count. If you want to actually
+hear a specific speaker before committing to it, synthesize it
+directly and listen (the speaker's number is the same one used
+internally - open the module's `models/libritts_r_speakers.py` to
+look up a name's own numeric id, or just try a name in the field and
+listen to the result on a real call):
 
 ```bash
-for id in 0 50 100 200 400 600 800; do
-    curl -s -X POST http://127.0.0.1:5000/synthesize \
-        -H "Content-Type: application/json" \
-        -d "{\"text\": \"Hello there, this is a test.\", \"voice\": \"en_US-libritts_r-medium\", \"speaker_id\": $id}" \
-        -o "/tmp/speaker_$id.wav"
-done
+curl -s -X POST http://127.0.0.1:5000/synthesize \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Hello there, this is a test.", "voice": "en_US-libritts_r-medium", "speaker_id": 42}' \
+    -o /tmp/speaker_42.wav
 ```
-
-Play each `/tmp/speaker_*.wav`, pick one you like, then set that
-number in the **Speaker ID** field next to the Voice picker on an IVR
-menu, a user's voicemail Preferences, or a call group's shared
-voicemail settings. Leave it blank to use LibriTTS-R's own default
-speaker. Speaker IDs are arbitrary numbers (LibriTTS-R reader IDs,
-confirmed by inspecting the voice's own `.onnx.json` config) with no
-metadata about voice/gender/quality - there's no shortcut around
-listening. Speaker ID is ignored for LJSpeech, which only has one
-voice.
 
 ## How it works
 

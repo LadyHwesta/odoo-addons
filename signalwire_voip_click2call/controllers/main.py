@@ -88,10 +88,18 @@ class SignalWireVoiceController(http.Controller):
         on it being up - no cached audio (Piper not installed/
         configured, or the one synthesis attempt for this text
         failed) always falls back to the plain _say() above.
+
+        `piper_speaker_id` arrives as a Selection field's own string
+        value (e.g. "42", one owner model's real speaker picker) -
+        cast to int here, once, so every call site can just pass the
+        raw field value through and every cache lookup/hash agrees on
+        the type (signalwire.piper.audio.cache's own sync side casts
+        the same way - see each owner model's _sync_piper_audio).
         """
+        speaker_id = int(piper_speaker_id) if piper_speaker_id else None
         if piper_voice and 'signalwire.piper.audio.cache' in request.env:
             attachment = request.env['signalwire.piper.audio.cache'].sudo().get_cached(
-                piper_voice, text, piper_speaker_id)
+                piper_voice, text, speaker_id)
             if attachment:
                 base_url = request.env['ir.config_parameter'].sudo().get_param(
                     'web.base.url')

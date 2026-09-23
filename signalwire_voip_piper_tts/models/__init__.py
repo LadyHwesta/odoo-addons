@@ -1,3 +1,4 @@
+from . import libritts_r_speakers
 from . import piper_client
 from . import signalwire_server
 from . import signalwire_piper_audio_cache

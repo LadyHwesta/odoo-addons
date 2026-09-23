@@ -2,6 +2,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
+from .libritts_r_speakers import LIBRITTS_R_SPEAKERS
+
 PIPER_VOICES = [
     ('en_US-ljspeech-medium', "LJSpeech (public domain)"),
     ('en_US-libritts_r-medium', "LibriTTS-R (CC BY 4.0)"),
@@ -10,13 +12,8 @@ PIPER_VOICES = [
 # The only voice in PIPER_VOICES with more than one speaker (904,
 # confirmed against the voice's own real .onnx.json config on
 # HuggingFace) - ljspeech is a single fixed voice, so a speaker
-# selector is meaningless for it. Piper's own bundled web UI has no
-# speaker picker either (checked its actual template source) - there
-# is no way to preview/audition a speaker by ear except calling
-# /synthesize directly with different speaker_id values, see this
-# module's own README.
+# selector is meaningless for it.
 MULTI_SPEAKER_VOICE = 'en_US-libritts_r-medium'
-MULTI_SPEAKER_MAX_ID = 903
 
 # Kept in sync with SignalWireVoiceController.DEFAULT_VOICEMAIL_GREETING
 # and the two fixed IVR messages in controllers/main.py - duplicated
@@ -38,28 +35,24 @@ class SignalWireIvrMenu(models.Model):
              "voice instead of the plain built-in one - requires "
              "signalwire.server.piper_url to be configured. Leave "
              "blank to keep the plain voice.")
-    piper_speaker_id = fields.Integer(
-        string="Speaker ID",
+    piper_speaker_id = fields.Selection(
+        LIBRITTS_R_SPEAKERS, string="Speaker",
         help="Only used for LibriTTS-R, which has 904 different "
-             "speakers (id 0-903) - leave blank for its own default "
-             "speaker. There's no built-in way to preview a speaker "
-             "by ear before picking one; see this module's README for "
-             "how to try a few via Piper's own /synthesize endpoint "
-             "directly. Ignored for LJSpeech, which only has one voice.")
+             "speakers, each named after the LibriVox reader whose "
+             "recordings trained it - leave blank for its own default "
+             "speaker. This is Piper's own real per-speaker metadata "
+             "(LibriTTS-R's own speakers.tsv from OpenSLR), not a "
+             "curated pick - nobody's actually listened to all 904, "
+             "so a name here is not a guarantee of quality. Ignored "
+             "for LJSpeech, which only has one voice.")
 
     @api.constrains('piper_voice', 'piper_speaker_id')
     def _check_piper_speaker_id(self):
         for menu in self:
-            if not menu.piper_speaker_id:
-                continue
-            if menu.piper_voice != MULTI_SPEAKER_VOICE:
+            if menu.piper_speaker_id and menu.piper_voice != MULTI_SPEAKER_VOICE:
                 raise ValidationError(_(
-                    "Speaker ID only applies to LibriTTS-R - leave it "
+                    "Speaker only applies to LibriTTS-R - leave it "
                     "blank for LJSpeech, which has just one voice."))
-            if not (0 <= menu.piper_speaker_id <= MULTI_SPEAKER_MAX_ID):
-                raise ValidationError(_(
-                    "Speaker ID must be between 0 and %(max)s for LibriTTS-R.",
-                    max=MULTI_SPEAKER_MAX_ID))
 
     def _sync_piper_audio(self):
         # Neither fixed message is wrapped in Odoo's own _() - the
@@ -72,7 +65,7 @@ class SignalWireIvrMenu(models.Model):
         for menu in self:
             if not menu.piper_voice:
                 continue
-            speaker_id = menu.piper_speaker_id or None
+            speaker_id = int(menu.piper_speaker_id) if menu.piper_speaker_id else None
             cache.get_or_synthesize(menu.piper_voice, menu.greeting_text or '', speaker_id)
             cache.get_or_synthesize(menu.piper_voice, IVR_NO_SELECTION_MESSAGE, speaker_id)
             cache.get_or_synthesize(menu.piper_voice, IVR_INVALID_OPTION_MESSAGE, speaker_id)
