@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -69,11 +68,49 @@ class TestProjectTaskPartnerAssignee(TransactionCase):
         self.assertEqual(counts.get(self.contact.id), 2)
         self.assertEqual(counts.get(self.other_contact.id), 1)
 
-    def test_assigning_a_contact_grants_no_extra_portal_access(self):
-        """The whole point of this field is that it's purely
-        informational - confirms it plainly, since a "the field
-        that... doesn't do anything" claim in a README is worth
-        actually proving rather than just asserting.
+    def test_assigning_a_contact_subscribes_them_as_a_follower(self):
+        """Being a follower is what lets the task's own chatter
+        actually reach them by email (Send Message/Log Note) - the
+        same mechanism Assignees (user_ids) already get for free.
+        """
+        task = self.env['project.task'].create({
+            'name': 'Task', 'project_id': self.project.id,
+            'assignee_partner_id': self.contact.id,
+        })
+
+        self.assertIn(self.contact, task.message_partner_ids)
+
+    def test_assigning_a_contact_on_write_also_subscribes_them(self):
+        task = self.env['project.task'].create({
+            'name': 'Task', 'project_id': self.project.id,
+        })
+        self.assertNotIn(self.contact, task.message_partner_ids)
+
+        task.write({'assignee_partner_id': self.contact.id})
+
+        self.assertIn(self.contact, task.message_partner_ids)
+
+    def test_assigning_a_plain_contact_grants_no_portal_login_capability(self):
+        """A contact with no res.users account at all has nothing to
+        log into - following the task only ever means "can be
+        emailed," never "can browse into Odoo and view it."
+        """
+        task = self.env['project.task'].create({
+            'name': 'Task', 'project_id': self.project.id,
+            'assignee_partner_id': self.contact.id,
+        })
+
+        self.assertFalse(self.contact.user_ids)
+        self.assertIn(self.contact, task.message_partner_ids)
+
+    def test_assigning_a_portal_user_as_contact_does_grant_them_portal_read_access(self):
+        """The one real access-shape change from auto-following:
+        project's own portal sharing rule treats "is a follower" as
+        one way to read a portal-shared project's task - so a contact
+        who is *already* a portal user, on a project already shared
+        with portal users, gains read access as a side effect of
+        being assigned. A plain contact with no login (the common
+        case) is entirely unaffected - see the test above.
         """
         self.project.privacy_visibility = 'portal'
         portal_partner = self.env['res.partner'].create({'name': 'Portal Jane'})
@@ -87,8 +124,8 @@ class TestProjectTaskPartnerAssignee(TransactionCase):
             'assignee_partner_id': portal_partner.id,
         })
 
-        self.assertFalse(
-            self.env['project.task'].with_user(portal_user).search(
-                [('id', '=', task.id)]))
-        with self.assertRaises(AccessError):
-            task.with_user(portal_user).read(['name'])
+        found = self.env['project.task'].with_user(portal_user).search([('id', '=', task.id)])
+
+        self.assertEqual(found, task)
+        self.assertEqual(
+            task.with_user(portal_user).read(['name'])[0]['name'], 'Task')

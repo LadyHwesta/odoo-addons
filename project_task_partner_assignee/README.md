@@ -33,13 +33,23 @@ field directly.
 
 ## Deliberately scoped
 
-- **No access-control side effects.** Setting `assignee_partner_id`
-  never touches `project.collaborator` and never changes what the
-  assigned contact can see. It's a plain organizational field - if you
-  also want the contact to have portal visibility into the task,
-  that's a separate, deliberate action (Project's own sharing
-  feature), not something this module does automatically. Proven, not
-  just asserted - see `test_assigning_a_contact_grants_no_extra_portal_access`.
+- **Auto-follows the assigned contact**, the same way core's own
+  Assignees (`user_ids`) already do - this is what lets the task's own
+  chatter (Send Message/Log Note) actually reach them by email,
+  instead of needing to be added as a recipient by hand every time.
+  See `_message_auto_subscribe_followers` in `models/project_task.py`,
+  a direct mirror of `project.task`'s own override for `user_ids`.
+- **No portal-login side effects for the common case** - a plain
+  contact with no `res.users` account has nothing to log into;
+  following a task only ever means "can be emailed." The one real
+  access-shape change: a contact who is *already* a portal user, on a
+  project *already* shared with portal users, gains read access to
+  that task as a side effect of being assigned - not something this
+  module implements, but a consequence of core's own project-sharing
+  rule (`project_task_rule_portal`), which treats "is a follower" as
+  one of two ways in. Both cases are proven, not just asserted - see
+  `test_assigning_a_plain_contact_grants_no_portal_login_capability`
+  and `test_assigning_a_portal_user_as_contact_does_grant_them_portal_read_access`.
 - **Single contact, not multiple** (`Many2one`, not `Many2many`) -
   matches how `partner_id` (Customer) already works, rather than
   `user_ids`' multi-assignee shape. "Who's the responsible contact for

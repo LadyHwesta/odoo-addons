@@ -23,9 +23,11 @@ different problem.
 
 Adds one field, ``assignee_partner_id``, to ``project.task`` - works
 identically on a top-level task and a subtask (a subtask is just a
-task with ``parent_id`` set). Deliberately has **no access-control
-side effects** - it's purely an informational/organizational field;
-assigning a contact does not grant them any visibility into the task.
+task with ``parent_id`` set). Auto-subscribes the assigned contact as
+a follower, the same way core's own Assignees (``user_ids``) already
+do, so the task's own chatter can actually reach them by email. See
+the README for the one real access-shape nuance that comes with that
+(only relevant if the assigned contact is also a portal user).
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',

@@ -113,8 +113,10 @@ Custom Odoo 19 modules.
   lets a task's Assignees be internal staff (`user_ids`'s own domain
   excludes portal/share users); nothing in OCA's `project` repo covers
   contact-level task assignment either (checked both `18.0` and
-  `19.0`). Deliberately has no access-control side effects - purely
-  organizational.
+  `19.0`). Auto-follows the assigned contact, mirroring how core's own
+  Assignees already do, so the task's chatter can actually reach them
+  by email - see its README for the one real access-shape nuance that
+  comes with that.
 
 **Meskis Works' own reselling/billing modules are private.** Everything
 that exists purely to run Meskis' own reselling business - hosting and
