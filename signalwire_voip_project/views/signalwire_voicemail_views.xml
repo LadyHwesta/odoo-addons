@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_voicemail_form_inherit_project" model="ir.ui.view">
+        <field name="name">signalwire.voicemail.form.inherit.project</field>
+        <field name="model">signalwire.voicemail</field>
+        <field name="inherit_id" ref="signalwire_voip_click2call.view_signalwire_voicemail_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_task" type="object"
+                        string="Create Task"
+                        invisible="not partner_id or project_id or task_id" />
+                <button name="action_attach_to_project_or_task" type="object"
+                        string="Attach to Project or Task"
+                        invisible="not partner_id or project_id or task_id" />
+            </xpath>
+            <field name="phone_number_id" position="after">
+                <field name="project_id" invisible="not project_id" />
+                <field name="task_id" invisible="not task_id" />
+            </field>
+        </field>
+    </record>
+
+</odoo>

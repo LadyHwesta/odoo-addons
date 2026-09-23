@@ -73,8 +73,18 @@ Custom Odoo 19 modules.
     TTS voice, scoped to two individually license-checked voices after
     catching that Piper's own example voice prohibits commercial use -
     see its README. Synthesis is eager (on save, never on a live call)
-    with an always-on fallback to the plain voice; not yet live-verified
-    against a real Piper server.
+    with an always-on fallback to the plain voice; live-verified end to
+    end against a real Piper server. LibriTTS-R's 904 speakers are
+    selectable by real name/gender (sourced from the corpus's own
+    published metadata, not curated), and a Preview button synthesizes
+    typed sample text in the browser without placing a call.
+  - [`signalwire_voip_project/`](signalwire_voip_project/) - create or
+    attach a project task straight from a voicemail - gated on whether
+    the caller matched a known contact, with a "fluid" lookup
+    (Project/Task pickers narrowed to whatever's already flagged for
+    that contact) and a smart default (exactly one matching project
+    gets pre-filled on Create Task). Standalone - depends only on core
+    `project`, not on `signalwire_voip_helpdesk_crm`.
 - [`telehealth_booking/`](telehealth_booking/) - one field
   (`res.users.telehealth_video_tier`) and one hook point on
   `calendar.event` for a "premium video" upgrade path - installed
@@ -98,6 +108,13 @@ Custom Odoo 19 modules.
   general-use connector, not tied to any one server - see its own
   README for the three real prerequisites and a scope limitation worth
   knowing before installing.
+- [`project_task_partner_assignee/`](project_task_partner_assignee/) -
+  one field, **Assigned Contact**, on `project.task` - Odoo core only
+  lets a task's Assignees be internal staff (`user_ids`'s own domain
+  excludes portal/share users); nothing in OCA's `project` repo covers
+  contact-level task assignment either (checked both `18.0` and
+  `19.0`). Deliberately has no access-control side effects - purely
+  organizational.
 
 **Meskis Works' own reselling/billing modules are private.** Everything
 that exists purely to run Meskis' own reselling business - hosting and
