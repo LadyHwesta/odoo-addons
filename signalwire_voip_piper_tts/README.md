@@ -139,14 +139,29 @@ has one voice.
 
 **A name is not a quality guarantee** - this is real per-speaker
 identity, not a curated "best of" list. Nobody's actually listened to
-all 904 to rate which sound best, and Piper's own bundled web UI
-(`http://<piper-host>:5000/` in a browser) has no speaker picker
-either - it only displays the total count. If you want to actually
-hear a specific speaker before committing to it, synthesize it
-directly and listen (the speaker's number is the same one used
-internally - open the module's `models/libritts_r_speakers.py` to
-look up a name's own numeric id, or just try a name in the field and
-listen to the result on a real call):
+all 904 to rate which sound best - that's exactly what the **Preview**
+button below is for.
+
+## Previewing a voice without placing a call
+
+Right under the Voice/Speaker fields (IVR menu, user voicemail
+Preferences, call group voicemail) is a **Preview** button with its
+own small text box, pre-filled with the greeting's own current text
+but freely editable - type anything you want to hear and press
+Preview to synthesize and play it immediately in the browser, using
+whatever Voice/Speaker is currently selected on the form (even if the
+record hasn't been saved yet). Nothing is saved or cached by this -
+it's a one-off sample, not a permanent greeting, and it never places a
+real call or touches SignalWire at all. Requires `piper_url` to be
+configured and reachable; any logged-in internal user can use it (same
+access level as editing your own voicemail Preferences already has).
+
+If you'd rather script it directly (e.g. to batch-sample a handful of
+speakers) Piper's own bundled web UI
+(`http://<piper-host>:5000/` in a browser) doesn't offer a speaker
+picker itself, but you can still hit its `/synthesize` endpoint
+directly - the speaker's number is the same one used internally, kept
+in `models/libritts_r_speakers.py` if you want to look one up by name:
 
 ```bash
 curl -s -X POST http://127.0.0.1:5000/synthesize \
@@ -175,7 +190,8 @@ on `signalwire.server`, a voice picked on an IVR menu, and a real
 inbound call actually playing the cached Piper audio - the
 `libritts_r`/`ljspeech` voices are confirmed to sound meaningfully
 more natural than the plain built-in one. Per-speaker selection
-(`piper_speaker_id`) is covered by the automated suite but not yet
-confirmed on a real call - the speaker-selection UI came from a
-follow-up request after the base module's own live call already
-worked, so it's newer ground.
+(`piper_speaker_id`) and the Preview button are both covered by the
+automated suite (real backend HTTP round trips) but not yet confirmed
+against a real running Piper server by an actual person clicking
+Preview in a browser - both came from follow-up requests after the
+base module's own live call already worked, so they're newer ground.

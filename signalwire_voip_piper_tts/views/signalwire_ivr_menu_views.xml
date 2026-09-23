@@ -10,6 +10,8 @@
                 <field name="piper_voice" />
                 <field name="piper_speaker_id"
                        invisible="piper_voice != 'en_US-libritts_r-medium'" />
+                <widget name="piper_preview" invisible="not piper_voice"
+                        options="{'voice_field': 'piper_voice', 'speaker_field': 'piper_speaker_id', 'text_field': 'greeting_text'}" />
             </field>
         </field>
     </record>

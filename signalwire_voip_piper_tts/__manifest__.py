@@ -39,6 +39,12 @@ full licensing writeup.
         'views/res_users_views.xml',
         'views/signalwire_call_group_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'signalwire_voip_piper_tts/static/src/components/piper_preview/piper_preview.esm.js',
+            'signalwire_voip_piper_tts/static/src/components/piper_preview/piper_preview.xml',
+        ],
+    },
     'installable': True,
     'application': False,
 }
