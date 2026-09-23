@@ -10,6 +10,9 @@
                 <field name="voicemail_piper_voice" invisible="voicemail_mode != 'group'" />
                 <field name="voicemail_piper_speaker_id"
                        invisible="voicemail_mode != 'group' or voicemail_piper_voice != 'en_US-libritts_r-medium'" />
+                <widget name="piper_preview"
+                        invisible="voicemail_mode != 'group' or not voicemail_piper_voice"
+                        options="{'voice_field': 'voicemail_piper_voice', 'speaker_field': 'voicemail_piper_speaker_id', 'text_field': 'voicemail_greeting_text'}" />
             </field>
         </field>
     </record>

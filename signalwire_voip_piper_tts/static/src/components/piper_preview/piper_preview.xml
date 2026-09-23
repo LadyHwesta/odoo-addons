@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="signalwire_voip_piper_tts.PiperPreviewWidget" owl="1">
+        <div class="o_piper_preview d-flex align-items-start gap-2 mt-1" t-if="voice">
+            <textarea
+                class="o_piper_preview_text form-control"
+                rows="2"
+                placeholder="Type something to preview in this voice..."
+                t-model="state.text"
+            />
+            <button
+                type="button"
+                class="btn btn-secondary text-nowrap"
+                t-att-disabled="!canPreview"
+                t-on-click="onPreviewClick"
+            >
+                <i t-if="state.loading" class="fa fa-spinner fa-spin" role="img" aria-label="Loading" title="Loading" />
+                <i t-else="" class="fa fa-play" role="img" aria-label="Preview" title="Preview" />
+                Preview
+            </button>
+        </div>
+    </t>
+
+</templates>
