@@ -148,7 +148,7 @@ class TestInboundControllerPiper(HttpCase):
     def test_ivr_menu_greeting_uses_the_chosen_speaker_id(self):
         menu = self.env['signalwire.ivr.menu'].create({
             'name': 'Multi-speaker Menu', 'greeting_text': 'Press 1 for sales.',
-            'piper_voice': 'en_US-libritts_r-medium', 'piper_speaker_id': 42,
+            'piper_voice': 'en_US-libritts_r-medium', 'piper_speaker_id': '42',
         })
         number = self.env['signalwire.phone_number'].create({
             'name': '+12084449671', 'sid': 'pn-piper-7',
