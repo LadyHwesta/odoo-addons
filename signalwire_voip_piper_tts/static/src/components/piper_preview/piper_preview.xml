@@ -2,16 +2,16 @@
 <templates xml:space="preserve">
 
     <t t-name="signalwire_voip_piper_tts.PiperPreviewWidget" owl="1">
-        <div class="o_piper_preview d-flex align-items-start gap-2 mt-1" t-if="voice">
+        <div class="o_piper_preview d-flex align-items-start gap-2 mt-1 w-100" t-if="voice">
             <textarea
-                class="o_piper_preview_text form-control"
+                class="o_piper_preview_text form-control flex-grow-1"
                 rows="2"
                 placeholder="Type something to preview in this voice..."
                 t-model="state.text"
             />
             <button
                 type="button"
-                class="btn btn-secondary text-nowrap"
+                class="btn btn-secondary text-nowrap flex-shrink-0"
                 t-att-disabled="!canPreview"
                 t-on-click="onPreviewClick"
             >
