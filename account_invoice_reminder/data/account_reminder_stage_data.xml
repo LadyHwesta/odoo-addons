@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="account_reminder_stage_before_due" model="account.reminder.stage">
+        <field name="name">3 Days Before Due</field>
+        <field name="sequence">10</field>
+        <field name="days_offset">-3</field>
+        <field name="mail_template_id" ref="mail_template_reminder_before_due" />
+    </record>
+
+    <record id="account_reminder_stage_due_today" model="account.reminder.stage">
+        <field name="name">Payment Due Today</field>
+        <field name="sequence">20</field>
+        <field name="days_offset">0</field>
+        <field name="mail_template_id" ref="mail_template_reminder_due_today" />
+    </record>
+
+    <record id="account_reminder_stage_overdue" model="account.reminder.stage">
+        <field name="name">Overdue Reminder</field>
+        <field name="sequence">30</field>
+        <field name="days_offset">7</field>
+        <field name="mail_template_id" ref="mail_template_reminder_overdue" />
+    </record>
+
+    <record id="account_reminder_stage_final_notice" model="account.reminder.stage">
+        <field name="name">Final Notice</field>
+        <field name="sequence">40</field>
+        <field name="days_offset">30</field>
+        <field name="mail_template_id" ref="mail_template_reminder_final_notice" />
+    </record>
+
+</odoo>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="mail_template_reminder_before_due" model="mail.template">
+        <field name="name">Invoice Reminder: before due date</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="subject">Upcoming payment: invoice {{ object.name }}</field>
+        <field name="email_from">{{ (object.invoice_user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>
+                    A friendly heads-up: invoice <strong t-out="object.name or ''"/>
+                    for <strong t-out="format_amount(object.amount_residual, object.currency_id) or ''"/>
+                    is due on <strong t-out="format_date(object.invoice_date_due) or ''"/>.
+                </p>
+                <p>No action needed if it's already scheduled - thanks!</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+
+    <record id="mail_template_reminder_due_today" model="mail.template">
+        <field name="name">Invoice Reminder: due today</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="subject">Payment due today: invoice {{ object.name }}</field>
+        <field name="email_from">{{ (object.invoice_user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>
+                    Invoice <strong t-out="object.name or ''"/> for
+                    <strong t-out="format_amount(object.amount_residual, object.currency_id) or ''"/>
+                    is due today.
+                </p>
+                <p>Thanks for taking care of it!</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+
+    <record id="mail_template_reminder_overdue" model="mail.template">
+        <field name="name">Invoice Reminder: overdue</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="subject">Overdue: invoice {{ object.name }}</field>
+        <field name="email_from">{{ (object.invoice_user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>
+                    Invoice <strong t-out="object.name or ''"/> for
+                    <strong t-out="format_amount(object.amount_residual, object.currency_id) or ''"/>
+                    was due on <strong t-out="format_date(object.invoice_date_due) or ''"/>
+                    and hasn't been paid yet.
+                </p>
+                <p>Could you take care of this when you get a chance? Thanks.</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+
+    <record id="mail_template_reminder_final_notice" model="mail.template">
+        <field name="name">Invoice Reminder: final notice</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="subject">Final notice: invoice {{ object.name }} is significantly overdue</field>
+        <field name="email_from">{{ (object.invoice_user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;">
+                <p>Hi <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>
+                    Invoice <strong t-out="object.name or ''"/> for
+                    <strong t-out="format_amount(object.amount_residual, object.currency_id) or ''"/>
+                    was due on <strong t-out="format_date(object.invoice_date_due) or ''"/>
+                    and remains unpaid.
+                </p>
+                <p>Please reach out if there's anything we can help with, or
+                   arrange payment as soon as possible.</p>
+            </div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True" />
+    </record>
+
+</odoo>

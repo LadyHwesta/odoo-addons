@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem id="menu_email_templates_plain"
+              name="Email Templates"
+              parent="base.menu_administration"
+              action="mail.action_email_template_tree_all"
+              groups="mail.group_mail_template_editor"
+              sequence="4" />
+
+</odoo>
