@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="res_partner_view_form_reminder_exempt" model="ir.ui.view">
+        <field name="name">res.partner.view.form.reminder.exempt</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@id='invoice_send_settings']" position="inside">
+                <field name="reminder_exempt" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

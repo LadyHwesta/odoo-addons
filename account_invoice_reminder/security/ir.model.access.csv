@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_reminder_stage_invoice,account.reminder.stage invoice,model_account_reminder_stage,account.group_account_invoice,1,1,1,0
+access_account_reminder_stage_manager,account.reminder.stage manager,model_account_reminder_stage,account.group_account_manager,1,1,1,1
+access_account_reminder_stage_system,account.reminder.stage system,model_account_reminder_stage,base.group_system,1,1,1,1
