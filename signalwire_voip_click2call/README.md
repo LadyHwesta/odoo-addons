@@ -791,6 +791,43 @@ subscribed to their own group records via
 code) - the mechanism is sound by inspection but hasn't been exercised
 against a real inbound call and a real second browser tab yet.
 
+## Hold music and messaging
+
+SignalWire itself has no turnkey "music on hold with messaging"
+feature - their `<Enqueue waitUrl>` primitive supports mixing `<Play>`/
+`<Say>`, but that's for a formal ACD-style queue, which this project's
+"ring everyone at once" call groups deliberately aren't. So this
+module builds its own hold experience for the two places a caller was
+actually being left waiting:
+
+- **Receptionist park/check** (`hold_loop`, a phone number's own
+  **Hold Music**/**Hold Message** fields): used to be one spoken line
+  followed by two minutes of dead silence. Now plays the message, then
+  loops the uploaded hold music (or a short pause if none is set), then
+  redirects back to itself - an indefinitely repeating, audibly-alive
+  cycle instead of a single dead pause.
+- **Call group ring timeout** (a call group's own **Hold and Retry
+  Ring** setting, default 0 = off, matching the exact behavior this
+  project had before this feature existed): when set above 0, an
+  unanswered ring-all attempt plays a hold message/music cycle and
+  rings the whole group again, up to that many extra times, before
+  finally falling through to "If Nobody Answers" exactly as before.
+
+Both reuse the same uploaded-attachment/text-with-Piper-fallback shape
+voicemail greetings already use, so `signalwire_voip_piper_tts`
+(optional) picks these up too - a phone number and a call group each
+get their own **Hold Message Voice** picker, same as an IVR menu's or
+a voicemail box's own.
+
+**Deliberately not built: per-agent manual hold.** SignalWire released
+a per-SIP-endpoint hold-music URL in April 2026 (plays one static file
+when an agent presses Hold mid-call on their own phone), but the
+actual "Create SIP Endpoint" REST schema this module already calls
+(`endpoints/sip`) has no such field - checked directly, not guessed.
+It may be dashboard-only, or live on a newer resource type this
+project doesn't use yet. Not worth building on a guess; revisit if
+SignalWire documents a real API for it.
+
 ## Testing
 
 `signalwire.server._get_sip_domain`/`action_setup_click2call`,

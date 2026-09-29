@@ -68,3 +68,39 @@ class TestPiperSpeakerIdConstraint(TransactionCase):
             'voicemail_piper_speaker_id': '100',
         })
         self.assertEqual(group.voicemail_piper_speaker_id, '100')
+
+    def test_call_group_hold_message_rejects_a_speaker_on_a_single_speaker_voice(self):
+        with self.assertRaises(ValidationError):
+            self.env['signalwire.call.group'].create({
+                'name': 'Sales', 'hold_piper_voice': 'en_US-ljspeech-medium',
+                'hold_piper_speaker_id': '42',
+            })
+
+    def test_call_group_hold_message_accepts_a_valid_speaker(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'hold_piper_voice': 'en_US-libritts_r-medium',
+            'hold_piper_speaker_id': '100',
+        })
+        self.assertEqual(group.hold_piper_speaker_id, '100')
+
+    def test_phone_number_hold_message_rejects_a_speaker_on_a_single_speaker_voice(self):
+        subproject = self.env['signalwire.subproject'].create({
+            'name': 'Internal Team', 'server_id': self.env['signalwire.server'].search([], limit=1).id,
+            'account_sid': 'sub-abc', 'state': 'active',
+        })
+        with self.assertRaises(ValidationError):
+            self.env['signalwire.phone_number'].create({
+                'name': '+12084449665', 'sid': 'pn-hold-1', 'subproject_id': subproject.id,
+                'hold_piper_voice': 'en_US-ljspeech-medium', 'hold_piper_speaker_id': '42',
+            })
+
+    def test_phone_number_hold_message_accepts_a_valid_speaker(self):
+        subproject = self.env['signalwire.subproject'].create({
+            'name': 'Internal Team', 'server_id': self.env['signalwire.server'].search([], limit=1).id,
+            'account_sid': 'sub-abc2', 'state': 'active',
+        })
+        number = self.env['signalwire.phone_number'].create({
+            'name': '+12084449666', 'sid': 'pn-hold-2', 'subproject_id': subproject.id,
+            'hold_piper_voice': 'en_US-libritts_r-medium', 'hold_piper_speaker_id': '100',
+        })
+        self.assertEqual(number.hold_piper_speaker_id, '100')

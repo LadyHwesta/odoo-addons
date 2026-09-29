@@ -145,6 +145,47 @@ class TestInboundControllerPiper(HttpCase):
             f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
             f'{attachment_id}</Play>', response.text)
 
+    def test_hold_loop_plays_cached_piper_audio(self):
+        number = self.env['signalwire.phone_number'].create({
+            'name': '+12084449670', 'sid': 'pn-piper-hold-1',
+            'subproject_id': self.subproject.id,
+            'hold_piper_voice': 'en_US-ljspeech-medium',
+            'hold_message_text': 'Hang tight, almost there.',
+        })
+        attachment_id = self._cached_attachment_id(
+            'en_US-ljspeech-medium', 'Hang tight, almost there.')
+
+        response = self.url_open(
+            f'/signalwire/voice/hold_loop/{number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn(
+            f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
+            f'{attachment_id}</Play>', response.text)
+        self.assertNotIn('<Say>Hang tight, almost there.</Say>', response.text)
+
+    def test_group_fallback_hold_retry_plays_cached_piper_audio(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'max_ring_attempts': 1,
+            'hold_piper_voice': 'en_US-ljspeech-medium',
+            'hold_message_text': 'One moment please.',
+        })
+        number = self.env['signalwire.phone_number'].create({
+            'name': '+12084449671', 'sid': 'pn-piper-hold-2',
+            'subproject_id': self.subproject.id,
+            'route_type': 'group', 'call_group_id': group.id,
+        })
+        attachment_id = self._cached_attachment_id(
+            'en_US-ljspeech-medium', 'One moment please.')
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn(
+            f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
+            f'{attachment_id}</Play>', response.text)
+
     def test_ivr_menu_greeting_uses_the_chosen_speaker_id(self):
         menu = self.env['signalwire.ivr.menu'].create({
             'name': 'Multi-speaker Menu', 'greeting_text': 'Press 1 for sales.',

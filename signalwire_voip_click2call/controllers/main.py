@@ -69,6 +69,8 @@ class SignalWireVoiceController(http.Controller):
         return ''.join(self._sip_targets(member, sip_domain) for member in group.member_ids)
 
     DEFAULT_VOICEMAIL_GREETING = 'Please leave a message after the tone.'
+    DEFAULT_HOLD_MESSAGE = 'Please hold while we connect you.'
+    DEFAULT_GROUP_HOLD_MESSAGE = 'Please hold while we try to reach someone.'
 
     def _say(self, text):
         """A plain <Say> tag (SignalWire's own built-in voice),
@@ -179,25 +181,60 @@ class SignalWireVoiceController(http.Controller):
             piper_voice=getattr(group, 'voicemail_piper_voice', False),
             piper_speaker_id=getattr(group, 'voicemail_piper_speaker_id', False))
 
-    def _route_dial_cxml(self, route_type, target, number, sip_domain):
+    def _route_dial_cxml(self, route_type, target, number, sip_domain, attempt=0):
         """The <Dial> block for a resolved 'user' or 'group' route -
         shared by inbound_call's own initial dial and an IVR menu
         option set to "Ring a User"/"Ring a Call Group", so both
         build the exact same shape (same timeout, same fallback
         action wiring) rather than drifting apart. Returns '' if the
         route has no usable SIP target at all.
+
+        `attempt` is only meaningful for a 'group' route - a nonzero
+        value means this is a hold-and-retry re-ring (see
+        group_fallback), carried through as a query-string param on
+        the action URL so group_fallback knows how many attempts have
+        already happened. Left at 0/omitted, the action URL is byte-
+        for-byte identical to before this parameter existed.
         """
         if route_type == 'group':
             targets = self._group_sip_targets(target, sip_domain) if target else ''
             if not targets:
                 return ''
             action = f'/signalwire/voice/group_fallback/{target.id}/{number.id}'
+            if attempt:
+                action += f'?attempt={attempt}'
         else:
             targets = self._sip_targets(target, sip_domain) if target else ''
             if not targets:
                 return ''
             action = f'/signalwire/voice/fallback/{target.id}/{number.id}'
         return f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{targets}</Dial>'
+
+    def _hold_cxml(self, record, default_message, res_model):
+        """The spoken hold message (via _say_or_play, so an optional
+        Piper voice is honored the same way a greeting's is) followed
+        by looped hold music if `record.hold_music` is set, or a
+        short pause otherwise - the shared building block for both
+        hold_loop's own indefinite self-redirecting loop and
+        group_fallback's fixed-length cycle before a fresh ring
+        attempt. `res_model` scopes the music attachment lookup the
+        same way _user_voicemail_cxml/_group_voicemail_cxml do for
+        greetings - never an open-ended attachment-id fetch.
+        """
+        message = self._say_or_play(
+            record.hold_message_text or default_message,
+            getattr(record, 'hold_piper_voice', False),
+            getattr(record, 'hold_piper_speaker_id', False))
+        music_attachment = request.env['ir.attachment'].sudo().search([
+            ('res_model', '=', res_model), ('res_id', '=', record.id),
+            ('res_field', '=', 'hold_music'),
+        ], limit=1)
+        if music_attachment:
+            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            return (
+                f'{message}<Play loop="3">{base_url}/signalwire/voice/'
+                f'hold_music/{music_attachment.id}</Play>')
+        return f'{message}<Pause length="20" />'
 
     def _mark_live_call_ended(self):
         """Called from every terminal point in the routing chain
@@ -305,14 +342,22 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/group_fallback/<int:group_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
-    def group_fallback(self, group_id, phone_number_id, **kwargs):
+    def group_fallback(self, group_id, phone_number_id, attempt=None, **kwargs):
         """Called after a Call Group's own <Dial> ends unanswered.
-        Routes to the group's own voicemail_mode: a specific member's
-        personal voicemail box, the group's own shared mailbox, or
-        (if neither is set) just ends the call with a plain apology -
-        deliberately not a full per-user fallback chain (forward/ring
-        group/voicemail) the way a direct user route gets, since a
-        group has no single natural owner for that chain.
+        While `attempt` is still below the group's own
+        max_ring_attempts, plays a hold message/music cycle and rings
+        the whole group again instead of giving up immediately -
+        `attempt` arrives as a query-string param on the action URL
+        `_route_dial_cxml` builds, the same idiom `fallback`'s own
+        `step` param uses for a user's fallback chain. Once attempts
+        are exhausted (or max_ring_attempts is left at its default of
+        0), routes to the group's own voicemail_mode exactly as
+        before this parameter existed: a specific member's personal
+        voicemail box, the group's own shared mailbox, or (if neither
+        is set) just ends the call with a plain apology - deliberately
+        not a full per-user fallback chain (forward/ring group/
+        voicemail) the way a direct user route gets, since a group has
+        no single natural owner for that chain.
         """
         status = request.httprequest.form.get('DialCallStatus')
         if status == 'completed':
@@ -324,6 +369,19 @@ class SignalWireVoiceController(http.Controller):
         if not group.exists() or not number.exists():
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
+
+        attempt = int(attempt or 0)
+        if attempt < group.max_ring_attempts:
+            sip_domain = number.subproject_id.server_id._get_sip_domain()
+            dial = self._route_dial_cxml(
+                'group', group, number, sip_domain, attempt=attempt + 1)
+            if dial:
+                hold = self._hold_cxml(
+                    group, self.DEFAULT_GROUP_HOLD_MESSAGE, 'signalwire.call.group')
+                return self._cxml(hold + dial)
+            # No usable SIP target at all (e.g. every member lost
+            # their softphone since the first ring) - nothing to
+            # retry, fall through to voicemail_mode below.
 
         if group.voicemail_mode == 'user' and group.voicemail_user_id:
             return self._cxml(self._user_voicemail_cxml(group.voicemail_user_id, number))
@@ -544,6 +602,28 @@ class SignalWireVoiceController(http.Controller):
         return stream.get_response(as_attachment=False, max_age=None)
 
     @http.route(
+        '/signalwire/voice/hold_music/<int:attachment_id>',
+        type='http', auth='public', methods=['GET'])
+    def hold_music(self, attachment_id, **kwargs):
+        """Serves an uploaded hold-music file to SignalWire's media
+        server, the same way voice_greeting serves a voicemail
+        greeting recording - scoped to attachments currently set as
+        some phone number's or call group's own hold_music, never an
+        open-ended attachment-id fetch.
+        """
+        attachment = request.env['ir.attachment'].sudo().search([
+            ('id', '=', attachment_id), '|',
+            '&', ('res_model', '=', 'signalwire.phone_number'),
+            ('res_field', '=', 'hold_music'),
+            '&', ('res_model', '=', 'signalwire.call.group'),
+            ('res_field', '=', 'hold_music'),
+        ], limit=1)
+        if not attachment:
+            return request.not_found()
+        stream = request.env['ir.binary']._get_stream_from(attachment, 'raw')
+        return stream.get_response(as_attachment=False, max_age=None)
+
+    @http.route(
         '/signalwire/voice/voicemail_transcription/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
     def voicemail_transcription(self, user_id, phone_number_id, **kwargs):
@@ -622,19 +702,17 @@ class SignalWireVoiceController(http.Controller):
         check whether a colleague can take it - see
         signalwire.live_call.action_park() and this module's own
         README for why this deliberately isn't a 3-way conference
-        bridge. Says a message once, then holds silently rather than
-        looping <Say> (which would repeat jarringly) - SignalWire
-        itself has no <Pause>-forever primitive, so a long single
-        <Pause> is the practical way to keep the call alive without
-        the caller thinking they've been disconnected.
+        bridge. Plays the message/music cycle (see _hold_cxml), then
+        <Redirect>s back to this same URL - an indefinitely repeating
+        cycle that stays audibly alive, rather than the single message
+        followed by a long dead <Pause> this used to be.
         """
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not number.exists():
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
-        return self._cxml(
-            '<Say>Please hold while we connect you.</Say>'
-            '<Pause length="120" />')
+        hold = self._hold_cxml(number, self.DEFAULT_HOLD_MESSAGE, 'signalwire.phone_number')
+        return self._cxml(f'{hold}<Redirect>/signalwire/voice/hold_loop/{phone_number_id}</Redirect>')
 
     @http.route(
         '/signalwire/provisioning/<string:filename>',

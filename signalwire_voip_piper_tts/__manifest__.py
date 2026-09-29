@@ -38,6 +38,7 @@ full licensing writeup.
         'views/signalwire_ivr_menu_views.xml',
         'views/res_users_views.xml',
         'views/signalwire_call_group_views.xml',
+        'views/signalwire_phone_number_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

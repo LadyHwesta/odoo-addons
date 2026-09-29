@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_signalwire_phone_number_form_inherit_piper_tts" model="ir.ui.view">
+        <field name="name">signalwire.phone_number.form.inherit.piper.tts</field>
+        <field name="model">signalwire.phone_number</field>
+        <field name="inherit_id"
+               ref="signalwire_voip_click2call.view_signalwire_phone_number_form_inherit_click2call" />
+        <field name="arch" type="xml">
+            <field name="hold_music" position="after">
+                <field name="hold_piper_voice" />
+                <field name="hold_piper_speaker_id"
+                       invisible="hold_piper_voice != 'en_US-libritts_r-medium'" />
+                <widget name="piper_preview" colspan="2"
+                        invisible="not hold_piper_voice"
+                        options="{'voice_field': 'hold_piper_voice', 'speaker_field': 'hold_piper_speaker_id', 'text_field': 'hold_message_text'}" />
+            </field>
+        </field>
+    </record>
+
+</odoo>
