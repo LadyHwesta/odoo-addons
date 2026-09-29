@@ -58,6 +58,19 @@ class SignalWirePhoneNumber(models.Model):
     after_hours_ivr_menu_id = fields.Many2one(
         'signalwire.ivr.menu', string="After-Hours IVR Menu", check_company=True)
 
+    hold_music = fields.Binary(
+        string="Hold Music", attachment=True, copy=False,
+        help="Looped for a caller parked by the receptionist panel "
+             "(action_park) while checking whether a colleague can "
+             "take the call. Leave unset to use silence between "
+             "repeats of the hold message instead.")
+    hold_music_filename = fields.Char(copy=False)
+    hold_message_text = fields.Text(
+        string="Hold Message (spoken)",
+        default=lambda self: _("Please hold while we connect you."),
+        help="Read aloud (text-to-speech) periodically while a caller "
+             "is parked, alternating with the hold music above.")
+
     def _is_within_business_hours(self):
         """True if "now" falls inside this number's own Business
         Hours calendar - always True if none is set (a number with

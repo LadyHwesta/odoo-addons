@@ -56,6 +56,24 @@ class SignalWireCallGroup(models.Model):
         default=lambda self: _("Please leave a message after the tone."),
         help="Read aloud (text-to-speech) to callers when no custom "
              "greeting recording is set above.")
+    max_ring_attempts = fields.Integer(
+        default=0, required=True, string="Hold and Retry Ring",
+        help="How many extra times to ring the whole group again, "
+             "with hold music/a message in between, before giving up "
+             "and following \"If Nobody Answers\" above. 0 (the "
+             "default) rings once and falls straight through, exactly "
+             "like before this setting existed.")
+    hold_music = fields.Binary(
+        string="Hold Music", attachment=True, copy=False,
+        help="Looped between ring attempts while \"Hold and Retry "
+             "Ring\" is above 0. Leave unset to use silence between "
+             "repeats of the hold message instead.")
+    hold_music_filename = fields.Char(copy=False)
+    hold_message_text = fields.Text(
+        string="Hold Message (spoken)",
+        default=lambda self: _("Please hold while we try to reach someone."),
+        help="Read aloud (text-to-speech) between ring attempts while "
+             "\"Hold and Retry Ring\" is above 0.")
     active = fields.Boolean(default=True)
 
     @api.constrains('company_id', 'member_ids')

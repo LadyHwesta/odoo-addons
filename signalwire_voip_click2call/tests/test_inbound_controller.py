@@ -219,6 +219,63 @@ class TestInboundCallController(HttpCase):
         self.assertNotIn('<Say', response.text)
         self.assertNotIn('<Record', response.text)
 
+    def test_group_fallback_with_zero_max_attempts_does_not_retry(self):
+        # max_ring_attempts defaults to 0 - a group that never touches
+        # this new setting behaves exactly as it did before it existed.
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertNotIn('<Dial', response.text)
+        self.assertIn('<Say>', response.text)
+
+    def test_group_fallback_retries_the_ring_with_hold_before_giving_up(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'max_ring_attempts': 1,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        body = response.text
+        self.assertIn('<Say>', body)
+        self.assertIn('<Dial ', body)
+        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
+        self.assertIn(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}?attempt=1', body)
+
+    def test_group_fallback_uses_the_default_hold_message_text_by_default(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'max_ring_attempts': 1,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer'})
+
+        self.assertIn(
+            '<Say>Please hold while we try to reach someone.</Say>', response.text)
+
+    def test_group_fallback_stops_retrying_once_attempts_are_exhausted(self):
+        group = self.env['signalwire.call.group'].create({
+            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
+            'max_ring_attempts': 1,
+        })
+
+        response = self.url_open(
+            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
+            data={'DialCallStatus': 'no-answer', 'attempt': '1'})
+
+        self.assertNotIn('<Dial', response.text)
+        self.assertIn('<Say>', response.text)
+
     def test_inbound_call_to_an_ivr_routed_number_gathers_a_digit(self):
         menu = self.env['signalwire.ivr.menu'].create({
             'name': 'Main Menu', 'greeting_text': 'Press 1 for sales.'})
@@ -495,3 +552,58 @@ class TestInboundCallController(HttpCase):
 
         self.assertIn('<Say>', response.text)
         self.assertIn('<Pause', response.text)
+
+    def test_hold_loop_redirects_back_to_itself(self):
+        response = self.url_open(
+            f'/signalwire/voice/hold_loop/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn(
+            f'<Redirect>/signalwire/voice/hold_loop/{self.number.id}</Redirect>',
+            response.text)
+
+    def test_hold_loop_uses_the_numbers_own_custom_message(self):
+        self.number.hold_message_text = "Hang tight, we'll be right with you."
+
+        response = self.url_open(
+            f'/signalwire/voice/hold_loop/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn("<Say>Hang tight, we'll be right with you.</Say>", response.text)
+
+    def test_hold_loop_plays_uploaded_hold_music_when_set(self):
+        self.env['ir.config_parameter'].sudo().set_param(
+            'web.base.url', 'https://odoo.example.com')
+        self.number.hold_music = 'ZmFrZS1hdWRpbw=='  # base64 "fake-audio"
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'signalwire.phone_number'), ('res_id', '=', self.number.id),
+            ('res_field', '=', 'hold_music'),
+        ])
+        self.assertTrue(attachment)
+
+        response = self.url_open(
+            f'/signalwire/voice/hold_loop/{self.number.id}', data={'CallSid': 'CA000'})
+
+        self.assertIn(
+            f'<Play loop="3">https://odoo.example.com/signalwire/voice/'
+            f'hold_music/{attachment.id}</Play>',
+            response.text)
+        self.assertNotIn('<Pause', response.text)
+
+    def test_hold_music_route_serves_the_attachment(self):
+        self.number.hold_music = 'ZmFrZS1hdWRpbw=='
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'signalwire.phone_number'), ('res_id', '=', self.number.id),
+            ('res_field', '=', 'hold_music'),
+        ])
+
+        response = self.url_open(f'/signalwire/voice/hold_music/{attachment.id}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'fake-audio')
+
+    def test_hold_music_route_404s_for_an_unrelated_attachment(self):
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': 'unrelated.txt', 'raw': b'not hold music'})
+
+        response = self.url_open(f'/signalwire/voice/hold_music/{attachment.id}')
+
+        self.assertEqual(response.status_code, 404)

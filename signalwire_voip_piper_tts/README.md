@@ -170,6 +170,14 @@ curl -s -X POST http://127.0.0.1:5000/synthesize \
     -o /tmp/speaker_42.wav
 ```
 
+## Hold messages too
+
+Alongside IVR menus and voicemail greetings, a phone number's own
+receptionist-park hold message and a call group's own hold-and-retry
+message (see `signalwire_voip_click2call`'s README) each get their own
+**Hold Message Voice**/**Speaker** pickers, same shape and same eager-
+synthesis-on-save behavior as everywhere else in this module.
+
 ## How it works
 
 Synthesis happens **eagerly**, when a greeting's text or voice choice

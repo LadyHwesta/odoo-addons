@@ -28,6 +28,18 @@ class SignalWireCallGroup(models.Model):
              "not a curated pick - nobody's actually listened to all "
              "904, so a name here is not a guarantee of quality. "
              "Ignored for LJSpeech, which only has one voice.")
+    hold_piper_voice = fields.Selection(
+        PIPER_VOICES, string="Hold Message Voice",
+        help="Speak this group's own hold-and-retry message using a "
+             "self-hosted Piper voice instead of the plain built-in "
+             "one - only relevant when \"Hold and Retry Ring\" is "
+             "above 0. Requires your admin to have configured Piper's "
+             "own server URL. Leave blank to keep the plain voice.")
+    hold_piper_speaker_id = fields.Selection(
+        LIBRITTS_R_SPEAKERS, string="Speaker",
+        help="Only used for LibriTTS-R - leave blank for its own "
+             "default speaker. Ignored for LJSpeech, which only has "
+             "one voice.")
 
     @api.constrains('voicemail_piper_voice', 'voicemail_piper_speaker_id')
     def _check_piper_speaker_id(self):
@@ -38,20 +50,33 @@ class SignalWireCallGroup(models.Model):
                     "Speaker only applies to LibriTTS-R - leave it "
                     "blank for LJSpeech, which has just one voice."))
 
+    @api.constrains('hold_piper_voice', 'hold_piper_speaker_id')
+    def _check_hold_piper_speaker_id(self):
+        for group in self:
+            if group.hold_piper_speaker_id and \
+                    group.hold_piper_voice != MULTI_SPEAKER_VOICE:
+                raise ValidationError(_(
+                    "Speaker only applies to LibriTTS-R - leave it "
+                    "blank for LJSpeech, which has just one voice."))
+
     def _sync_piper_audio(self):
         # Not wrapped in _() - see signalwire_ivr_menu.py's own note on
         # why the cache key has to match controllers/main.py's exact
         # literal, untranslated.
         cache = self.env['signalwire.piper.audio.cache']
         for group in self:
-            if not group.voicemail_piper_voice:
-                continue
-            speaker_id = int(group.voicemail_piper_speaker_id) \
-                if group.voicemail_piper_speaker_id else None
-            cache.get_or_synthesize(
-                group.voicemail_piper_voice,
-                group.voicemail_greeting_text or '',
-                speaker_id)
+            if group.voicemail_piper_voice:
+                speaker_id = int(group.voicemail_piper_speaker_id) \
+                    if group.voicemail_piper_speaker_id else None
+                cache.get_or_synthesize(
+                    group.voicemail_piper_voice,
+                    group.voicemail_greeting_text or '',
+                    speaker_id)
+            if group.hold_piper_voice:
+                speaker_id = int(group.hold_piper_speaker_id) \
+                    if group.hold_piper_speaker_id else None
+                cache.get_or_synthesize(
+                    group.hold_piper_voice, group.hold_message_text or '', speaker_id)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -61,7 +86,7 @@ class SignalWireCallGroup(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if 'voicemail_piper_voice' in vals or 'voicemail_greeting_text' in vals or \
-                'voicemail_piper_speaker_id' in vals:
+        if {'voicemail_piper_voice', 'voicemail_greeting_text', 'voicemail_piper_speaker_id',
+                'hold_piper_voice', 'hold_message_text', 'hold_piper_speaker_id'} & vals.keys():
             self._sync_piper_audio()
         return res
