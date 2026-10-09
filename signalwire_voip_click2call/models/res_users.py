@@ -82,7 +82,13 @@ class ResUsers(models.Model):
     signalwire_voicemail_greeting_filename = fields.Char(copy=False)
     signalwire_voicemail_greeting_text = fields.Text(
         string="Greeting (spoken)",
-        default=lambda self: _("Please leave a message after the tone."),
+        # Not _()-wrapped - a field default runs inside _auto_init's
+        # column-backfill pass, and _() reads env.user, which can
+        # prefetch-collide with another module's own not-yet-created
+        # res.partner/res.users column in the same multi-module
+        # upgrade batch. Confirmed live in production 2026-10-09 (see
+        # signalwire_phone_number.py's own hold_message_text note).
+        default="Please leave a message after the tone.",
         help="Read aloud (text-to-speech) to callers when no custom "
              "greeting recording is set above.")
     signalwire_voicemail_max_length = fields.Integer(

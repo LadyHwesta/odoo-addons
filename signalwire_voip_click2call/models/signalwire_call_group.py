@@ -53,7 +53,13 @@ class SignalWireCallGroup(models.Model):
     voicemail_greeting_filename = fields.Char(copy=False)
     voicemail_greeting_text = fields.Text(
         string="Greeting (spoken)",
-        default=lambda self: _("Please leave a message after the tone."),
+        # Not _()-wrapped - see hold_message_text's own note below for
+        # why: a field default runs inside _auto_init's column-backfill
+        # pass, and _() reads env.user, which can prefetch-collide with
+        # another module's own not-yet-created res.partner column in
+        # the same multi-module upgrade batch. Confirmed live in
+        # production 2026-10-09.
+        default="Please leave a message after the tone.",
         help="Read aloud (text-to-speech) to callers when no custom "
              "greeting recording is set above.")
     max_ring_attempts = fields.Integer(
@@ -71,7 +77,9 @@ class SignalWireCallGroup(models.Model):
     hold_music_filename = fields.Char(copy=False)
     hold_message_text = fields.Text(
         string="Hold Message (spoken)",
-        default=lambda self: _("Please hold while we try to reach someone."),
+        # See voicemail_greeting_text's own note above - not
+        # _()-wrapped, for the same reason.
+        default="Please hold while we try to reach someone.",
         help="Read aloud (text-to-speech) between ring attempts while "
              "\"Hold and Retry Ring\" is above 0.")
     active = fields.Boolean(default=True)
