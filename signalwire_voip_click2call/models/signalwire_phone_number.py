@@ -67,7 +67,16 @@ class SignalWirePhoneNumber(models.Model):
     hold_music_filename = fields.Char(copy=False)
     hold_message_text = fields.Text(
         string="Hold Message (spoken)",
-        default=lambda self: _("Please hold while we connect you."),
+        # Not _()-wrapped: a field default is computed inside
+        # _auto_init's own column-backfill pass, which runs for every
+        # model on every registry load, in a dependency order this
+        # module doesn't control. _() calls through to
+        # env.user.read(...), which prefetches a batch of res.partner
+        # columns - if another module's own new res.partner column
+        # (added in the same multi-module upgrade batch) hasn't been
+        # created yet at that exact point in the sequence, the whole
+        # registry load dies. Confirmed live in production 2026-10-09.
+        default="Please hold while we connect you.",
         help="Read aloud (text-to-speech) periodically while a caller "
              "is parked, alternating with the hold music above.")
 
