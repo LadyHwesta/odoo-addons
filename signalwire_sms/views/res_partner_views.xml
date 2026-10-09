@@ -11,6 +11,12 @@
                         string="Send SMS" class="oe_stat_button" icon="fa-comment"
                         invisible="not phone" />
             </div>
+            <field name="phone" position="after">
+                <span class="badge text-bg-danger ms-1" invisible="not sms_blocked">
+                    SMS Opted Out (STOP)
+                </span>
+                <field name="sms_blocked" invisible="1" />
+            </field>
         </field>
     </record>
 

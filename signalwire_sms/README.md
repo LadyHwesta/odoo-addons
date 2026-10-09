@@ -115,6 +115,37 @@ Everything in this module is built and tested against the correct,
 documented request/response shapes regardless - once a number is
 actually SMS-enabled, no code changes should be needed.
 
+## STOP/HELP/START - this module's own responsibility, not SignalWire's
+
+Checked directly against SignalWire's own docs before building this:
+they do **not** auto-intercept the carrier-mandated STOP/HELP/START
+keyword family for you - "customers are responsible for handling
+inbound stop requests." So this module does:
+
+- An inbound SMS whose (trimmed, case-insensitive) body is a STOP-
+  family word (`STOP`, `STOPALL`, `UNSUBSCRIBE`, `CANCEL`, `END`,
+  `QUIT`) sets the matched `res.partner.sms_blocked = True` and sends
+  back a confirmation. `send_sms` then refuses (raises `UserError`,
+  doesn't silently no-op) to send to that partner again until a
+  START/UNSTOP/YES reply clears the flag.
+- A HELP reply sends back each number's own configurable help text
+  (`signalwire.phone_number.sms_help_reply_text`) without changing
+  anything.
+- All of this fires *before* this module's own best-effort, digits-
+  only partner matching is even relevant for a module layering a
+  consent workflow on top (see `_sms_handle_custom_keyword` - a no-op
+  hook here, overridden by anything that wants to react to a
+  different reply, e.g. a double opt-in's own "Y"/"N" confirmation).
+
+**Known limitation, inherited from this module's own existing best-
+effort phone-matching** (same one `_log_to_partner_chatter` already
+has): a STOP from a number that doesn't match any `res.partner` is
+still confirmed back, but nothing is actually blocked anywhere, since
+blocking is tracked on the matched partner, not a separate by-number
+suppression list. Not yet live-verified against a real inbound STOP -
+blocked on the same 10DLC approval as everything else SMS-related in
+this module.
+
 ## Testing
 
 Business logic (chatter matching + its digit-normalization fix,

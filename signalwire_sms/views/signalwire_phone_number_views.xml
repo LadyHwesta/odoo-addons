@@ -9,6 +9,8 @@
             <field name="company_id" position="after">
                 <field name="sms_webhook_url"
                        placeholder="https://customer-system.example.com/webhook" />
+                <field name="sms_stop_reply_text" />
+                <field name="sms_help_reply_text" />
             </field>
             <sheet position="inside">
                 <notebook>
