@@ -4,10 +4,22 @@ import logging
 import requests
 
 from odoo import _, api, models, fields
+from odoo.exceptions import UserError
+
+from odoo.addons.signalwire_voip.models.signalwire_api import SignalWireAPIError
 
 _logger = logging.getLogger(__name__)
 
 WEBHOOK_TIMEOUT = 10
+
+# The standard CTIA-recognized keyword families for carrier-mandated
+# SMS compliance - matched case-insensitively against the whole
+# (trimmed) message body, not a substring, so a customer's own
+# unrelated reply that happens to contain "stop" somewhere never
+# triggers this by accident.
+STOP_KEYWORDS = {'stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit'}
+START_KEYWORDS = {'start', 'yes', 'unstop'}
+HELP_KEYWORDS = {'help', 'info'}
 
 
 class SignalWireSms(models.Model):
@@ -91,6 +103,52 @@ class SignalWireSms(models.Model):
                 message.direction == 'outbound' else \
                 _("SMS from %(number)s", number=other_number)
             partner.message_post(body=f"{label}: {message.body}")
+
+    def _handle_inbound_keywords(self):
+        """Carrier-mandated STOP/START/HELP keyword handling -
+        SignalWire does not intercept these for us (confirmed against
+        their own docs: "customers are responsible for handling
+        inbound stop requests"), so this is this module's own
+        enforcement point. Call *after* _log_to_partner_chatter, so
+        `partner_id` is already resolved (same best-effort digits-only
+        matching, not reattempted here).
+
+        The confirmation/help reply is sent before updating
+        `sms_blocked` for STOP, not after - send_sms itself refuses to
+        send to an already-blocked partner, so sending the STOP
+        confirmation *after* setting the flag would block its own
+        reply. A failed reply (e.g. the 10DLC campaign not approved
+        yet) never blocks the state change itself - a customer's STOP
+        request is honored either way, same "best-effort, log on
+        failure" shape as this model's own webhook forwarding.
+        """
+        for message in self:
+            if message.direction != 'inbound':
+                continue
+            keyword = (message.body or '').strip().lower()
+            number = message.phone_number_id
+            if keyword in STOP_KEYWORDS:
+                message._send_keyword_reply(number.sms_stop_reply_text)
+                if message.partner_id:
+                    message.partner_id.sms_blocked = True
+            elif keyword in START_KEYWORDS:
+                message._send_keyword_reply(number.sms_stop_reply_text)
+                if message.partner_id:
+                    message.partner_id.sms_blocked = False
+            elif keyword in HELP_KEYWORDS:
+                message._send_keyword_reply(number.sms_help_reply_text)
+            elif message.partner_id:
+                message.partner_id._sms_handle_custom_keyword(keyword)
+
+    def _send_keyword_reply(self, body):
+        self.ensure_one()
+        if not body:
+            return
+        try:
+            self.phone_number_id.send_sms(self.from_number, body)
+        except (UserError, SignalWireAPIError) as exc:
+            _logger.warning(
+                "SignalWire: keyword reply to %s not sent: %s", self.from_number, exc)
 
     def _forward_to_customer_webhook(self):
         """Best-effort forward of an inbound message to whatever URL

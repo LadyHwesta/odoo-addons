@@ -34,5 +34,6 @@ class SignalWireSmsController(http.Controller):
             })
             message._log_to_partner_chatter()
             message._forward_to_customer_webhook()
+            message._handle_inbound_keywords()
 
         return request.make_response(CXML_ACK, headers=[('Content-Type', 'text/xml')])
