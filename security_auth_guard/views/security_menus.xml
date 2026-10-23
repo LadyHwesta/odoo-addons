@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="menu_security_root"
+              name="Security"
+              sequence="10"
+              groups="group_security_officer" />
+
+    <menuitem id="menu_security_events"
+              name="Security Events"
+              parent="menu_security_root"
+              action="security_event_action"
+              sequence="1" />
+
+    <menuitem id="menu_security_ip_rules"
+              name="IP Rules"
+              parent="menu_security_root"
+              action="security_ip_rule_action"
+              sequence="2" />
+
+    <menuitem id="menu_security_login_attempts"
+              name="Login Attempts"
+              parent="menu_security_root"
+              action="security_login_attempt_action"
+              sequence="3" />
+</odoo>

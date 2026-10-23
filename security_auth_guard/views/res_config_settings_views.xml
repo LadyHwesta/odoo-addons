@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="res_config_settings_view_form_inherit_security_auth_guard" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.security.auth.guard</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <div class="app_settings_block" data-string="Security"
+                     string="Security" data-key="security_auth_guard"
+                     groups="base.group_system">
+                    <h2>Login Cooldown</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="login_cooldown_after" />
+                                <div class="text-muted">
+                                    Failed login attempts from one IP before
+                                    it's put on cooldown.
+                                </div>
+                                <field name="login_cooldown_after" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="login_cooldown_duration" />
+                                <div class="text-muted">
+                                    How long the cooldown lasts, in seconds.
+                                </div>
+                                <field name="login_cooldown_duration" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="cooldown_escalate_threshold" />
+                                <div class="text-muted">
+                                    Cooldown triggers from one IP in the
+                                    window below before it's permanently
+                                    blocked. 0 disables auto-escalation.
+                                </div>
+                                <field name="cooldown_escalate_threshold" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="cooldown_escalate_window_hours" />
+                                <div class="text-muted">
+                                    The escalation window, in hours.
+                                </div>
+                                <field name="cooldown_escalate_window_hours" />
+                            </div>
+                        </div>
+                        <div class="col-12 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="alert_phone_number" />
+                                <div class="text-muted">
+                                    Only used if a SignalWire module is also
+                                    installed - leave blank to disable SMS
+                                    alerts on critical events.
+                                </div>
+                                <field name="alert_phone_number" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
