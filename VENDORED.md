@@ -1,18 +1,22 @@
 # Vendored OCA modules
 
-Eight modules in this repo come from the **Odoo Community Association**, not from us:
+Nine modules in this repo come from the **Odoo Community Association**, not from us:
 `membership/`, `website_membership/`, `membership_prorate/`, `membership_withdrawal/`,
-`contract/`, `contract_sale/`, `base_technical_features/`, `voip_oca/`. The membership
-four are vendored because the club suite (`club_membership` and friends) depends on
-them and Odoo 19 dropped the core Membership app while OCA's proration / withdrawal
-add-ons aren't on a 19.0 channel yet. `contract` and `contract_sale` are vendored
-because Odoo CE has no recurring-billing app at all (`sale_subscription` is
-Enterprise-only) - they back the HestiaCP hosting-billing build (`hestiacp_hosting`).
-`base_technical_features` is vendored because editing things like email templates or
-automated actions otherwise requires turning on developer mode every time - see its
-own section below. `voip_oca` is vendored because Odoo CE has no in-browser softphone
-app at all (`voip` is Enterprise-only) - it backs the SignalWire click-to-call build
-(`signalwire_voip_click2call`).
+`contract/`, `contract_sale/`, `base_technical_features/`, `voip_oca/`, `auditlog/`.
+The membership four are vendored because the club suite (`club_membership` and
+friends) depends on them and Odoo 19 dropped the core Membership app while OCA's
+proration / withdrawal add-ons aren't on a 19.0 channel yet. `contract` and
+`contract_sale` are vendored because Odoo CE has no recurring-billing app at all
+(`sale_subscription` is Enterprise-only) - they back the HestiaCP hosting-billing
+build (`hestiacp_hosting`). `base_technical_features` is vendored because editing
+things like email templates or automated actions otherwise requires turning on
+developer mode every time - see its own section below. `voip_oca` is vendored
+because Odoo CE has no in-browser softphone app at all (`voip` is Enterprise-only) -
+it backs the SignalWire click-to-call build (`signalwire_voip_click2call`).
+`auditlog` is vendored because no OCA module does generic per-model create/write/
+read/unlink change-capture, and this author's own `security_auth_guard` /
+`security_financial_monitor` need exactly that for a financial-record audit trail
+rather than reinventing change-capture from scratch.
 
 Each keeps **its own upstream licence** (see the module's `__manifest__.py`) - they
 are *not* covered by the repo's top-level LGPL-3.
@@ -119,6 +123,30 @@ optional `websocket-client` Python package, not a real failure) - no test-harnes
 ordering gotchas like the two modules above, `depends: ['mail']` only. Same
 `readme`/`i18n`/`pyproject.toml` stripping as every other vendored module here (its
 `i18n/` only had one translation, Italian).
+
+### `auditlog`
+
+Source: <https://github.com/OCA/server-tools>
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `auditlog` | `19.0` @ `feddb04` (2026-10-23) | **verbatim.** AGPL-3. Generic per-model create/write/read/unlink change-capture, configured via `auditlog.rule` records (`model_id`, `log_create`/`log_write`/`log_unlink`/`log_read`, `log_type` full/fast, `capture_record`) - each rule needs `state = 'confirmed'` before it actually logs anything, `'draft'` by default. |
+
+Checked OCA first per [[check-oca-before-building]] - no module anywhere on OCA does
+generic per-model audit logging besides this one, and nothing needed building from
+scratch for the financial-record audit trail this backs (`security_financial_monitor`,
+private repo). Own test suite (`test_auditlog`) not pulled over - exercised instead
+through `security_financial_monitor`'s own tests, which configure real rules against
+real financial models rather than `auditlog`'s own generic demo model.
+
+**A real gotcha worth knowing before querying `auditlog.log` yourself**:
+`model_name` holds the model's human-readable **description** (e.g. "Bank
+Accounts"), not its technical name - `model_model` is the field that
+actually holds `"res.partner.bank"`. A test asserting a log exists by
+filtering on `model_name = "res.partner.bank"` fails even though the log
+row is really there (confirmed by tracing a real `create()` call directly
+in `odoo-bin shell` - the row existed with `model_name = "Bank Accounts"`
+the whole time). Query `model_model` for the technical name instead.
 
 ## Updating / removing
 

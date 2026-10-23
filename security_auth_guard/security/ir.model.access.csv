@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_security_event_officer,security.event officer,model_security_event,group_security_officer,1,1,1,1
+access_security_ip_rule_officer,security.ip_rule officer,model_security_ip_rule,group_security_officer,1,1,1,1
+access_security_login_attempt_officer,security.login_attempt officer,model_security_login_attempt,group_security_officer,1,0,0,0

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="security_login_attempt_view_list" model="ir.ui.view">
+        <field name="name">security.login_attempt.list</field>
+        <field name="model">security.login_attempt</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" decoration-danger="not success">
+                <field name="occurred_at" />
+                <field name="ip" />
+                <field name="login" />
+                <field name="success" />
+            </list>
+        </field>
+    </record>
+
+    <record id="security_login_attempt_view_search" model="ir.ui.view">
+        <field name="name">security.login_attempt.search</field>
+        <field name="model">security.login_attempt</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="ip" />
+                <field name="login" />
+                <filter name="failures" string="Failures Only"
+                        domain="[('success', '=', False)]" />
+                <group>
+                    <filter name="group_by_ip" string="IP"
+                            context="{'group_by': 'ip'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="security_login_attempt_action" model="ir.actions.act_window">
+        <field name="name">Login Attempts</field>
+        <field name="res_model">security.login_attempt</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_failures': 1}</field>
+    </record>
+</odoo>
