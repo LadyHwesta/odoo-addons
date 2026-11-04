@@ -53,6 +53,18 @@ class TestDMSFileOnlyoffice(TransactionCase):
             '/onlyoffice/editor/%s' % dms_file.attachment_id.id)
         self.assertEqual(action['target'], 'new')
 
+    def test_same_tab_setting_opens_the_editor_inside_odoo(self):
+        dms_file = self._create_dms_file()
+        self.env['ir.config_parameter'].sudo().set_param(
+            'onlyoffice_connector.same_tab', 'True')
+
+        action = dms_file.action_open_onlyoffice_editor()
+
+        self.assertEqual(action['type'], 'ir.actions.client')
+        self.assertEqual(action['tag'], 'onlyoffice_editor')
+        self.assertEqual(action['target'], 'current')
+        self.assertEqual(action['params']['attachment_id'], dms_file.attachment_id.id)
+
     def test_raises_without_a_backing_attachment(self):
         database_storage = self.env['dms.storage'].create({
             'name': 'Database Storage', 'save_type': 'database',

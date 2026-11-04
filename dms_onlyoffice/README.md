@@ -37,7 +37,8 @@ two projects otherwise interact (see below).
 
 - Adds an "Open in ONLYOFFICE" button to `dms.file`'s form view (next to
   the existing Lock/Unlock buttons) and its kanban card's Actions menu.
-  It opens ONLYOFFICE's own editor for that file in a new tab
+  It opens ONLYOFFICE's own editor for that file in a new tab, or inside Odoo
+  if the same-tab setting is on
   (`/onlyoffice/editor/<attachment_id>`) - `onlyoffice_odoo` itself decides
   edit vs. view-only mode based on the current user's write access to the
   underlying attachment.
@@ -65,10 +66,31 @@ configured with save type "Attachment."** The "Open in ONLYOFFICE" action
 is hidden (and raises a clear error if called directly) for files on
 Database/File storage.
 
-## Not yet verified
+## Verified against a real server
 
-This module's automated tests pass locally, but it hasn't been exercised
-against a real, running ONLYOFFICE Docs server - that needs an actual
-deployment, which is outside the scope of a generic, install-anywhere
-module. If you hit an issue running it against a real server, please open
-one.
+Tested end to end with `onlyoffice_odoo` 6.4.0 and ONLYOFFICE Docs 10.0.0: a
+document opened from `dms.file`, was edited, and saved back, and `dms.file`'s
+size and checksum matched the attachment afterward. Until a file's first save,
+those two fields are blank, because `dms` doesn't fill them in when it creates a
+file from an attachment.
+
+## Setting up a storage
+
+1. On the storage, set **Save Type** to Attachment and add the existing model
+   you want files attached to under **Linked Models** (for example, **Contact**).
+   Don't use "Create" in these model fields, because it adds a new, empty
+   database model.
+2. Create a root directory with that storage, and choose the same model under
+   **Model**. The list only offers the storage's linked models, so it's empty if
+   step 1 was skipped.
+3. Attach a file to a record of that model. Turn on **Create files from message
+   attachments** on the storage to include files attached through the chatter.
+
+Attachment storage inherits access from the linked record, so DMS access groups
+don't apply, and the directory form has no **Groups** tab. Creating the root
+directory also requires permission to create records of the linked model.
+
+## Staying inside the Odoo window or PWA
+
+By default, the editor opens in a new tab, which leaves an installed PWA. To keep
+it inside Odoo, turn on **Open file in the same tab** in the ONLYOFFICE settings.
