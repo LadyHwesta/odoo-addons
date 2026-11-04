@@ -2,7 +2,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.onlyoffice_odoo.utils import file_utils
+from odoo.addons.onlyoffice_odoo.utils import config_utils, file_utils
 
 
 class DMSFile(models.Model):
@@ -37,6 +37,15 @@ class DMSFile(models.Model):
         if self.is_locked and not self.is_lock_editor:
             raise UserError(self.env._(
                 "This file is locked by %s.", self.locked_by.name))
+        if config_utils.get_same_tab(self.env):
+            # ONLYOFFICE's own in-app editor. Stays inside the Odoo window,
+            # so it also stays inside an installed PWA.
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'onlyoffice_editor',
+                'target': 'current',
+                'params': {'attachment_id': self.attachment_id.id},
+            }
         return {
             'type': 'ir.actions.act_url',
             'url': '/onlyoffice/editor/%s' % self.attachment_id.id,
