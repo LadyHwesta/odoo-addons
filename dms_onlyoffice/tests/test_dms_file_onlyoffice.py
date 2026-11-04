@@ -65,6 +65,12 @@ class TestDMSFileOnlyoffice(TransactionCase):
         self.assertEqual(action['target'], 'current')
         self.assertEqual(action['params']['attachment_id'], dms_file.attachment_id.id)
 
+    def test_new_file_gets_its_size_and_checksum_straight_away(self):
+        dms_file = self._create_dms_file(content=b'hello world')
+
+        self.assertEqual(dms_file.size, len(b'hello world'))
+        self.assertEqual(dms_file.checksum, dms_file._get_checksum(b'hello world'))
+
     def test_raises_without_a_backing_attachment(self):
         database_storage = self.env['dms.storage'].create({
             'name': 'Database Storage', 'save_type': 'database',
