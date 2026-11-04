@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+import base64
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.mimetypes import guess_mimetype
 
+from odoo.addons.dms.tools import file as dms_file_tools
 from odoo.addons.onlyoffice_odoo.utils import config_utils, file_utils
 
 
@@ -22,6 +26,27 @@ class DMSFile(models.Model):
                 continue
             record.can_edit_with_onlyoffice = file_utils.can_edit(record.name)
             record.can_view_with_onlyoffice = file_utils.can_view(record.name)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # dms leaves these blank when a file's content is in an attachment,
+        # so its size would show as empty until the first save.
+        files = super().create(vals_list)
+        files.sudo().filtered('attachment_id')._onlyoffice_sync_from_attachment()
+        return files
+
+    def _onlyoffice_sync_from_attachment(self):
+        for dms_file in self:
+            binary = dms_file.attachment_id.raw or b''
+            mimetype = guess_mimetype(binary)
+            extension = dms_file_tools.guess_extension(
+                dms_file.name, mimetype, base64.b64encode(binary))
+            dms_file.write({
+                'checksum': dms_file._get_checksum(binary),
+                'size': len(binary),
+                'mimetype': mimetype,
+                'extension': extension,
+            })
 
     def action_open_onlyoffice_editor(self):
         self.ensure_one()

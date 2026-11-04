@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="dms_team_folder_view_list" model="ir.ui.view">
+        <field name="name">dms.team.folder.list</field>
+        <field name="model">dms.team.folder</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="name" />
+                <field name="member_ids" widget="many2many_tags" />
+                <field name="viewer_ids" widget="many2many_tags" />
+                <field name="file_count" string="Files" />
+            </list>
+        </field>
+    </record>
+    <record id="dms_team_folder_view_form" model="ir.ui.view">
+        <field name="name">dms.team.folder.form</field>
+        <field name="model">dms.team.folder</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <field name="can_manage" invisible="1" />
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_files" type="object" class="oe_stat_button"
+                                icon="fa-file-text-o" invisible="not directory_id">
+                            <field name="file_count" widget="statinfo" string="Files" />
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active" />
+                    <field name="active" invisible="1" />
+                    <field name="directory_id" invisible="1" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" placeholder="e.g. Human Resources"
+                                   readonly="not can_manage" /></h1>
+                    </div>
+                    <group>
+                        <field name="description" readonly="not can_manage" />
+                        <field name="company_id" groups="base.group_multi_company"
+                               readonly="not can_manage" />
+                    </group>
+                    <group string="Who can reach these files">
+                        <field name="member_ids" widget="many2many_tags" readonly="not can_manage" />
+                        <field name="viewer_ids" widget="many2many_tags" readonly="not can_manage" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="dms_team_folder_view_search" model="ir.ui.view">
+        <field name="name">dms.team.folder.search</field>
+        <field name="model">dms.team.folder</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="member_ids" />
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+    <record id="action_dms_team_folder" model="ir.actions.act_window">
+        <field name="name">Team Folders</field>
+        <field name="res_model">dms.team.folder</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No team folders yet</p>
+            <p>Team Folder Managers can create one for a team, then choose who can
+               edit its files and who can only read them.</p>
+        </field>
+    </record>
+    <menuitem id="menu_dms_team_folder" name="Team Folders"
+              parent="dms.main_menu_dms" action="action_dms_team_folder" sequence="5" />
+</odoo>

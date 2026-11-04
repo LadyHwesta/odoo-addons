@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="storage_team_folders" model="dms.storage">
+        <field name="name">Team Folders</field>
+        <field name="save_type">attachment</field>
+        <field name="inherit_access_from_parent_record" eval="True" />
+        <field name="model_ids" eval="[(6, 0, [ref('model_dms_team_folder')])]" />
+    </record>
+    <record id="directory_team_folders" model="dms.directory">
+        <field name="name">Team Folders</field>
+        <field name="is_root_directory" eval="True" />
+        <field name="storage_id" ref="storage_team_folders" />
+        <field name="model_id" ref="model_dms_team_folder" />
+    </record>
+</odoo>

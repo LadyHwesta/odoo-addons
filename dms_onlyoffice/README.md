@@ -70,9 +70,7 @@ Database/File storage.
 
 Tested end to end with `onlyoffice_odoo` 6.4.0 and ONLYOFFICE Docs 10.0.0: a
 document opened from `dms.file`, was edited, and saved back, and `dms.file`'s
-size and checksum matched the attachment afterward. Until a file's first save,
-those two fields are blank, because `dms` doesn't fill them in when it creates a
-file from an attachment.
+size and checksum matched the attachment afterward.
 
 ## Setting up a storage
 
@@ -94,3 +92,10 @@ directory also requires permission to create records of the linked model.
 
 By default, the editor opens in a new tab, which leaves an installed PWA. To keep
 it inside Odoo, turn on **Open file in the same tab** in the ONLYOFFICE settings.
+In this mode, this module also makes sure someone who can only read a record opens
+it read-only.
+
+## Shared folders for a team
+
+For folders that aren't tied to a contact or other record, use `dms_team_folder`.
+Its files get the same **Open in ONLYOFFICE** button.
