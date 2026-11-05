@@ -1,11 +1,70 @@
 # -*- coding: utf-8 -*-
+import contextlib
 import ipaddress
 import logging
 
-from odoo import api, fields, models
+from odoo import SUPERUSER_ID, api, fields, models
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
+
+# One IPv6 connection normally controls a whole /64 and can move around
+# it freely, so a single address is no more meaningful than one port.
+IPV6_BLOCK_PREFIX = 64
+
+# Addresses that stand in for many people, so an automatic block would
+# cut off everyone behind them. Seeing one as a client address means the
+# proxy isn't passing on the real visitor address. Listed explicitly
+# because ipaddress's is_private also covers documentation ranges.
+LOCAL_PROXY_RANGES = (
+    "127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+    "100.64.0.0/10", "169.254.0.0/16", "::1/128", "fc00::/7", "fe80::/10",
+)
+# https://www.cloudflare.com/ips-v4 and ips-v6, as of 2026-11-05. Add new
+# ranges or other proxies with the protected_ranges system parameter.
+CLOUDFLARE_RANGES = (
+    "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
+    "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20",
+    "188.114.96.0/20", "197.234.240.0/22", "198.41.128.0/17",
+    "162.158.0.0/15", "104.16.0.0/13", "104.24.0.0/14", "172.64.0.0/13",
+    "131.0.72.0/22", "2400:cb00::/32", "2606:4700::/32", "2803:f800::/32",
+    "2405:b500::/32", "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32",
+)
+
+
+@contextlib.contextmanager
+def own_transaction(env):
+    """A separate, committed transaction for security records that are
+    written just before an error rolls back the request's own one.
+    """
+    with env.registry.cursor() as cr:
+        new_env = api.Environment(cr, SUPERUSER_ID, {})
+        new_env.transaction.default_env = new_env
+        yield new_env
+
+
+def parse_address(ip):
+    """The address as an ipaddress object, with an IPv4-mapped IPv6
+    address unwrapped to the IPv4 address it really is. None if invalid.
+    """
+    try:
+        address = ipaddress.ip_address(ip)
+    except ValueError:
+        return None
+    return getattr(address, "ipv4_mapped", None) or address
+
+
+def block_target(ip):
+    """What counts as one source: the address itself for IPv4, its /64
+    for IPv6. Anything unparseable is returned unchanged.
+    """
+    address = parse_address(ip)
+    if address is None:
+        return ip
+    if address.version == 6:
+        return str(ipaddress.ip_network(
+            (address, IPV6_BLOCK_PREFIX), strict=False))
+    return str(address)
 
 
 class SecurityIpRule(models.Model):
@@ -45,9 +104,8 @@ class SecurityIpRule(models.Model):
         """True if `ip` should be refused. An active, non-expired
         'allow' match always wins over a matching 'block'.
         """
-        try:
-            address = ipaddress.ip_address(ip)
-        except ValueError:
+        address = parse_address(ip)
+        if address is None:
             return False
         now = fields.Datetime.now()
         rules = self.sudo().search([
@@ -65,16 +123,51 @@ class SecurityIpRule(models.Model):
         return "block" in matched_actions
 
     @api.model
-    def _block_ip(self, ip, reason):
-        """Create a permanent block for `ip`, or extend an existing
-        active one's reason rather than creating a duplicate.
+    def _protected_networks(self):
+        """Ranges _block_ip refuses: the built-in lists plus the
+        comma-separated security_auth_guard.protected_ranges parameter.
         """
+        extra = self.env["ir.config_parameter"].sudo().get_param(
+            "security_auth_guard.protected_ranges", "")
+        networks = []
+        for entry in (*LOCAL_PROXY_RANGES, *CLOUDFLARE_RANGES,
+                      *extra.split(",")):
+            entry = entry.strip()
+            if not entry:
+                continue
+            try:
+                networks.append(ipaddress.ip_network(entry, strict=False))
+            except ValueError:
+                _logger.warning(
+                    "Ignoring invalid protected range %r in "
+                    "security_auth_guard.protected_ranges.", entry)
+        return networks
+
+    @api.model
+    def _is_protected(self, ip):
+        address = parse_address(ip)
+        return address is not None and any(
+            address in network for network in self._protected_networks())
+
+    @api.model
+    def _block_ip(self, ip, reason):
+        """Create a permanent block for `ip` (its /64 for IPv6), or
+        extend an existing active one's reason rather than creating a
+        duplicate. Returns an empty recordset, blocking nothing, if `ip`
+        is protected. Rules created by hand aren't checked, so an admin
+        can still make that call deliberately.
+        """
+        if self._is_protected(ip):
+            _logger.warning(
+                "Refusing to block protected address %s: %s", ip, reason)
+            return self.browse()
+        target = block_target(ip)
         existing = self.sudo().search([
-            ("ip_or_cidr", "=", ip), ("action", "=", "block"),
+            ("ip_or_cidr", "=", target), ("action", "=", "block"),
             ("active", "=", True)], limit=1)
         if existing:
             existing.reason = reason
             return existing
-        _logger.warning("Auto-blocking IP %s: %s", ip, reason)
+        _logger.warning("Auto-blocking %s: %s", target, reason)
         return self.sudo().create({
-            "ip_or_cidr": ip, "action": "block", "reason": reason})
+            "ip_or_cidr": target, "action": "block", "reason": reason})

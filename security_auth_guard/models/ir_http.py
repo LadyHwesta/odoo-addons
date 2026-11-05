@@ -7,6 +7,8 @@ import werkzeug.exceptions
 from odoo import fields, models
 from odoo.http import request
 
+from .security_ip_rule import own_transaction
+
 _logger = logging.getLogger(__name__)
 
 # A blocked IP that keeps hammering the site would otherwise flood
@@ -35,17 +37,17 @@ class IrHttp(models.AbstractModel):
 
     @classmethod
     def _security_log_block_once(cls, ip):
-        Event = request.env["security.event"].sudo()
-        since = fields.Datetime.now() - timedelta(minutes=EVENT_DEDUP_MINUTES)
-        recent = Event.search_count([
-            ("event_type", "=", "ip_blocked"), ("source_ip", "=", ip),
-            ("create_date", ">=", since)])
-        if recent:
-            return
-        Event.create({
-            "event_type": "ip_blocked",
-            "severity": "warning",
-            "source_ip": ip,
-            "detail": f"Request(s) from {ip} refused by an active "
-                      f"security.ip_rule.",
-        })
+        # Its own transaction: the Forbidden raised right after this rolls
+        # back the request's transaction, which may also be read-only.
+        with own_transaction(request.env) as env:
+            Event = env["security.event"]
+            since = fields.Datetime.now() - timedelta(minutes=EVENT_DEDUP_MINUTES)
+            if Event._count_from_source("ip_blocked", ip, since):
+                return
+            Event.create({
+                "event_type": "ip_blocked",
+                "severity": "warning",
+                "source_ip": ip,
+                "detail": f"Request(s) from {ip} refused by an active "
+                          f"security.ip_rule.",
+            })

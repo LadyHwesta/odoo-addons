@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+
+from .security_ip_rule import block_target
 
 
 class SecurityEvent(models.Model):
@@ -44,10 +47,30 @@ class SecurityEvent(models.Model):
         for event in self:
             if not event.source_ip:
                 continue
-            IpRule._block_ip(
+            rule = IpRule._block_ip(
                 event.source_ip,
                 _("Escalated from security.event #%(id)s", id=event.id))
+            if not rule:
+                raise UserError(_(
+                    "%(ip)s belongs to a proxy or private network, so "
+                    "blocking it could cut off every visitor behind it. "
+                    "Check that the proxy passes on real visitor addresses.",
+                    ip=event.source_ip))
         self.write({"state": "escalated"})
+
+    @api.model
+    def _count_from_source(self, event_type, ip, since):
+        """Events of this type since `since` from the same source as
+        `ip`, so an IPv6 client can't reset a count by changing address
+        within its /64.
+        """
+        target = block_target(ip)
+        domain = [("event_type", "=", event_type), ("create_date", ">=", since)]
+        if ":" not in target:
+            return self.sudo().search_count(
+                domain + [("source_ip", "in", [ip, target])])
+        events = self.sudo().search(domain + [("source_ip", "like", ":")])
+        return sum(block_target(e.source_ip) == target for e in events)
 
     @api.model
     def _notify_critical(self, event):

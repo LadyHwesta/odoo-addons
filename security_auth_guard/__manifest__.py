@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Security Auth Guard",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.1.0",
     "category": "Tools",
     "summary": "Persisted brute-force login reporting, permanent IP "
                "blocking, and a unified security event log",
