@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_team_folders" model="slide.channel">
+        <field name="name">Documents, Team Folders, and ONLYOFFICE</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html">
+            <p>Where documents should live, connecting ONLYOFFICE, running team
+            folders, and setting them up for real situations.</p>
+        </field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('dms.group_dms_user')])]" />
+    </record>
+
+    <!-- ================= Where should a document live? ================= -->
+    <record id="section_choose" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Where should a document live?</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_choose" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Team folders, record files, and plain folders</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <p>Documents can live in three kinds of places. For most shared
+                work, use a team folder.</p>
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th></th><th>Team folder</th><th>Files on a record</th><th>Plain DMS folder</th></tr></thead><tbody><tr><td>Good for</td><td>A team's or group's shared documents</td><td>Documents about one contact, project, or other record</td><td>Files that only need storing</td></tr><tr><td>Who gets in</td><td>The folder's members and viewers</td><td>Anyone with access to that record</td><td>DMS access groups</td></tr><tr><td>Edit in ONLYOFFICE</td><td>Yes</td><td>Yes</td><td>No</td></tr></tbody></table></div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span>
+                    <div>
+                        <span class="oe-callout-label">When unsure</span>
+                        <p>Ask who should be able to open the document. If the answer is a list of people, use a team folder. If it's whoever works on that customer or project, attach it to that record.</p>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+
+
+    <!-- ================= Connecting ONLYOFFICE ================= -->
+    <record id="section_onlyoffice" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Connecting ONLYOFFICE</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_connect" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Filling in the ONLYOFFICE settings</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <p>This is a one-time job for an administrator, and it needs a
+                running ONLYOFFICE Docs server. Go to <strong>Settings ›
+                ONLYOFFICE</strong>.</p>
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>Setting</th><th>What to enter</th></tr></thead><tbody><tr><td>ONLYOFFICE Docs address</td><td>The address of your Docs server, such as <code>https://office.example.org/</code></td></tr><tr><td>ONLYOFFICE Docs secret key</td><td>The JWT secret from your Docs server</td></tr><tr><td>JWT Header</td><td>Leave the default</td></tr><tr><td>ONLYOFFICE Docs address for internal requests from the server</td><td><strong>Your Odoo address</strong>, such as <code>https://odoo.example.org/</code></td></tr><tr><td>Server address for internal requests from ONLYOFFICE Docs</td><td>Leave what it fills in, which copies the first address</td></tr></tbody></table></div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-exclamation-triangle" /></span>
+                    <div>
+                        <span class="oe-callout-label">Two labels are easy to mix up</span>
+                        <p>Despite its name, the fourth setting needs your Odoo address, because ONLYOFFICE uses it to fetch and save files. Change the fifth only if Odoo reaches the Docs server at a different address from everyone else.</p>
+                    </div>
+                </div>
+                <div class="oe-diagram">
+                    <img src="/dms_elearning_team_folder/static/img/onlyoffice_settings.png" alt="The ONLYOFFICE section of Settings, showing the Docs address and other fields" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        the ONLYOFFICE settings, with sample addresses.
+                    </p>
+                </div>
+                <p>Saving checks the connection. If it shows an error, check both
+                addresses and the secret key. Treat the secret key like a password.</p>
+            </div>
+        </field>
+    </record>
+
+    <record id="lesson_same_tab" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Keeping the editor inside Odoo</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <p>By default, documents open in a new browser tab. If your team
+                uses Odoo as an installed app, that drops them out of it.</p>
+                <p>Turn on <strong>Open file in the same tab</strong> in the
+                ONLYOFFICE settings to open documents inside the Odoo window, with
+                the menu bar still there.</p>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-floppy-o" /></span>
+                    <div>
+                        <span class="oe-callout-label">Saving happens after closing</span>
+                        <p>ONLYOFFICE saves shortly after the last person leaves a document. Give it about a minute before checking the saved copy.</p>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+
+
+    <!-- ================= Running team folders ================= -->
+    <record id="section_folders" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Running team folders</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="lesson_create" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Creating a folder</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">31</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <ol>
+                    <li>Go to <strong>Documents › Team Folders</strong> and click <strong>New</strong>.</li>
+                    <li>Name the folder.</li>
+                    <li>Add the people who work on its files under <strong>Members</strong>, and those who only need to read them under <strong>Viewers</strong>.</li>
+                    <li>Save, then click <strong>Files</strong> to upload documents.</li>
+                </ol>
+                <div class="oe-diagram">
+                    <img src="/dms_elearning_team_folder/static/img/team_folder_form.png" alt="A team folder form named Human Resources, with a member, a viewer, and a Files button" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        a team folder with one member and one viewer.
+                    </p>
+                </div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-user-plus" /></span>
+                    <div>
+                        <span class="oe-callout-label">Who can create folders</span>
+                        <p>Administrators and anyone with the Team Folder Manager right. Set that on the user's Access Rights tab. Adding someone to a folder gives them the Documents app automatically.</p>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="lesson_who" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Who can do what</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">32</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>Person</th><th>Files in the folder</th><th>Folder settings</th></tr></thead><tbody><tr><td>Member</td><td>Add, edit, delete</td><td>Read only</td></tr><tr><td>Viewer</td><td>Read only; documents open read-only</td><td>Read only</td></tr><tr><td>Team Folder Manager</td><td>Add, edit, delete, in every folder</td><td>Create, change, delete</td></tr><tr><td>Everyone else</td><td>No access</td><td>Can't see the folder</td></tr></tbody></table></div>
+                <p>Someone who isn't on a folder can't open its files by any route,
+                including a direct link. That applies even to someone with the
+                Documents Manager role.</p>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-eye" /></span>
+                    <div>
+                        <span class="oe-callout-label">Managers and administrators see every folder</span>
+                        <p>Anything in a team folder can be opened by every administrator and Team Folder Manager, so keep that list short.</p>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="lesson_edit" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Editing a document</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">33</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <p>Open the file from its folder and click <strong>Open in
+                ONLYOFFICE</strong>. Members can edit, and several people can work
+                in the same document at once. Viewers see the same button, but the
+                document opens read-only.</p>
+                <div class="oe-diagram">
+                    <img src="/dms_elearning_team_folder/static/img/file_open_button.png" alt="A file's form in Documents, showing the Open in ONLYOFFICE button" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        the button on a file in a team folder.
+                    </p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="lesson_changes" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Changing people, renaming, and closing a folder</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">34</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>To do this</th><th>Do this</th><th>What happens</th></tr></thead><tbody><tr><td>Remove someone</td><td>Take them off Members or Viewers</td><td>They lose this folder's files right away, but keep the Documents app</td></tr><tr><td>Rename a folder</td><td>Change its name</td><td>Its directory is renamed too</td></tr><tr><td>Hide a finished folder</td><td>Archive it from the gear menu</td><td>It leaves the Team Folders list, and people on it can still reach the files in Documents</td></tr><tr><td>Delete a folder</td><td>Delete its files first, then the folder</td><td>A folder with files can't be deleted</td></tr></tbody></table></div>
+            </div>
+        </field>
+    </record>
+
+
+    <!-- ================= Setting up common situations ================= -->
+    <record id="section_scenarios" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Setting up common situations</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="lesson_scenarios" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Teams, committees, and individuals</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">41</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <h4>A department that shares everything</h4><p><strong>Set it up:</strong> one folder named for the department, with everyone in it as a Member.</p><p>Everyone can add and edit, and nobody else can get in.</p>
+                <h4>A few people write, and everyone else reads</h4><p><strong>Set it up:</strong> put the authors under Members and the readers under Viewers, like a secretary preparing a board packet.</p><p>Readers always see the latest version, and they can't change it by accident.</p>
+                <h4>One person's work, reviewed by another</h4><p><strong>Set it up:</strong> make the person doing the work the only Member, and add their reviewer as a Viewer.</p><p>There's no need for a separate kind of personal folder.</p>
+                <h4>A short-term committee</h4><p><strong>Set it up:</strong> create a folder for it, then archive the folder when the work ends.</p><p>The list stays tidy, and the committee's records are kept.</p>
+                <h4>Someone on several teams</h4><p><strong>Set it up:</strong> add them to each folder.</p><p>Each folder decides separately, so someone can be a Member of one and a Viewer of another. They can't be both in the same folder.</p>
+                <h4>Someone moving to another team</h4><p><strong>Set it up:</strong> remove them from the old folder and add them to the new one.</p><p>They lose the old files as soon as you save.</p>
+            </div>
+        </field>
+    </record>
+
+    <record id="lesson_limits" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">What team folders can't do</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">42</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>If you need</th><th>Do this instead</th></tr></thead><tbody><tr><td>To share with someone outside your organization</td><td>Team folders are for internal users only, so send them a copy</td></tr><tr><td>To keep a file from administrators</td><td>Store it outside Odoo, because administrators can open every folder</td></tr><tr><td>Different access for files in one folder</td><td>Split them into two folders, because access is set per folder</td></tr></tbody></table></div>
+            </div>
+        </field>
+    </record>
+
+
+    <!-- ================= Files on records ================= -->
+    <record id="section_records" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Files on records</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="lesson_records" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Linking a storage to a kind of record</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">51</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <p>An administrator can also make files attached to a kind of
+                record, such as projects, appear in Documents.</p>
+                <ol>
+                    <li>In <strong>Documents › Configuration › Storages</strong>, create a storage with <strong>Save Type</strong> set to Attachment.</li>
+                    <li>Under <strong>Linked Models</strong>, pick an existing model from the list.</li>
+                    <li>In <strong>Documents › Directories</strong>, create a directory with <strong>Is Root Directory</strong> on, that storage, and the same <strong>Model</strong>.</li>
+                </ol>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-exclamation-triangle" /></span>
+                    <div>
+                        <span class="oe-callout-label">Don't click Create in a model field</span>
+                        <p>It adds a new, empty model to your database, which won't be what you meant. Pick from the list. If the Model list is empty, the storage has no Linked Models yet.</p>
+                    </div>
+                </div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-picture-o" /></span>
+                    <div>
+                        <span class="oe-callout-label">Every attachment gets captured</span>
+                        <p>Linking Contacts, for example, also brings in contact photos. Deleting one of those files from Documents deletes the photo too. Link a model only if you want all of its attachments, and use a team folder for general sharing.</p>
+                    </div>
+                </div>
+                <p>Access follows the record, so anyone who can edit that record can
+                edit its files. These directories don't use the access groups shown
+                on plain folders.</p>
+            </div>
+        </field>
+    </record>
+
+
+    <!-- ================= When something looks wrong ================= -->
+    <record id="section_trouble" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">When something looks wrong</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="lesson_trouble" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Common problems</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">61</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead><tbody><tr><td>No Team Folders menu after installing</td><td>Your window has the old menu</td><td>Reload Odoo, or close and reopen the installed app</td></tr><tr><td>Required fields are empty, with Content in red</td><td>You're on the form for a new file, not a folder</td><td>Discard it, then go to Team Folders › New</td></tr><tr><td>No New button under Team Folders</td><td>You aren't a Team Folder Manager</td><td>Ask an administrator</td></tr><tr><td>A team folder isn't listed</td><td>You aren't on that folder</td><td>Ask a manager to add you</td></tr><tr><td>The document opens read-only</td><td>You're a Viewer of that folder</td><td>Ask a manager to make you a Member</td></tr><tr><td>No Open in ONLYOFFICE button</td><td>The file is in a plain folder, or it's a file type ONLYOFFICE can't open</td><td>Move it to a team folder, or check the file type</td></tr><tr><td>ONLYOFFICE can't be reached</td><td>The Docs server is down, or its address changed</td><td>Ask an administrator to check the ONLYOFFICE settings</td></tr></tbody></table></div>
+            </div>
+        </field>
+    </record>
+
+    <!-- ================= Quiz ================= -->
+    <record id="section_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Check your understanding</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">70</field>
+    </record>
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Team folders quiz</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">71</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A board should read documents that only the secretary edits. How do you set up the folder?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Make everyone a Member</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">The secretary is a Member, and the board are Viewers</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Use a Contact as the folder</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Make the board Team Folder Managers</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Someone who isn't on a team folder has its direct link. What happens?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">The document opens read-only</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">It opens if they have the Documents Manager role</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">They're refused</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">They're added as a Viewer</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Which ONLYOFFICE setting needs your Odoo address?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">ONLYOFFICE Docs address for internal requests from the server</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">ONLYOFFICE Docs address</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Server address for internal requests from ONLYOFFICE Docs</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">JWT Header</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q4" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">The Model list is empty when you create a root directory. What should you do?</field>
+    </record>
+    <record id="quiz_q4_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Click Create to make a new model</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Reinstall Documents</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Use a different browser</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Add an existing model to the storage's Linked Models</field>
+        <field name="is_correct" eval="True" />
+    </record>
+
+</odoo>
