@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="dms.KanbanButtons" t-inherit-mode="extension">
+        <xpath expr="//input[@name='ufile']" position="before">
+            <button type="button" class="btn btn-secondary mx-1 o_dms_onlyoffice_new"
+                    t-on-click.prevent="onNewOnlyofficeDocument">
+                New Document
+            </button>
+        </xpath>
+    </t>
+    <t t-inherit="dms.ListButtons" t-inherit-mode="extension">
+        <xpath expr="//input[@name='ufile']" position="before">
+            <button type="button" class="btn btn-secondary mx-1 o_dms_onlyoffice_new"
+                    t-on-click.prevent="onNewOnlyofficeDocument">
+                New Document
+            </button>
+        </xpath>
+    </t>
+</templates>

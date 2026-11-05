@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_dms_onlyoffice_new_document_form" model="ir.ui.view">
+        <field name="name">dms.onlyoffice.new.document.form</field>
+        <field name="model">dms.onlyoffice.new.document</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name" placeholder="e.g. Meeting notes" />
+                    <field name="document_type" widget="radio" />
+                    <field name="directory_id" options="{'no_create': True, 'no_open': True}" />
+                </group>
+                <footer>
+                    <button name="action_create" type="object" string="Create and Open"
+                            class="btn-primary" data-hotkey="q" close="1" />
+                    <button special="cancel" string="Cancel" data-hotkey="x" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_new_document" model="ir.actions.act_window">
+        <field name="name">New Document</field>
+        <field name="res_model">dms.onlyoffice.new.document</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_dms_directory_form_onlyoffice" model="ir.ui.view">
+        <field name="name">dms_directory.form.onlyoffice</field>
+        <field name="model">dms.directory</field>
+        <field name="inherit_id" ref="dms.view_dms_directory_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="storage_id_save_type" invisible="1" />
+                <field name="res_id" invisible="1" />
+                <field name="permission_create" invisible="1" />
+                <button name="%(action_new_document)d" type="action"
+                        string="New Document"
+                        context="{'default_directory_id': id}"
+                        invisible="not id or storage_id_save_type != 'attachment' or not res_id or not permission_create" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
