@@ -35,6 +35,31 @@ in Odoo's own request handling, before any controller including login
 even runs. An `allow` rule always wins over a matching `block`, so it can
 deliberately carve out an exception inside an otherwise-blocked range.
 
+### IPv6
+
+An IPv6 connection normally controls a whole `/64` and can change address
+within it at will. So core's login cooldown, the escalation count, and
+automatic or one-click blocks all treat a `/64` as one source. Login
+attempts and events still record the exact address. The trade-off is the
+same as a shared IPv4 address: everyone on that `/64`, usually one
+household or site, shares the cooldown and any block. An `allow` rule for
+one address still wins.
+
+### Protected ranges
+
+Automatic and one-click blocks refuse loopback, private and Cloudflare
+addresses, because blocking one could cut off everyone behind it. If one
+reaches the escalation threshold, a critical `anomaly` event is posted
+instead, since it usually means the proxy has stopped passing on real
+visitor addresses. Add other proxies, or new Cloudflare ranges, as a
+comma-separated list in the `security_auth_guard.protected_ranges` system
+parameter. The built-in Cloudflare list is a snapshot and doesn't update
+itself. Rules created by hand aren't checked.
+
+All of this depends on Odoo seeing real addresses. Behind Cloudflare, that
+means configuring nginx's `set_real_ip_from` for Cloudflare's ranges and
+`real_ip_header CF-Connecting-IP`.
+
 ## Security Events
 
 One unified log (`security.event`) everything in this module - and
@@ -59,6 +84,12 @@ Local `testing/` harness, same as every other module in this repo.
 directly - with an `addCleanup` removing the block immediately,
 registered *before* the assertion - gives a genuine HTTP round-trip
 without needing to fake `X-Forwarded-For`/`proxy_mode`). Cooldown
-escalation is tested by calling `_security_maybe_escalate` directly
-rather than real repeated brute-force logins - faster, and avoids the
-same self-lockout risk the IP-block test is careful about.
+escalation is tested by calling `_security_maybe_escalate` directly for
+the threshold rules - faster, and avoids the same self-lockout risk the
+IP-block test is careful about. Real repeated failed logins over HTTP are
+covered from `127.0.0.1`, a protected address, so nothing gets blocked.
+
+A failed login on a JSON route such as `/web/session/authenticate` rolls
+back the request's transaction, so security records are written in their
+own. Test mode nests that transaction inside the rolled-back one, which
+means surviving records can only be checked against a real running server.

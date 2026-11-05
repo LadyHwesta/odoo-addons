@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
 
@@ -28,6 +29,16 @@ class TestSecurityEvent(TransactionCase):
             "source_ip": "203.0.113.1", "detail": "critical but unreachable",
         })
         self.assertTrue(event.exists())
+
+    def test_escalate_protected_address_explains_and_blocks_nothing(self):
+        event = self.env["security.event"].create({
+            "event_type": "anomaly", "severity": "info",
+            "source_ip": "172.68.26.59", "detail": "edge address",
+        })
+        with self.assertRaises(UserError):
+            event.action_escalate_to_block()
+        self.assertEqual(event.state, "new")
+        self.assertFalse(self.env["security.ip_rule"]._is_blocked("172.68.26.59"))
 
     def test_mark_reviewed(self):
         event = self.env["security.event"].create({

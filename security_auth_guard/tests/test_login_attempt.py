@@ -8,6 +8,9 @@ class TestLoginAttempt(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Failed attempts are written through their own cursor. Test mode
+        # keeps that cursor inside this test's transaction.
+        cls.registry_enter_test_mode_cls()
         cls.user = cls.env["res.users"].create({
             "name": "Login Test User", "login": "login_attempt_test",
             "password": "correct-password-123",
