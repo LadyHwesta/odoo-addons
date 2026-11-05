@@ -52,6 +52,18 @@ two projects otherwise interact (see below).
   from outside `dms.file` itself hits this same gap; this module closes it
   for the ONLYOFFICE path.
 
+## Creating documents
+
+**New Document** on the Files screen, and on a folder's form, asks for a name,
+type and folder. It creates the file from ONLYOFFICE's blank template in the
+user's language, then opens it in the editor. Types are Document, Spreadsheet,
+Presentation and PDF Form. The folder selected in Files is filled in when it can
+hold the file. A name already in use in that folder gets a number added.
+
+Only folders on Attachment storage that are linked to a record, and that the user
+can add files to, are offered. Root folders of an Attachment storage aren't linked
+to a record, so they can't hold files.
+
 ## Scope limitation: attachment-backed storage only
 
 `dms.storage` has three save types - Database, File, and Attachment. Only

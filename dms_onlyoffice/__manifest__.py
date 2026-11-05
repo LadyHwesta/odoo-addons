@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ONLYOFFICE for DMS',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Productivity/Documents',
     'summary': 'Edit dms.file documents in ONLYOFFICE Docs',
     'description': """
@@ -21,6 +21,8 @@ management module (``dms``). ONLYOFFICE's own ready-made bridge,
   ``ir.attachment`` with no idea ``dms`` exists, which otherwise
   leaves ``dms.file``'s own checksum/size/mimetype/extension stale
   after every edit. This module keeps them in sync.
+- Adds "New Document", which creates a blank document, spreadsheet,
+  presentation or PDF form in a folder and opens it in the editor.
 - Only supports ``dms.file`` records stored on a ``dms.storage`` whose
   save type is "Attachment" - that is the one case with a genuine
   backing ``ir.attachment`` for ONLYOFFICE to open. See the README for
@@ -35,8 +37,15 @@ and JWT secret, and ``dms`` installed. See the README for setup.
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['dms', 'onlyoffice_odoo'],
     'data': [
+        'security/ir.model.access.csv',
         'views/dms_file_views.xml',
+        'wizards/new_document_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'dms_onlyoffice/static/src/js/*',
+        ],
+    },
     'installable': True,
     'application': False,
 }
