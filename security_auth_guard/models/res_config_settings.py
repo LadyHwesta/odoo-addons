@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models
 
+from .res_users import DEFAULT_ESCALATE_THRESHOLD, DEFAULT_ESCALATE_WINDOW_HOURS
+
 
 class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
@@ -17,10 +19,13 @@ class ResConfigSettings(models.TransientModel):
     cooldown_escalate_threshold = fields.Integer(
         string="Cooldown triggers before permanent IP block",
         config_parameter="security_auth_guard.cooldown_escalate_threshold",
-        help="0 disables auto-escalation entirely.")
+        default=DEFAULT_ESCALATE_THRESHOLD,
+        help="-1 turns off automatic blocking. Saving 0 or an empty value "
+             "goes back to the default.")
     cooldown_escalate_window_hours = fields.Integer(
         string="Escalation window (hours)",
-        config_parameter="security_auth_guard.cooldown_escalate_window_hours")
+        config_parameter="security_auth_guard.cooldown_escalate_window_hours",
+        default=DEFAULT_ESCALATE_WINDOW_HOURS)
     alert_phone_number = fields.Char(
         string="Critical alert SMS number",
         config_parameter="security_auth_guard.alert_phone_number",

@@ -9,7 +9,7 @@ from odoo.http import request
 
 from .security_ip_rule import block_target, own_transaction
 
-DEFAULT_ESCALATE_THRESHOLD = 3
+DEFAULT_ESCALATE_THRESHOLD = 20
 DEFAULT_ESCALATE_WINDOW_HOURS = 24
 
 

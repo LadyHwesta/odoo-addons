@@ -15,7 +15,7 @@
                         <setting id="login_cooldown_duration_setting" help="How long the cooldown lasts, in seconds.">
                             <field name="login_cooldown_duration" />
                         </setting>
-                        <setting id="cooldown_escalate_threshold_setting" help="Cooldown triggers from one IP in the window below before it's permanently blocked. 0 disables auto-escalation.">
+                        <setting id="cooldown_escalate_threshold_setting" help="Cooldown triggers from one IP in the window below before it's permanently blocked. Use -1 to turn off automatic blocking.">
                             <field name="cooldown_escalate_threshold" />
                         </setting>
                         <setting id="cooldown_escalate_window_hours_setting" help="The escalation window, in hours.">

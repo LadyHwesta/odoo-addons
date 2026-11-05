@@ -71,6 +71,7 @@ class TestBruteForceFromProxyAddress(HttpCase):
         ICP = self.env["ir.config_parameter"].sudo()
         ICP.set_param("base.login_cooldown_after", "2")
         ICP.set_param("base.login_cooldown_duration", "600")
+        ICP.set_param("security_auth_guard.cooldown_escalate_threshold", "3")
         self._clear_failures()
         self.addCleanup(self._clear_failures)
         for _i in range(8):
@@ -116,6 +117,7 @@ class TestIpv6Cooldown(TransactionCase):
         ICP = self.env["ir.config_parameter"].sudo()
         ICP.set_param("base.login_cooldown_after", "2")
         ICP.set_param("base.login_cooldown_duration", "600")
+        ICP.set_param("security_auth_guard.cooldown_escalate_threshold", "3")
         self.addCleanup(lambda: getattr(
             self.env.registry, "_login_failures", {}).clear())
         getattr(self.env.registry, "_login_failures", {}).clear()
@@ -183,6 +185,11 @@ class TestCooldownEscalation(TransactionCase):
     via real repeated HTTP brute-forcing (slow, and would risk the same
     self-lockout concern as above for no extra coverage).
     """
+
+    def setUp(self):
+        super().setUp()
+        self.env["ir.config_parameter"].sudo().set_param(
+            "security_auth_guard.cooldown_escalate_threshold", "3")
 
     def test_escalates_after_threshold_events_in_window(self):
         ip = "203.0.113.77"
@@ -273,3 +280,20 @@ class TestCooldownEscalation(TransactionCase):
             [("event_type", "=", "anomaly"), ("source_ip", "=", ip)]), 1)
         self.assertFalse(Event.search_count(
             [("event_type", "=", "ip_blocked"), ("source_ip", "=", ip)]))
+
+    def test_new_install_default_needs_twenty_cooldowns(self):
+        ip = "203.0.113.81"
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.search([
+            ("key", "=", "security_auth_guard.cooldown_escalate_threshold"),
+        ]).unlink()
+        Event = self.env["security.event"]
+        Event.create([
+            {"event_type": "login_cooldown", "severity": "warning",
+             "source_ip": ip, "detail": "test"} for _i in range(19)])
+        self.env["res.users"]._security_maybe_escalate(ip)
+        self.assertFalse(self.env["security.ip_rule"]._is_blocked(ip))
+        Event.create({"event_type": "login_cooldown", "severity": "warning",
+                      "source_ip": ip, "detail": "test"})
+        self.env["res.users"]._security_maybe_escalate(ip)
+        self.assertTrue(self.env["security.ip_rule"]._is_blocked(ip))
