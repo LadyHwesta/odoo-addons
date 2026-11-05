@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import copy
 from datetime import timedelta
+from unittest.mock import MagicMock, patch
+
+import requests
 
 from odoo import fields
 from odoo.tests import TransactionCase, tagged
@@ -112,3 +116,65 @@ class TestIpRule(TransactionCase):
         IpRule = self.env["security.ip_rule"]
         IpRule.create({"ip_or_cidr": "172.68.26.59", "action": "block"})
         self.assertTrue(IpRule._is_blocked("172.68.26.59"))
+
+
+CLOUDFLARE_RESPONSE = {"success": True, "result": {
+    "ipv4_cidrs": [f"104.{n}.0.0/16" for n in range(16, 24)],
+    "ipv6_cidrs": ["2400:cb00::/32", "2606:4700::/32", "2a06:98c0::/29"],
+}}
+
+
+@tagged("post_install", "-at_install")
+class TestCloudflareRefresh(TransactionCase):
+    def _refresh(self, payload=None, side_effect=None):
+        response = MagicMock()
+        response.json.return_value = payload
+        with patch(
+                "odoo.addons.security_auth_guard.models.security_ip_rule"
+                ".requests.get", return_value=response,
+                side_effect=side_effect):
+            self.env["security.ip_rule"]._cron_refresh_cloudflare_ranges()
+
+    def _stored(self):
+        return self.env["ir.config_parameter"].sudo().get_param(
+            "security_auth_guard.cloudflare_ranges")
+
+    def test_new_range_becomes_protected(self):
+        IpRule = self.env["security.ip_rule"]
+        self.assertFalse(IpRule._is_protected("198.51.100.7"))
+        payload = copy.deepcopy(CLOUDFLARE_RESPONSE)
+        payload["result"]["ipv4_cidrs"].append("198.51.100.0/24")
+        with patch(
+                "odoo.addons.security_auth_guard.models.security_ip_rule"
+                ".parse_cloudflare_ranges",
+                return_value=["198.51.100.0/24"]):
+            self._refresh(payload)
+        self.assertTrue(IpRule._is_protected("198.51.100.7"))
+        self.assertFalse(IpRule._block_ip("198.51.100.7", "test"))
+
+    def test_valid_response_is_stored(self):
+        self._refresh(CLOUDFLARE_RESPONSE)
+        self.assertIn("2606:4700::/32", self._stored())
+
+    def test_failed_fetch_keeps_the_last_good_list(self):
+        self._refresh(CLOUDFLARE_RESPONSE)
+        before = self._stored()
+        self._refresh(side_effect=requests.ConnectionError("down"))
+        self.assertEqual(self._stored(), before)
+
+    def test_implausible_responses_are_ignored(self):
+        def with_v4(*extra):
+            payload = copy.deepcopy(CLOUDFLARE_RESPONSE)
+            payload["result"]["ipv4_cidrs"].extend(extra)
+            return payload
+        self._refresh(CLOUDFLARE_RESPONSE)
+        before = self._stored()
+        for bad in (with_v4("0.0.0.0/0"), with_v4("1.0.0.0/8"),
+                    with_v4("10.0.0.0/16"), with_v4("nonsense"), with_v4(None),
+                    {"success": False}, {"success": True, "result": {}},
+                    "not json"):
+            with self.subTest(bad=bad):
+                self._refresh(bad)
+                self.assertEqual(self._stored(), before)
+                self.assertFalse(
+                    self.env["security.ip_rule"]._is_protected("1.2.3.4"))

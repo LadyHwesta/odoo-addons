@@ -46,3 +46,44 @@ class TestSecurityEvent(TransactionCase):
         })
         event.action_mark_reviewed()
         self.assertEqual(event.state, "reviewed")
+
+
+@tagged("post_install", "-at_install")
+class TestSettingsDefaults(TransactionCase):
+    """A parameter that was never set has to show, and save, the real
+    default. A 0 would quietly switch off the protection it controls.
+    """
+
+    KEYS = ("security_auth_guard.cooldown_escalate_threshold",
+            "security_auth_guard.cooldown_escalate_window_hours")
+
+    def test_saving_settings_on_a_new_install_keeps_protection_on(self):
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.search([("key", "in", self.KEYS)]).unlink()
+        self.env["res.config.settings"].create({}).execute()
+        self.assertEqual(
+            [ICP.get_param(key) for key in self.KEYS], ["20", "24"])
+
+    def test_saving_settings_keeps_values_already_chosen(self):
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.set_param("security_auth_guard.cooldown_escalate_threshold", "7")
+        self.env["res.config.settings"].create({}).execute()
+        self.assertEqual(ICP.get_param(
+            "security_auth_guard.cooldown_escalate_threshold"), "7")
+
+    def test_settings_show_the_real_numbers_on_a_new_install(self):
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.search([("key", "in", self.KEYS)]).unlink()
+        settings = self.env["res.config.settings"].create({})
+        self.assertEqual(settings.cooldown_escalate_threshold, 20)
+        self.assertEqual(settings.cooldown_escalate_window_hours, 24)
+
+    def test_minus_one_turns_off_automatic_blocking(self):
+        ip = "203.0.113.90"
+        self.env["res.config.settings"].create(
+            {"cooldown_escalate_threshold": -1}).execute()
+        self.env["security.event"].create([
+            {"event_type": "login_cooldown", "severity": "warning",
+             "source_ip": ip, "detail": "test"} for _i in range(30)])
+        self.env["res.users"]._security_maybe_escalate(ip)
+        self.assertFalse(self.env["security.ip_rule"]._is_blocked(ip))

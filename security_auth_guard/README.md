@@ -51,10 +51,11 @@ Automatic and one-click blocks refuse loopback, private and Cloudflare
 addresses, because blocking one could cut off everyone behind it. If one
 reaches the escalation threshold, a critical `anomaly` event is posted
 instead, since it usually means the proxy has stopped passing on real
-visitor addresses. Add other proxies, or new Cloudflare ranges, as a
+visitor addresses. A daily scheduled action adds Cloudflare's current ranges
+from `api.cloudflare.com`, sending nothing but the request itself, and keeps
+the last good list if the fetch fails or looks wrong. Add other proxies as a
 comma-separated list in the `security_auth_guard.protected_ranges` system
-parameter. The built-in Cloudflare list is a snapshot and doesn't update
-itself. Rules created by hand aren't checked.
+parameter. Rules created by hand aren't checked.
 
 All of this depends on Odoo seeing real addresses. Behind Cloudflare, that
 means configuring nginx's `set_real_ip_from` for Cloudflare's ranges and

@@ -3,6 +3,8 @@ import contextlib
 import ipaddress
 import logging
 
+import requests
+
 from odoo import SUPERUSER_ID, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -20,8 +22,9 @@ LOCAL_PROXY_RANGES = (
     "127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
     "100.64.0.0/10", "169.254.0.0/16", "::1/128", "fc00::/7", "fe80::/10",
 )
-# https://www.cloudflare.com/ips-v4 and ips-v6, as of 2026-11-05. Add new
-# ranges or other proxies with the protected_ranges system parameter.
+# https://www.cloudflare.com/ips-v4 and ips-v6, as of 2026-11-05: the
+# starting point, added to daily by _cron_refresh_cloudflare_ranges. Add
+# other proxies with the protected_ranges system parameter.
 CLOUDFLARE_RANGES = (
     "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
     "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20",
@@ -30,6 +33,33 @@ CLOUDFLARE_RANGES = (
     "131.0.72.0/22", "2400:cb00::/32", "2606:4700::/32", "2803:f800::/32",
     "2405:b500::/32", "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32",
 )
+CLOUDFLARE_API_URL = "https://api.cloudflare.com/client/v4/ips"
+# Protecting too much would quietly switch off automatic blocking, so a
+# response has to look like Cloudflare's real one. Today that's 15 IPv4 and
+# 7 IPv6 ranges, the widest /13 and /29.
+CLOUDFLARE_MIN_RANGES = {4: 8, 6: 3}
+CLOUDFLARE_WIDEST_PREFIX = {4: 10, 6: 24}
+
+
+def parse_cloudflare_ranges(payload):
+    """The validated ranges from Cloudflare's API response. Raises
+    ValueError if anything about it looks wrong.
+    """
+    if not isinstance(payload, dict) or not payload.get("success"):
+        raise ValueError("response did not report success")
+    result = payload.get("result") or {}
+    ranges = []
+    for version, key in ((4, "ipv4_cidrs"), (6, "ipv6_cidrs")):
+        entries = result.get(key) or []
+        if len(entries) < CLOUDFLARE_MIN_RANGES[version]:
+            raise ValueError(f"only {len(entries)} IPv{version} ranges")
+        for entry in entries:
+            network = ipaddress.ip_network(entry)
+            if (network.version != version or not network.is_global
+                    or network.prefixlen < CLOUDFLARE_WIDEST_PREFIX[version]):
+                raise ValueError(f"implausible range {entry}")
+            ranges.append(str(network))
+    return ranges
 
 
 @contextlib.contextmanager
@@ -124,14 +154,16 @@ class SecurityIpRule(models.Model):
 
     @api.model
     def _protected_networks(self):
-        """Ranges _block_ip refuses: the built-in lists plus the
-        comma-separated security_auth_guard.protected_ranges parameter.
+        """Ranges _block_ip refuses: the built-in lists, the ranges last
+        fetched from Cloudflare, and the comma-separated
+        security_auth_guard.protected_ranges parameter.
         """
-        extra = self.env["ir.config_parameter"].sudo().get_param(
-            "security_auth_guard.protected_ranges", "")
+        ICP = self.env["ir.config_parameter"].sudo()
+        extra = ICP.get_param("security_auth_guard.protected_ranges", "")
+        fetched = ICP.get_param("security_auth_guard.cloudflare_ranges", "")
         networks = []
         for entry in (*LOCAL_PROXY_RANGES, *CLOUDFLARE_RANGES,
-                      *extra.split(",")):
+                      *fetched.split(","), *extra.split(",")):
             entry = entry.strip()
             if not entry:
                 continue
@@ -142,6 +174,22 @@ class SecurityIpRule(models.Model):
                     "Ignoring invalid protected range %r in "
                     "security_auth_guard.protected_ranges.", entry)
         return networks
+
+    @api.model
+    def _cron_refresh_cloudflare_ranges(self):
+        """Only ever adds to the protected list. A failed fetch keeps what's
+        already there, and a range Cloudflare has retired just stays exempt
+        from automatic blocks.
+        """
+        try:
+            response = requests.get(CLOUDFLARE_API_URL, timeout=30)
+            response.raise_for_status()
+            ranges = parse_cloudflare_ranges(response.json())
+        except (requests.RequestException, ValueError, TypeError) as exc:
+            _logger.warning("Could not refresh Cloudflare ranges: %s", exc)
+            return
+        self.env["ir.config_parameter"].sudo().set_param(
+            "security_auth_guard.cloudflare_ranges", ",".join(ranges))
 
     @api.model
     def _is_protected(self, ip):
