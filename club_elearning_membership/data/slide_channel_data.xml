@@ -151,6 +151,13 @@
                         same.</p>
                     </div>
                 </div>
+                <div class="oe-diagram">
+                    <img src="/club_elearning_membership/static/img/zones.png" alt="The Evacuation Zones list with three sample zones and their member counts" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        sample zones under Club › Configuration.
+                    </p>
+                </div>
             </div>
         </field>
     </record>

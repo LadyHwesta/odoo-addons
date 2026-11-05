@@ -109,6 +109,20 @@
                         you've already typed by hand.</p>
                     </div>
                 </div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-pencil" /></span>
+                    <div>
+                        <span class="oe-callout-label">GMRS is typed by hand</span>
+                        <p><strong>GMRS Call Sign</strong> sits on the same tab, for members who also hold a General Mobile Radio Service licence. The lookup doesn't fill it or check it, so type it in. It's saved in capitals, and you can search for it in the contact list.</p>
+                    </div>
+                </div>
+                <div class="oe-diagram">
+                    <img src="/club_elearning_amateur_radio/static/img/ham_tab.png" alt="A contact's Amateur Radio tab with an example call sign, licence details and a GMRS call sign" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        the Amateur Radio tab on a sample member.
+                    </p>
+                </div>
             </div>
         </field>
     </record>
@@ -165,6 +179,13 @@
                         before expiry a licence counts as "expiring soon"
                         (default 60).</p>
                     </div>
+                </div>
+                <div class="oe-diagram">
+                    <img src="/club_elearning_amateur_radio/static/img/radio_settings.png" alt="The Amateur Radio Club settings, with the FCC lookup switch and the expiry warning window" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        the settings this lesson describes.
+                    </p>
                 </div>
             </div>
         </field>
