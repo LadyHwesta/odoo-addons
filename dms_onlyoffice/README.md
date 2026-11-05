@@ -84,6 +84,12 @@ size and checksum matched the attachment afterward.
 3. Attach a file to a record of that model. Turn on **Create files from message
    attachments** on the storage to include files attached through the chatter.
 
+**Choose linked models carefully.** DMS captures every attachment on a linked
+model, including images Odoo generates. Linking Contacts, for example, also adds
+contact photos as files. Deleting one of those files deletes the attachment behind
+it too, so it can remove the photo. For shared documents, `dms_team_folder` avoids
+this.
+
 Attachment storage inherits access from the linked record, so DMS access groups
 don't apply, and the directory form has no **Groups** tab. Creating the root
 directory also requires permission to create records of the linked model.
