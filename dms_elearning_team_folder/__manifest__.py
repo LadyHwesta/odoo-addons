@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Documents, Team Folders, and ONLYOFFICE",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Website/eLearning",
     "summary": "eLearning course: where documents live, connecting ONLYOFFICE, and running team folders",
     "description": """

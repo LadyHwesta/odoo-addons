@@ -11,6 +11,8 @@ Club app's menus and the `/my/club` member portal, evacuation zones, and
 the Member Roster / Event Statistics / Volunteer Participation / Members
 Analysis reports. A 4-question quiz at the end.
 
+Screenshots in `static/img/` come from a local test database with sample data.
+
 ## Access
 
 Gated (`visibility="members"`, `enroll="invite"`); everyone in

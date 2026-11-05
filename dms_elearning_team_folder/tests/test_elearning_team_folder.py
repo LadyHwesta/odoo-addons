@@ -21,14 +21,14 @@ class TestElearningTeamFolder(TransactionCase):
         self.assertEqual(len(self.channel.slide_ids.filtered("is_category")), 7)
         lessons = self.channel.slide_content_ids.filtered(
             lambda s: s.slide_category == "article")
-        self.assertEqual(len(lessons), 11)
+        self.assertEqual(len(lessons), 12)
         for lesson in lessons:
             self.assertTrue(lesson.category_id, "%s has no section" % lesson.name)
 
     def test_quiz_answers_are_valid(self):
         quiz = self.channel.slide_content_ids.filtered(
             lambda s: s.slide_category == "quiz")
-        self.assertEqual(len(quiz.question_ids), 4)
+        self.assertEqual(len(quiz.question_ids), 5)
         for question in quiz.question_ids:
             self.assertFalse(question.answers_validation_error)
             self.assertEqual(len(question.answer_ids.filtered("is_correct")), 1)
@@ -37,6 +37,6 @@ class TestElearningTeamFolder(TransactionCase):
         found = []
         for lesson in self.channel.slide_content_ids:
             found += re.findall(r'src="/([^"]+\.png)"', lesson.html_content or "")
-        self.assertEqual(len(found), 3)
+        self.assertEqual(len(found), 5)
         for image in found:
             self.assertTrue(file_path(image))

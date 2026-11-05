@@ -65,6 +65,13 @@
                         so nobody has to calculate it every time.</p>
                     </div>
                 </div>
+                <div class="oe-diagram">
+                    <img src="/club_elearning_equipment_loan/static/img/equipment_form.png" alt="An equipment form for a field radio with Loanable ticked and an availability badge" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        a piece of equipment in the lending pool.
+                    </p>
+                </div>
             </div>
         </field>
     </record>
@@ -126,6 +133,13 @@
                         item at a time, so the system won't let a second
                         loan start while the first is still open.</p>
                     </div>
+                </div>
+                <div class="oe-diagram">
+                    <img src="/club_elearning_equipment_loan/static/img/loan_form.png" alt="A loan form showing the equipment, borrower, due date and condition going out" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        a reserved loan, ready for Check Out.
+                    </p>
                 </div>
             </div>
         </field>

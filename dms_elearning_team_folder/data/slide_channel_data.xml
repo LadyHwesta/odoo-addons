@@ -126,7 +126,7 @@
                     <li>Go to <strong>Documents › Team Folders</strong> and click <strong>New</strong>.</li>
                     <li>Name the folder.</li>
                     <li>Add the people who work on its files under <strong>Members</strong>, and those who only need to read them under <strong>Viewers</strong>.</li>
-                    <li>Save, then click <strong>Files</strong> to upload documents.</li>
+                    <li>Save, then click <strong>Files</strong> to add documents. You can upload existing files, or create new ones with <strong>New Document</strong>.</li>
                 </ol>
                 <div class="oe-diagram">
                     <img src="/dms_elearning_team_folder/static/img/team_folder_form.png" alt="A team folder form named Human Resources, with a member, a viewer, and a Files button" class="img-fluid" />
@@ -168,11 +168,58 @@
         </field>
     </record>
 
+    <record id="lesson_new_document" model="slide.slide">
+        <field name="channel_id" ref="channel_team_folders" />
+        <field name="name">Creating a new document</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">33</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content">
+                <p>You don't need to make a file on your computer and upload it.
+                You can start a blank document right in Odoo.</p>
+                <ol>
+                    <li>Go to <strong>Documents › Files</strong> and click <strong>New Document</strong>. It's also on a folder's own form.</li>
+                    <li>Name it, and choose a type: <strong>Document</strong>, <strong>Spreadsheet</strong>, <strong>Presentation</strong>, or <strong>PDF Form</strong>.</li>
+                    <li>Choose a <strong>Folder</strong>. If you already selected a suitable one in the sidebar, it's filled in for you.</li>
+                    <li>Click <strong>Create and Open</strong>. The file is created and opens in ONLYOFFICE.</li>
+                </ol>
+                <div class="oe-diagram">
+                    <img src="/dms_elearning_team_folder/static/img/dms_files.png" alt="The Files screen, with the New Document button beside New and Upload" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        the New Document button on the Files screen.
+                    </p>
+                </div>
+                <div class="oe-diagram">
+                    <img src="/dms_elearning_team_folder/static/img/dms_dialog.png" alt="The New Document dialog with a name, four document types, and a team folder chosen" class="img-fluid" />
+                    <p class="oe-diagram-caption">
+                        <span class="oe-diagram-caption-tag">Screenshot</span>
+                        creating a document in a team folder.
+                    </p>
+                </div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-folder-open-o" /></span>
+                    <div>
+                        <span class="oe-callout-label">Which folders you'll see</span>
+                        <p>Only folders you can add files to, and that ONLYOFFICE can use. Team folders qualify if you're a Member. Viewers can't create documents there. If a name is already taken in that folder, Odoo adds a number, such as Budget(1).xlsx.</p>
+                    </div>
+                </div>
+                <div class="oe-callout">
+                    <span class="oe-callout-icon"><i class="fa fa-clock-o" /></span>
+                    <div>
+                        <span class="oe-callout-label">Give it a moment after closing</span>
+                        <p>ONLYOFFICE saves a few seconds after you close a document. If you reopen it straight away and see a message about the save, wait briefly and try again.</p>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+
     <record id="lesson_edit" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
         <field name="name">Editing a document</field>
         <field name="slide_category">article</field>
-        <field name="sequence">33</field>
+        <field name="sequence">34</field>
         <field name="html_content" type="html">
             <div class="oe-course-content">
                 <p>Open the file from its folder and click <strong>Open in
@@ -194,7 +241,7 @@
         <field name="channel_id" ref="channel_team_folders" />
         <field name="name">Changing people, renaming, and closing a folder</field>
         <field name="slide_category">article</field>
-        <field name="sequence">34</field>
+        <field name="sequence">35</field>
         <field name="html_content" type="html">
             <div class="oe-course-content">
                 <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>To do this</th><th>Do this</th><th>What happens</th></tr></thead><tbody><tr><td>Remove someone</td><td>Take them off Members or Viewers</td><td>They lose this folder's files right away, but keep the Documents app</td></tr><tr><td>Rename a folder</td><td>Change its name</td><td>Its directory is renamed too</td></tr><tr><td>Hide a finished folder</td><td>Archive it from the gear menu</td><td>It leaves the Team Folders list, and people on it can still reach the files in Documents</td></tr><tr><td>Delete a folder</td><td>Delete its files first, then the folder</td><td>A folder with files can't be deleted</td></tr></tbody></table></div>
@@ -259,7 +306,7 @@
                 <p>An administrator can also make files attached to a kind of
                 record, such as projects, appear in Documents.</p>
                 <ol>
-                    <li>In <strong>Documents › Configuration › Storages</strong>, create a storage with <strong>Save Type</strong> set to Attachment.</li>
+                    <li>In <strong>Documents › Configuration › System › Storages</strong>, create a storage with <strong>Save Type</strong> set to Attachment.</li>
                     <li>Under <strong>Linked Models</strong>, pick an existing model from the list.</li>
                     <li>In <strong>Documents › Directories</strong>, create a directory with <strong>Is Root Directory</strong> on, that storage, and the same <strong>Model</strong>.</li>
                 </ol>
@@ -300,7 +347,7 @@
         <field name="sequence">61</field>
         <field name="html_content" type="html">
             <div class="oe-course-content">
-                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead><tbody><tr><td>No Team Folders menu after installing</td><td>Your window has the old menu</td><td>Reload Odoo, or close and reopen the installed app</td></tr><tr><td>Required fields are empty, with Content in red</td><td>You're on the form for a new file, not a folder</td><td>Discard it, then go to Team Folders › New</td></tr><tr><td>No New button under Team Folders</td><td>You aren't a Team Folder Manager</td><td>Ask an administrator</td></tr><tr><td>A team folder isn't listed</td><td>You aren't on that folder</td><td>Ask a manager to add you</td></tr><tr><td>The document opens read-only</td><td>You're a Viewer of that folder</td><td>Ask a manager to make you a Member</td></tr><tr><td>No Open in ONLYOFFICE button</td><td>The file is in a plain folder, or it's a file type ONLYOFFICE can't open</td><td>Move it to a team folder, or check the file type</td></tr><tr><td>ONLYOFFICE can't be reached</td><td>The Docs server is down, or its address changed</td><td>Ask an administrator to check the ONLYOFFICE settings</td></tr></tbody></table></div>
+                <div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead><tbody><tr><td>No Team Folders menu after installing</td><td>Your window has the old menu</td><td>Reload Odoo, or close and reopen the installed app</td></tr><tr><td>Required fields are empty, with Content in red</td><td>You're on the form for a new file, not a folder</td><td>Discard it, then go to Team Folders › New</td></tr><tr><td>No New button under Team Folders</td><td>You aren't a Team Folder Manager</td><td>Ask an administrator</td></tr><tr><td>A team folder isn't listed</td><td>You aren't on that folder</td><td>Ask a manager to add you</td></tr><tr><td>The document opens read-only</td><td>You're a Viewer of that folder</td><td>Ask a manager to make you a Member</td></tr><tr><td>No Open in ONLYOFFICE button</td><td>The file is in a plain folder, or it's a file type ONLYOFFICE can't open</td><td>Move it to a team folder, or check the file type</td></tr><tr><td>New Document lists no folders</td><td>You can't add files to any folder that ONLYOFFICE can use</td><td>Ask a manager to make you a Member of a team folder</td></tr><tr><td>ONLYOFFICE can't be reached</td><td>The Docs server is down, or its address changed</td><td>Ask an administrator to check the ONLYOFFICE settings</td></tr></tbody></table></div>
             </div>
         </field>
     </record>
@@ -437,6 +484,36 @@
         <field name="sequence">4</field>
         <field name="text_value">Add an existing model to the storage's Linked Models</field>
         <field name="is_correct" eval="True" />
+    </record>
+
+    <record id="quiz_q5" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">5</field>
+        <field name="question">You need a new spreadsheet for a team you belong to. What's the quickest way?</field>
+    </record>
+    <record id="quiz_q5_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q5" />
+        <field name="sequence">1</field>
+        <field name="text_value">Make it on your computer, then upload it</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q5_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q5" />
+        <field name="sequence">2</field>
+        <field name="text_value">Click New Document, choose Spreadsheet and the team's folder</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q5_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q5" />
+        <field name="sequence">3</field>
+        <field name="text_value">Ask an administrator to create it</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q5_a4" model="slide.answer">
+        <field name="question_id" ref="quiz_q5" />
+        <field name="sequence">4</field>
+        <field name="text_value">Open Settings and turn on spreadsheets</field>
+        <field name="is_correct" eval="False" />
     </record>
 
 </odoo>

@@ -9,6 +9,8 @@ Looking up a call sign from the FCC (callook.info), what a lookup
 overwrites versus only fills in when blank, and the daily expiry-warning
 sweep plus its settings. A 4-question quiz at the end.
 
+Screenshots in `static/img/` come from a local test database with sample data.
+
 ## Access
 
 Gated (`visibility="members"`, `enroll="invite"`); everyone in

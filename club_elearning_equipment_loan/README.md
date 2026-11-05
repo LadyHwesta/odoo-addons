@@ -10,6 +10,8 @@ Reserved → On Loan → Returned workflow and the borrower-acceptance gate
 on checkout, and the overdue sweep plus the borrower's own `/my/loans`
 portal view. A 4-question quiz at the end.
 
+Screenshots in `static/img/` come from a local test database with sample data.
+
 ## Access
 
 Gated (`visibility="members"`, `enroll="invite"`); everyone in
