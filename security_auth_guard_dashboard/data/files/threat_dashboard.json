@@ -1,0 +1,875 @@
+{
+ "version": "18.5.10",
+ "revisionId": "START_REVISION",
+ "uniqueFigureIds": true,
+ "sheets": [
+  {
+   "id": "dashboard",
+   "name": "Dashboard",
+   "colNumber": 5,
+   "rowNumber": 70,
+   "areGridLinesVisible": false,
+   "isVisible": true,
+   "cols": {
+    "0": {
+     "size": 190
+    },
+    "1": {
+     "size": 190
+    },
+    "2": {
+     "size": 170
+    },
+    "3": {
+     "size": 190
+    },
+    "4": {
+     "size": 260
+    }
+   },
+   "rows": {
+    "0": {
+     "size": 52
+    },
+    "1": {
+     "size": 28
+    },
+    "2": {
+     "size": 28
+    },
+    "11": {
+     "size": 42
+    },
+    "12": {
+     "size": 42
+    },
+    "13": {
+     "size": 42
+    },
+    "14": {
+     "size": 42
+    },
+    "15": {
+     "size": 42
+    },
+    "16": {
+     "size": 42
+    },
+    "17": {
+     "size": 42
+    },
+    "18": {
+     "size": 42
+    }
+   },
+   "merges": [
+    "A1:E1",
+    "A2:E2"
+   ],
+   "cells": {
+    "A1": "=\"Threat level: \"&Data!B20",
+    "A2": "=Data!B21",
+    "A3": "[Security Events](odoo://ir_menu_xml_id/security_auth_guard.menu_security_events)",
+    "B3": "[IP Rules](odoo://ir_menu_xml_id/security_auth_guard.menu_security_ip_rules)",
+    "C3": "[Login Attempts](odoo://ir_menu_xml_id/security_auth_guard.menu_security_login_attempts)",
+    "A10": "Waiting for review",
+    "A11": "When",
+    "B11": "Severity",
+    "C11": "Type",
+    "D11": "Source",
+    "E11": "Detail",
+    "A12": "=ODOO.LIST(1,1,\"create_date\")",
+    "B12": "=ODOO.LIST(1,1,\"severity\")",
+    "C12": "=ODOO.LIST(1,1,\"event_type\")",
+    "D12": "=ODOO.LIST(1,1,\"source_ip\")",
+    "E12": "=ODOO.LIST(1,1,\"detail\")",
+    "A13": "=ODOO.LIST(1,2,\"create_date\")",
+    "B13": "=ODOO.LIST(1,2,\"severity\")",
+    "C13": "=ODOO.LIST(1,2,\"event_type\")",
+    "D13": "=ODOO.LIST(1,2,\"source_ip\")",
+    "E13": "=ODOO.LIST(1,2,\"detail\")",
+    "A14": "=ODOO.LIST(1,3,\"create_date\")",
+    "B14": "=ODOO.LIST(1,3,\"severity\")",
+    "C14": "=ODOO.LIST(1,3,\"event_type\")",
+    "D14": "=ODOO.LIST(1,3,\"source_ip\")",
+    "E14": "=ODOO.LIST(1,3,\"detail\")",
+    "A15": "=ODOO.LIST(1,4,\"create_date\")",
+    "B15": "=ODOO.LIST(1,4,\"severity\")",
+    "C15": "=ODOO.LIST(1,4,\"event_type\")",
+    "D15": "=ODOO.LIST(1,4,\"source_ip\")",
+    "E15": "=ODOO.LIST(1,4,\"detail\")",
+    "A16": "=ODOO.LIST(1,5,\"create_date\")",
+    "B16": "=ODOO.LIST(1,5,\"severity\")",
+    "C16": "=ODOO.LIST(1,5,\"event_type\")",
+    "D16": "=ODOO.LIST(1,5,\"source_ip\")",
+    "E16": "=ODOO.LIST(1,5,\"detail\")",
+    "A17": "=ODOO.LIST(1,6,\"create_date\")",
+    "B17": "=ODOO.LIST(1,6,\"severity\")",
+    "C17": "=ODOO.LIST(1,6,\"event_type\")",
+    "D17": "=ODOO.LIST(1,6,\"source_ip\")",
+    "E17": "=ODOO.LIST(1,6,\"detail\")",
+    "A18": "=ODOO.LIST(1,7,\"create_date\")",
+    "B18": "=ODOO.LIST(1,7,\"severity\")",
+    "C18": "=ODOO.LIST(1,7,\"event_type\")",
+    "D18": "=ODOO.LIST(1,7,\"source_ip\")",
+    "E18": "=ODOO.LIST(1,7,\"detail\")",
+    "A19": "=ODOO.LIST(1,8,\"create_date\")",
+    "B19": "=ODOO.LIST(1,8,\"severity\")",
+    "C19": "=ODOO.LIST(1,8,\"event_type\")",
+    "D19": "=ODOO.LIST(1,8,\"source_ip\")",
+    "E19": "=ODOO.LIST(1,8,\"detail\")",
+    "A21": "Failed logins per day, last 30 days",
+    "A33": "Top sources of failed logins, 7 days",
+    "D33": "Most targeted logins, 7 days",
+    "A34": "=PIVOT(7, 8, FALSE, FALSE)",
+    "D34": "=PIVOT(8, 8, FALSE, FALSE)",
+    "A44": "Active block rules",
+    "A45": "Address or range",
+    "B45": "Created",
+    "C45": "Expires",
+    "D45": "Reason",
+    "A46": "=ODOO.LIST(2,1,\"ip_or_cidr\")",
+    "B46": "=ODOO.LIST(2,1,\"create_date\")",
+    "C46": "=ODOO.LIST(2,1,\"expires_at\")",
+    "D46": "=ODOO.LIST(2,1,\"reason\")",
+    "A47": "=ODOO.LIST(2,2,\"ip_or_cidr\")",
+    "B47": "=ODOO.LIST(2,2,\"create_date\")",
+    "C47": "=ODOO.LIST(2,2,\"expires_at\")",
+    "D47": "=ODOO.LIST(2,2,\"reason\")",
+    "A48": "=ODOO.LIST(2,3,\"ip_or_cidr\")",
+    "B48": "=ODOO.LIST(2,3,\"create_date\")",
+    "C48": "=ODOO.LIST(2,3,\"expires_at\")",
+    "D48": "=ODOO.LIST(2,3,\"reason\")",
+    "A49": "=ODOO.LIST(2,4,\"ip_or_cidr\")",
+    "B49": "=ODOO.LIST(2,4,\"create_date\")",
+    "C49": "=ODOO.LIST(2,4,\"expires_at\")",
+    "D49": "=ODOO.LIST(2,4,\"reason\")",
+    "A50": "=ODOO.LIST(2,5,\"ip_or_cidr\")",
+    "B50": "=ODOO.LIST(2,5,\"create_date\")",
+    "C50": "=ODOO.LIST(2,5,\"expires_at\")",
+    "D50": "=ODOO.LIST(2,5,\"reason\")",
+    "A51": "=ODOO.LIST(2,6,\"ip_or_cidr\")",
+    "B51": "=ODOO.LIST(2,6,\"create_date\")",
+    "C51": "=ODOO.LIST(2,6,\"expires_at\")",
+    "D51": "=ODOO.LIST(2,6,\"reason\")",
+    "A53": "Recent successful logins",
+    "A54": "When",
+    "B54": "Login",
+    "C54": "Address",
+    "A55": "=ODOO.LIST(3,1,\"occurred_at\")",
+    "B55": "=ODOO.LIST(3,1,\"login\")",
+    "C55": "=ODOO.LIST(3,1,\"ip\")",
+    "A56": "=ODOO.LIST(3,2,\"occurred_at\")",
+    "B56": "=ODOO.LIST(3,2,\"login\")",
+    "C56": "=ODOO.LIST(3,2,\"ip\")",
+    "A57": "=ODOO.LIST(3,3,\"occurred_at\")",
+    "B57": "=ODOO.LIST(3,3,\"login\")",
+    "C57": "=ODOO.LIST(3,3,\"ip\")",
+    "A58": "=ODOO.LIST(3,4,\"occurred_at\")",
+    "B58": "=ODOO.LIST(3,4,\"login\")",
+    "C58": "=ODOO.LIST(3,4,\"ip\")",
+    "A59": "=ODOO.LIST(3,5,\"occurred_at\")",
+    "B59": "=ODOO.LIST(3,5,\"login\")",
+    "C59": "=ODOO.LIST(3,5,\"ip\")",
+    "A60": "=ODOO.LIST(3,6,\"occurred_at\")",
+    "B60": "=ODOO.LIST(3,6,\"login\")",
+    "C60": "=ODOO.LIST(3,6,\"ip\")",
+    "A61": "=ODOO.LIST(3,7,\"occurred_at\")",
+    "B61": "=ODOO.LIST(3,7,\"login\")",
+    "C61": "=ODOO.LIST(3,7,\"ip\")",
+    "A62": "=ODOO.LIST(3,8,\"occurred_at\")",
+    "B62": "=ODOO.LIST(3,8,\"login\")",
+    "C62": "=ODOO.LIST(3,8,\"ip\")"
+   },
+   "styles": {
+    "A1": 1,
+    "A2": 2,
+    "A3": 5,
+    "B3": 5,
+    "C3": 5,
+    "A10": 3,
+    "A11": 4,
+    "B11": 4,
+    "C11": 4,
+    "D11": 4,
+    "E11": 4,
+    "A21": 3,
+    "A33": 3,
+    "D33": 3,
+    "A44": 3,
+    "A45": 4,
+    "B45": 4,
+    "C45": 4,
+    "D45": 4,
+    "A53": 3,
+    "A54": 4,
+    "B54": 4,
+    "C54": 4,
+    "B46": 6,
+    "B47": 6,
+    "B48": 6,
+    "B49": 6,
+    "B50": 6,
+    "B51": 6,
+    "C46": 6,
+    "C47": 6,
+    "C48": 6,
+    "C49": 6,
+    "C50": 6,
+    "C51": 6,
+    "A55": 6,
+    "A56": 6,
+    "A57": 6,
+    "A58": 6,
+    "A59": 6,
+    "A60": 6,
+    "A61": 6,
+    "A62": 6,
+    "A12": 9,
+    "B12": 8,
+    "C12": 8,
+    "D12": 8,
+    "E12": 7,
+    "A13": 9,
+    "B13": 8,
+    "C13": 8,
+    "D13": 8,
+    "E13": 7,
+    "A14": 9,
+    "B14": 8,
+    "C14": 8,
+    "D14": 8,
+    "E14": 7,
+    "A15": 9,
+    "B15": 8,
+    "C15": 8,
+    "D15": 8,
+    "E15": 7,
+    "A16": 9,
+    "B16": 8,
+    "C16": 8,
+    "D16": 8,
+    "E16": 7,
+    "A17": 9,
+    "B17": 8,
+    "C17": 8,
+    "D17": 8,
+    "E17": 7,
+    "A18": 9,
+    "B18": 8,
+    "C18": 8,
+    "D18": 8,
+    "E18": 7,
+    "A19": 9,
+    "B19": 8,
+    "C19": 8,
+    "D19": 8,
+    "E19": 7
+   },
+   "formats": {},
+   "borders": {},
+   "conditionalFormats": [
+    {
+     "id": "level-1",
+     "ranges": [
+      "A1:E1"
+     ],
+     "rule": {
+      "type": "CellIsRule",
+      "operator": "containsText",
+      "values": [
+       "HIGH"
+      ],
+      "style": {
+       "fillColor": "#C62828",
+       "textColor": "#FFFFFF",
+       "bold": true
+      }
+     }
+    },
+    {
+     "id": "level-2",
+     "ranges": [
+      "A1:E1"
+     ],
+     "rule": {
+      "type": "CellIsRule",
+      "operator": "containsText",
+      "values": [
+       "ELEVATED"
+      ],
+      "style": {
+       "fillColor": "#F9A825",
+       "textColor": "#1f2d3d",
+       "bold": true
+      }
+     }
+    },
+    {
+     "id": "level-3",
+     "ranges": [
+      "A1:E1"
+     ],
+     "rule": {
+      "type": "CellIsRule",
+      "operator": "containsText",
+      "values": [
+       "NORMAL"
+      ],
+      "style": {
+       "fillColor": "#2E7D32",
+       "textColor": "#FFFFFF",
+       "bold": true
+      }
+     }
+    }
+   ],
+   "dataValidationRules": [],
+   "figures": [
+    {
+     "id": "sc-failed",
+     "tag": "chart",
+     "width": 240,
+     "height": 125,
+     "col": 0,
+     "row": 3,
+     "offset": {
+      "x": 0,
+      "y": 6
+     },
+     "data": {
+      "type": "scorecard",
+      "chartId": "sc-failed",
+      "title": {
+       "text": "Failed logins, 24 hours",
+       "color": "#434343",
+       "bold": true
+      },
+      "background": "#EEF3F8",
+      "keyValue": "Data!B1",
+      "baselineMode": "text",
+      "baseline": null,
+      "baselineDescr": {
+       "text": "last 24 hours"
+      },
+      "baselineColorUp": "#00A04A",
+      "baselineColorDown": "#DC6965",
+      "humanize": false
+     }
+    },
+    {
+     "id": "sc-cooldown",
+     "tag": "chart",
+     "width": 240,
+     "height": 125,
+     "col": 0,
+     "row": 3,
+     "offset": {
+      "x": 250,
+      "y": 6
+     },
+     "data": {
+      "type": "scorecard",
+      "chartId": "sc-cooldown",
+      "title": {
+       "text": "Cooldowns, 24 hours",
+       "color": "#434343",
+       "bold": true
+      },
+      "background": "#EEF3F8",
+      "keyValue": "Data!B2",
+      "baselineMode": "text",
+      "baseline": null,
+      "baselineDescr": {
+       "text": "last 24 hours"
+      },
+      "baselineColorUp": "#00A04A",
+      "baselineColorDown": "#DC6965",
+      "humanize": false
+     }
+    },
+    {
+     "id": "sc-critical",
+     "tag": "chart",
+     "width": 240,
+     "height": 125,
+     "col": 0,
+     "row": 3,
+     "offset": {
+      "x": 500,
+      "y": 6
+     },
+     "data": {
+      "type": "scorecard",
+      "chartId": "sc-critical",
+      "title": {
+       "text": "Critical to review",
+       "color": "#434343",
+       "bold": true
+      },
+      "background": "#EEF3F8",
+      "keyValue": "Data!B3",
+      "baselineMode": "text",
+      "baseline": null,
+      "baselineDescr": {
+       "text": "marked as new"
+      },
+      "baselineColorUp": "#00A04A",
+      "baselineColorDown": "#DC6965",
+      "humanize": false
+     }
+    },
+    {
+     "id": "sc-blocks",
+     "tag": "chart",
+     "width": 240,
+     "height": 125,
+     "col": 0,
+     "row": 3,
+     "offset": {
+      "x": 750,
+      "y": 6
+     },
+     "data": {
+      "type": "scorecard",
+      "chartId": "sc-blocks",
+      "title": {
+       "text": "Active blocks",
+       "color": "#434343",
+       "bold": true
+      },
+      "background": "#EEF3F8",
+      "keyValue": "Data!B4",
+      "baselineMode": "text",
+      "baseline": null,
+      "baselineDescr": {
+       "text": "addresses and ranges"
+      },
+      "baselineColorUp": "#00A04A",
+      "baselineColorDown": "#DC6965",
+      "humanize": false
+     }
+    },
+    {
+     "id": "ch-failed",
+     "tag": "chart",
+     "width": 1000,
+     "height": 225,
+     "col": 0,
+     "row": 21,
+     "offset": {
+      "x": 0,
+      "y": 2
+     },
+     "data": {
+      "type": "odoo_bar",
+      "chartId": "ch-failed",
+      "title": {
+       "text": ""
+      },
+      "background": "#FFFFFF",
+      "legendPosition": "none",
+      "dataSets": [
+       {}
+      ],
+      "verticalAxisPosition": "left",
+      "stacked": false,
+      "metaData": {
+       "groupBy": [
+        "occurred_at:day"
+       ],
+       "measure": "__count",
+       "order": null,
+       "resModel": "security.login_attempt",
+       "mode": "bar"
+      },
+      "searchParams": {
+       "comparison": null,
+       "context": {},
+       "domain": "[(\"success\", \"=\", False), (\"occurred_at\", \">=\", (datetime.datetime.now() - relativedelta(days=30)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+       "groupBy": [
+        "occurred_at:day"
+       ],
+       "orderBy": []
+      }
+     }
+    }
+   ],
+   "tables": [],
+   "headerGroups": {
+    "ROW": [],
+    "COL": []
+   },
+   "comments": {}
+  },
+  {
+   "id": "data",
+   "name": "Data",
+   "colNumber": 3,
+   "rowNumber": 30,
+   "areGridLinesVisible": true,
+   "isVisible": true,
+   "cols": {
+    "0": {
+     "size": 300
+    },
+    "1": {
+     "size": 500
+    }
+   },
+   "rows": {},
+   "merges": [],
+   "cells": {
+    "A1": "Failed logins, 24h",
+    "B1": "=IFERROR(PIVOT.VALUE(1,\"__count\")+0,0)",
+    "A2": "Cooldowns, 24h",
+    "B2": "=IFERROR(PIVOT.VALUE(2,\"__count\")+0,0)",
+    "A3": "Critical, waiting for review",
+    "B3": "=IFERROR(PIVOT.VALUE(3,\"__count\")+0,0)",
+    "A4": "Active blocks",
+    "B4": "=IFERROR(PIVOT.VALUE(4,\"__count\")+0,0)",
+    "A5": "Automatic blocks, 24h",
+    "B5": "=IFERROR(PIVOT.VALUE(5,\"__count\")+0,0)",
+    "A6": "Successful logins, 24h",
+    "B6": "=IFERROR(PIVOT.VALUE(6,\"__count\")+0,0)",
+    "A10": "Change these to tune the threat level:",
+    "A11": "HIGH at this many failed logins in 24h",
+    "B11": "100",
+    "A12": "ELEVATED at this many failed logins in 24h",
+    "B12": "20",
+    "A20": "Level",
+    "B20": "=IF(OR(B3>0,B1>=B11),\"HIGH\",IF(OR(B1>=B12,B2>0,B5>0),\"ELEVATED\",\"NORMAL\"))",
+    "A21": "Summary",
+    "B21": "=\"Last 24 hours: failed logins \"&B1&\", cooldowns \"&B2&\", automatic blocks \"&B5&\". Critical events waiting for review: \"&B3&\".\""
+   },
+   "styles": {},
+   "formats": {},
+   "borders": {},
+   "conditionalFormats": [],
+   "dataValidationRules": [],
+   "figures": [],
+   "tables": [],
+   "headerGroups": {
+    "ROW": [],
+    "COL": []
+   },
+   "comments": {}
+  }
+ ],
+ "styles": {
+  "1": {
+   "bold": true,
+   "fontSize": 18,
+   "align": "center",
+   "verticalAlign": "middle"
+  },
+  "2": {
+   "textColor": "#5b6673",
+   "align": "center",
+   "verticalAlign": "middle"
+  },
+  "3": {
+   "textColor": "#1f2d3d",
+   "bold": true,
+   "fontSize": 14
+  },
+  "4": {
+   "textColor": "#5b6673",
+   "bold": true
+  },
+  "5": {
+   "textColor": "#01666b",
+   "align": "center",
+   "bold": true
+  },
+  "6": {
+   "align": "left"
+  },
+  "7": {
+   "wrapping": "wrap",
+   "verticalAlign": "top"
+  },
+  "8": {
+   "verticalAlign": "top"
+  },
+  "9": {
+   "align": "left",
+   "verticalAlign": "top"
+  }
+ },
+ "formats": {},
+ "borders": {},
+ "settings": {
+  "locale": {
+   "name": "English (US)",
+   "code": "en_US",
+   "thousandsSeparator": ",",
+   "decimalSeparator": ".",
+   "dateFormat": "mm/dd/yyyy",
+   "timeFormat": "hh:mm:ss",
+   "formulaArgSeparator": ",",
+   "weekStart": 7
+  }
+ },
+ "pivots": {
+  "1": {
+   "type": "ODOO",
+   "id": "1",
+   "formulaId": "1",
+   "name": "Failed logins, 24h",
+   "model": "security.login_attempt",
+   "domain": "[(\"success\", \"=\", False), (\"occurred_at\", \">=\", (datetime.datetime.now() - relativedelta(hours=24)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Count"
+    }
+   ]
+  },
+  "2": {
+   "type": "ODOO",
+   "id": "2",
+   "formulaId": "2",
+   "name": "Cooldowns, 24h",
+   "model": "security.event",
+   "domain": "[(\"event_type\", \"=\", \"login_cooldown\"), (\"create_date\", \">=\", (datetime.datetime.now() - relativedelta(hours=24)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Count"
+    }
+   ]
+  },
+  "3": {
+   "type": "ODOO",
+   "id": "3",
+   "formulaId": "3",
+   "name": "Critical, waiting for review",
+   "model": "security.event",
+   "domain": [
+    [
+     "state",
+     "=",
+     "new"
+    ],
+    [
+     "severity",
+     "=",
+     "critical"
+    ]
+   ],
+   "context": {},
+   "columns": [],
+   "rows": [],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Count"
+    }
+   ]
+  },
+  "4": {
+   "type": "ODOO",
+   "id": "4",
+   "formulaId": "4",
+   "name": "Active blocks",
+   "model": "security.ip_rule",
+   "domain": "[(\"action\", \"=\", \"block\"), \"|\", (\"expires_at\", \"=\", False), (\"expires_at\", \">\", datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Count"
+    }
+   ]
+  },
+  "5": {
+   "type": "ODOO",
+   "id": "5",
+   "formulaId": "5",
+   "name": "Automatic blocks, 24h",
+   "model": "security.event",
+   "domain": "[(\"event_type\", \"=\", \"ip_blocked\"), (\"severity\", \"=\", \"critical\"), (\"create_date\", \">=\", (datetime.datetime.now() - relativedelta(hours=24)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Count"
+    }
+   ]
+  },
+  "6": {
+   "type": "ODOO",
+   "id": "6",
+   "formulaId": "6",
+   "name": "Successful logins, 24h",
+   "model": "security.login_attempt",
+   "domain": "[(\"success\", \"=\", True), (\"occurred_at\", \">=\", (datetime.datetime.now() - relativedelta(hours=24)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Count"
+    }
+   ]
+  },
+  "7": {
+   "type": "ODOO",
+   "id": "7",
+   "formulaId": "7",
+   "name": "Address",
+   "model": "security.login_attempt",
+   "domain": "[(\"success\", \"=\", False), (\"occurred_at\", \">=\", (datetime.datetime.now() - relativedelta(days=7)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [
+    {
+     "fieldName": "ip"
+    }
+   ],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Failures"
+    }
+   ],
+   "sortedColumn": {
+    "measure": "__count",
+    "order": "desc",
+    "domain": []
+   }
+  },
+  "8": {
+   "type": "ODOO",
+   "id": "8",
+   "formulaId": "8",
+   "name": "Login",
+   "model": "security.login_attempt",
+   "domain": "[(\"success\", \"=\", False), (\"occurred_at\", \">=\", (datetime.datetime.now() - relativedelta(days=7)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "columns": [],
+   "rows": [
+    {
+     "fieldName": "login"
+    }
+   ],
+   "measures": [
+    {
+     "id": "__count",
+     "fieldName": "__count",
+     "userDefinedName": "Failures"
+    }
+   ],
+   "sortedColumn": {
+    "measure": "__count",
+    "order": "desc",
+    "domain": []
+   }
+  }
+ },
+ "pivotNextId": 9,
+ "customTableStyles": {},
+ "globalFilters": [],
+ "lists": {
+  "1": {
+   "id": "1",
+   "name": "Waiting for review",
+   "model": "security.event",
+   "columns": [
+    "create_date",
+    "severity",
+    "event_type",
+    "source_ip",
+    "detail"
+   ],
+   "domain": [
+    [
+     "state",
+     "=",
+     "new"
+    ],
+    [
+     "severity",
+     "in",
+     [
+      "warning",
+      "critical"
+     ]
+    ]
+   ],
+   "context": {},
+   "orderBy": [
+    {
+     "name": "create_date",
+     "asc": false
+    }
+   ]
+  },
+  "2": {
+   "id": "2",
+   "name": "Active blocks",
+   "model": "security.ip_rule",
+   "columns": [
+    "ip_or_cidr",
+    "create_date",
+    "expires_at",
+    "reason"
+   ],
+   "domain": "[(\"action\", \"=\", \"block\"), \"|\", (\"expires_at\", \"=\", False), (\"expires_at\", \">\", datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "context": {},
+   "orderBy": [
+    {
+     "name": "create_date",
+     "asc": false
+    }
+   ]
+  },
+  "3": {
+   "id": "3",
+   "name": "Recent logins",
+   "model": "security.login_attempt",
+   "columns": [
+    "occurred_at",
+    "login",
+    "ip"
+   ],
+   "domain": [
+    [
+     "success",
+     "=",
+     true
+    ]
+   ],
+   "context": {},
+   "orderBy": [
+    {
+     "name": "occurred_at",
+     "asc": false
+    }
+   ]
+  }
+ },
+ "listNextId": 4,
+ "chartOdooMenusReferences": {
+  "ch-failed": "security_auth_guard.menu_security_login_attempts"
+ }
+}
