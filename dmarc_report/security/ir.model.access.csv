@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dmarc_domain_user,dmarc.domain user,model_dmarc_domain,group_dmarc_user,1,0,0,0
+access_dmarc_domain_manager,dmarc.domain manager,model_dmarc_domain,group_dmarc_manager,1,1,1,1
+access_dmarc_report_user,dmarc.report user,model_dmarc_report,group_dmarc_user,1,0,0,0
+access_dmarc_report_manager,dmarc.report manager,model_dmarc_report,group_dmarc_manager,1,1,1,1
+access_dmarc_record_user,dmarc.record user,model_dmarc_record,group_dmarc_user,1,0,0,0
+access_dmarc_record_manager,dmarc.record manager,model_dmarc_record,group_dmarc_manager,1,1,1,1

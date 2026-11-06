@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="param_alert_new_senders" model="ir.config_parameter">
+        <field name="key">dmarc_report.alert_new_senders</field>
+        <field name="value">True</field>
+    </record>
+</odoo>
