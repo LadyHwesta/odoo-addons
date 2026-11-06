@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_dmarc_root" name="DMARC" web_icon="dmarc_report,static/description/icon.png"
+              groups="group_dmarc_user" sequence="85"/>
+    <menuitem id="menu_dmarc_domains" name="Domains" parent="menu_dmarc_root" action="action_dmarc_domain" sequence="10"/>
+    <menuitem id="menu_dmarc_senders" name="Senders" parent="menu_dmarc_root" action="action_dmarc_record" sequence="20"/>
+    <menuitem id="menu_dmarc_reports" name="Reports" parent="menu_dmarc_root" action="action_dmarc_report" sequence="30"/>
+    <menuitem id="menu_dmarc_config" name="Configuration" parent="menu_dmarc_root" sequence="90" groups="group_dmarc_manager"/>
+    <menuitem id="menu_dmarc_settings" name="Settings" parent="menu_dmarc_config" action="action_dmarc_settings" sequence="10"/>
+</odoo>

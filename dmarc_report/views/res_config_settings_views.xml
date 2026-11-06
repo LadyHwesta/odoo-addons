@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_dmarc" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.dmarc</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="DMARC" string="DMARC" name="dmarc_report" groups="dmarc_report.group_dmarc_manager">
+                    <block title="Reports" name="dmarc_reports">
+                        <setting help="Put this address in each domain's DMARC record as rua=mailto:... Odoo suggests the exact records on each domain.">
+                            <field name="dmarc_reporting_address" placeholder="dmarc@example.com"/>
+                        </setting>
+                        <setting help="Odoo reads reports from that mailbox through an Incoming Mail Server. Create one for it, and set Create a New Record to DMARC Report.">
+                            <button name="action_dmarc_mail_servers" type="object" string="Incoming Mail Servers"
+                                    icon="oi-arrow-right" class="btn-link" groups="base.group_system"/>
+                        </setting>
+                        <setting help="How many days of reports the findings on each domain cover.">
+                            <field name="dmarc_window_days"/> days
+                        </setting>
+                        <setting help="Post on the domain, and email its followers, the first time a sender fails DMARC for it.">
+                            <field name="dmarc_alert_new_senders"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_dmarc_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'dmarc_report', 'bin_size': False}</field>
+    </record>
+</odoo>

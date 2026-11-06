@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dmarc_record_view_list" model="ir.ui.view">
+        <field name="name">dmarc.record.list</field>
+        <field name="model">dmarc.record</field>
+        <field name="arch" type="xml">
+            <list create="false" decoration-danger="not passed" decoration-muted="passed">
+                <field name="date_end"/>
+                <field name="domain_id"/>
+                <field name="sender_label"/>
+                <field name="source_ip" optional="show"/>
+                <field name="hostname" optional="hide"/>
+                <field name="count" sum="Total"/>
+                <field name="passed" widget="boolean"/>
+                <field name="dkim_aligned" optional="show"/>
+                <field name="spf_aligned" optional="show"/>
+                <field name="disposition" optional="show"/>
+                <field name="dkim_results" optional="hide"/>
+                <field name="spf_results" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dmarc_record_view_search" model="ir.ui.view">
+        <field name="name">dmarc.record.search</field>
+        <field name="model">dmarc.record</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="sender_label"/>
+                <field name="source_ip"/>
+                <field name="domain_id"/>
+                <filter name="failed" string="Failed DMARC" domain="[('passed', '=', False)]"/>
+                <filter name="passed" string="Passed DMARC" domain="[('passed', '=', True)]"/>
+                <separator/>
+                <filter name="group_sender" string="Sender" context="{'group_by': 'sender_label'}"/>
+                <filter name="group_domain" string="Domain" context="{'group_by': 'domain_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="dmarc_record_view_graph" model="ir.ui.view">
+        <field name="name">dmarc.record.graph</field>
+        <field name="model">dmarc.record</field>
+        <field name="arch" type="xml">
+            <graph type="bar" stacked="1">
+                <field name="date_end" interval="day"/>
+                <field name="passed"/>
+                <field name="count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_dmarc_record" model="ir.actions.act_window">
+        <field name="name">Senders</field>
+        <field name="res_model">dmarc.record</field>
+        <field name="view_mode">list,graph</field>
+        <field name="context">{'search_default_group_sender': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No reports read yet</p>
+            <p>Every server that sent mail as your domains appears here once reports arrive.</p>
+        </field>
+    </record>
+</odoo>
