@@ -46,6 +46,13 @@ class TestNamecheapTldPrice(TransactionCase):
         self.addCleanup(patcher.stop)
         return mock_client
 
+    def test_sync_allows_namecheap_extra_time_for_the_price_sheet(self):
+        client = self._mock_client()
+
+        self.env['namecheap.tld.price']._sync_from_namecheap(self.server)
+
+        self.assertEqual(client.call.call_args.kwargs['timeout'], (10, 90))
+
     def test_sync_creates_one_price_record_per_tld(self):
         self._mock_client()
 

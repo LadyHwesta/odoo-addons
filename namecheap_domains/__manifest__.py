@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Namecheap Domain Reselling',
-    'version': '19.0.1.3.1',
+    'version': '19.0.1.3.2',
     'category': 'Sales',
     'summary': 'Sell domains through Namecheap\'s reseller API with a percentage markup',
     'description': """

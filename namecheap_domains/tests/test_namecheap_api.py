@@ -65,6 +65,16 @@ class TestNamecheapClient(TransactionCase):
         self.assertEqual(kwargs['data']['Command'], 'namecheap.domains.check')
         self.assertEqual(kwargs['data']['DomainList'], 'example.com')
 
+    def test_calls_keep_the_normal_timeout_unless_given_another(self):
+        client = self._client()
+        with patch('requests.post', return_value=_mock_response(SUCCESS_XML)) as post:
+            client.call('namecheap.domains.check', DomainList='example.com')
+            client.call('namecheap.users.getPricing', timeout=(10, 90), ProductType='domain')
+
+        self.assertEqual(post.call_args_list[0].kwargs['timeout'], 30)
+        self.assertEqual(post.call_args_list[1].kwargs['timeout'], (10, 90))
+        self.assertNotIn('timeout', post.call_args_list[1].kwargs['data'])
+
     def test_call_strips_the_namespace_so_plain_tags_work(self):
         client = self._client()
         with patch('requests.post', return_value=_mock_response(SUCCESS_XML)):
