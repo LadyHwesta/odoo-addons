@@ -46,6 +46,10 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 TIMEOUT = 30
+# The full domain price sheet is large, and Namecheap's live API can take well
+# over 30 seconds to send it. (connect, read) seconds; the read limit stays
+# under Odoo's own time limit for scheduled jobs.
+PRICING_TIMEOUT = (10, 90)
 PRODUCTION_URL = 'https://api.namecheap.com/xml.response'
 SANDBOX_URL = 'https://api.sandbox.namecheap.com/xml.response'
 
@@ -73,7 +77,7 @@ class NamecheapClient:
         self.client_ip = client_ip
         self.base_url = SANDBOX_URL if sandbox else PRODUCTION_URL
 
-    def call(self, command, **params):
+    def call(self, command, timeout=TIMEOUT, **params):
         """Run a single Namecheap command and return its
         ``CommandResponse`` element (namespace already stripped, so
         children can be found by plain tag name, e.g.
@@ -92,7 +96,7 @@ class NamecheapClient:
         data.update({k: v for k, v in params.items() if v is not None})
 
         try:
-            response = requests.post(self.base_url, data=data, timeout=TIMEOUT)
+            response = requests.post(self.base_url, data=data, timeout=timeout)
         except requests.RequestException as exc:
             _logger.warning('Namecheap API request failed (%s): %s', command, exc)
             raise NamecheapAPIError(f'Could not reach Namecheap: {exc}') from exc

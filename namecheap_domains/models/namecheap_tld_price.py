@@ -3,6 +3,8 @@ import logging
 
 from odoo import api, fields, models
 
+from .namecheap_api import PRICING_TIMEOUT
+
 _logger = logging.getLogger(__name__)
 
 
@@ -66,7 +68,8 @@ class NamecheapTldPrice(models.Model):
         instead of two calls each assumed to be pre-filtered.
         """
         client = server._get_client()
-        result = client.call('namecheap.users.getPricing', ProductType='domain')
+        result = client.call(
+            'namecheap.users.getPricing', timeout=PRICING_TIMEOUT, ProductType='domain')
         costs = {}  # tld -> {'register': x, 'renew': y}
         for product_type in result.iter('ProductType'):
             for product_category in product_type.iter('ProductCategory'):
