@@ -11,7 +11,7 @@
                 </header>
                 <sheet>
                     <group>
-                        <field name="company"/>
+                        <field name="company" options="{'no_create': True}"/>
                         <field name="active"/>
                         <newline/>
                         <group string="Server Information">

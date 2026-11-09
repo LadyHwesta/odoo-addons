@@ -1,6 +1,6 @@
 {
     'name': 'IMAP Authentication',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.2.1',
     'category': 'Extra Tools',
     'summary': 'Authenticate existing Odoo users against an IMAP mail server',
     'description': """
