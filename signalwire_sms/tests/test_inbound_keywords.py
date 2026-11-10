@@ -65,6 +65,15 @@ class TestInboundKeywords(HttpCase):
         self._inbound('START')
         self.assertFalse(self.partner.sms_blocked)
 
+    def test_start_sends_the_start_reply_not_the_stop_one(self):
+        # Seen live 2026-11-09: START used to come back with the STOP text.
+        self._inbound('START')
+        self.signalwire_client.compat_post.assert_called_once_with(
+            'Accounts/sub-abc/Messages.json',
+            From='+12084449665', To='+15556102107',
+            Body=self.number.sms_start_reply_text)
+        self.assertNotEqual(self.number.sms_start_reply_text, self.number.sms_stop_reply_text)
+
     def test_help_sends_a_reply_without_changing_block_state(self):
         self._inbound('HELP')
         self.assertFalse(self.partner.sms_blocked)

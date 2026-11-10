@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire VoIP',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.5.1',
     'category': 'Productivity/VOIP',
     'summary': 'Core SignalWire connector - projects, subprojects, phone numbers',
     'description': """

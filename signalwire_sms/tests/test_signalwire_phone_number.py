@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, patch
 
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -81,3 +82,19 @@ class TestSignalWirePhoneNumberSms(TransactionCase):
 
         self.assertIn('sms_webhook_url', view['arch'])
         self.assertIn('sid', view['arch'])
+
+    def test_configure_inbound_sms_sets_the_sms_url(self):
+        self.env['ir.config_parameter'].sudo().set_param('web.base.url', 'https://example.com')
+
+        self.number.action_configure_inbound_sms()
+
+        self.signalwire_client.compat_post.assert_called_once_with(
+            'Accounts/sub-abc/IncomingPhoneNumbers/pn-123.json',
+            SmsUrl='https://example.com/signalwire/sms/inbound', SmsMethod='POST')
+
+    def test_configure_inbound_sms_refuses_a_non_https_base_url(self):
+        self.env['ir.config_parameter'].sudo().set_param('web.base.url', 'http://localhost:8069')
+
+        with self.assertRaises(UserError):
+            self.number.action_configure_inbound_sms()
+        self.signalwire_client.compat_post.assert_not_called()

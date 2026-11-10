@@ -132,9 +132,15 @@ class SignalWireSms(models.Model):
                 if message.partner_id:
                     message.partner_id.sms_blocked = True
             elif keyword in START_KEYWORDS:
-                message._send_keyword_reply(number.sms_stop_reply_text)
+                handled = False
                 if message.partner_id:
                     message.partner_id.sms_blocked = False
+                    # "YES" is both a carrier START word and the answer to a
+                    # double opt-in question, so give that flow its turn
+                    # first; it used to never see a "YES".
+                    handled = message.partner_id._sms_handle_custom_keyword(keyword)
+                if not handled:
+                    message._send_keyword_reply(number.sms_start_reply_text)
             elif keyword in HELP_KEYWORDS:
                 message._send_keyword_reply(number.sms_help_reply_text)
             elif message.partner_id:

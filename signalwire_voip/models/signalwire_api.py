@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import re
 
 import requests
 
@@ -177,8 +178,15 @@ class SignalWireClient:
             payload = response.json()
         except ValueError:
             # e.g. a bad-auth 401 comes back as plain text "Unauthorized",
-            # not JSON - verified live 2026-09-15.
-            return f'SignalWire error {response.status_code}: {response.text or "(no body)"}'
+            # not JSON - verified live 2026-09-15. A wrong path gets a
+            # whole HTML error page (seen live 2026-11-09), so name the
+            # URL and keep only the page title, not 100 lines of CSS.
+            text = (response.text or '').strip()
+            if text.lower().startswith(('<!doctype', '<html')):
+                match = re.search(r'<title>(.*?)</title>', text, re.I | re.S)
+                text = match.group(1).strip() if match else 'HTML error page'
+                return f'SignalWire error {response.status_code} for {response.url}: {text}'
+            return f'SignalWire error {response.status_code}: {text[:500] or "(no body)"}'
 
         # Compatibility API shape: {"code": ..., "message": ..., ...}
         if 'message' in payload:

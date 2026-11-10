@@ -5,6 +5,9 @@ from odoo.exceptions import UserError
 DEFAULT_STOP_REPLY = (
     "You have been unsubscribed and will no longer receive messages "
     "from this number. Reply START to resubscribe.")
+DEFAULT_START_REPLY = (
+    "You're subscribed again to messages from this number. Reply HELP "
+    "for help or STOP to unsubscribe.")
 DEFAULT_HELP_REPLY = (
     "This number sends account/service messages. Reply STOP to "
     "unsubscribe, or contact us directly for help.")
@@ -24,10 +27,14 @@ class SignalWirePhoneNumber(models.Model):
     sms_ids = fields.One2many('signalwire.sms', 'phone_number_id', string="Messages")
     sms_count = fields.Integer(compute='_compute_sms_count')
     sms_stop_reply_text = fields.Text(
-        string="STOP/START Reply", default=DEFAULT_STOP_REPLY,
-        help="Sent back automatically when someone replies STOP "
-             "(confirming they're unsubscribed) or START/UNSTOP "
-             "(confirming they're resubscribed) to this number.")
+        string="STOP Reply", default=DEFAULT_STOP_REPLY,
+        help="Sent back automatically when someone replies STOP, "
+             "confirming they're unsubscribed.")
+    sms_start_reply_text = fields.Text(
+        string="START Reply", default=DEFAULT_START_REPLY,
+        help="Sent back automatically when someone replies START or "
+             "UNSTOP, confirming they're subscribed again. (Until "
+             "2026-11-09 START wrongly got the STOP reply.)")
     sms_help_reply_text = fields.Text(
         string="HELP Reply", default=DEFAULT_HELP_REPLY,
         help="Sent back automatically when someone replies HELP to "
@@ -90,3 +97,35 @@ class SignalWirePhoneNumber(models.Model):
         })
         message._log_to_partner_chatter()
         return message
+
+    def action_configure_inbound_sms(self):
+        """Points this number's incoming-message webhook at this
+        database's /signalwire/sms/inbound, the messaging twin of
+        signalwire_voip_click2call's action_configure_inbound_routing.
+
+        Until 2026-11-09 nothing set this: the number had a Voice URL but
+        no SMS URL, so SignalWire never passed inbound texts to Odoo and
+        carrier-mandated HELP/STOP replies silently never happened.
+        """
+        self.ensure_one()
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url') or ''
+        if not base_url.startswith('https://'):
+            raise UserError(_(
+                "SignalWire can only reach a public HTTPS address, and this "
+                "database's web.base.url is %(url)s.", url=base_url or _("not set")))
+        client = self.subproject_id.server_id._get_client()
+        client.compat_post(
+            f'Accounts/{self.subproject_id.account_sid}/IncomingPhoneNumbers/{self.sid}.json',
+            SmsUrl=f'{base_url}/signalwire/sms/inbound', SmsMethod='POST')
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Incoming messages connected"),
+                'message': _(
+                    "Texts to %(number)s now come into Odoo at %(url)s.",
+                    number=self.name, url=f'{base_url}/signalwire/sms/inbound'),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
