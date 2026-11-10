@@ -8,6 +8,10 @@ Custom Odoo 19 modules.
   (see [`VENDORED.md`](VENDORED.md)): a "Technical feature" checkbox in user
   preferences gives permanent access to Settings > Technical menus (email
   templates, automated actions, ...) without ever needing developer mode.
+- [`mail_no_hidden_preview/`](mail_no_hidden_preview/) - removes the invisible
+  preview block (0px text plus 140 invisible characters) Odoo puts at the top
+  of every notification email, which SpamAssassin scores as a spammer trick
+  (FONT_INVIS_MSGID, 2.5 of 5 points). No settings.
 - [`mail_template_menu/`](mail_template_menu/) - narrower alternative to the
   above for a customer who should only ever manage email templates: one
   plain "Email Templates" menu under Settings (not nested in Technical),
