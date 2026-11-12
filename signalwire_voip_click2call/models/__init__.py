@@ -11,3 +11,4 @@ from . import signalwire_desk_phone
 from . import signalwire_voicemail
 from . import res_users
 from . import signalwire_open_status
+from . import signalwire_dashboard

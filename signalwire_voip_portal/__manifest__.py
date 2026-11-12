@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Portal Support Calling',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Productivity/VOIP',
     'summary': 'Let portal customers request a support callback or place a live call - never an external one',
     'description': """

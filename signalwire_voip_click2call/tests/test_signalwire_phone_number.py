@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Datetime
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import HttpCase, TransactionCase, tagged
 
 
 @tagged('post_install', '-at_install')
@@ -344,5 +344,117 @@ class TestOpenStatusAndExtensions(TransactionCase):
 
     def test_opening_the_app_shows_a_page_not_a_pop_up(self):
         root = self.env.ref('signalwire_voip.menu_signalwire_root')
-        self.assertEqual(root.action, self.env.ref('signalwire_voip.action_signalwire_phone_number'))
-        self.assertNotEqual(root.action.target, 'new')
+        self.assertEqual(root.action, self.env.ref('signalwire_voip.action_signalwire_dashboard'))
+        self.assertEqual(root.action.type, 'ir.actions.client')
+
+
+@tagged('post_install', '-at_install')
+class TestVoipDashboardRouting(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        server = cls.env['signalwire.server'].create({
+            'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
+            'project_id': 'pid123', 'api_token': 'tok456'})
+        sub = cls.env['signalwire.subproject'].create({
+            'name': 'Office', 'server_id': server.id, 'account_sid': 'sub-abc', 'state': 'active'})
+        cls.user = cls.env['res.users'].create({
+            'name': 'Jane Agent', 'login': 'jane.dash@example.com',
+            'signalwire_sip_endpoint_id': 'ep-1'})
+        cls.number = cls.env['signalwire.phone_number'].create({
+            'name': '+17075550100', 'sid': 'pn-1', 'subproject_id': sub.id,
+            'assigned_user_id': cls.user.id})
+
+    def setUp(self):
+        super().setUp()
+        client = MagicMock()
+        client.compat_get.return_value = {'calls': []}
+        patcher = patch('odoo.addons.signalwire_voip.models.signalwire_server.'
+                        'SignalWireServer._get_client', return_value=client)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _data(self, user=None):
+        Dashboard = self.env['signalwire.dashboard']
+        if user:
+            Dashboard = Dashboard.with_user(user)
+        return Dashboard.get_dashboard_data(refresh=True)
+
+    def test_numbers_show_where_calls_go_now_and_need_connecting(self):
+        row = next(t for t in self._data()['tables'] if t['key'] == 'numbers')['rows'][0]
+        self.assertEqual(row['cells'][1], 'Ring Jane Agent')
+        self.assertEqual(row['tone'], 'warning', "not connected yet")
+        self.number.inbound_connected = True
+        row = next(t for t in self._data()['tables'] if t['key'] == 'numbers')['rows'][0]
+        self.assertEqual(row['tone'], 'ok')
+
+    def test_extensions_table_and_voicemail_tile(self):
+        self.env['signalwire.voicemail'].create({
+            'phone_number_id': self.number.id, 'user_id': self.user.id,
+            'from_number': '+15550001111'})
+        data = self._data()
+        extensions = next(t for t in data['tables'] if t['key'] == 'extensions')
+        self.assertEqual(extensions['rows'][0]['cells'][:2], ['Jane Agent', 'Available'])
+        self.assertEqual(extensions['rows'][0]['open']['view_id'],
+                         self.env.ref('signalwire_voip_click2call.view_users_signalwire_extension_form').id)
+        voicemail = next(t for t in data['tiles'] if t['key'] == 'voicemail')
+        self.assertEqual(voicemail['value'], 1)
+        self.assertEqual(voicemail['tone'], 'warning')
+
+    def test_open_closed_banner_and_switch(self):
+        data = self._data()
+        self.assertFalse(data['status']['closed'])
+        self.assertTrue(data['status']['can_toggle'])
+        self.env['signalwire.dashboard'].set_phones_closed(True)
+        self.assertTrue(self._data()['status']['closed'])
+        self.env['signalwire.dashboard'].set_phones_closed(False)
+        self.assertFalse(self.env.company.signalwire_closed_until)
+
+    def test_ordinary_staff_see_the_banner_but_cannot_switch(self):
+        staff = self.env['res.users'].create({
+            'name': 'Sam', 'login': 'sam.dash@example.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_user').id])]})
+        data = self._data(staff)
+        self.assertFalse(data['status']['can_toggle'])
+        self.assertNotIn('live_calls', [t['key'] for t in data['tiles']])
+        with self.assertRaises(AccessError):
+            self.env['signalwire.dashboard'].with_user(staff).set_phones_closed(True)
+
+
+@tagged('post_install', '-at_install')
+class TestVoipDashboardPage(HttpCase):
+    """The dashboard page itself, in a real browser: it loads, draws the
+    open/closed banner, tiles and tables, and the switch works."""
+
+    def test_dashboard_page_draws_and_switches(self):
+        server = self.env['signalwire.server'].create({
+            'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'sip_domain': 'example-abc123.sip.signalwire.com',
+            'project_id': 'pid123', 'api_token': 'tok456'})
+        sub = self.env['signalwire.subproject'].create({
+            'name': 'Office', 'server_id': server.id, 'account_sid': 'sub-abc', 'state': 'active'})
+        self.env['signalwire.phone_number'].create({
+            'name': '+17075550100', 'sid': 'pn-1', 'subproject_id': sub.id})
+        client = MagicMock()
+        client.compat_get.return_value = {'calls': []}
+        code = """
+            const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+            const page = document.querySelector('.o_signalwire_dashboard');
+            if (!page.querySelector('.o_signalwire_tile')) { throw new Error('no tiles'); }
+            if (!page.textContent.includes('+17075550100')) { throw new Error('no numbers table'); }
+            const close = [...page.querySelectorAll('button')].find(b => b.textContent.includes('Close for the Rest of Today'));
+            if (!close) { throw new Error('no close button'); }
+            close.click();
+            for (let i = 0; i < 50 && !page.textContent.includes('Reopen Now'); i++) { await wait(100); }
+            if (!page.textContent.includes('Reopen Now')) { throw new Error('switch did not take'); }
+            console.log('test successful');
+        """
+        with patch('odoo.addons.signalwire_voip.models.signalwire_server.'
+                   'SignalWireServer._get_client', return_value=client):
+            self.browser_js('/odoo/action-signalwire_voip.action_signalwire_dashboard',
+                            '(async () => {' + code + '})().catch((e) => console.error(e.message))',
+                            ready="!!document.querySelector('.o_signalwire_dashboard h4')",
+                            login='admin', timeout=120)
+        self.assertTrue(self.env.company.signalwire_closed_until)

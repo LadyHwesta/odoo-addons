@@ -1,0 +1,49 @@
+.o_signalwire_dashboard {
+    .o_signalwire_dashboard_tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+        gap: 1rem;
+    }
+
+    .o_signalwire_tile {
+        border-left-width: 4px;
+
+        &.o_signalwire_tile_warning { border-left-color: $warning; }
+        &.o_signalwire_tile_ok { border-left-color: $success; }
+        &.o_signalwire_tile_info { border-left-color: $info; }
+        &.o_signalwire_tile_muted { border-left-color: $border-color; }
+    }
+
+    .o_signalwire_tile_value {
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .o_signalwire_tile_clickable,
+    .o_signalwire_row_clickable {
+        cursor: pointer;
+    }
+
+    .o_signalwire_tile_clickable:hover,
+    .o_signalwire_tile_clickable:focus-visible {
+        box-shadow: $box-shadow-sm;
+    }
+
+    .o_signalwire_tone_ok::before,
+    .o_signalwire_tone_warning::before,
+    .o_signalwire_tone_muted::before {
+        content: "";
+        display: inline-block;
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        vertical-align: middle;
+    }
+
+    .o_signalwire_tone_ok::before { background: $success; }
+    .o_signalwire_tone_warning::before { background: $warning; }
+    .o_signalwire_tone_muted::before { background: $gray-400; }
+}

@@ -5,10 +5,10 @@
          the people (Extensions, added by signalwire_voip_click2call), and
          the account plumbing. Other SignalWire modules hang their menus
          under these. -->
-    <!-- Opening the app goes straight to a real page: without its own
+    <!-- Opening the app goes straight to the dashboard: without its own
          action, Odoo opens the first menu entry, which may be a pop-up. -->
     <menuitem id="menu_signalwire_root" name="VoIP" sequence="91"
-              action="action_signalwire_phone_number" />
+              action="action_signalwire_dashboard" />
     <menuitem id="menu_signalwire_section_phones" name="Phones"
               parent="menu_signalwire_root" sequence="10" />
     <menuitem id="menu_signalwire_section_call_flow" name="Call Flow"
@@ -16,6 +16,9 @@
     <menuitem id="menu_signalwire_section_config" name="Configuration"
               parent="menu_signalwire_root" sequence="90" />
 
+    <menuitem id="menu_signalwire_dashboard" name="Dashboard"
+              action="action_signalwire_dashboard" parent="menu_signalwire_section_phones"
+              sequence="0" />
     <menuitem id="menu_signalwire_phone_numbers" name="Phone Numbers"
               action="action_signalwire_phone_number" parent="menu_signalwire_section_call_flow"
               sequence="10" />

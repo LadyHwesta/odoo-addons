@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire VoIP',
-    'version': '19.0.1.7.1',
+    'version': '19.0.1.8.0',
     'category': 'Productivity/VOIP',
     'summary': 'Core SignalWire connector - projects, subprojects, phone numbers',
     'description': """
@@ -37,8 +37,16 @@ SignalWire account and what hasn't yet.
         'views/signalwire_server_views.xml',
         'views/signalwire_subproject_views.xml',
         'views/signalwire_phone_number_views.xml',
+        'views/signalwire_dashboard_views.xml',
         'views/menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'signalwire_voip/static/src/dashboard/voip_dashboard.esm.js',
+            'signalwire_voip/static/src/dashboard/voip_dashboard.xml',
+            'signalwire_voip/static/src/dashboard/voip_dashboard.scss',
+        ],
+    },
     'installable': True,
     'application': False,
 }
