@@ -21,10 +21,14 @@
                     <div class="oe_title">
                         <h1><field name="name" /></h1>
                     </div>
-                    <group>
-                        <field name="company_id" groups="base.group_multi_company" />
-                        <field name="greeting_text" />
+                    <group groups="base.group_multi_company">
+                        <field name="company_id" />
                     </group>
+                    <separator string="What callers hear" />
+                    <field name="greeting_text" nolabel="1" rows="5"
+                           placeholder="Thank you for calling... Press 1 for support, 2 for sales." />
+                    <group name="ivr_voice" />
+                    <separator string="Keys callers can press" />
                     <field name="option_ids">
                         <list editable="bottom">
                             <field name="digit" />

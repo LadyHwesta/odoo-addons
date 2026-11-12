@@ -6,14 +6,17 @@
         <field name="model">signalwire.sms</field>
         <field name="arch" type="xml">
             <list create="0" edit="0">
-                <field name="create_date" />
-                <field name="direction" />
-                <field name="phone_number_id" />
-                <field name="from_number" />
-                <field name="to_number" />
-                <field name="body" />
-                <field name="partner_id" />
-                <field name="state" />
+                <field name="create_date" string="When" />
+                <field name="direction" widget="badge"
+                       decoration-info="direction == 'inbound'"
+                       decoration-muted="direction == 'outbound'" />
+                <field name="partner_id" string="Contact" />
+                <field name="other_number" string="Their Number" />
+                <field name="body" string="Message" />
+                <field name="state" string="Status" widget="badge" optional="show" />
+                <field name="phone_number_id" string="Our Number" optional="hide" />
+                <field name="from_number" optional="hide" />
+                <field name="to_number" optional="hide" />
             </list>
         </field>
     </record>

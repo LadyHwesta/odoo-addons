@@ -6,22 +6,20 @@
         <field name="model">signalwire.call.group</field>
         <field name="inherit_id" ref="signalwire_voip_click2call.view_signalwire_call_group_form" />
         <field name="arch" type="xml">
-            <field name="voicemail_user_id" position="after">
-                <field name="voicemail_piper_voice" invisible="voicemail_mode != 'group'" />
+            <group name="voicemail_voice" position="inside">
+                <field name="voicemail_piper_voice" />
                 <field name="voicemail_piper_speaker_id"
-                       invisible="voicemail_mode != 'group' or voicemail_piper_voice != 'en_US-libritts_r-medium'" />
-                <widget name="piper_preview" colspan="2"
-                        invisible="voicemail_mode != 'group' or not voicemail_piper_voice"
+                       invisible="voicemail_piper_voice != 'en_US-libritts_r-medium'" />
+                <widget name="piper_preview" colspan="2" invisible="not voicemail_piper_voice"
                         options="{'voice_field': 'voicemail_piper_voice', 'speaker_field': 'voicemail_piper_speaker_id', 'text_field': 'voicemail_greeting_text'}" />
-            </field>
-            <field name="hold_music" position="after">
-                <field name="hold_piper_voice" invisible="not max_ring_attempts" />
+            </group>
+            <group name="hold_voice" position="inside">
+                <field name="hold_piper_voice" />
                 <field name="hold_piper_speaker_id"
-                       invisible="not max_ring_attempts or hold_piper_voice != 'en_US-libritts_r-medium'" />
-                <widget name="piper_preview" colspan="2"
-                        invisible="not max_ring_attempts or not hold_piper_voice"
+                       invisible="hold_piper_voice != 'en_US-libritts_r-medium'" />
+                <widget name="piper_preview" colspan="2" invisible="not hold_piper_voice"
                         options="{'voice_field': 'hold_piper_voice', 'speaker_field': 'hold_piper_speaker_id', 'text_field': 'hold_message_text'}" />
-            </field>
+            </group>
         </field>
     </record>
 

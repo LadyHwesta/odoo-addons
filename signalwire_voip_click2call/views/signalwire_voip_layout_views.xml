@@ -106,7 +106,7 @@
                                    invisible="not signalwire_voicemail_enabled" />
                             <field name="signalwire_voicemail_beep"
                                    invisible="not signalwire_voicemail_enabled" />
-                            <field name="signalwire_voicemail_greeting_text"
+                            <field name="signalwire_voicemail_greeting_text" rows="3"
                                    invisible="not signalwire_voicemail_enabled" />
                             <field name="signalwire_voicemail_greeting_filename" invisible="1" />
                             <field name="signalwire_voicemail_greeting"
@@ -152,7 +152,7 @@
 
     <menuitem id="menu_signalwire_open_status" name="Open / Closed"
               parent="signalwire_voip.menu_signalwire_section_phones"
-              action="action_signalwire_open_status" sequence="5"
+              action="action_signalwire_open_status" sequence="50"
               groups="group_signalwire_receptionist,base.group_system" />
     <menuitem id="menu_signalwire_extensions" name="Extensions"
               parent="signalwire_voip.menu_signalwire_root"

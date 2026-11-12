@@ -43,7 +43,16 @@ class SignalWireSms(models.Model):
         [('outbound', 'Outbound'), ('inbound', 'Inbound')], required=True)
     from_number = fields.Char(required=True)
     to_number = fields.Char(required=True)
+    other_number = fields.Char(
+        compute='_compute_other_number',
+        help="The other side's number: who sent it, or who it went to.")
     body = fields.Text(required=True)
+    @api.depends('direction', 'from_number', 'to_number')
+    def _compute_other_number(self):
+        for message in self:
+            message.other_number = (message.from_number if message.direction == 'inbound'
+                                    else message.to_number)
+
     sid = fields.Char(string="SID", help="SignalWire's own ID for this message.")
     state = fields.Char(
         help="SignalWire's own delivery status for an outbound message "

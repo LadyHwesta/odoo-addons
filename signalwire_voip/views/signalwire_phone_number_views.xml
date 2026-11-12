@@ -6,9 +6,9 @@
         <field name="model">signalwire.phone_number</field>
         <field name="arch" type="xml">
             <list create="0">
-                <field name="name" />
-                <field name="subproject_id" />
-                <field name="partner_id" />
+                <field name="name" class="text-nowrap" />
+                <field name="subproject_id" optional="hide" />
+                <field name="partner_id" optional="hide" />
                 <field name="company_id" groups="base.group_multi_company" />
             </list>
         </field>

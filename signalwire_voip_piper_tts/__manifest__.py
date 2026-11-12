@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire Piper TTS',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Productivity/VOIP',
     'summary': "Natural-sounding, open-source, self-hosted voices for IVR menus and voicemail greetings",
     'description': """

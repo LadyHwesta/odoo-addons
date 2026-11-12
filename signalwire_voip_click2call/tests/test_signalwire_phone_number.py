@@ -341,3 +341,8 @@ class TestOpenStatusAndExtensions(TransactionCase):
         self.assertEqual(self.env.ref('signalwire_voip_click2call.menu_signalwire_voicemail').parent_id, phones)
         self.assertEqual(self.env.ref('signalwire_voip_click2call.menu_signalwire_call_group').parent_id, call_flow)
         self.assertEqual(self.env.ref('signalwire_voip.menu_signalwire_phone_numbers').parent_id, call_flow)
+
+    def test_opening_the_app_shows_a_page_not_a_pop_up(self):
+        root = self.env.ref('signalwire_voip.menu_signalwire_root')
+        self.assertEqual(root.action, self.env.ref('signalwire_voip.action_signalwire_phone_number'))
+        self.assertNotEqual(root.action.target, 'new')

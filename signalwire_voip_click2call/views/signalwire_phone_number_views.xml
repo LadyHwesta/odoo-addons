@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <field name="partner_id" position="after">
                 <field name="call_flow_summary" />
-                <field name="inbound_connected" widget="boolean_toggle" readonly="1" optional="show" />
+                <field name="inbound_connected" widget="boolean" optional="show" />
             </field>
         </field>
     </record>
@@ -71,7 +71,7 @@
                     </group>
                 </group>
                 <group string="On Hold (when the receptionist parks a caller)">
-                    <field name="hold_message_text" />
+                    <field name="hold_message_text" rows="3" />
                     <field name="hold_music_filename" invisible="1" />
                     <field name="hold_music" filename="hold_music_filename" />
                 </group>
@@ -101,25 +101,36 @@
                         <h1><field name="name" /></h1>
                     </div>
                     <group>
-                        <field name="company_id" groups="base.group_multi_company" />
-                        <field name="member_ids" widget="many2many_tags" />
-                        <field name="voicemail_mode" widget="radio" />
-                        <field name="voicemail_user_id"
-                               invisible="voicemail_mode != 'user'" />
-                        <field name="voicemail_greeting_text"
-                               invisible="voicemail_mode != 'group'" />
-                        <field name="voicemail_greeting_filename" invisible="1" />
-                        <field name="voicemail_greeting"
-                               filename="voicemail_greeting_filename"
-                               invisible="voicemail_mode != 'group'" />
-                        <separator string="Hold and Retry Ring" />
-                        <field name="max_ring_attempts" />
-                        <field name="hold_message_text"
-                               invisible="not max_ring_attempts" />
-                        <field name="hold_music_filename" invisible="1" />
-                        <field name="hold_music" filename="hold_music_filename"
-                               invisible="not max_ring_attempts" />
+                        <group string="Who rings">
+                            <field name="company_id" groups="base.group_multi_company" />
+                            <field name="member_ids" widget="many2many_tags" />
+                            <field name="max_ring_attempts" />
+                        </group>
+                        <group string="If nobody answers">
+                            <field name="voicemail_mode" widget="radio" nolabel="1" colspan="2" />
+                            <field name="voicemail_user_id"
+                                   invisible="voicemail_mode != 'user'" />
+                        </group>
                     </group>
+                    <div invisible="voicemail_mode != 'group'">
+                        <separator string="Voicemail greeting" />
+                        <field name="voicemail_greeting_text" nolabel="1" rows="4"
+                               placeholder="What callers hear before leaving a message." />
+                        <group name="voicemail_voice">
+                            <field name="voicemail_greeting_filename" invisible="1" />
+                            <field name="voicemail_greeting" string="Or Use a Recording"
+                                   filename="voicemail_greeting_filename" />
+                        </group>
+                    </div>
+                    <div invisible="not max_ring_attempts">
+                        <separator string="While callers wait between rings" />
+                        <field name="hold_message_text" nolabel="1" rows="3"
+                               placeholder="What callers hear while they wait." />
+                        <group name="hold_voice">
+                            <field name="hold_music_filename" invisible="1" />
+                            <field name="hold_music" filename="hold_music_filename" />
+                        </group>
+                    </div>
                 </sheet>
                 <chatter/>
             </form>
