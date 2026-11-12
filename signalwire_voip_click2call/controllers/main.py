@@ -8,6 +8,8 @@ import requests
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.signalwire_voip.webhook_security import signalwire_signed
+
 _logger = logging.getLogger(__name__)
 
 CXML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -278,6 +280,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/inbound', type='http', auth='public',
         methods=['POST'], csrf=False)
+    @signalwire_signed
     def inbound_call(self, **kwargs):
         """SignalWire POSTs standard Twilio-compatible form fields
         here on every inbound call to any number whose Voice URL
@@ -342,6 +345,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/group_fallback/<int:group_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def group_fallback(self, group_id, phone_number_id, attempt=None, **kwargs):
         """Called after a Call Group's own <Dial> ends unanswered.
         While `attempt` is still below the group's own
@@ -394,6 +398,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/ivr/<int:menu_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def ivr_menu(self, menu_id, phone_number_id, **kwargs):
         """Entry point for an IVR Menu - also re-entered for a
         "Go to Another Menu" option's own submenu, and for a re-prompt
@@ -408,6 +413,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/ivr/<int:menu_id>/<int:phone_number_id>/digit',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def ivr_digit(self, menu_id, phone_number_id, **kwargs):
         """Handles the digit a caller pressed in response to
         ivr_menu's own <Gather>. An unrecognized digit re-prompts the
@@ -457,6 +463,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/fallback/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def fallback(self, user_id, phone_number_id, step=None, **kwargs):
         """Called after ANY <Dial> attempt in the chain ends - the
         softphone itself, or a previous fallback step. `step` names
@@ -543,6 +550,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/voicemail_complete/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def voicemail_complete(self, user_id, phone_number_id, transcribe=None, **kwargs):
         form = request.httprequest.form
         user = request.env['res.users'].sudo().browse(user_id)
@@ -560,6 +568,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/group_voicemail_complete/<int:group_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def group_voicemail_complete(self, group_id, phone_number_id, **kwargs):
         form = request.httprequest.form
         group = request.env['signalwire.call.group'].sudo().browse(group_id)
@@ -626,6 +635,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/voicemail_transcription/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def voicemail_transcription(self, user_id, phone_number_id, **kwargs):
         """SignalWire's own transcribeCallback webhook - fires
         asynchronously, well after the call itself has ended, so this
@@ -658,6 +668,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/route_to_user/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def route_to_user(self, user_id, phone_number_id, **kwargs):
         """A receptionist panel's own redirect target - see
         signalwire.live_call.action_route_to_user(). A plain one-shot
@@ -682,6 +693,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/route_to_voicemail/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def route_to_voicemail(self, user_id, phone_number_id, **kwargs):
         """A receptionist panel's own redirect target - see
         signalwire.live_call.action_send_to_voicemail().
@@ -696,6 +708,7 @@ class SignalWireVoiceController(http.Controller):
     @http.route(
         '/signalwire/voice/hold_loop/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
     def hold_loop(self, phone_number_id, **kwargs):
         """A receptionist panel's own redirect target while the
         receptionist places a separate, ordinary outbound call to

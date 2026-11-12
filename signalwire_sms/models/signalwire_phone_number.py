@@ -83,9 +83,15 @@ class SignalWirePhoneNumber(models.Model):
                 "%(partner)s has opted out of SMS (replied STOP) - "
                 "refusing to send.", partner=blocked.name))
         client = self.subproject_id.server_id._get_client()
+        extra = {}
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url') or ''
+        if base_url.startswith('https://'):
+            # Without this SignalWire never reports delivery, and every
+            # sent text stayed "queued" forever (found live 2026-11-12).
+            extra['StatusCallback'] = f'{base_url}/signalwire/sms/status'
         result = client.compat_post(
             f'Accounts/{self.subproject_id.account_sid}/Messages.json',
-            From=self.name, To=to, Body=body)
+            From=self.name, To=to, Body=body, **extra)
         message = self.env['signalwire.sms'].create({
             'phone_number_id': self.id,
             'direction': 'outbound',

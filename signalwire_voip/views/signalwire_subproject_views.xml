@@ -28,6 +28,7 @@
                         </group>
                         <group>
                             <field name="account_sid" readonly="1" />
+                            <field name="signing_key" password="True" groups="base.group_system" />
                         </group>
                     </group>
                     <notebook>

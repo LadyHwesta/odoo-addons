@@ -6,6 +6,10 @@
         <field name="model">signalwire.sms</field>
         <field name="arch" type="xml">
             <list create="0" edit="0">
+                <header>
+                    <button name="action_check_status" type="object" string="Check Status"
+                            help="Ask SignalWire whether the selected sent texts were delivered." />
+                </header>
                 <field name="create_date" string="When" />
                 <field name="direction" widget="badge"
                        decoration-info="direction == 'inbound'"

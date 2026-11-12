@@ -43,6 +43,33 @@ class TestSignalWirePhoneNumberSms(TransactionCase):
             'Accounts/sub-abc/Messages.json',
             From='+12084449665', To='+15556102107', Body='hello there')
 
+    def test_send_sms_asks_for_delivery_reports_on_a_public_odoo(self):
+        self.env['ir.config_parameter'].sudo().set_param('web.base.url', 'https://odoo.example.com')
+        self.signalwire_client.compat_post.return_value = {'sid': 'sms-1', 'status': 'queued'}
+
+        self.number.send_sms('+15556102107', 'hello there')
+
+        self.signalwire_client.compat_post.assert_called_once_with(
+            'Accounts/sub-abc/Messages.json',
+            From='+12084449665', To='+15556102107', Body='hello there',
+            StatusCallback='https://odoo.example.com/signalwire/sms/status')
+
+    def test_check_status_catches_up_old_queued_texts(self):
+        self.signalwire_client.compat_post.return_value = {'sid': 'sms-9', 'status': 'queued'}
+        sent = self.number.send_sms('+15556102107', 'hello there')
+        inbound = self.env['signalwire.sms'].create({
+            'phone_number_id': self.number.id, 'direction': 'inbound', 'sid': 'sms-in',
+            'from_number': '+15556102107', 'to_number': '+12084449665',
+            'body': 'hi', 'state': 'received'})
+        self.signalwire_client.compat_get.return_value = {'status': 'delivered', 'error_code': None}
+
+        (sent | inbound).action_check_status()
+
+        self.assertEqual(sent.state, 'delivered')
+        self.assertEqual(inbound.state, 'received', "received texts aren't asked about")
+        self.signalwire_client.compat_get.assert_called_once_with(
+            'Accounts/sub-abc/Messages/sms-9.json')
+
     def test_send_sms_creates_a_message_record(self):
         self.signalwire_client.compat_post.return_value = {
             'sid': 'sms-1', 'status': 'queued',

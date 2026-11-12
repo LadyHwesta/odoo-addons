@@ -32,6 +32,12 @@ class SignalWireSubproject(models.Model):
         default='draft', tracking=True, required=True)
     phone_number_ids = fields.One2many('signalwire.phone_number', 'subproject_id')
     active = fields.Boolean(default=True)
+    signing_key = fields.Char(
+        string="Signing Key", groups="base.group_system", copy=False,
+        help="This subproject's own Signing Key, if SignalWire signs its "
+             "webhooks with it rather than the main project's. Find it in "
+             "the SignalWire Dashboard with this subproject selected: API "
+             "Credentials > Signing Key (Show).")
 
     def action_provision(self):
         """Create the actual subproject at SignalWire. One REST call

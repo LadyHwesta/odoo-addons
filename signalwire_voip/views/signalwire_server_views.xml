@@ -19,6 +19,18 @@
                         <field name="project_id" />
                         <field name="api_token" password="True" />
                     </group>
+                    <group string="Webhook Security">
+                        <group>
+                            <field name="signing_key" password="True"
+                                   placeholder="API Credentials &gt; Signing Key" />
+                            <field name="webhook_signature_mode" widget="radio" />
+                        </group>
+                        <group>
+                            <field name="webhook_last_valid" />
+                            <field name="webhook_last_invalid" />
+                            <field name="webhook_last_invalid_path" invisible="not webhook_last_invalid" />
+                        </group>
+                    </group>
                 </sheet>
             </form>
         </field>

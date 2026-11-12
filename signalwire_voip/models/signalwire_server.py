@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
+from datetime import timedelta
 
-from odoo import _, models, fields
-from odoo.exceptions import UserError
+from odoo import _, api, models, fields
+from odoo.exceptions import UserError, ValidationError
 
+from .. import webhook_security
 from .signalwire_api import SignalWireAPIError, SignalWireClient
+
+_logger = logging.getLogger(__name__)
 
 # Our names -> the Relay REST search's number_type values.
 NUMBER_TYPES = {'local': 'local', 'toll_free': 'tollfree'}
@@ -55,6 +60,66 @@ class SignalWireServer(models.Model):
              "Voice and Numbers scopes for everything this module "
              "does; Messaging too once signalwire_sms is installed.")
     active = fields.Boolean(default=True)
+
+    signing_key = fields.Char(
+        string="Signing Key", groups="base.group_system", copy=False,
+        help="SignalWire Dashboard > API Credentials > Signing Key (Show). "
+             "Not the API token. Used to check that calls and texts reported "
+             "to this Odoo really come from SignalWire. Subprojects have "
+             "their own Signing Keys: add those on each subproject.")
+    webhook_signature_mode = fields.Selection(
+        [('off', "Off"), ('log', "Check and log only"), ('enforce', "Reject unsigned")],
+        string="Webhook Signatures", default='log', required=True,
+        groups="base.group_system",
+        help="Check and log only: every webhook is checked and any failure is "
+             "logged, but nothing is refused - use this until the log shows "
+             "they all pass. Reject unsigned: webhooks without a valid "
+             "signature get a 403 and are ignored.")
+    webhook_last_valid = fields.Datetime(
+        string="Last Valid Webhook", readonly=True, groups="base.group_system")
+    webhook_last_invalid = fields.Datetime(
+        string="Last Failed Webhook", readonly=True, groups="base.group_system")
+    webhook_last_invalid_path = fields.Char(
+        string="Failed Webhook Address", readonly=True, groups="base.group_system")
+
+    @api.constrains('webhook_signature_mode', 'signing_key')
+    def _check_signature_mode(self):
+        for server in self:
+            if server.webhook_signature_mode == 'enforce' and not server.signing_key:
+                raise ValidationError(_(
+                    "Add the Signing Key before rejecting unsigned webhooks, or "
+                    "every call and text would be refused."))
+
+    @api.model
+    def _check_webhook_signature(self, httprequest):
+        """True when this webhook may be handled. See webhook_security."""
+        servers = self.sudo().search([])
+        modes = set(servers.mapped('webhook_signature_mode'))
+        mode = 'enforce' if 'enforce' in modes else 'log' if 'log' in modes else 'off'
+        if mode == 'off':
+            return True
+        keys = [k for k in servers.mapped('signing_key') if k]
+        keys += [k for k in self.env['signalwire.subproject'].sudo().search([]).mapped('signing_key') if k]
+        if not keys:
+            _logger.info("SignalWire webhook %s not checked: no Signing Key set yet.", httprequest.path)
+            return True
+        base_url = (self.env['ir.config_parameter'].sudo().get_param('web.base.url') or '').rstrip('/')
+        query = httprequest.query_string.decode()
+        path = httprequest.path + (f'?{query}' if query else '')
+        urls = [base_url + path, httprequest.url]
+        valid = webhook_security.is_valid(
+            keys, httprequest.headers.get(webhook_security.HEADER, ''),
+            urls, list(httprequest.form.items(multi=True)))
+        now = fields.Datetime.now()
+        target = servers[:1]
+        if valid:
+            if not target.webhook_last_valid or now - target.webhook_last_valid > timedelta(minutes=10):
+                target.webhook_last_valid = now
+            return True
+        _logger.warning("SignalWire webhook %s failed the signature check (%s).", httprequest.path,
+                        "rejected" if mode == 'enforce' else "allowed: log-only mode")
+        target.write({'webhook_last_invalid': now, 'webhook_last_invalid_path': httprequest.path})
+        return mode != 'enforce'
 
     def _get_client(self):
         self.ensure_one()

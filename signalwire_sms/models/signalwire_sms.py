@@ -47,6 +47,19 @@ class SignalWireSms(models.Model):
         compute='_compute_other_number',
         help="The other side's number: who sent it, or who it went to.")
     body = fields.Text(required=True)
+    def action_check_status(self):
+        """Asks SignalWire for the current status of the selected sent
+        texts - for ones sent before delivery reports were requested,
+        which otherwise stay "queued"."""
+        for message in self.filtered(lambda m: m.direction == 'outbound' and m.sid):
+            subproject = message.phone_number_id.subproject_id
+            result = subproject.server_id._get_client().compat_get(
+                f'Accounts/{subproject.account_sid}/Messages/{message.sid}.json')
+            status, error = result.get('status'), result.get('error_code')
+            if status:
+                message.state = f'{status} ({error})' if error else status
+        return True
+
     @api.depends('direction', 'from_number', 'to_number')
     def _compute_other_number(self):
         for message in self:

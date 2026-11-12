@@ -2,6 +2,8 @@
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.signalwire_voip.webhook_security import signalwire_signed
+
 CXML_ACK = '<?xml version="1.0" encoding="UTF-8"?><Response></Response>'
 
 
@@ -10,6 +12,7 @@ class SignalWireSmsController(http.Controller):
     @http.route(
         '/signalwire/sms/inbound', type='http', auth='public',
         methods=['POST'], csrf=False)
+    @signalwire_signed
     def inbound_sms(self, **kwargs):
         """SignalWire POSTs standard Twilio-compatible form fields
         here (To, From, Body, MessageSid, ...) on every inbound SMS to
@@ -37,3 +40,22 @@ class SignalWireSmsController(http.Controller):
             message._handle_inbound_keywords()
 
         return request.make_response(CXML_ACK, headers=[('Content-Type', 'text/xml')])
+
+    @http.route(
+        '/signalwire/sms/status', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def sms_status(self, **kwargs):
+        """SignalWire's delivery reports for texts Odoo sent (the
+        StatusCallback given in send_sms): queued, sent, delivered,
+        undelivered, failed. Only updates a message SignalWire already
+        gave Odoo the ID of, so a stray or made-up post changes nothing."""
+        form = request.httprequest.form
+        sid, status = form.get('MessageSid', ''), form.get('MessageStatus', '')
+        if sid and status:
+            message = request.env['signalwire.sms'].sudo().search(
+                [('sid', '=', sid), ('direction', '=', 'outbound')], limit=1)
+            if message:
+                error = form.get('ErrorCode')
+                message.state = f'{status} ({error})' if error else status
+        return request.make_response('', status=204)
