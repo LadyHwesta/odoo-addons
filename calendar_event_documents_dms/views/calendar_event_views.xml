@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_calendar_event_form_documents_dms" model="ir.ui.view">
+        <field name="name">calendar.event.form.documents.dms</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar_event_documents.view_calendar_event_form_documents" />
+        <field name="arch" type="xml">
+            <field name="documents_in_invitations" position="before">
+                <field name="dms_file_ids" colspan="2" nolabel="1"
+                       options="{'no_create': True}">
+                    <list name="linked_files">
+                        <field name="name" string="Linked from Documents" />
+                        <field name="directory_id" string="Folder" />
+                        <field name="write_date" string="Last Changed" optional="show" />
+                    </list>
+                </field>
+            </field>
+        </field>
+    </record>
+
+</odoo>
