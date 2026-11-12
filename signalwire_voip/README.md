@@ -58,8 +58,12 @@ needed (Phase 2 onward).
   clicked it to verify (and finish closing, if needed) in the
   SignalWire dashboard by hand - same class of gap as HestiaCP having
   no Access Key category for package management.
-- **Number search** (`GET /Accounts/{sid}/AvailablePhoneNumbers/US/Local.json`):
-  works through the real model. Note: searching with a specific
+- **Number search**: since 2026-11-11 the wizard and the storefront use
+  `signalwire.server.search_numbers` (Relay REST `GET phone_numbers/search`:
+  local or toll-free, starts with / contains / ends with, area code, state,
+  city), mocked in tests and **not yet run against the live API**. The older
+  `search_available_numbers` (`GET /Accounts/{sid}/AvailablePhoneNumbers/US/Local.json`)
+  stays for compatibility and was the one live-tested here: Note: searching with a specific
   `AreaCode` (415 was tried) came back empty, but searching the same
   subproject with no area code returned 100 real available numbers
   (in a different area code) - the trial account may restrict which

@@ -103,6 +103,12 @@ class SignalWireClient:
         """
         return self._request('post', self._relay_url(path), json=json_body)
 
+    def relay_get(self, path, **params):
+        """GET a Relay REST path, relative to /api/relay/rest/ - e.g.
+        ``'phone_numbers/search'``.
+        """
+        return self._request('get', self._relay_url(path), params=params)
+
     def relay_delete(self, path):
         return self._request('delete', self._relay_url(path))
 
