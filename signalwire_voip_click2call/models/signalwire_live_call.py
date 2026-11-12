@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
+import logging
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
+
+# SignalWire's words for a call that's over.
+FINISHED_STATUSES = ('completed', 'busy', 'failed', 'no-answer', 'canceled')
+# No real call lasts this long; anything older is closed without asking.
+STALE_AFTER = timedelta(hours=6)
 
 
 class SignalWireLiveCall(models.Model):
@@ -41,6 +51,37 @@ class SignalWireLiveCall(models.Model):
         if 'state' in vals:
             self._notify_panel()
         return result
+
+    @api.model
+    def _cron_close_finished_calls(self):
+        """Marks calls ended that SignalWire says are over. A call is
+        normally marked ended at the end of its routing flow, but a caller
+        who hangs up while it's still ringing never reaches that point, so
+        without this it stays "in progress" forever (found live
+        2026-11-12: seven such calls on the dashboard and panel). Calls
+        older than STALE_AFTER are closed without asking."""
+        now = fields.Datetime.now()
+        open_calls = self.search([
+            ('state', '!=', 'ended'),
+            ('create_date', '<', now - timedelta(minutes=2)),
+        ], limit=200)
+        finished = self.browse()
+        for call in open_calls:
+            if call.create_date < now - STALE_AFTER:
+                finished |= call
+                continue
+            subproject = call.phone_number_id.subproject_id
+            try:
+                status = subproject.server_id._get_client().compat_get(
+                    f'Accounts/{subproject.account_sid}/Calls/{call.call_sid}.json'
+                ).get('status')
+            except Exception as exc:
+                _logger.warning("SignalWire: couldn't check call %s: %s", call.call_sid, exc)
+                continue
+            if status in FINISHED_STATUSES:
+                finished |= call
+        if finished:
+            finished.write({'state': 'ended'})
 
     def _notify_panel(self):
         """Broadcasts to every connected user who's a member of the

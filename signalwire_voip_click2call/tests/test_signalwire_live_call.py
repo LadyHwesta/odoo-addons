@@ -91,3 +91,43 @@ class TestSignalWireLiveCall(TransactionCase):
             f'/signalwire/voice/route_to_voicemail/{self.user.id}/{self.number.id}',
             kwargs['Url'])
         self.assertEqual(call.assigned_user_id, self.user)
+
+    def _call_aged(self, sid, minutes):
+        call = self.env['signalwire.live_call'].create({
+            'call_sid': sid, 'phone_number_id': self.number.id, 'from_number': '+15550001111'})
+        self.env.cr.execute(
+            "UPDATE signalwire_live_call SET create_date = now() at time zone 'UTC' - %s * interval '1 minute' "
+            "WHERE id = %s", (minutes, call.id))
+        call.invalidate_recordset(['create_date'])
+        return call
+
+    def test_cron_ends_calls_signalwire_says_are_over(self):
+        just_started = self._call_aged('CA-new', 1)
+        hung_up = self._call_aged('CA-gone', 10)
+        still_talking = self._call_aged('CA-live', 10)
+        ancient = self._call_aged('CA-old', 7 * 60)
+        statuses = {'CA-gone': 'completed', 'CA-live': 'in-progress'}
+        self.signalwire_client.compat_get.side_effect = lambda path: {
+            'status': statuses[path.rsplit('/', 1)[1].removesuffix('.json')]}
+
+        self.env['signalwire.live_call']._cron_close_finished_calls()
+
+        self.assertEqual(hung_up.state, 'ended')
+        self.assertEqual(ancient.state, 'ended')
+        self.assertNotEqual(still_talking.state, 'ended')
+        self.assertNotEqual(just_started.state, 'ended', "too new to ask about")
+        asked = [c.args[0] for c in self.signalwire_client.compat_get.call_args_list]
+        self.assertEqual(sorted(asked), ['Accounts/sub-abc/Calls/CA-gone.json',
+                                         'Accounts/sub-abc/Calls/CA-live.json'])
+
+    def test_cron_keeps_going_when_signalwire_cannot_answer(self):
+        call = self._call_aged('CA-x', 10)
+        self.signalwire_client.compat_get.side_effect = RuntimeError('down')
+        self.env['signalwire.live_call']._cron_close_finished_calls()
+        self.assertNotEqual(call.state, 'ended')
+
+    def test_administrators_are_receptionists(self):
+        admin = self.env['res.users'].create({
+            'name': 'Ada Admin', 'login': 'ada.admin@example.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_system').id])]})
+        self.assertTrue(admin.has_group('signalwire_voip_click2call.group_signalwire_receptionist'))

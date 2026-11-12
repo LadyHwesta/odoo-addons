@@ -10,6 +10,12 @@
         </field>
     </record>
 
+    <!-- Administrators run the phone system, so they get the receptionist
+         panel and the dashboard's Calls in progress without extra setup. -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_signalwire_receptionist'))]" />
+    </record>
+
     <record id="signalwire_live_call_receptionist_rule" model="ir.rule">
         <field name="name">SignalWire Live Call: receptionists see their own company's calls</field>
         <field name="model_id" ref="model_signalwire_live_call" />
