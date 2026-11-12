@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_app_drawer_folder_user,app.drawer.folder user,model_app_drawer_folder,base.group_user,1,0,0,0
+access_app_drawer_folder_admin,app.drawer.folder admin,model_app_drawer_folder,base.group_system,1,1,1,1
+access_app_drawer_entry_user,app.drawer.entry user,model_app_drawer_entry,base.group_user,1,0,0,0
+access_app_drawer_entry_admin,app.drawer.entry admin,model_app_drawer_entry,base.group_system,1,1,1,1

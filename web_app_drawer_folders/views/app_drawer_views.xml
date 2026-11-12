@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_app_drawer_entry_list" model="ir.ui.view">
+        <field name="name">app.drawer.entry.list</field>
+        <field name="model">app.drawer.entry</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" delete="0" default_group_by="folder_id">
+                <field name="sequence" widget="handle" />
+                <field name="menu_id" readonly="1" />
+                <field name="folder_id" options="{'no_quick_create': False}" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_app_drawer_entry_search" model="ir.ui.view">
+        <field name="name">app.drawer.entry.search</field>
+        <field name="model">app.drawer.entry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="menu_id" />
+                <field name="folder_id" />
+                <filter name="no_folder" string="Not in a folder" domain="[('folder_id', '=', False)]" />
+                <filter name="group_folder" string="Folder" context="{'group_by': 'folder_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_app_drawer_entry" model="ir.actions.act_window">
+        <field name="name">App Drawer</field>
+        <field name="res_model">app.drawer.entry</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Drag apps to put them in order, and choose a folder to group them.
+               Apps outside any folder come first. Changes show up when the page
+               is reloaded.</p>
+        </field>
+    </record>
+
+    <record id="view_app_drawer_folder_list" model="ir.ui.view">
+        <field name="name">app.drawer.folder.list</field>
+        <field name="model">app.drawer.folder</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="entry_ids" widget="many2many_tags" string="Apps" readonly="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_app_drawer_folder" model="ir.actions.act_window">
+        <field name="name">App Drawer Folders</field>
+        <field name="res_model">app.drawer.folder</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Create folders such as "Money" or "Phones", drag them into order,
+               then put apps in them from App Drawer.</p>
+        </field>
+    </record>
+
+    <record id="action_server_app_drawer" model="ir.actions.server">
+        <field name="name">App Drawer</field>
+        <field name="model_id" ref="model_app_drawer_entry" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_settings()</field>
+        <field name="group_ids" eval="[(4, ref('base.group_system'))]" />
+    </record>
+
+    <menuitem id="menu_app_drawer_root" name="App Drawer"
+              parent="base.menu_users" sequence="90" groups="base.group_system" />
+    <menuitem id="menu_app_drawer_entry" name="Apps"
+              parent="menu_app_drawer_root" action="action_server_app_drawer" sequence="10" />
+    <menuitem id="menu_app_drawer_folder" name="Folders"
+              parent="menu_app_drawer_root" action="action_app_drawer_folder" sequence="20" />
+
+</odoo>

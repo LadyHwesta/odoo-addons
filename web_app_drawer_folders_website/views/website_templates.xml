@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Folder headings in the apps dropdown signed-in staff get on website
+         pages (that list is built on the server from load_menus_root, which
+         web_app_drawer_folders already puts in order). -->
+    <template id="layout_app_drawer_folders" inherit_id="website.layout">
+        <xpath expr="//div[hasclass('o_frontend_to_backend_apps_menu')]/a[@t-foreach]" position="replace">
+            <t t-foreach="env['ir.ui.menu'].with_context(force_action=True).load_menus_root()['children']" t-as="menu">
+                <h6 t-if="menu.get('drawer_folder_start')" class="dropdown-header" t-out="menu['drawer_folder']" />
+                <a role="menuitem" class="dropdown-item" t-out="menu['name']"
+                   t-attf-href="/odoo/action-#{menu['action'] and menu['action'].split(',')[1] or ''}" />
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
