@@ -104,6 +104,16 @@ class ResUsers(models.Model):
              "alongside Odoo's own online/away/offline status "
              "(im_status), which only reflects browser activity, not "
              "whether this user is actually on a phone call.")
+    signalwire_has_softphone = fields.Boolean(
+        string="Softphone", compute='_compute_signalwire_extension')
+    signalwire_desk_phone_count = fields.Integer(
+        string="Desk Phones", compute='_compute_signalwire_extension')
+
+    @api.depends('signalwire_sip_endpoint_id', 'signalwire_desk_phone_ids')
+    def _compute_signalwire_extension(self):
+        for user in self:
+            user.signalwire_has_softphone = bool(user.signalwire_sip_endpoint_id)
+            user.signalwire_desk_phone_count = len(user.signalwire_desk_phone_ids)
 
     @property
     def SELF_READABLE_FIELDS(self):

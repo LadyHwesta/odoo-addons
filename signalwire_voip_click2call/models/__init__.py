@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from . import res_partner
+from . import res_company
 from . import signalwire_server
 from . import signalwire_call_group
 from . import signalwire_ivr_menu
@@ -9,3 +10,4 @@ from . import signalwire_forwarding_number
 from . import signalwire_desk_phone
 from . import signalwire_voicemail
 from . import res_users
+from . import signalwire_open_status

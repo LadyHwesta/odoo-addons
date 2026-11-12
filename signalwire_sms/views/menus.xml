@@ -2,7 +2,7 @@
 <odoo>
 
     <menuitem id="menu_signalwire_sms" name="Messages"
-              action="action_signalwire_sms" parent="signalwire_voip.menu_signalwire_root"
-              sequence="15" />
+              action="action_signalwire_sms" parent="signalwire_voip.menu_signalwire_section_phones"
+              sequence="30" />
 
 </odoo>

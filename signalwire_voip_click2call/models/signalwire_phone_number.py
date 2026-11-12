@@ -80,6 +80,49 @@ class SignalWirePhoneNumber(models.Model):
         help="Read aloud (text-to-speech) periodically while a caller "
              "is parked, alternating with the hold music above.")
 
+    inbound_connected = fields.Boolean(
+        string="Connected", readonly=True, copy=False,
+        help="Whether this number's incoming calls have been pointed at this "
+             "Odoo (Connect, once per number). After that, routing changes "
+             "take effect as soon as they're saved: Odoo decides where each "
+             "call goes at the moment it rings.")
+    call_flow_summary = fields.Text(
+        string="Where Calls Go", compute='_compute_call_flow_summary')
+    company_closed_early = fields.Boolean(compute='_compute_call_flow_summary')
+
+    def _route_phrase(self, route_type, target):
+        if not target:
+            return _("go nowhere yet (choose where below)")
+        return {
+            'user': _("ring %(name)s", name=target.name),
+            'group': _("ring the %(name)s group", name=target.name),
+            'ivr': _("play the %(name)s menu", name=target.name),
+            'user_voicemail': _("go straight to %(name)s's voicemail", name=target.name),
+            'group_voicemail': _("go straight to the %(name)s group's voicemail", name=target.name),
+        }[route_type]
+
+    def _compute_call_flow_summary(self):
+        for number in self:
+            closed_until = (number.company_id or self.env.company)._signalwire_closed_until()
+            number.company_closed_early = bool(closed_until)
+            day = number._route_phrase(*number._day_route())
+            if not number.calendar_id:
+                number.call_flow_summary = _("Calls %(day)s, at any time.", day=day)
+                continue
+            night = number._route_phrase(*number._after_hours_route())
+            summary = _(
+                "During %(hours)s, calls %(day)s. Outside those hours, calls %(night)s.",
+                hours=number.calendar_id.name, day=day, night=night)
+            if closed_until:
+                summary = _(
+                    "Closed early until %(until)s, so calls %(night)s. Otherwise: %(normal)s",
+                    until=number._format_local(closed_until), night=night, normal=summary)
+            number.call_flow_summary = summary
+
+    def _format_local(self, dt):
+        tz = pytz.timezone(self.env.user.tz or 'UTC')
+        return pytz.UTC.localize(dt).astimezone(tz).strftime('%a %I:%M %p').replace(' 0', ' ')
+
     def _is_within_business_hours(self):
         """True if "now" falls inside this number's own Business
         Hours calendar - always True if none is set (a number with
@@ -92,6 +135,8 @@ class SignalWirePhoneNumber(models.Model):
         self.ensure_one()
         if not self.calendar_id:
             return True
+        if (self.company_id or self.env.company)._signalwire_closed_until():
+            return False
         now = fields.Datetime.now().replace(tzinfo=pytz.UTC)
         intervals = self.calendar_id._attendance_intervals_batch(
             now, now + timedelta(minutes=1))
@@ -101,26 +146,34 @@ class SignalWirePhoneNumber(models.Model):
         """(route_type, target) actually in effect right now for this
         number - the day-mode routing fields above, or the after-
         hours ones instead if a Business Hours calendar is set and
-        "now" falls outside it. `target` is a res.users,
-        signalwire.call.group, or signalwire.ivr.menu record
-        (possibly empty, if that side was never configured).
+        "now" falls outside it (or the company closed early). `target`
+        is a res.users, signalwire.call.group, or signalwire.ivr.menu
+        record (possibly empty, if that side was never configured).
         """
         self.ensure_one()
         if self.calendar_id and not self._is_within_business_hours():
-            if self.after_hours_route_type == 'group':
-                return 'group', self.after_hours_call_group_id
-            if self.after_hours_route_type == 'ivr':
-                return 'ivr', self.after_hours_ivr_menu_id
-            if self.after_hours_route_type == 'user_voicemail':
-                return 'user_voicemail', self.after_hours_user_id
-            if self.after_hours_route_type == 'group_voicemail':
-                return 'group_voicemail', self.after_hours_call_group_id
-            return 'user', self.after_hours_user_id
+            return self._after_hours_route()
+        return self._day_route()
+
+    def _day_route(self):
+        self.ensure_one()
         if self.route_type == 'group':
             return 'group', self.call_group_id
         if self.route_type == 'ivr':
             return 'ivr', self.ivr_menu_id
         return 'user', self.assigned_user_id
+
+    def _after_hours_route(self):
+        self.ensure_one()
+        if self.after_hours_route_type == 'group':
+            return 'group', self.after_hours_call_group_id
+        if self.after_hours_route_type == 'ivr':
+            return 'ivr', self.after_hours_ivr_menu_id
+        if self.after_hours_route_type == 'user_voicemail':
+            return 'user_voicemail', self.after_hours_user_id
+        if self.after_hours_route_type == 'group_voicemail':
+            return 'group_voicemail', self.after_hours_call_group_id
+        return 'user', self.after_hours_user_id
 
     def action_configure_inbound_routing(self):
         """Points this number's Voice URL at this database's own
@@ -135,7 +188,7 @@ class SignalWirePhoneNumber(models.Model):
         actually public.
         """
         self.ensure_one()
-        route_type, target = self._effective_route()
+        route_type, target = self._day_route()
         if not target:
             raise UserError(_(
                 "Set who, which Call Group, or which IVR Menu %(number)s should ring.",
@@ -155,6 +208,7 @@ class SignalWirePhoneNumber(models.Model):
             f'Accounts/{self.subproject_id.account_sid}/'
             f'IncomingPhoneNumbers/{self.sid}.json',
             VoiceUrl=f'{base_url}/signalwire/voice/inbound')
+        self.inbound_connected = True
         # A real, pre-existing gap: this call previously returned nothing
         # at all on success - no error, no confirmation, nothing visibly
         # different on screen, so from the user's own point of view
@@ -164,10 +218,11 @@ class SignalWirePhoneNumber(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _("Inbound routing updated"),
+                'title': _("Connected"),
                 'message': _(
-                    "%(number)s now rings %(target)s.",
-                    number=self.name, target=target.display_name),
+                    "Calls to %(number)s now come to this Odoo. From here on, "
+                    "changes to where they go take effect as soon as you save.",
+                    number=self.name),
                 'type': 'success',
                 'sticky': False,
             },

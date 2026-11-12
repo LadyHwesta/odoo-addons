@@ -49,7 +49,7 @@
     </record>
 
     <menuitem id="menu_signalwire_ivr_menu" name="IVR Menus"
-              parent="signalwire_voip.menu_signalwire_root"
-              action="action_signalwire_ivr_menu" sequence="21" />
+              parent="signalwire_voip.menu_signalwire_section_call_flow"
+              action="action_signalwire_ivr_menu" sequence="30" />
 
 </odoo>

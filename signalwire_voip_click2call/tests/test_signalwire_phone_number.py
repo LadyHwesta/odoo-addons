@@ -2,7 +2,7 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Datetime
 from odoo.tests.common import TransactionCase, tagged
 
@@ -74,7 +74,8 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
         self.assertEqual(result['type'], 'ir.actions.client')
         self.assertEqual(result['tag'], 'display_notification')
         self.assertEqual(result['params']['type'], 'success')
-        self.assertIn(self.user.name, result['params']['message'])
+        self.assertIn(self.number.name, result['params']['message'])
+        self.assertTrue(self.number.inbound_connected)
 
     def test_configure_routing_via_group_requires_a_provisioned_member(self):
         group = self.env['signalwire.call.group'].create({
@@ -197,20 +198,13 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
 
         self.assertEqual((route_type, target), ('ivr', menu))
 
-    def test_list_view_button_is_hidden_until_routing_is_configured(self):
-        """Regression test: the list view's own "Configure Inbound
-        Routing" button used to have no guard at all (unlike the form's
-        own copy of the same button), so clicking it on a freshly
-        purchased number - route_type defaults to 'user' with no
-        assigned_user_id yet - always hit the "Set who... should ring"
-        UserError with no way to fix it from that same screen. Mirrors
-        the form button's own invisible condition."""
+    def test_list_shows_where_calls_go_and_whether_connected(self):
         view = self.env['signalwire.phone_number'].get_view(
-            view_id=self.env.ref(
-                'signalwire_voip.view_signalwire_phone_number_list').id,
+            view_id=self.env.ref('signalwire_voip.view_signalwire_phone_number_list').id,
             view_type='list')
-        self.assertIn(
-            'route_type == \'user\' and not assigned_user_id', view['arch'])
+        self.assertIn('call_flow_summary', view['arch'])
+        self.assertIn('inbound_connected', view['arch'])
+        self.assertNotIn('action_configure_inbound_routing', view['arch'])
 
     def test_form_view_shows_after_hours_user_field_for_voicemail_route(self):
         view = self.env['signalwire.phone_number'].get_view(
@@ -231,3 +225,119 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
         })
         with self.assertRaises(UserError):
             self.number.assigned_user_id = outside_user
+
+    # --- Closing early, the plain-English summary, connecting ---------------
+
+    def _business_hours_number(self):
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Shop Hours', 'tz': 'UTC',
+            'attendance_ids': [(0, 0, {
+                'name': 'All Day Monday', 'dayofweek': '0',
+                'hour_from': 0.0, 'hour_to': 24.0, 'day_period': 'morning',
+            })],
+        })
+        group = self.env['signalwire.call.group'].create({'name': 'Front Desk'})
+        self.number.write({
+            'route_type': 'group', 'call_group_id': group.id,
+            'calendar_id': calendar.id,
+            'after_hours_route_type': 'user_voicemail', 'after_hours_user_id': self.user.id,
+        })
+        return group
+
+    def test_closing_early_uses_the_after_hours_route_until_reopened(self):
+        group = self._business_hours_number()
+        monday_noon = datetime(2026, 9, 21, 12, 0, 0)
+        with patch('odoo.fields.Datetime.now', return_value=monday_noon):
+            self.assertEqual(self.number._effective_route(), ('group', group))
+            self.number.company_id.action_signalwire_close_today()
+            self.assertEqual(self.number._effective_route(), ('user_voicemail', self.user))
+            self.number.company_id.action_signalwire_reopen()
+            self.assertEqual(self.number._effective_route(), ('group', group))
+
+    def test_closing_early_reopens_by_itself_overnight(self):
+        group = self._business_hours_number()
+        company = self.number.company_id
+        with patch('odoo.fields.Datetime.now', return_value=datetime(2026, 9, 21, 22, 0, 0)):
+            company.with_context(tz='America/Los_Angeles').action_signalwire_close_today()
+        # 15:00 PDT Monday -> reopens 04:00 PDT Tuesday = 11:00 UTC
+        self.assertEqual(company.signalwire_closed_until, datetime(2026, 9, 22, 11, 0, 0))
+        with patch('odoo.fields.Datetime.now', return_value=datetime(2026, 9, 22, 10, 59, 0)):
+            self.assertTrue(company._signalwire_closed_until())
+        with patch('odoo.fields.Datetime.now', return_value=datetime(2026, 9, 28, 12, 0, 0)):
+            self.assertFalse(company._signalwire_closed_until())
+            self.assertEqual(self.number._effective_route(), ('group', group))
+
+    def test_numbers_without_business_hours_ignore_closing_early(self):
+        self.number.write({'route_type': 'user', 'assigned_user_id': self.user.id})
+        self.number.company_id.action_signalwire_close_today()
+        self.assertEqual(self.number._effective_route(), ('user', self.user))
+
+    def test_summary_says_where_calls_go_in_plain_words(self):
+        self.assertEqual(self.number.call_flow_summary,
+                         'Calls go nowhere yet (choose where below), at any time.')
+        self._business_hours_number()
+        self.number.invalidate_recordset(['call_flow_summary'])
+        self.assertEqual(
+            self.number.call_flow_summary,
+            "During Shop Hours, calls ring the Front Desk group. Outside those hours, "
+            "calls go straight to Jane Agent's voicemail.")
+        self.number.company_id.action_signalwire_close_today()
+        self.number.invalidate_recordset(['call_flow_summary', 'company_closed_early'])
+        self.assertTrue(self.number.call_flow_summary.startswith('Closed early until '))
+        self.assertTrue(self.number.company_closed_early)
+
+    def test_connecting_checks_the_business_hours_route_even_at_night(self):
+        self._business_hours_number()
+        self.number.company_id.action_signalwire_close_today()
+        with self.assertRaisesRegex(UserError, 'no members'):
+            self.number.action_configure_inbound_routing()
+        self.assertFalse(self.number.inbound_connected)
+
+
+@tagged('post_install', '-at_install')
+class TestOpenStatusAndExtensions(TransactionCase):
+
+    def test_receptionist_can_close_and_reopen_their_company(self):
+        receptionist = self.env['res.users'].create({
+            'name': 'Rita', 'login': 'rita.reception@example.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_user').id,
+                                  self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist').id])]})
+        Wizard = self.env['signalwire.open.status'].with_user(receptionist)
+        wizard = Wizard.create({})
+        self.assertFalse(wizard.is_closed)
+        wizard.action_close_today()
+        self.assertTrue(self.env.company._signalwire_closed_until())
+        self.assertTrue(Wizard.create({}).is_closed)
+        Wizard.create({}).action_reopen()
+        self.assertFalse(self.env.company.signalwire_closed_until)
+
+    def test_nobody_can_close_another_companys_phones(self):
+        other = self.env['res.company'].create({'name': 'Elsewhere'})
+        receptionist = self.env['res.users'].create({
+            'name': 'Rita', 'login': 'rita2.reception@example.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_user').id,
+                                  self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist').id])]})
+        wizard = self.env['signalwire.open.status'].create({'company_id': other.id}).with_user(receptionist)
+        with self.assertRaises(AccessError):
+            wizard.action_close_today()
+        self.assertFalse(other.signalwire_closed_until)
+
+    def test_extensions_list_shows_internal_people_and_their_phone_setup(self):
+        action = self.env.ref('signalwire_voip_click2call.action_signalwire_extensions')
+        user = self.env['res.users'].create({'name': 'Desk Person', 'login': 'desk.person@example.com'})
+        found = self.env['res.users'].search(eval(action.domain))
+        self.assertIn(user, found)
+        self.assertNotIn(self.env.ref('base.public_user'), found)
+        self.assertFalse(user.signalwire_has_softphone)
+        user.signalwire_sip_endpoint_id = 'ep-1'
+        self.assertTrue(user.signalwire_has_softphone)
+        for view in ('view_users_signalwire_extension_list', 'view_users_signalwire_extension_form'):
+            self.env['res.users'].get_view(
+                view_id=self.env.ref(f'signalwire_voip_click2call.{view}').id)
+
+    def test_menus_are_grouped_into_sections(self):
+        phones = self.env.ref('signalwire_voip.menu_signalwire_section_phones')
+        call_flow = self.env.ref('signalwire_voip.menu_signalwire_section_call_flow')
+        self.assertEqual(self.env.ref('signalwire_voip_click2call.menu_signalwire_voicemail').parent_id, phones)
+        self.assertEqual(self.env.ref('signalwire_voip_click2call.menu_signalwire_call_group').parent_id, call_flow)
+        self.assertEqual(self.env.ref('signalwire_voip.menu_signalwire_phone_numbers').parent_id, call_flow)

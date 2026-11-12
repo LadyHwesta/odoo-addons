@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SignalWire SMS',
-    'version': '19.0.2.1.0',
+    'version': '19.0.2.1.1',
     'category': 'Productivity/VOIP',
     'summary': 'Two-way SMS via SignalWire, chatter-logged against your own contacts',
     'description': """

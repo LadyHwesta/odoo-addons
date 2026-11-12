@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
+    <!-- Four sections, FreePBX-style: day-to-day use, where calls go,
+         the people (Extensions, added by signalwire_voip_click2call), and
+         the account plumbing. Other SignalWire modules hang their menus
+         under these. -->
     <menuitem id="menu_signalwire_root" name="VoIP" sequence="91" />
-    <menuitem id="menu_signalwire_subprojects" name="Subprojects"
-              action="action_signalwire_subproject" parent="menu_signalwire_root"
-              sequence="10" />
+    <menuitem id="menu_signalwire_section_phones" name="Phones"
+              parent="menu_signalwire_root" sequence="10" />
+    <menuitem id="menu_signalwire_section_call_flow" name="Call Flow"
+              parent="menu_signalwire_root" sequence="20" />
+    <menuitem id="menu_signalwire_section_config" name="Configuration"
+              parent="menu_signalwire_root" sequence="90" />
+
     <menuitem id="menu_signalwire_phone_numbers" name="Phone Numbers"
-              action="action_signalwire_phone_number" parent="menu_signalwire_root"
-              sequence="20" />
+              action="action_signalwire_phone_number" parent="menu_signalwire_section_call_flow"
+              sequence="10" />
     <menuitem id="menu_signalwire_servers" name="SignalWire Projects"
-              action="action_signalwire_server" parent="menu_signalwire_root"
-              sequence="30" groups="base.group_system" />
+              action="action_signalwire_server" parent="menu_signalwire_section_config"
+              sequence="10" groups="base.group_system" />
+    <menuitem id="menu_signalwire_subprojects" name="Subprojects"
+              action="action_signalwire_subproject" parent="menu_signalwire_section_config"
+              sequence="20" />
 
 </odoo>
