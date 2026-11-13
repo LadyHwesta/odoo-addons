@@ -134,6 +134,47 @@ class SignalWireServer(models.Model):
             "Connected. Project status: %(status)s.",
             status=result.get('status', '?')))
 
+    def action_import_numbers(self):
+        """Load the numbers this project already owns - for an Odoo
+        connected to a subproject someone else provisioned (a hosted
+        customer's own database, with a token scoped to their
+        subproject), where nothing was bought from here. Records this
+        project itself as a subproject (never creating anything at
+        SignalWire) and adds each number not loaded yet. Safe to run
+        again."""
+        self.ensure_one()
+        Subproject = self.env['signalwire.subproject']
+        own = Subproject.with_context(active_test=False).search(
+            [('server_id', '=', self.id), ('account_sid', '=', self.project_id)], limit=1)
+        if not own:
+            own = Subproject.create({
+                'name': self.name, 'server_id': self.id,
+                'account_sid': self.project_id, 'state': 'active',
+            })
+        result = self._get_client().compat_get(
+            f'Accounts/{self.project_id}/IncomingPhoneNumbers.json', PageSize=1000)
+        Number = self.env['signalwire.phone_number'].with_context(active_test=False)
+        known = set(Number.search([('subproject_id', '=', own.id)]).mapped('sid'))
+        new = [
+            {'name': n['phone_number'], 'sid': n['sid'], 'subproject_id': own.id}
+            for n in result.get('incoming_phone_numbers', [])
+            if n.get('sid') and n['sid'] not in known
+        ]
+        Number.create(new)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Numbers imported"),
+                'message': _(
+                    "%(new)s new, %(known)s already here. Open each one under "
+                    "Phone Numbers to choose who it rings and connect it.",
+                    new=len(new), known=len(known)),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
     def search_numbers(self, number_type='local', match='contains', pattern=None,
                        area_code=None, region=None, city=None, max_results=50):
         """Numbers available to buy, with where they are and what they

@@ -9,6 +9,9 @@
                 <header>
                     <button name="action_test_connection" type="object"
                             string="Test Connection" class="btn-primary" />
+                    <button name="action_import_numbers" type="object"
+                            string="Import Numbers"
+                            help="Load the numbers this project already owns, e.g. when this Odoo is connected to a subproject set up elsewhere." />
                 </header>
                 <sheet>
                     <div class="oe_title">

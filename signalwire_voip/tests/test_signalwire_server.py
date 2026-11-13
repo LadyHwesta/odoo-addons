@@ -119,3 +119,27 @@ class TestSignalWireServer(TransactionCase):
     def test_search_available_numbers_handles_an_empty_result(self):
         self._mock_client({'available_phone_numbers': []})
         self.assertEqual(self.server.search_available_numbers('sub-sid', 'US'), [])
+
+    # -- Import Numbers (an Odoo connected to a subproject set up elsewhere) --
+
+    def _import(self, numbers):
+        client = self._mock_client({'incoming_phone_numbers': numbers})
+        self.server.action_import_numbers()
+        return client
+
+    def test_import_records_the_project_without_provisioning(self):
+        client = self._import([{'sid': 'pn-1', 'phone_number': '+17075550100'}])
+        client.compat_post.assert_not_called()
+        own = self.env['signalwire.subproject'].search([('account_sid', '=', 'pid123')])
+        self.assertEqual(own.state, 'active')
+        self.assertEqual(own.phone_number_ids.mapped('name'), ['+17075550100'])
+        self.assertEqual(
+            client.compat_get.call_args.args[0], 'Accounts/pid123/IncomingPhoneNumbers.json')
+
+    def test_import_again_adds_only_new_numbers(self):
+        self._import([{'sid': 'pn-1', 'phone_number': '+17075550100'}])
+        self._import([{'sid': 'pn-1', 'phone_number': '+17075550100'},
+                      {'sid': 'pn-2', 'phone_number': '+17075550101'}])
+        own = self.env['signalwire.subproject'].search([('account_sid', '=', 'pid123')])
+        self.assertEqual(len(own), 1)
+        self.assertEqual(sorted(own.phone_number_ids.mapped('sid')), ['pn-1', 'pn-2'])
