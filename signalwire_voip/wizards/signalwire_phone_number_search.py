@@ -53,6 +53,13 @@ class SignalWirePhoneNumberSearch(models.TransientModel):
             'target': 'new',
         }
 
+    def _purchase_number(self, phone_number):
+        """Buy one number into the subproject and return the new
+        signalwire.phone_number. A hook, so a billing module can check
+        things before the purchase and bill the number after it."""
+        self.ensure_one()
+        return self.subproject_id.purchase_number(phone_number)
+
 
 class SignalWirePhoneNumberSearchResult(models.TransientModel):
     _name = 'signalwire.phone_number.search.result'
@@ -66,5 +73,5 @@ class SignalWirePhoneNumberSearchResult(models.TransientModel):
 
     def action_purchase(self):
         self.ensure_one()
-        self.wizard_id.subproject_id.purchase_number(self.phone_number)
+        self.wizard_id._purchase_number(self.phone_number)
         return {'type': 'ir.actions.act_window_close'}
