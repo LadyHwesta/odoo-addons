@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- No privilege on purpose: it doesn't show among the roles a
+         customer administrator can hand out on the user form. -->
+    <record id="group_provider_admin" model="res.groups">
+        <field name="name">Technical Administrator (hosting provider)</field>
+        <field name="comment">Installs, removes and upgrades apps, and manages technical settings. Kept by the hosting provider.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
+    </record>
+
+</odoo>
