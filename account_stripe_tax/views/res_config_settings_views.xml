@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form_stripe_tax" model="ir.ui.view">
+        <field name="name">res.config.settings.form.stripe.tax</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <setting id="tax_fiscal_country_234" position="after">
+                <setting id="stripe_tax" string="Stripe Tax" company_dependent="1"
+                         help="Work out sales tax on customer invoices with Stripe Tax, for products that have a Stripe tax code.">
+                    <div class="content-group">
+                        <div class="row mt8">
+                            <label for="stripe_tax_provider_id" string="Stripe account" class="col-lg-4 o_light_label" />
+                            <field name="stripe_tax_provider_id" options="{'no_create': true}" />
+                        </div>
+                        <div class="row" invisible="not stripe_tax_provider_id">
+                            <label for="stripe_tax_account_id" string="Sales tax account" class="col-lg-4 o_light_label" />
+                            <field name="stripe_tax_account_id" options="{'no_create': true}"
+                                   required="stripe_tax_provider_id" />
+                        </div>
+                        <div class="row" invisible="not stripe_tax_provider_id">
+                            <label for="stripe_tax_record_all" string="Record untaxed sales" class="col-lg-4 o_light_label" />
+                            <field name="stripe_tax_record_all" />
+                        </div>
+                        <div class="text-muted mt8" invisible="not stripe_tax_provider_id">
+                            In Stripe, turn on Stripe Tax and add your registrations: Stripe only
+                            charges tax where you're registered.
+                        </div>
+                    </div>
+                </setting>
+            </setting>
+        </field>
+    </record>
+</odoo>
