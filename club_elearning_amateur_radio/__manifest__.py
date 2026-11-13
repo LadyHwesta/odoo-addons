@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: License & Callsign Tracking",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.2.1",
     "category": "Website/eLearning",
     "summary": "eLearning course: FCC call-sign lookup and licence expiry tracking",
     "description": """

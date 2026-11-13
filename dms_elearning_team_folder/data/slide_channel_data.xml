@@ -17,6 +17,7 @@
     <!-- ================= Where should a document live? ================= -->
     <record id="section_choose" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Where should a document live?</field>
         <field name="is_category" eval="True" />
         <field name="sequence">10</field>
@@ -24,6 +25,7 @@
 
     <record id="lesson_choose" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Team folders, record files, and plain folders</field>
         <field name="slide_category">article</field>
         <field name="sequence">11</field>
@@ -47,6 +49,7 @@
     <!-- ================= Connecting ONLYOFFICE ================= -->
     <record id="section_onlyoffice" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Connecting ONLYOFFICE</field>
         <field name="is_category" eval="True" />
         <field name="sequence">20</field>
@@ -54,6 +57,7 @@
 
     <record id="lesson_connect" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Filling in the ONLYOFFICE settings</field>
         <field name="slide_category">article</field>
         <field name="sequence">21</field>
@@ -85,6 +89,7 @@
 
     <record id="lesson_same_tab" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Keeping the editor inside Odoo</field>
         <field name="slide_category">article</field>
         <field name="sequence">22</field>
@@ -110,6 +115,7 @@
     <!-- ================= Running team folders ================= -->
     <record id="section_folders" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Running team folders</field>
         <field name="is_category" eval="True" />
         <field name="sequence">30</field>
@@ -117,6 +123,7 @@
 
     <record id="lesson_create" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Creating a folder</field>
         <field name="slide_category">article</field>
         <field name="sequence">31</field>
@@ -148,6 +155,7 @@
 
     <record id="lesson_who" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Who can do what</field>
         <field name="slide_category">article</field>
         <field name="sequence">32</field>
@@ -170,6 +178,7 @@
 
     <record id="lesson_new_document" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Creating a new document</field>
         <field name="slide_category">article</field>
         <field name="sequence">33</field>
@@ -217,6 +226,7 @@
 
     <record id="lesson_edit" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Editing a document</field>
         <field name="slide_category">article</field>
         <field name="sequence">34</field>
@@ -239,6 +249,7 @@
 
     <record id="lesson_changes" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Changing people, renaming, and closing a folder</field>
         <field name="slide_category">article</field>
         <field name="sequence">35</field>
@@ -253,6 +264,7 @@
     <!-- ================= Setting up common situations ================= -->
     <record id="section_scenarios" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Setting up common situations</field>
         <field name="is_category" eval="True" />
         <field name="sequence">40</field>
@@ -260,6 +272,7 @@
 
     <record id="lesson_scenarios" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Teams, committees, and individuals</field>
         <field name="slide_category">article</field>
         <field name="sequence">41</field>
@@ -277,6 +290,7 @@
 
     <record id="lesson_limits" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">What team folders can't do</field>
         <field name="slide_category">article</field>
         <field name="sequence">42</field>
@@ -291,6 +305,7 @@
     <!-- ================= Files on records ================= -->
     <record id="section_records" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Files on records</field>
         <field name="is_category" eval="True" />
         <field name="sequence">50</field>
@@ -298,6 +313,7 @@
 
     <record id="lesson_records" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Linking a storage to a kind of record</field>
         <field name="slide_category">article</field>
         <field name="sequence">51</field>
@@ -335,6 +351,7 @@
     <!-- ================= When something looks wrong ================= -->
     <record id="section_trouble" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">When something looks wrong</field>
         <field name="is_category" eval="True" />
         <field name="sequence">60</field>
@@ -342,6 +359,7 @@
 
     <record id="lesson_trouble" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Common problems</field>
         <field name="slide_category">article</field>
         <field name="sequence">61</field>
@@ -355,12 +373,14 @@
     <!-- ================= Quiz ================= -->
     <record id="section_quiz" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Check your understanding</field>
         <field name="is_category" eval="True" />
         <field name="sequence">70</field>
     </record>
     <record id="slide_quiz" model="slide.slide">
         <field name="channel_id" ref="channel_team_folders" />
+        <field name="is_published" eval="True" />
         <field name="name">Team folders quiz</field>
         <field name="slide_category">quiz</field>
         <field name="sequence">71</field>
