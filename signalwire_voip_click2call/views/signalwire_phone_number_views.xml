@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <field name="partner_id" position="after">
                 <field name="call_flow_summary" />
-                <field name="inbound_connected" widget="boolean" optional="show" />
+                <field name="inbound_connected" widget="boolean" optional="show" width="100px" />
             </field>
         </field>
     </record>

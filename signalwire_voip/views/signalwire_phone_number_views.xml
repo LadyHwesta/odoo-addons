@@ -5,15 +5,16 @@
         <field name="name">signalwire.phone_number.list</field>
         <field name="model">signalwire.phone_number</field>
         <field name="arch" type="xml">
-            <list create="0">
-                <field name="name" class="text-nowrap" />
+            <list create="0" expand="1">
+                <field name="name" class="text-nowrap" width="140px" />
+                <field name="number_use" column_invisible="1" />
                 <field name="subproject_id" optional="hide" />
-                <field name="partner_id" optional="hide" />
-                <field name="e911_status" string="E911" widget="badge"
+                <field name="partner_id" optional="show" width="160px" />
+                <field name="e911_status" string="E911" widget="badge" width="130px"
                        decoration-success="e911_status == 'active'"
                        decoration-warning="e911_status in ('none', 'pending', 'pending_removal', 'unregistered')"
                        decoration-danger="e911_status == 'failed'" />
-                <field name="company_id" groups="base.group_multi_company" />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
             </list>
         </field>
     </record>
@@ -62,10 +63,36 @@
         </field>
     </record>
 
+    <record id="view_signalwire_phone_number_search" model="ir.ui.view">
+        <field name="name">signalwire.phone_number.search</field>
+        <field name="model">signalwire.phone_number</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="subproject_id" />
+                <filter name="own" string="Our Numbers" domain="[('number_use', '=', 'own')]" />
+                <filter name="customer" string="Customer Numbers"
+                        domain="[('number_use', '=', 'customer')]" />
+                <separator />
+                <filter name="no_e911" string="Without E911"
+                        domain="[('e911_status', '!=', 'active')]" />
+                <group>
+                    <filter name="group_use" string="Used By" context="{'group_by': 'number_use'}" />
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}" />
+                    <filter name="group_subproject" string="Sub-account"
+                            context="{'group_by': 'subproject_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_signalwire_phone_number" model="ir.actions.act_window">
         <field name="name">Phone Numbers</field>
         <field name="res_model">signalwire.phone_number</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_signalwire_phone_number_search" />
+        <field name="context">{'search_default_group_use': 1}</field>
     </record>
 
 </odoo>

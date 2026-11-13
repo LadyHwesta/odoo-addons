@@ -125,6 +125,13 @@ class TestE911(TransactionCase):
         self.number._e911_apply({'e911_status': 'something-new'})
         self.assertEqual(self.number.e911_status, 'none')
 
+    def test_numbers_are_ours_or_a_customers(self):
+        self.assertEqual(self.number.number_use, 'own')
+        self.subproject.partner_id = self.env.company.partner_id
+        self.assertEqual(self.number.number_use, 'own')
+        self.subproject.partner_id = self.env['res.partner'].create({'name': 'Customer'})
+        self.assertEqual(self.number.number_use, 'customer')
+
     def test_dashboard_counts_numbers_without_e911(self):
         data = self.env['signalwire.dashboard'].get_dashboard_data()
         tile = next(t for t in data['tiles'] if t['key'] == 'e911')

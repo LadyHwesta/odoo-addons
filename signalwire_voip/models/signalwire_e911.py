@@ -55,7 +55,7 @@ class SignalWireE911Address(models.Model):
     remote_id = fields.Char(string="Provider ID", readonly=True, copy=False)
     state = fields.Selection(
         [("draft", "Not registered"), ("registered", "Registered"), ("rejected", "Rejected")],
-        default="draft", required=True, readonly=True, tracking=True, copy=False)
+        string="Status", default="draft", required=True, readonly=True, tracking=True, copy=False)
     validated_at = fields.Datetime(readonly=True, copy=False)
     suggestions = fields.Text(
         readonly=True, copy=False,

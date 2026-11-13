@@ -31,6 +31,18 @@ class SignalWirePhoneNumber(models.Model):
              "can serve every company in the database, but a number only "
              "ever rings its own company's people, groups and menus.")
     active = fields.Boolean(default=True)
+    number_use = fields.Selection(
+        [('own', "Our Numbers"), ('customer', "Customer Numbers")],
+        string="Used By", compute='_compute_number_use', store=True,
+        help="Our Numbers: no customer, or the customer is one of our own "
+             "companies. Customer Numbers: resold to a customer.")
+
+    @api.depends('subproject_id.partner_id')
+    def _compute_number_use(self):
+        ours = self.env['res.company'].sudo().search([]).partner_id
+        for number in self:
+            partner = number.subproject_id.partner_id
+            number.number_use = 'customer' if partner and partner not in ours else 'own'
 
     def action_release(self):
         self.ensure_one()
