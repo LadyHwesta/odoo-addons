@@ -1,36 +1,23 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SignalWire SMS',
+    'name': 'VoIP Text Messages',
     'version': '19.0.2.4.0',
     'category': 'Productivity/VOIP',
-    'summary': 'Two-way SMS via SignalWire, chatter-logged against your own contacts',
+    'summary': 'Two-way text messages with your contacts, logged on their chatter',
     'description': """
-SignalWire SMS
-================
+VoIP Text Messages
+==================
 
-Phase 3 of the SignalWire VoIP project, built on ``signalwire_voip``'s
-subproject/phone-number core: send/receive SMS with any contact from
-Odoo, every message logging straight onto that partner's own chatter,
-no new screen to learn. Genuinely generic - a customer's own separate
-Odoo instance can install this directly to get real SMS through
-whatever number(s) it has, not just Meskis Works' own team.
+Send and receive text messages with any contact from Odoo. Every
+message is logged on that contact's chatter.
 
-Each number also carries an optional forwarding webhook
-(``sms_webhook_url``) - inbound messages get POSTed there as JSON too,
-letting a number feed straight into another system alongside (or
-instead of) Odoo's own chatter logging.
+- Replies to STOP, HELP and START as the phone carriers require, and
+  never texts a contact who has opted out.
+- Delivery reports for sent texts.
+- Optionally forward incoming texts to another system as well.
 
-**Important, and outside this module's control**: as of December 2025,
-newly purchased US numbers have no SMS capability at all until the
-business completes SignalWire's Campaign Registry (10DLC) brand +
-campaign registration.
-
-2026-09-16: split out of this module's own reseller-only half - the
-``/my/sms`` self-service portal, independently-usable customer API
-token issuance, and everything else specific to running Meskis Works'
-own reselling business now live in the private ``signalwire_voip_sale``
-module (repo ``LadyHwesta/meskis-reseller-addons``). This module kept
-only what's genuinely generic.
+US numbers can only send texts once the business's texting
+registration (10DLC) is approved. Setup notes are in ``README.md``.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',

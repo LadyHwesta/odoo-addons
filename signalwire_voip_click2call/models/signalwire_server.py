@@ -13,13 +13,10 @@ class SignalWireServer(models.Model):
 
     turn_host = fields.Char(
         string="TURN Server", groups="base.group_system",
-        help="host:port of a TURN relay for WebRTC media, e.g. "
-             "\"146.190.131.239:3478\" - confirmed live 2026-09-20 that "
-             "a real SignalWire outbound-PSTN call reliably fails with "
-             "a SIP 480 / cause=804 \"MEDIA_TIMEOUT\" without one; STUN "
-             "alone (SIP.js's own default) wasn't enough on this "
-             "network. Leave blank to fall back to STUN-only, at the "
-             "risk of the same failure.")
+        help="host:port of a TURN relay for call audio, e.g. "
+             "\"turn.example.com:3478\". Without one, outgoing calls can "
+             "fail with \"MEDIA_TIMEOUT\" on some networks. Leave blank "
+             "to try without it.")
     turn_secret = fields.Char(
         string="TURN Shared Secret", groups="base.group_system",
         help="The shared secret configured on the TURN server itself "
@@ -54,16 +51,11 @@ class SignalWireServer(models.Model):
 
     sip_domain = fields.Char(
         string="SIP Domain", groups="base.group_system",
-        help="The real hostname SIP.js/JsSIP and desk phones register "
-             "and dial against - copy it from this SignalWire "
-             "project's dashboard, SIP Profile page "
-             "(https://<space>.signalwire.com/sip_profile/edit). "
-             "**This is NOT just your Space domain with \".sip.\" "
-             "inserted** - SignalWire support confirmed (2026-09-20) "
-             "that each space's real SIP domain carries an additional "
-             "hidden, space-specific suffix (e.g. "
-             "\"yourspace-4bfcc2d4e531.sip.signalwire.com\") that "
-             "can't be derived from the space name alone.")
+        help="The hostname softphones and desk phones register with. "
+             "Copy it exactly from the SIP settings in your phone "
+             "provider's dashboard (the part of the SIP URI after the "
+             "@); it usually can't be worked out from the account "
+             "domain.")
 
     def _get_sip_domain(self):
         """The hostname SIP.js/JsSIP and desk phones actually register
@@ -82,11 +74,8 @@ class SignalWireServer(models.Model):
         self.ensure_one()
         if not self.sip_domain:
             raise UserError(_(
-                "This SignalWire project's SIP Domain isn't configured "
-                "yet. Copy the real value from "
-                "https://%(space)s/sip_profile/edit - it is NOT just "
-                "your Space domain with \".sip.\" inserted.",
-                space=self.space))
+                "This phone account's SIP Domain isn't set yet. Copy it "
+                "from the SIP settings in your phone provider's dashboard."))
         return self.sip_domain
 
     def action_setup_click2call(self):

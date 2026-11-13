@@ -10,7 +10,7 @@ MAC_RE = re.compile(r'^[0-9a-f]{12}$')
 
 class SignalWireDeskPhone(models.Model):
     """A physical SIP desk phone registered to a user's own extension -
-    a separate SignalWire SIP Endpoint per device (not a second
+    a separate SIP endpoint per device (not a second
     registration on the user's own softphone endpoint), so it rings
     alongside the softphone via the existing multi-target <Dial>
     mechanism instead of relying on unconfirmed multi-registration
@@ -18,7 +18,7 @@ class SignalWireDeskPhone(models.Model):
     live SIP-over-UDP verification this is built on.
     """
     _name = 'signalwire.desk_phone'
-    _description = 'SignalWire Desk Phone'
+    _description = 'Desk Phone'
     _order = 'name'
 
     _mac_address_unique = models.Constraint(
@@ -37,11 +37,11 @@ class SignalWireDeskPhone(models.Model):
         [('yealink', 'Yealink'), ('grandstream', 'Grandstream')], required=True)
 
     signalwire_sip_endpoint_id = fields.Char(
-        string="SignalWire SIP Endpoint ID", copy=False,
-        help="SignalWire's own ID for this phone's SIP Endpoint - "
+        string="SIP Endpoint ID", copy=False,
+        help="The phone provider's ID for this phone's SIP Endpoint - "
              "needed to release it later. Set automatically by "
              "\"Provision\", not editable by hand.")
-    signalwire_server_id = fields.Many2one('signalwire.server', copy=False)
+    signalwire_server_id = fields.Many2one('signalwire.server', string="Phone Account", copy=False)
     voip_username = fields.Char(copy=False)
     voip_password = fields.Char(copy=False)
 
@@ -106,7 +106,7 @@ class SignalWireDeskPhone(models.Model):
                 "%(name)s is already provisioned.", name=self.name))
         server = self.env['signalwire.server'].search([], limit=1)
         if not server:
-            raise UserError(_("No SignalWire project is configured yet."))
+            raise UserError(_("No phone account is configured yet."))
 
         username = f'deskphone{self.id}'
         password = secrets.token_urlsafe(18)
@@ -124,7 +124,7 @@ class SignalWireDeskPhone(models.Model):
         self.ensure_one()
         if not self.signalwire_sip_endpoint_id:
             raise UserError(_(
-                "%(name)s has no SignalWire endpoint provisioned.", name=self.name))
+                "%(name)s has no SIP endpoint provisioned.", name=self.name))
         self.signalwire_server_id._get_client().relay_delete(
             f'endpoints/sip/{self.signalwire_sip_endpoint_id}')
         self.write({

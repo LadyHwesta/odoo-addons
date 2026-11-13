@@ -8,7 +8,7 @@
             <list create="0" edit="0">
                 <header>
                     <button name="action_check_status" type="object" string="Check Status"
-                            help="Ask SignalWire whether the selected sent texts were delivered." />
+                            help="Ask the phone service whether the selected sent texts were delivered." />
                 </header>
                 <field name="create_date" string="When" />
                 <field name="direction" widget="badge"

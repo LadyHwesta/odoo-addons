@@ -2,7 +2,7 @@
 <odoo>
 
     <record id="signalwire_call_group_company_rule" model="ir.rule">
-        <field name="name">SignalWire Call Group: multi-company</field>
+        <field name="name">Call Group: multi-company</field>
         <field name="model_id" ref="model_signalwire_call_group" />
         <field name="global" eval="True" />
         <field name="domain_force">
@@ -11,7 +11,7 @@
     </record>
 
     <record id="signalwire_ivr_menu_company_rule" model="ir.rule">
-        <field name="name">SignalWire IVR Menu: multi-company</field>
+        <field name="name">IVR Menu: multi-company</field>
         <field name="model_id" ref="model_signalwire_ivr_menu" />
         <field name="global" eval="True" />
         <field name="domain_force">

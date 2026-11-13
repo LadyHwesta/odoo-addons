@@ -16,7 +16,7 @@ class SignalWireCallGroup(models.Model):
     """
     _name = 'signalwire.call.group'
     _inherit = ['mail.thread']
-    _description = 'SignalWire Call Group'
+    _description = 'Call Group'
     _check_company_auto = True
 
     name = fields.Char(required=True, tracking=True)
@@ -26,7 +26,7 @@ class SignalWireCallGroup(models.Model):
              "only route to a Call Group in that number's own "
              "company (enforced below), so each branch/company keeps "
              "its own independent set of groups even on a single "
-             "shared SignalWire account.")
+             "shared phone account.")
     member_ids = fields.Many2many('res.users', string="Members")
     voicemail_mode = fields.Selection(
         [('none', "End the Call"), ('user', "A Specific User's Voicemail"),

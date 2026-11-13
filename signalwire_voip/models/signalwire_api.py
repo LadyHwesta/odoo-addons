@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
+from urllib.parse import urlsplit
 
 import requests
 
@@ -191,16 +192,18 @@ class SignalWireClient:
             if text.lower().startswith(('<!doctype', '<html')):
                 match = re.search(r'<title>(.*?)</title>', text, re.I | re.S)
                 text = match.group(1).strip() if match else 'HTML error page'
-                return f'SignalWire error {response.status_code} for {response.url}: {text}'
-            return f'SignalWire error {response.status_code}: {text[:500] or "(no body)"}'
+                # The path only: the host would name the provider.
+                path = urlsplit(response.url or '').path
+                return f'Phone service error {response.status_code} for {path}: {text}'
+            return f'Phone service error {response.status_code}: {text[:500] or "(no body)"}'
 
         # Compatibility API shape: {"code": ..., "message": ..., ...}
         if 'message' in payload:
-            return 'SignalWire error {}: {}'.format(
+            return 'Phone service error {}: {}'.format(
                 payload.get('code', response.status_code), payload['message'])
         # Relay API shape: {"errors": [{"detail": ..., ...}, ...]}
         if 'errors' in payload:
             details = '; '.join(
                 error.get('detail', str(error)) for error in payload['errors'])
-            return f'SignalWire error {response.status_code}: {details}'
-        return f'SignalWire error {response.status_code}: {payload}'
+            return f'Phone service error {response.status_code}: {details}'
+        return f'Phone service error {response.status_code}: {payload}'

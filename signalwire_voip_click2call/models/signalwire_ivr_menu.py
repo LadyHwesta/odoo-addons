@@ -12,7 +12,7 @@ class SignalWireIvrMenu(models.Model):
     options.
     """
     _name = 'signalwire.ivr.menu'
-    _description = 'SignalWire IVR Menu'
+    _description = 'IVR Menu'
 
     name = fields.Char(required=True)
     company_id = fields.Many2one(
@@ -21,7 +21,7 @@ class SignalWireIvrMenu(models.Model):
              "only route to an IVR Menu in that number's own company "
              "(enforced via each option's own check_company fields), "
              "so each branch/company keeps its own independent menus "
-             "even on a single shared SignalWire account.")
+             "even on a single shared phone account.")
     greeting_text = fields.Text(
         required=True,
         help="Played (as text-to-speech) when a caller reaches this "
@@ -32,7 +32,7 @@ class SignalWireIvrMenu(models.Model):
 
 class SignalWireIvrMenuOption(models.Model):
     _name = 'signalwire.ivr.menu.option'
-    _description = 'SignalWire IVR Menu Option'
+    _description = 'IVR Menu Option'
     _order = 'digit'
     _check_company_auto = True
 

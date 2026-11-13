@@ -81,14 +81,14 @@ class SignalWireDashboard(models.AbstractModel):
         common = {'sequence': 60, 'action': False}
         if counts is None:
             return [dict(common, key='calls_today', label=_("Calls today"), value="-",
-                         hint=_("Couldn't reach SignalWire just now"), tone='muted')]
+                         hint=_("Couldn't reach the phone service just now"), tone='muted')]
         return [
             dict(common, key='calls_today', label=_("Calls today"), value=counts['today'],
                  hint=_("%(inbound)s in, %(outbound)s out",
                         inbound=counts['today_in'], outbound=counts['today_out']),
                  tone='info'),
             dict(common, key='calls_week', label=_("Calls in the last 7 days"),
-                 value=counts['week'], hint=_("From SignalWire's call log"), tone='info',
+                 value=counts['week'], hint=_("From the phone service's call log"), tone='info',
                  sequence=61),
         ]
 

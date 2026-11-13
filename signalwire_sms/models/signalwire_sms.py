@@ -31,13 +31,13 @@ class SignalWireSms(models.Model):
     res.partner gets matched, via _log_to_partner_chatter().
     """
     _name = 'signalwire.sms'
-    _description = 'SignalWire SMS'
+    _description = 'SMS'
     _order = 'create_date desc'
     _rec_name = 'body'
 
     phone_number_id = fields.Many2one(
         'signalwire.phone_number', required=True, ondelete='cascade',
-        help="Which of our SignalWire numbers this message was sent "
+        help="Which of our phone numbers this message was sent "
              "from or received on.")
     direction = fields.Selection(
         [('outbound', 'Outbound'), ('inbound', 'Inbound')], required=True)
@@ -66,9 +66,9 @@ class SignalWireSms(models.Model):
             message.other_number = (message.from_number if message.direction == 'inbound'
                                     else message.to_number)
 
-    sid = fields.Char(string="SID", help="SignalWire's own ID for this message.")
+    sid = fields.Char(string="SID", help="The phone provider's ID for this message.")
     state = fields.Char(
-        help="SignalWire's own delivery status for an outbound message "
+        help="The phone service's delivery status for an outbound message "
              "(queued/sent/delivered/failed/...), or \"received\" for "
              "an inbound one.")
     partner_id = fields.Many2one(

@@ -2,7 +2,7 @@
 <odoo>
 
     <record id="signalwire_phone_number_company_rule" model="ir.rule">
-        <field name="name">SignalWire Phone Number: multi-company</field>
+        <field name="name">Phone Number: multi-company</field>
         <field name="model_id" ref="model_signalwire_phone_number" />
         <field name="global" eval="True" />
         <field name="domain_force">

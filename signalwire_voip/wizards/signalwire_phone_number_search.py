@@ -11,9 +11,9 @@ class SignalWirePhoneNumberSearch(models.TransientModel):
     signalwire.server.search_numbers).
     """
     _name = 'signalwire.phone_number.search'
-    _description = 'Search SignalWire Phone Numbers'
+    _description = 'Search Phone Numbers'
 
-    subproject_id = fields.Many2one('signalwire.subproject', required=True)
+    subproject_id = fields.Many2one('signalwire.subproject', string="Sub-account", required=True)
     number_type = fields.Selection(
         [('local', 'Local'), ('toll_free', 'Toll-free')], default='local', required=True)
     match = fields.Selection(
@@ -63,7 +63,7 @@ class SignalWirePhoneNumberSearch(models.TransientModel):
 
 class SignalWirePhoneNumberSearchResult(models.TransientModel):
     _name = 'signalwire.phone_number.search.result'
-    _description = 'SignalWire Phone Number Search Result'
+    _description = 'Phone Number Search Result'
 
     wizard_id = fields.Many2one(
         'signalwire.phone_number.search', required=True, ondelete='cascade')

@@ -84,7 +84,7 @@ class TestVoipDashboard(TransactionCase):
         self.client.compat_get.side_effect = RuntimeError('down')
         tile = self._tile(self._data(), 'calls_today')
         self.assertEqual(tile['value'], '-')
-        self.assertIn("Couldn't reach SignalWire", tile['hint'])
+        self.assertIn("Couldn't reach the phone service", tile['hint'])
 
     def test_opening_voip_shows_the_dashboard(self):
         root = self.env.ref('signalwire_voip.menu_signalwire_root')

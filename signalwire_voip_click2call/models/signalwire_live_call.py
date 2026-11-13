@@ -26,7 +26,7 @@ class SignalWireLiveCall(models.Model):
     softphone joining it.
     """
     _name = 'signalwire.live_call'
-    _description = 'SignalWire Live Call'
+    _description = 'Live Call'
     _order = 'create_date desc'
     _rec_name = 'from_number'
 
@@ -85,7 +85,7 @@ class SignalWireLiveCall(models.Model):
 
     def _notify_panel(self):
         """Broadcasts to every connected user who's a member of the
-        SignalWire Receptionist group - bus.bus._sendone() requires an
+        Receptionist group - bus.bus._sendone() requires an
         actual record as its target, and every connected user is
         already auto-subscribed to their own group records
         (ir_websocket._build_bus_channel_list() does this
@@ -131,7 +131,7 @@ class SignalWireLiveCall(models.Model):
         if not user.voip_username and not user.signalwire_desk_phone_ids.filtered(
                 'voip_username'):
             raise UserError(_(
-                "%(user)s doesn't have a SignalWire softphone provisioned yet.",
+                "%(user)s doesn't have a softphone provisioned yet.",
                 user=user.name))
         self._redirect(f'/signalwire/voice/route_to_user/{user.id}/{self.phone_number_id.id}')
         self.write({'assigned_user_id': user.id, 'state': 'ringing'})

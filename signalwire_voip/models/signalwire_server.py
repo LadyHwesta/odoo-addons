@@ -44,29 +44,27 @@ class SignalWireServer(models.Model):
     live 2026-09-15 - it comes back masked) but isn't needed anyway.
     """
     _name = 'signalwire.server'
-    _description = 'SignalWire Project'
+    _description = 'Phone Account'
 
-    name = fields.Char(required=True, default='SignalWire')
+    name = fields.Char(required=True, default='Phone Service')
     space = fields.Char(
-        string="Space Domain", required=True, groups="base.group_system",
-        help='Your SignalWire Space domain, e.g. '
-             '"example.signalwire.com" - no "https://" prefix.')
+        string="Account Domain", required=True, groups="base.group_system",
+        help='Your phone provider account\'s domain, without "https://".')
     project_id = fields.Char(
-        string="Project ID", required=True, groups="base.group_system",
-        help="Settings -> API in your SignalWire dashboard.")
+        string="Account ID", required=True, groups="base.group_system",
+        help="From the API settings in your phone provider's dashboard.")
     api_token = fields.Char(
         string="API Token", required=True, groups="base.group_system",
-        help="Generated alongside the Project ID. Needs at least the "
-             "Voice and Numbers scopes for everything this module "
-             "does; Messaging too once signalwire_sms is installed.")
+        help="Generated alongside the Account ID. Give it the Voice and "
+             "Numbers permissions, and Messaging if you use text messages.")
     active = fields.Boolean(default=True)
 
     signing_key = fields.Char(
         string="Signing Key", groups="base.group_system", copy=False,
-        help="SignalWire Dashboard > API Credentials > Signing Key (Show). "
+        help="From the API credentials in your phone provider's dashboard. "
              "Not the API token. Used to check that calls and texts reported "
-             "to this Odoo really come from SignalWire. Subprojects have "
-             "their own Signing Keys: add those on each subproject.")
+             "to this Odoo really come from your phone provider. Sub-accounts "
+             "have their own Signing Keys: add those on each sub-account.")
     webhook_signature_mode = fields.Selection(
         [('off', "Off"), ('log', "Check and log only"), ('enforce', "Reject unsigned")],
         string="Webhook Signatures", default='log', required=True,
@@ -131,7 +129,7 @@ class SignalWireServer(models.Model):
         client = self._get_client()
         result = client.compat_get(f'Accounts/{self.project_id}.json')
         raise UserError(_(
-            "Connected. Project status: %(status)s.",
+            "Connected. Account status: %(status)s.",
             status=result.get('status', '?')))
 
     def action_import_numbers(self):

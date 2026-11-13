@@ -117,7 +117,7 @@ class SignalWirePhoneNumber(models.Model):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url') or ''
         if not base_url.startswith('https://'):
             raise UserError(_(
-                "SignalWire can only reach a public HTTPS address, and this "
+                "The phone service can only reach a public HTTPS address, and this "
                 "database's web.base.url is %(url)s.", url=base_url or _("not set")))
         client = self.subproject_id.server_id._get_client()
         client.compat_post(

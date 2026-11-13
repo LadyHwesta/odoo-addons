@@ -1,50 +1,30 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SignalWire Click-to-Call',
+    'name': 'VoIP Click-to-Call',
     'version': '19.0.4.12.0',
     'category': 'Productivity/VOIP',
-    'summary': 'A real in-browser softphone (voip_oca) backed by SignalWire SIP Endpoints, with fallback routing',
+    'summary': 'An in-browser softphone, desk phones, call routing, voicemail and a receptionist panel',
     'description': """
-SignalWire Click-to-Call
-=========================
+VoIP Click-to-Call
+==================
 
-Phase 2 of the SignalWire VoIP project. Bridges OCA's ``voip_oca`` (a
-free, provider-agnostic SIP.js/WebRTC browser softphone) to SignalWire:
+Calling from Odoo, built on OCA's ``voip_oca`` browser softphone.
 
-- One click provisions a user's own SignalWire "SIP Endpoint" and
-  wires it into ``voip_oca``'s ``res.users`` VOIP settings - after
-  that, that user has a real softphone (make/receive calls, click any
-  partner's phone number, call log, missed-call activities) with no
-  further setup.
-- Assigning a purchased ``signalwire.phone_number`` to a user routes
-  inbound calls to that number straight to their softphone, via a
-  standard Twilio-compatible cXML ``<Dial><Sip>`` webhook.
-- **A self-service fallback chain** for when nobody's at the
-  softphone: forward to a saved personal number, ring a group of
-  teammates, and/or take a voicemail - each independently toggleable,
-  on the fly, from the user's own Preferences. See ``README.md`` for
-  the full design (SignalWire has no presence/registration API at
-  all, confirmed - a timeout-then-fallback chain is the only real
-  mechanism available) and what's been live-verified vs. not.
-- **A real voicemail box in the backend**, not just a chatter
-  message and an activity: a topbar systray icon with a live unread
-  badge (updates instantly over the bus, not on a timer) whose
-  dropdown lets you play, read a transcript snippet, or open any
-  recent voicemail without leaving your screen; a full Voicemail list
-  with inline playback, transcript, mark read/unread, and delete -
-  scoped so a plain user only ever sees their own. Optional per-user
-  SignalWire transcription (their own paid add-on, on by default, one
-  toggle to turn off) means you can often tell what a voicemail says
-  before ever pressing play.
-- **Hardware desk phone support**, for teams who want a real phone at
-  their desk alongside (or instead of) the browser softphone. A user
-  can register any number of Yealink or Grandstream desk phones by
-  MAC address; each gets its own SignalWire SIP Endpoint and rings
-  together with the softphone on every inbound call. Zero-touch
-  auto-provisioning is built in - point the phone (or a DHCP scope's
-  option 66) at this module's own provisioning URL and it fetches its
-  SIP credentials automatically, no manual entry needed. See
-  ``README.md`` for what's been live-verified vs. not.
+- **Softphones**: one click sets up a user's softphone. Make and take
+  calls in the browser, click any contact's number to call it, with a
+  call log and missed-call activities.
+- **Desk phones**: register Yealink or Grandstream desk phones by MAC
+  address; they ring with the softphone and set themselves up
+  automatically.
+- **Call routing**: each number rings a user, a call group or a phone
+  menu (IVR), with opening hours, after-hours routing, hold music and
+  attended transfer.
+- **When nobody answers**: forward to a saved number, ring teammates,
+  then take a voicemail.
+- **Voicemail**: a topbar inbox with playback and optional transcripts.
+- **Receptionist panel**: see who's on a call and route callers.
+
+Setup notes are in ``README.md``.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',

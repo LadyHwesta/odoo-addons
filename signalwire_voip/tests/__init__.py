@@ -6,3 +6,4 @@ from . import test_signalwire_phone_number
 from . import test_phone_number_search_wizard
 from . import test_signalwire_dashboard
 from . import test_webhook_security
+from . import test_white_label

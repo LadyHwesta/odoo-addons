@@ -9,7 +9,7 @@
             <xpath expr="//header" position="inside">
                 <button name="action_configure_inbound_sms" type="object"
                         string="Connect Incoming Texts"
-                        help="Tell SignalWire to pass texts sent to this number into Odoo, so HELP and STOP get their replies." />
+                        help="Have texts sent to this number come into Odoo, so HELP and STOP get their replies." />
             </xpath>
             <field name="company_id" position="after">
                 <field name="sms_webhook_url"

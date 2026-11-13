@@ -31,13 +31,13 @@ class ResUsers(models.Model):
         return info
 
     signalwire_sip_endpoint_id = fields.Char(
-        string="SignalWire SIP Endpoint ID", copy=False,
-        help="SignalWire's own ID for this user's SIP Endpoint - "
+        string="SIP Endpoint ID", copy=False,
+        help="The phone provider's ID for this user's SIP Endpoint - "
              "needed to release it later. Set automatically by "
-             "\"Provision SignalWire Softphone\", not editable by hand.")
+             "\"Set Up Softphone\", not editable by hand.")
     signalwire_server_id = fields.Many2one(
-        'signalwire.server', copy=False,
-        help="Which project this user's SIP Endpoint (if any) lives on.")
+        'signalwire.server', string="Phone Account", copy=False,
+        help="Which phone account this user's softphone (if any) lives on.")
 
     signalwire_forwarding_number_ids = fields.One2many(
         'signalwire.forwarding.number', 'user_id', string="Saved Numbers")
@@ -45,7 +45,7 @@ class ResUsers(models.Model):
         'signalwire.desk_phone', 'user_id', string="Desk Phones",
         help="Physical SIP desk phones registered to this user - each "
              "rings alongside the softphone on an inbound call, using "
-             "its own separate SignalWire SIP Endpoint.")
+             "its own separate SIP endpoint.")
     signalwire_active_forward_id = fields.Many2one(
         'signalwire.forwarding.number', string="Forward Calls To",
         domain="[('user_id', '=', id)]",
@@ -61,16 +61,16 @@ class ResUsers(models.Model):
              "teammates with their own softphone already provisioned "
              "actually get rung - see this module's own README.")
     signalwire_voicemail_enabled = fields.Boolean(
-        default=True,
+        string="Take Voicemail", default=True,
         help="Take a voicemail if nothing above answers - the "
              "guaranteed last resort so a caller is never just "
              "dropped. Recordings get attached to the matched "
              "contact's chatter, if any, and always schedule a "
              "\"return this call\" activity for this user either way.")
     signalwire_voicemail_transcribe = fields.Boolean(
-        default=True,
-        help="Also ask SignalWire to transcribe each voicemail (a "
-             "paid add-on on their end, billed per recording) so the "
+        string="Transcribe Voicemail", default=True,
+        help="Also transcribe each voicemail (a paid extra, billed "
+             "per recording) so the "
              "text shows up right in the voicemail systray, letting "
              "you decide whether it's worth listening to in full "
              "before you do. Turn off to only ever get the audio.")
@@ -79,7 +79,7 @@ class ResUsers(models.Model):
         help="An uploaded audio file played to callers instead of the "
              "text-to-speech greeting below. Leave unset to use the "
              "text greeting instead.")
-    signalwire_voicemail_greeting_filename = fields.Char(copy=False)
+    signalwire_voicemail_greeting_filename = fields.Char(string="Greeting File Name", copy=False)
     signalwire_voicemail_greeting_text = fields.Text(
         string="Greeting (spoken)",
         # Not _()-wrapped - a field default runs inside _auto_init's
@@ -97,7 +97,7 @@ class ResUsers(models.Model):
         string="Play Beep Before Recording", default=True)
     signalwire_call_state = fields.Selection(
         [('idle', "Available"), ('ringing', "Ringing"), ('on_call', "On a Call")],
-        default='idle', copy=False,
+        string="Call State", default='idle', copy=False,
         help="Reported live by this user's own softphone whenever its "
              "call state changes (see voip_agent_receptionist_status."
              "esm.js) - what the live receptionist panel shows "
@@ -192,7 +192,7 @@ class ResUsers(models.Model):
         needs its own real guard.
         """
         if not self.env.user.has_group('signalwire_voip_click2call.group_signalwire_receptionist'):
-            raise UserError(_("You don't have access to the SignalWire receptionist panel."))
+            raise UserError(_("You don't have access to the receptionist panel."))
         users = self.search([('company_id', 'in', self.env.companies.ids)])
         return [
             {
@@ -289,11 +289,11 @@ class ResUsers(models.Model):
         self.ensure_one()
         if self.signalwire_sip_endpoint_id:
             raise UserError(_(
-                "%(user)s already has a SignalWire softphone provisioned.",
+                "%(user)s already has a softphone provisioned.",
                 user=self.name))
         server = self.env['signalwire.server'].search([], limit=1)
         if not server:
-            raise UserError(_("No SignalWire project is configured yet."))
+            raise UserError(_("No phone account is configured yet."))
 
         pbx = self.env['voip.pbx'].search([('name', '=', server.name)], limit=1)
         if not pbx:
@@ -316,7 +316,7 @@ class ResUsers(models.Model):
         self.ensure_one()
         if not self.signalwire_sip_endpoint_id:
             raise UserError(_(
-                "%(user)s has no SignalWire softphone provisioned.", user=self.name))
+                "%(user)s has no softphone provisioned.", user=self.name))
         self.signalwire_server_id._get_client().relay_delete(
             f'endpoints/sip/{self.signalwire_sip_endpoint_id}')
         self.write({

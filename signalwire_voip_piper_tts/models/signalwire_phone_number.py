@@ -11,10 +11,10 @@ class SignalWirePhoneNumber(models.Model):
 
     hold_piper_voice = fields.Selection(
         PIPER_VOICES, string="Hold Message Voice",
-        help="Speak the receptionist-park hold message using a self-"
-             "hosted Piper voice instead of the plain built-in one. "
-             "Requires your admin to have configured Piper's own "
-             "server URL. Leave blank to keep the plain voice.")
+        help="Speak the receptionist-park hold message using a "
+             "natural-sounding voice instead of the plain built-in one. "
+             "Requires your admin to have configured the voice server's "
+             "URL. Leave blank to keep the plain voice.")
     hold_piper_speaker_id = fields.Selection(
         LIBRITTS_R_SPEAKERS, string="Speaker",
         help="Only used for LibriTTS-R, which has 904 different "

@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SignalWire Portal Support Calling',
+    'name': 'VoIP Portal Support Calling',
     'version': '19.0.1.1.0',
     'category': 'Productivity/VOIP',
-    'summary': 'Let portal customers request a support callback or place a live call - never an external one',
+    'summary': 'Let portal customers request a support callback, without ever reaching an outside number',
     'description': """
-SignalWire Portal Support Calling
-====================================
+VoIP Portal Support Calling
+===========================
 
-Extends ``signalwire_voip_click2call``'s internal call routing out to
+Extends VoIP Click-to-Call's internal call routing out to
 the customer *portal* - an external contact can request a callback,
 or (on a more advanced support tier) place a real live browser call
 to reach a support agent directly, as an alternative to opening a
 ticket or using Discuss.
 
 - **Gated per contact**, with room for tiers: a new
-  ``signalwire_portal_support_tier`` field on ``res.partner``
+  support tier field on ``res.partner``
   (none/callback/live call). Enforced server-side on every route and
   RPC method, not just by hiding a button.
 - **Never an external call**: the portal side can only ever reach a
   single, fixed internal "Portal Support" Call Group - there is no
   path, by design, for a portal visitor to dial an arbitrary number.
 - **Callback requests** (Sub-phase 1, this version): submit a phone
-  number and optional note; the SignalWire Receptionist group is
+  number and optional note; the Receptionist group is
   notified live (the same bus mechanism the receptionist panel already
   uses) and can call back with one click from that same panel.
 - Live browser-to-agent calling (Sub-phase 2) is a deliberately

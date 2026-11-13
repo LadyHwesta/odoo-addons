@@ -24,7 +24,7 @@ class SignalWireVoicemail(models.Model):
     """
     _name = 'signalwire.voicemail'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _description = 'SignalWire Voicemail'
+    _description = 'Voicemail'
     _order = 'create_date desc'
     _rec_name = 'from_number'
 
@@ -56,28 +56,18 @@ class SignalWireVoicemail(models.Model):
              "resolve the ir.attachment relation itself.")
     recording_url = fields.Char(
         readonly=True,
-        help="SignalWire's own RecordingUrl for this voicemail (without "
-             "the .mp3 suffix we append to fetch it) - kept around "
-             "purely to correlate the async transcription webhook back "
-             "to this record later, since that webhook doesn't carry "
-             "our own user_id/phone_number_id in its path the way the "
-             "recording-complete one does.")
+        help="Where the phone service keeps the recording; used to match "
+             "its transcript to this voicemail.")
     partner_id = fields.Many2one(
         'res.partner',
-        help="Best-effort match against the caller's number - same "
-             "digits-only approach as signalwire_sms's own chatter "
-             "matching, duplicated here rather than shared since "
-             "this module doesn't depend on signalwire_sms.")
+        help="The contact whose phone number matches the caller's, if any.")
     is_read = fields.Boolean(default=False)
     transcription_status = fields.Selection(
         [('none', 'Not Requested'), ('pending', 'Pending'),
          ('completed', 'Completed'), ('failed', 'Failed')],
         default='none', required=True,
-        help="'Pending' means the recording was sent to SignalWire for "
-             "transcription and we're waiting on its transcribeCallback "
-             "webhook - sourced from SignalWire's own docs (transcribe/"
-             "transcribeCallback on the <Record> verb), not yet live-"
-             "verified end to end against a real spoken voicemail.")
+        help="'Pending' means the recording was sent for transcription "
+             "and the transcript hasn't come back yet.")
     transcription_text = fields.Text(readonly=True)
 
     @api.constrains('user_id', 'call_group_id')

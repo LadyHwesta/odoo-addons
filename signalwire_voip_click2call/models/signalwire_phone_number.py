@@ -13,12 +13,12 @@ class SignalWirePhoneNumber(models.Model):
 
     assigned_user_id = fields.Many2one(
         'res.users', string="User", check_company=True,
-        help="Which user's SignalWire softphone an inbound call to "
+        help="Which user's softphone an inbound call to "
              "this number bridges to when Rings is set to \"A User\". "
-             "That user needs a provisioned SignalWire softphone "
+             "That user needs a provisioned softphone "
              "first (their own user form's Preferences tab). Only "
              "users belonging to this number's own company can be "
-             "picked - a single SignalWire account can serve every "
+             "picked - a single phone account can serve every "
              "company in a multi-company database, but each number "
              "still only ever rings its own company's people.")
     route_type = fields.Selection(
@@ -195,12 +195,12 @@ class SignalWirePhoneNumber(models.Model):
                 number=self.name))
         if route_type == 'user' and not target.voip_username:
             raise UserError(_(
-                "%(user)s doesn't have a SignalWire softphone provisioned yet - "
-                "use \"Provision SignalWire Softphone\" on their user form first.",
+                "%(user)s doesn't have a softphone provisioned yet - "
+                "use \"Set Up Softphone\" on their user form first.",
                 user=target.name))
         if route_type == 'group' and not target.member_ids.filtered('voip_username'):
             raise UserError(_(
-                "%(group)s has no members with a SignalWire softphone provisioned yet.",
+                "%(group)s has no members with a softphone provisioned yet.",
                 group=target.name))
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         client = self.subproject_id.server_id._get_client()

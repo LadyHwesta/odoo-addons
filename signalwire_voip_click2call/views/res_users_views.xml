@@ -9,10 +9,10 @@
             <page name="voip" position="inside">
                 <div class="mb-3">
                     <button name="action_provision_signalwire_sip" type="object"
-                            string="Provision SignalWire Softphone" class="btn-primary"
+                            string="Set Up Softphone" class="btn-primary"
                             invisible="signalwire_sip_endpoint_id" />
                     <button name="action_release_signalwire_sip" type="object"
-                            string="Release SignalWire Softphone" class="btn-secondary"
+                            string="Release Softphone" class="btn-secondary"
                             invisible="not signalwire_sip_endpoint_id" />
                 </div>
                 <group string="If I don't answer..." invisible="not signalwire_sip_endpoint_id">
@@ -70,10 +70,10 @@
             <page name="voip" position="inside">
                 <div class="mb-3">
                     <button name="action_provision_signalwire_sip" type="object"
-                            string="Provision SignalWire Softphone" class="btn-primary"
+                            string="Set Up Softphone" class="btn-primary"
                             invisible="signalwire_sip_endpoint_id" />
                     <button name="action_release_signalwire_sip" type="object"
-                            string="Release SignalWire Softphone" class="btn-secondary"
+                            string="Release Softphone" class="btn-secondary"
                             invisible="not signalwire_sip_endpoint_id" />
                 </div>
                 <group string="If I don't answer..." invisible="not signalwire_sip_endpoint_id">

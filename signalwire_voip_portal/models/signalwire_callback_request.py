@@ -12,7 +12,7 @@ class SignalWireCallbackRequest(models.Model):
     jammed into one model.
     """
     _name = 'signalwire.callback_request'
-    _description = 'SignalWire Portal Callback Request'
+    _description = 'Portal Callback Request'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
     _rec_name = 'phone_number'

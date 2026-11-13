@@ -30,7 +30,7 @@ class ResPartner(models.Model):
 
     def _sync_signalwire_portal_group(self):
         """Keeps this partner's own portal login (if any) in sync
-        with the SignalWire Portal Calling group - the tier field
+        with the Portal Calling group - the tier field
         above is the business-facing flag an admin actually edits;
         the group is what the new models' own ir.model.access/ir.rule
         actually gate on, matching Odoo core's own idiom for gating a

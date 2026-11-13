@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SignalWire Voicemail to Project',
+    'name': 'VoIP Voicemail to Project',
     'version': '19.0.1.0.0',
     'category': 'Productivity/VOIP',
     'summary': "Create or attach a project task straight from a voicemail",
     'description': """
-SignalWire Voicemail to Project
-====================================
+VoIP Voicemail to Project
+=========================
 
 Adds two actions to a voicemail record:
 
@@ -22,8 +22,8 @@ Adds two actions to a voicemail record:
   immediately, no review step needed for logging onto an existing
   record.
 
-Deliberately standalone - depends only on ``signalwire_voip_click2call``
-and core ``project``, not on ``signalwire_voip_helpdesk_crm``, so
+Deliberately standalone - depends only on VoIP Click-to-Call
+and core ``project``, not on VoIP Voicemail to Helpdesk/CRM, so
 Project support installs on its own.
 """,
     'author': 'Tiesa',
