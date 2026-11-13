@@ -6,3 +6,5 @@ access_signalwire_phone_number_user,signalwire.phone_number user,model_signalwir
 access_signalwire_phone_number_system,signalwire.phone_number system,model_signalwire_phone_number,base.group_system,1,1,1,1
 access_signalwire_phone_number_search_user,signalwire.phone_number.search user,model_signalwire_phone_number_search,base.group_user,1,1,1,1
 access_signalwire_phone_number_search_result_user,signalwire.phone_number.search.result user,model_signalwire_phone_number_search_result,base.group_user,1,1,1,1
+access_signalwire_e911_address_user,signalwire.e911.address user,model_signalwire_e911_address,base.group_user,1,1,1,0
+access_signalwire_e911_address_system,signalwire.e911.address system,model_signalwire_e911_address,base.group_system,1,1,1,1

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP Click-to-Call',
-    'version': '19.0.4.12.0',
+    'version': '19.0.4.13.0',
     'category': 'Productivity/VOIP',
     'summary': 'An in-browser softphone, desk phones, call routing, voicemail and a receptionist panel',
     'description': """

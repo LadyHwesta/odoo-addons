@@ -7,6 +7,9 @@
         <field name="inherit_id" ref="signalwire_voip.view_signalwire_server_form" />
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <button name="action_apply_e911_to_phones" type="object"
+                        string="Apply E911 to Phones"
+                        confirm="Every softphone and desk phone will be set to call outside numbers only if its Calls Out As number has active E911; the rest become internal-only. Continue?" />
                 <button name="action_setup_click2call" type="object"
                         string="Setup Click-to-Call" />
             </xpath>

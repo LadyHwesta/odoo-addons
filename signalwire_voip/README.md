@@ -126,3 +126,31 @@ All business logic (the API client's URL-building/auth/error handling,
 and the search+purchase wizard) is covered by tests mocking
 `requests.request`/`_get_client()` - nothing in the automated suite
 makes a real HTTP call. 25 tests, all green.
+
+## E911 (2026-11-13, not yet live-verified)
+
+Built from SignalWire's REST docs (read 2026-11-13); no real address or
+assignment has been sent yet.
+
+- **Emergency Addresses** (VoIP › Configuration): `POST /api/relay/rest/addresses`
+  with `emergency_enabled: true` (US only). The carrier validates it; a 422
+  can carry `candidates`, which are kept on the address and shown to the
+  user. A registered address is read-only: make a new one and move the
+  numbers. The dispatcher name is capped at 32 characters (the emergency
+  network's limit); Odoo refuses longer ones rather than truncating.
+- **Per number** (phone number form): `POST /api/relay/rest/phone_numbers/{sid}/e911_address`
+  with `e911_address_id`; status `pending` → `active` (or `failed`), checked
+  by Check Status and an hourly cron, since no webhook is sent. Remove =
+  `DELETE` on the same path (`pending_removal`). `_on_e911_status_changed`
+  is the hook other modules use.
+- **Why it matters:** SignalWire charges **$100 per 911 call from a number
+  with no registered address**. Test with **933**, which reads the address
+  back and is free.
+- Dashboard tile: numbers without active E911.
+
+Unverified assumptions: that the number's `sid` (from the Compatibility
+API) is the Relay REST phone-number id; and that a parent project's token
+can register addresses for numbers in its subprojects (the docs say the
+address must be "in the same project"). On a customer's own Odoo connected
+with a token scoped to their subproject (as TFL is), both are the same
+project, so that's the safe place to set E911.

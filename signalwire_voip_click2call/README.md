@@ -869,3 +869,17 @@ appear in the first `<Dial>`, a teammate with only a desk phone still
 gets reached by the ring-group step) are covered the same way - 73
 tests total in this module, all against a mocked SignalWire client;
 nothing here has been exercised against real hardware.
+
+## Outside calls depend on E911 (2026-11-13, not yet live-verified)
+
+Softphones and desk phones dial outside numbers at SignalWire directly, so
+the rule is set on each SIP endpoint (`PUT /api/relay/rest/endpoints/sip/{id}`):
+`call_handler: passthrough` + `send_as: <number>` while the person's
+**Calls Out As** number has active E911, else `call_handler: block-pstn`
+(internal calls only, 911 included: a 911 call from a number with no
+registered address costs $100 and can't be located). Applied when Calls Out
+As changes, when a phone is set up, when that number's E911 status changes,
+and on demand with **Apply E911 to Phones** on the Phone Account.
+Existing endpoints set to Passthrough by hand in the dashboard keep that
+until one of those happens: run Apply E911 to Phones after setting each
+person's Calls Out As.

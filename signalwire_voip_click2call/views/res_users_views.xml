@@ -15,6 +15,14 @@
                             string="Release Softphone" class="btn-secondary"
                             invisible="not signalwire_sip_endpoint_id" />
                 </div>
+                <group string="Outside calls" invisible="not signalwire_sip_endpoint_id">
+                    <field name="signalwire_outbound_number_id" options="{'no_create': true}" />
+                    <field name="signalwire_outbound_allowed" readonly="1" />
+                    <div colspan="2" class="text-muted" invisible="signalwire_outbound_allowed">
+                        Internal calls only until the Calls Out As number has active E911
+                        (VoIP › Phone Numbers). 911 can't be dialled from these phones until then.
+                    </div>
+                </group>
                 <group string="If I don't answer..." invisible="not signalwire_sip_endpoint_id">
                     <field name="signalwire_forwarding_number_ids" nolabel="1" colspan="2">
                         <list editable="bottom">

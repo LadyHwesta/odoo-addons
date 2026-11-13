@@ -58,6 +58,19 @@ class SignalWireDashboard(models.AbstractModel):
                       'open': {'res_model': n._name, 'res_id': n.id}} for n in numbers],
             'empty': _("No phone numbers yet."),
         })
+        missing = numbers.filtered(lambda n: n.e911_status != 'active')
+        data['tiles'].append({
+            'key': 'e911', 'label': _("Numbers without E911"), 'value': len(missing),
+            'hint': _("Can't call outside numbers, 911 included") if missing
+            else _("Every number has an emergency address"),
+            'tone': 'warning' if missing else 'ok', 'sequence': 5,
+            'action': {
+                'type': 'ir.actions.act_window', 'name': _("Numbers without E911"),
+                'res_model': 'signalwire.phone_number', 'view_mode': 'list,form',
+                'views': [[False, 'list'], [False, 'form']],
+                'domain': [('id', 'in', missing.ids)],
+            } if missing else False,
+        })
         data['tiles'].extend(self._call_count_tiles(numbers))
 
     def _number_route_now(self, number):

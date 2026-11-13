@@ -15,8 +15,13 @@ class SignalWireAPIError(Exception):
     network error, or an unparseable response. The message is
     normalized across the different error shapes SignalWire's own
     endpoints return (see _extract_error_message) rather than leaking
-    a raw response body.
+    a raw response body. ``payload`` keeps the parsed error body (e.g.
+    the carrier's suggested addresses on a rejected E911 address).
     """
+
+    def __init__(self, message, payload=None):
+        super().__init__(message)
+        self.payload = payload or {}
 
 
 class SignalWireClient:
@@ -110,6 +115,9 @@ class SignalWireClient:
         """
         return self._request('get', self._relay_url(path), params=params)
 
+    def relay_put(self, path, **json_body):
+        return self._request('put', self._relay_url(path), json=json_body)
+
     def relay_delete(self, path):
         return self._request('delete', self._relay_url(path))
 
@@ -164,10 +172,16 @@ class SignalWireClient:
             response = requests.request(
                 method, url, auth=self._auth, timeout=self.timeout, **kwargs)
         except requests.RequestException as exc:
-            raise SignalWireAPIError(f'Could not reach SignalWire: {exc}') from exc
+            raise SignalWireAPIError(f'Could not reach the phone service: {exc}') from exc
 
         if response.status_code >= 400:
-            raise SignalWireAPIError(self._extract_error_message(response))
+            try:
+                payload = response.json()
+            except ValueError:
+                payload = {}
+            raise SignalWireAPIError(
+                self._extract_error_message(response),
+                payload=payload if isinstance(payload, dict) else {})
 
         if not response.content:
             # DELETE endpoints (e.g. SIP Endpoints) return 204 with no

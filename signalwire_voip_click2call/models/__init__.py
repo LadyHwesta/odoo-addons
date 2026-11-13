@@ -10,5 +10,6 @@ from . import signalwire_forwarding_number
 from . import signalwire_desk_phone
 from . import signalwire_voicemail
 from . import res_users
+from . import signalwire_e911_outbound
 from . import signalwire_open_status
 from . import signalwire_dashboard

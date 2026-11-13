@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_signalwire_e911_address_list" model="ir.ui.view">
+        <field name="name">signalwire.e911.address.list</field>
+        <field name="model">signalwire.e911.address</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="full_address" string="Address" />
+                <field name="state" widget="badge" decoration-success="state == 'registered'"
+                       decoration-danger="state == 'rejected'" />
+                <field name="company_id" groups="base.group_multi_company" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_signalwire_e911_address_form" model="ir.ui.view">
+        <field name="name">signalwire.e911.address.form</field>
+        <field name="model">signalwire.e911.address</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_register" type="object" string="Register and Validate"
+                            class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_reset_rejected" type="object" string="Edit and Try Again"
+                            invisible="state != 'rejected'" />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,registered" />
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        This is where emergency services are sent when someone calls 911 from a
+                        number using it. Use the street address where the phones are, and keep it
+                        current: if the phones move, make a new address and move the numbers to it.
+                        To test a number once its E911 is active, dial 933: it reads back the address.
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" placeholder="e.g. TFL Conference" readonly="state == 'registered'" /></h1>
+                    </div>
+                    <group>
+                        <group string="Contact">
+                            <field name="first_name" readonly="state == 'registered'" />
+                            <field name="last_name" readonly="state == 'registered'" />
+                            <field name="server_id" groups="base.group_system" readonly="state == 'registered'" />
+                            <field name="company_id" groups="base.group_multi_company" />
+                        </group>
+                        <group string="Street Address (US)">
+                            <field name="street_number" readonly="state == 'registered'" />
+                            <field name="street_name" readonly="state == 'registered'" />
+                            <field name="unit_type" readonly="state == 'registered'" />
+                            <field name="unit_number" readonly="state == 'registered'" />
+                            <field name="city" readonly="state == 'registered'" />
+                            <field name="state_id" options="{'no_create': true}" readonly="state == 'registered'" />
+                            <field name="zip" readonly="state == 'registered'" />
+                        </group>
+                    </group>
+                    <group invisible="not suggestions">
+                        <field name="suggestions" string="Carrier's Suggestions" />
+                    </group>
+                    <group string="Numbers Using It" invisible="not phone_number_ids">
+                        <field name="phone_number_ids" nolabel="1" colspan="2" readonly="1">
+                            <list>
+                                <field name="name" />
+                                <field name="e911_status" widget="badge" />
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="action_signalwire_e911_address" model="ir.actions.act_window">
+        <field name="name">Emergency Addresses</field>
+        <field name="res_model">signalwire.e911.address</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add the street address where your phones are</p>
+            <p>Every number that calls outside numbers needs an emergency (E911) address, so
+            911 calls reach the right emergency center.</p>
+        </field>
+    </record>
+</odoo>

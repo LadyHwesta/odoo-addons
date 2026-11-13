@@ -25,6 +25,9 @@
     <menuitem id="menu_signalwire_servers" name="Phone Accounts"
               action="action_signalwire_server" parent="menu_signalwire_section_config"
               sequence="10" groups="base.group_system" />
+    <menuitem id="menu_signalwire_e911_addresses" name="Emergency Addresses"
+              action="action_signalwire_e911_address" parent="menu_signalwire_section_config"
+              sequence="15" />
     <menuitem id="menu_signalwire_subprojects" name="Sub-accounts"
               action="action_signalwire_subproject" parent="menu_signalwire_section_config"
               sequence="20" />

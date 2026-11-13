@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP',
-    'version': '19.0.1.9.0',
+    'version': '19.0.1.10.0',
     'category': 'Productivity/VOIP',
     'summary': 'Phone service: accounts, sub-accounts and phone numbers',
     'description': """
@@ -31,6 +31,8 @@ Provider setup notes are in ``README.md``.
         'views/signalwire_server_views.xml',
         'views/signalwire_subproject_views.xml',
         'views/signalwire_phone_number_views.xml',
+        'views/signalwire_e911_views.xml',
+        'data/ir_cron_e911.xml',
         'views/signalwire_dashboard_views.xml',
         'views/menus.xml',
     ],

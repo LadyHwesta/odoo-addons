@@ -9,6 +9,10 @@
                 <field name="name" class="text-nowrap" />
                 <field name="subproject_id" optional="hide" />
                 <field name="partner_id" optional="hide" />
+                <field name="e911_status" string="E911" widget="badge"
+                       decoration-success="e911_status == 'active'"
+                       decoration-warning="e911_status in ('none', 'pending', 'pending_removal', 'unregistered')"
+                       decoration-danger="e911_status == 'failed'" />
                 <field name="company_id" groups="base.group_multi_company" />
             </list>
         </field>
@@ -29,6 +33,29 @@
                         <field name="partner_id" readonly="1" />
                         <field name="sid" readonly="1" />
                         <field name="company_id" groups="base.group_multi_company" />
+                    </group>
+                    <group string="Emergency (E911)" name="e911">
+                        <div class="alert alert-warning mb-2" role="alert" colspan="2"
+                             invisible="e911_status == 'active'">
+                            Until E911 is active, this number can't be used to call outside numbers,
+                            911 included. Choose a registered emergency address and click Assign.
+                        </div>
+                        <field name="e911_address_id" options="{'no_create': true}"
+                               readonly="e911_status in ('pending', 'active', 'pending_removal')" />
+                        <field name="e911_status" widget="badge"
+                               decoration-success="e911_status == 'active'"
+                               decoration-danger="e911_status == 'failed'" />
+                        <field name="e911_checked_at" invisible="not e911_checked_at" />
+                        <div colspan="2" class="d-flex gap-2">
+                            <button name="action_assign_e911" type="object" string="Assign"
+                                    class="btn-primary"
+                                    invisible="not e911_address_id or e911_status in ('pending', 'active', 'pending_removal')" />
+                            <button name="action_refresh_e911" type="object" string="Check Status"
+                                    invisible="e911_status == 'none'" />
+                            <button name="action_remove_e911" type="object" string="Remove"
+                                    invisible="e911_status not in ('active', 'failed', 'pending')"
+                                    confirm="Remove the emergency address? This number will stop being able to call outside numbers." />
+                        </div>
                     </group>
                 </sheet>
             </form>
