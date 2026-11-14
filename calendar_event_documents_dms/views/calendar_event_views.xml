@@ -11,6 +11,7 @@
                        options="{'no_create': True}">
                     <list name="linked_files">
                         <field name="name" string="Linked from Documents" />
+                        <field name="meeting_private" widget="boolean_toggle" />
                         <field name="directory_id" string="Folder" />
                         <field name="write_date" string="Last Changed" optional="show" />
                     </list>

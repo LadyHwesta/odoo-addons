@@ -12,6 +12,7 @@
                            context="{'default_res_model': 'calendar.event', 'default_res_id': id}">
                         <list name="documents" create="1" delete="1" no_open="1">
                             <field name="name" string="File" />
+                            <field name="meeting_private" widget="boolean_toggle" />
                             <field name="file_size" string="Size" widget="binary_size" optional="show" />
                             <field name="create_uid" string="Added By" optional="hide" />
                             <field name="create_date" string="Added" optional="show" />
@@ -22,12 +23,17 @@
                             <group>
                                 <field name="datas" string="File" filename="name" required="1" />
                                 <field name="name" string="Name" />
+                                <field name="meeting_private" />
                             </group>
                         </form>
                     </field>
                     <group>
                         <field name="documents_in_invitations" />
                     </group>
+                    <p class="text-muted small">
+                        Private documents stay here for your team: they aren't sent with
+                        invitations or listed in the meeting's video call.
+                    </p>
                 </page>
             </page>
         </field>

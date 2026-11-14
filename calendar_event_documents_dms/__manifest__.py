@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Calendar Meeting Documents: Link from Documents',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Productivity/Calendar',
     'summary': 'Link files from a DMS folder (e.g. a team folder) to a meeting instead of copying them',
     'description': """

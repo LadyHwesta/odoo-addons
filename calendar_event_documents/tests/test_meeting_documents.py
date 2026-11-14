@@ -98,3 +98,108 @@ class TestMeetingDocumentsPage(HttpCase):
         """
         self.browser_js(f'/odoo/calendar/{meeting.id}', code,
                         ready="!!document.querySelector('.o_notebook')", login='admin', timeout=120)
+
+
+@tagged('post_install', '-at_install')
+class TestMeetingDocumentsInCalls(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.guest = cls.env['res.partner'].create({'name': 'Guest', 'email': 'guest@example.com'})
+        cls.start = datetime.now() + timedelta(days=7)
+
+    def _doc(self, name='Agenda.txt'):
+        return self.env['ir.attachment'].create({'name': name, 'datas': base64.b64encode(b'x')})
+
+    def _meeting(self, **vals):
+        return self.env['calendar.event'].create(dict({
+            'name': 'Board Meeting', 'start': self.start, 'stop': self.start + timedelta(hours=1),
+            'partner_ids': [Command.set([self.guest.id])],
+        }, **vals))
+
+    def test_chatter_files_become_documents(self):
+        meeting = self._meeting()
+        meeting.message_post(body="Minutes attached", attachments=[('Minutes.txt', b'notes')])
+        self.assertIn('Minutes.txt', meeting.document_ids.mapped('name'))
+
+    def test_paperclip_upload_becomes_a_document(self):
+        meeting = self._meeting()
+        attachment = self.env['ir.attachment'].create({
+            'name': 'Budget.txt', 'datas': base64.b64encode(b'1'),
+            'res_model': 'calendar.event', 'res_id': meeting.id})
+        attachment._post_add_create()
+        self.assertIn(attachment, meeting.document_ids)
+
+    def test_joining_the_call_pins_the_documents_in_its_chat(self):
+        doc = self._doc()
+        meeting = self._meeting(document_ids=[Command.link(doc.id)])
+        meeting._create_videocall_channel()
+        message = meeting.videocall_documents_message_id
+        self.assertEqual((message.model, message.res_id),
+                         ('discuss.channel', meeting.videocall_channel_id.id))
+        self.assertTrue(message.pinned_at)
+        self.assertIn('Agenda.txt', message.body)
+        self.assertIn(f'/web/content/{doc.id}?access_token={doc.access_token}', message.body)
+
+    def test_the_call_list_follows_document_changes(self):
+        meeting = self._meeting(document_ids=[Command.link(self._doc().id)])
+        meeting._create_videocall_channel()
+        message = meeting.videocall_documents_message_id
+        meeting.document_ids = [Command.link(self._doc('Minutes.txt').id)]
+        self.assertEqual(meeting.videocall_documents_message_id, message)
+        self.assertIn('Minutes.txt', message.body)
+        meeting.document_ids = [Command.clear()]
+        self.assertIn('No documents for this meeting', message.body)
+
+    def test_no_documents_no_message(self):
+        meeting = self._meeting()
+        meeting._create_videocall_channel()
+        self.assertFalse(meeting.videocall_documents_message_id)
+
+
+@tagged('post_install', '-at_install')
+class TestPrivateMeetingDocuments(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.guest = cls.env['res.partner'].create({'name': 'Guest', 'email': 'guest@example.com'})
+        cls.start = datetime.now() + timedelta(days=7)
+
+    def _doc(self, name, private=False):
+        return self.env['ir.attachment'].create({
+            'name': name, 'datas': base64.b64encode(b'x'), 'meeting_private': private})
+
+    def _meeting(self, docs):
+        return self.env['calendar.event'].create({
+            'name': 'Board Meeting', 'start': self.start, 'stop': self.start + timedelta(hours=1),
+            'partner_ids': [Command.set([self.guest.id])],
+            'document_ids': [Command.set(docs.ids)]})
+
+    def test_private_documents_stay_out_of_invitations(self):
+        meeting = self._meeting(self._doc('Agenda.txt') | self._doc('Legal notes.txt', private=True))
+        self.assertEqual(meeting._shared_documents().mapped('name'), ['Agenda.txt'])
+        sent = self.env['mail.message'].search([
+            ('model', '=', 'calendar.event'), ('res_id', '=', meeting.id),
+            ('attachment_ids', '!=', False)]).attachment_ids.mapped('name')
+        self.assertIn('Agenda.txt', sent)
+        self.assertNotIn('Legal notes.txt', sent)
+
+    def test_private_documents_stay_out_of_the_call(self):
+        meeting = self._meeting(self._doc('Agenda.txt') | self._doc('Legal notes.txt', private=True))
+        meeting._create_videocall_channel()
+        body = meeting.videocall_documents_message_id.body
+        self.assertIn('Agenda.txt', body)
+        self.assertNotIn('Legal notes.txt', body)
+
+    def test_making_a_document_private_takes_it_out_of_the_call(self):
+        doc = self._doc('Agenda.txt')
+        meeting = self._meeting(doc)
+        meeting._create_videocall_channel()
+        old_token = doc.access_token
+        self.assertTrue(old_token)
+        doc.meeting_private = True
+        self.assertFalse(doc.access_token)  # the shared link no longer works
+        self.assertNotIn('Agenda.txt', meeting.videocall_documents_message_id.body)
+        self.assertIn('Agenda.txt', meeting.document_ids.mapped('name'))
