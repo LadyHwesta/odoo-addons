@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Video Call Gallery and Speaker View',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Productivity/Discuss',
     'summary': 'Gallery / Speaker view switch for Discuss video calls, like Zoom and Teams',
     'description': """

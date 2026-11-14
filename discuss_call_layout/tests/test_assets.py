@@ -64,3 +64,23 @@ class TestCallLayoutLogic(HttpCase):
 
     def test_screen_share_then_back_to_gallery_and_speaker_view(self):
         self.browser_js('/odoo/discuss', LOGIC, login='admin')
+
+
+@tagged('post_install', '-at_install')
+class TestNoTestsImportedAtLoad(HttpCase):
+
+    def test_no_module_of_ours_loads_its_tests_with_the_server(self):
+        """Odoo finds tests by itself. A module whose __init__.py imports its
+        tests makes every server start load the test framework, which logs
+        "Importing test framework" as an error on production."""
+        import os
+        from odoo.modules.module import get_module_path
+        repo = os.path.dirname(get_module_path('discuss_call_layout'))
+        offenders = []
+        for name in sorted(os.listdir(repo)):
+            init = os.path.join(repo, name, '__init__.py')
+            if os.path.isfile(os.path.join(repo, name, '__manifest__.py')) and os.path.isfile(init):
+                with open(init) as f:
+                    if 'import tests' in f.read():
+                        offenders.append(name)
+        self.assertFalse(offenders, offenders)
