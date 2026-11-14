@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_resource_booking_type_form_online" model="ir.ui.view">
+        <field name="name">resource.booking.type.form.online</field>
+        <field name="model">resource.booking.type</field>
+        <field name="inherit_id" ref="resource_booking.resource_booking_type_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='main']" position="after">
+                <group string="Online booking" name="online_booking">
+                    <group>
+                        <field name="online_booking" />
+                        <field name="online_organizer_id" invisible="not online_booking"
+                               required="online_booking" />
+                        <field name="video_appointment" />
+                    </group>
+                    <group invisible="not online_booking">
+                        <field name="online_description" placeholder="e.g. A 30-minute video consultation." />
+                        <div class="text-muted small" colspan="2">
+                            Listed on your website at <strong>/book</strong>. Customers give their name
+                            and email, then pick a free time.
+                        </div>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

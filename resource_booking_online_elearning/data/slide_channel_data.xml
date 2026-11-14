@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_online_booking" model="slide.channel">
+        <field name="name">Online Booking</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Letting customers book appointments, by video too: resources, booking types, the Book an Appointment page, and managing bookings.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+
+    <record id="section_1" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Setting up</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_resources" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Who can be booked, and when</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Bookings are made with <strong>resources</strong>: the people (and, if you like, rooms or equipment) an appointment needs. Each has working hours, and only free time inside those hours can be booked.</p><ol class="oe-steps"><li><p>Open <strong>Resource Bookings › Configuration › Resources</strong> and make sure each person who takes appointments is listed, linked to their user, with the right working time.</p></li><li><p>Open <strong>Resource Bookings › Combinations</strong>. A combination is who (and what) is booked together: usually one person on their own, or a person and a room.</p></li><li><p>Create one combination for each person customers can book.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">Time off</span><p>Holidays and time off on a person's working time are blocked out automatically, so nobody can book them then.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_types" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Booking types</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>A <strong>booking type</strong> is what customers book, such as "30-minute consultation" or "Video check-in".</p><ol class="oe-steps"><li><p>Open <strong>Resource Bookings › Types</strong> and click <strong>New</strong>.</p></li><li><p>Give it a <strong>Name</strong> and a <strong>Duration</strong>, and choose the <strong>Availability Calendar</strong>: the hours it can be booked.</p></li><li><p>Under <strong>Available resource combinations</strong>, add each person who can take this kind of appointment. Customers get whoever is free.</p></li><li><p>In <strong>Online booking</strong>, tick <strong>Bookable Online</strong>, choose the <strong>Organizer</strong> (whose calendar the bookings go on), and add an <strong>Online Description</strong> customers will see.</p></li><li><p>Tick <strong>Video Appointment</strong> for appointments held by video.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-video-camera" /></span><div><span class="oe-callout-label">Video appointments</span><p>Each booked video appointment gets its own video link in its invitation. If the organizer has Premium video, that's the link they get.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="section_2" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Bookings</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_online" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Customers booking online</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Bookable types are listed on your website at <strong>/book</strong>.</p><ol class="oe-steps"><li><p>The customer opens <strong>Book an appointment</strong>, picks a type, and enters their name and email.</p></li><li><p>They click <strong>Next: pick a time</strong> and see the free times.</p></li><li><p>They choose one and click <strong>Confirm booking</strong>. The appointment goes on the organizer's calendar, and the customer gets an invitation by email.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span><div><span class="oe-callout-label">Put it on your website</span><p>Add a menu item that points to /book, using the website editor's menu editing, so customers can find it.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_invite" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Inviting someone to pick a time</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>For someone you're already talking to, send them a link instead.</p><ol class="oe-steps"><li><p>Open <strong>Resource Bookings › Types</strong>, pick the type, and click its booking count.</p></li><li><p>Switch to the list view and click <strong>New</strong>. Fill in the <strong>Requester</strong>.</p></li><li><p>Click <strong>Share › Send</strong>. They get an email with a link to pick a free time themselves.</p></li></ol></div>
+        </field>
+    </record>
+
+    <record id="lesson_manage" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Managing bookings</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><ol class="oe-steps"><li><p><strong>Resource Bookings › Bookings</strong> shows every booking involving you. Remove the <em>Involving me</em> filter to see everyone's.</p></li><li><p>A booking that has a time has a meeting on the calendar, with its attendees, documents and video link.</p></li><li><p>Change a booking's time there and attendees are told. Cancel it, and the meeting is removed.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">Customers can change their minds</span><p>From the link in their email, a customer can reschedule or cancel before the type's modification deadline.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_online_booking" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A customer wants to book online. Where do they go?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Your website's /book page</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Resource Bookings › Types</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">They need an Odoo login first</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">How do you make a booking type a video appointment?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Tick Video Appointment on the booking type</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Add a video link to each booking by hand</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Turn on Premium video</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Who does an online booking go to?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">The type's Organizer, with whichever available person is free</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Whoever opens the website</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">The administrator</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>

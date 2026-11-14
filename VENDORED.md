@@ -162,3 +162,13 @@ need no porting - just pull a newer 19.0 commit if OCA ships fixes worth having.
 | `calendar_public_meeting/static/lib/video-sdk.js` | SignalWire JS SDK v3.30.0 (`dist/index.umd.js`), verbatim | MIT. Full text in `LICENSE-video-sdk.txt` beside it, as MIT requires. |
 
 The same SDK sits in the private `telehealth_booking_signalwire` with its licence text.
+
+### `resource_booking` / `web_calendar_slot_duration`
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `resource_booking` | OCA/calendar `19.0` @ `1d6bd36` (2026-11-11) | **verbatim.** AGPL-3. Booking types, resource combinations and availability; customers pick a slot from their portal. Backs online booking and video appointments (`resource_booking_online`). Needs the `cssselect` Python package. |
+| `web_calendar_slot_duration` | OCA/web `19.0` @ `1f57640` (2026-11-12) | **verbatim.** LGPL-3. Calendar slot length setting, required by `resource_booking`. |
+
+Odoo Community has no booking app (Appointments is Enterprise-only); this is
+OCA's production-stable one, used instead of extending `paramedic_appointment`.
