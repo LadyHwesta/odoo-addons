@@ -1,10 +1,10 @@
 # Vendored OCA modules
 
-Fourteen modules in this repo come from the **Odoo Community Association**, not from us:
+Fifteen modules in this repo come from the **Odoo Community Association**, not from us:
 `membership/`, `website_membership/`, `membership_prorate/`, `membership_withdrawal/`,
 `contract/`, `contract_sale/`, `base_technical_features/`, `voip_oca/`, `auditlog/`,
 `resource_booking/`, `web_calendar_slot_duration/`, `commission_oca/`,
-`account_commission_oca/`, `l10n_us_form_1099/`.
+`account_commission_oca/`, `l10n_us_form_1099/`, `helpdesk_mgmt_timesheet_sale/`.
 The membership four are vendored because the club suite (`club_membership` and
 friends) depends on them and Odoo 19 dropped the core Membership app while OCA's
 proration / withdrawal add-ons aren't on a 19.0 channel yet. `contract` and
@@ -202,4 +202,19 @@ OCA contribution policy). Our `l10n_us_form_1099_nec_summary` builds the year-en
 1099-NEC totals and recipient statements on top of it; OCA's own payment report here
 counts every payment to a 1099 vendor, drafts and incoming ones included, so use the
 summary for filing figures.
+
+### `helpdesk_mgmt_timesheet_sale`
+
+Source: <https://github.com/OCA/helpdesk>
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `helpdesk_mgmt_timesheet_sale` | `18.0` @ `eaa6b22` (2026-11-13) | **ported 18.0 → 19.0.** AGPL-3. Change: the ticket's sales-order-line domain built with `odoo.fields.Domain` instead of the deprecated `odoo.osv.expression.AND`. |
+
+Links a Helpdesk ticket's timesheets to a sales order line so ticket time can be
+invoiced; without it, time logged on tickets in 19.0 never reaches an invoice. No
+19.0 branch upstream yet; not pushed to OCA (see the contribution policy). Meskis
+Works' `meskis_support_billing` builds its support-time billing on top of it. Its
+dependency `helpdesk_mgmt_timesheet` needs OCA/timesheet's
+`hr_timesheet_time_control` on the addons path.
 
