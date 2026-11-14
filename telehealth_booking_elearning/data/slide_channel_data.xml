@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_telehealth" model="slide.channel">
+        <field name="name">Telehealth Video Visits</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Booking and running video visits: Basic and Premium video, the patient's link, and health information.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+
+    <record id="section_1" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">Before the first visit</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_tiers" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">Basic and Premium video</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Each provider's visits use one of two kinds of video:</p><ul><li><strong>Basic (built-in)</strong>: Odoo's own video calls, the same as in any meeting. No extra cost and fine for one-to-one visits. Because the call goes directly between the two browsers, it can fail to connect from strict networks, such as some workplaces, hospitals and mobile carriers.</li><li><strong>Premium</strong>: visits run through a video service built for this, which connects from those networks too. It's billed by the minute for each person in the visit.</li></ul><ol class="oe-steps"><li><p>An administrator opens <strong>Settings › Users</strong>, picks the provider, and opens the <strong>Telehealth</strong> tab to see their <strong>Telehealth Video Tier</strong>.</p></li><li><p>Where your hosting includes Premium, the tab has an <strong>Upgrade to Premium Video</strong> button. <strong>Switch back to Basic</strong> undoes it.</p></li><li><p>Providers can see their own tier on the Telehealth tab of their <strong>Preferences</strong> (click your avatar).</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span><div><span class="oe-callout-label">Which to choose</span><p>Start with Basic. If patients regularly can't connect, move that provider to Premium.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="section_2" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">Booking and running a visit</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_booking" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">Booking a video visit</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><ol class="oe-steps"><li><p>In <strong>Calendar</strong>, click <strong>New</strong> and set the time.</p></li><li><p>Add the patient as an <strong>Attendee</strong>, with their email. The provider is the meeting's organizer, and their Telehealth Video Tier decides the kind of video.</p></li><li><p>Click <strong>Get Telehealth Video Link</strong> at the top of the meeting. The <strong>Video Link</strong> fills in.</p></li><li><p>Save. The patient's invitation includes the link.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">Moving a visit</span><p>Change the time on the meeting: the same link keeps working, and the patient gets the update.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_visit" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">What the patient sees</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>The patient clicks the link in their invitation. They don't need an account or an app, just a web browser on a phone or computer.</p><ul><li><strong>Basic</strong>: the link opens Odoo's video call. The provider joins from the meeting with <strong>Join Video Call</strong>, and the controls are the ones taught in the <em>Video Meetings</em> course.</li><li><strong>Premium</strong>: the link opens a video page. It shows <em>Connecting...</em>, then the visit starts. The link works every time it's opened, however long after booking.</li></ul><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">First time</span><p>The browser asks the patient to allow the camera and microphone. If they said no by mistake, they can allow it from the address bar and reload the page.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_health_info" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">Health information</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Video visits can involve a patient's health information, which the law protects.</p><ol class="oe-steps"><li><p>Before discussing health information over video, check with your hosting provider that your agreement covers it (a Business Associate Agreement).</p></li><li><p>Keep notes about the visit in the place your practice uses for health records, not in the meeting's description, which every attendee can read.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lock" /></span><div><span class="oe-callout-label">Recording</span><p>Visits aren't recorded. If you record a call some other way, California law requires everyone's consent first.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_telehealth" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A patient on a hospital network can't connect to a Basic visit. What helps?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Moving the provider to Premium video</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Sending a new link</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Asking the patient to install an app</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">How do you give a visit its video link?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Click Get Telehealth Video Link on the meeting</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Copy it from the provider's Preferences</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Email the patient yourself</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">What does the patient need to join?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">The link in their invitation and a web browser</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">An Odoo account</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">A video app on their phone</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>
