@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_calendar_event_form_public" model="ir.ui.view">
+        <field name="name">calendar.event.form.public</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar_event_documents.view_calendar_event_form_documents" />
+        <field name="arch" type="xml">
+            <page name="documents" position="after">
+                <page name="public_meeting" string="Public">
+                    <group>
+                        <group>
+                            <field name="public_meeting" />
+                            <field name="public_max_viewers" invisible="not public_meeting" />
+                        </group>
+                        <group invisible="not public_meeting">
+                            <field name="public_watch_url" widget="CopyClipboardChar"
+                                   invisible="not public_watch_url" />
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="status" invisible="not public_meeting">
+                        Share the <strong>Watch Link</strong> with the public: on your website, in a
+                        newsletter. Viewers give their name and email, then watch and listen
+                        without being seen or heard. Attendees speak from the link in their
+                        invitation. This is a paid video service: every speaker and viewer is
+                        billed per minute. Save the meeting to get its Watch Link.
+                    </div>
+                    <field name="public_viewer_ids" invisible="not public_meeting" readonly="1">
+                        <list>
+                            <field name="name" />
+                            <field name="email" />
+                            <field name="create_date" />
+                        </list>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>

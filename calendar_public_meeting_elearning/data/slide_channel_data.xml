@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_public_meetings" model="slide.channel">
+        <field name="name">Public Meetings</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Running a meeting the public can watch: the Watch Link, speaking, and who watched.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+
+    <record id="section_1" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Planning a public meeting</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_make_public" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Making a meeting public</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>A public meeting has two kinds of people in it: <strong>speakers</strong>, who can talk, show their camera and share their screen, and <strong>viewers</strong>, members of the public who watch and listen.</p><ol class="oe-steps"><li><p>Open the meeting in <strong>Calendar</strong>. Its <strong>Attendees</strong> are the speakers: add everyone who will present or answer questions.</p></li><li><p>Open the <strong>Public</strong> tab and tick <strong>Public Meeting</strong>.</p></li><li><p>Set the <strong>Viewer Limit</strong>: the most people who can watch at once, up to 299.</p></li><li><p>Save. The <strong>Watch Link</strong> appears, and the meeting's Video Link becomes the speakers' link, which their invitations include.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-usd" /></span><div><span class="oe-callout-label">A paid service</span><p>Public meetings run on a paid video service: every speaker and viewer is billed by the minute. Keep the Viewer Limit close to the audience you expect.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_share" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Sharing the Watch Link</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>The Watch Link is for the public. Anyone who has it can watch, so share it where your audience will find it.</p><ol class="oe-steps"><li><p>Copy the <strong>Watch Link</strong> from the meeting's Public tab.</p></li><li><p>Put it on your website, in a newsletter or in a social media post, with the date and time.</p></li><li><p>Documents on the meeting's Documents tab are listed for viewers too, unless they're marked <strong>Private</strong>. Mark anything that isn't for the public as Private before you share the link.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lock" /></span><div><span class="oe-callout-label">Keep the speakers' link to yourselves</span><p>The Video Link in the invitations lets people speak. Don't post it publicly: post the Watch Link.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="section_2" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">On the day</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_speaking" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Speaking</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><ol class="oe-steps"><li><p>Open the link in your meeting invitation a few minutes early.</p></li><li><p>Enter your name and click <strong>Join the meeting</strong>. Allow your camera and microphone when the browser asks.</p></li><li><p>Under the video: <strong>Mute</strong> / <strong>Unmute</strong>, <strong>Stop Camera</strong> / <strong>Start Camera</strong>, <strong>Share Screen</strong>, and <strong>Leave</strong>.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">Viewers can't interrupt</span><p>Viewers can't speak or appear on screen, so questions from the public need another channel, such as an email address you mention during the meeting.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_viewers" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">What viewers see, and who watched</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>A viewer opens the Watch Link, enters their name and email, and clicks <strong>Watch the meeting</strong>. They see and hear the speakers, and can't be seen or heard themselves. If the Viewer Limit is reached, they're asked to try again later.</p><ol class="oe-steps"><li><p>During or after the meeting, open its <strong>Public</strong> tab.</p></li><li><p>The list shows everyone who signed in to watch, with their email and when they joined.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-envelope" /></span><div><span class="oe-callout-label">Their emails</span><p>Viewers are told that you see their name and email and may contact them about this meeting. Ask them before adding them to a mailing list.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_public_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">Who can speak in a public meeting?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">The meeting's attendees, from their invitation link</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Anyone with the Watch Link</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Only the organizer</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Which link goes on your website?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">The Watch Link</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">The Video Link from the invitations</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">The meeting's Calendar address</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">A document is for the board only. What should you do before sharing the Watch Link?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Mark it Private on the Documents tab</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Nothing: viewers can't see documents</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Rename it</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>

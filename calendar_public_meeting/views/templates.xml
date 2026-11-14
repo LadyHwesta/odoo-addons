@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <template id="meeting_header" name="Public Meeting Header">
+        <h1 class="h2 mb-1" t-out="event.name" />
+        <p class="text-muted mb-4">
+            <span t-out="event.start"
+                  t-options="{'widget': 'datetime', 'tz_name': event.event_tz or event.user_id.tz or 'UTC'}" />
+            <t t-if="event.event_tz or event.user_id.tz">
+                (<t t-out="event.event_tz or event.user_id.tz" />)
+            </t>
+        </p>
+    </template>
+
+    <template id="meeting_documents" name="Public Meeting Documents">
+        <div t-if="documents" class="mt-4">
+            <h2 class="h5">Meeting documents</h2>
+            <ul>
+                <li t-foreach="documents" t-as="doc">
+                    <a t-att-href="doc['url']" target="_blank" t-out="doc['name']" />
+                </li>
+            </ul>
+        </div>
+    </template>
+
+    <template id="watch_page" name="Watch a Public Meeting">
+        <t t-call="website.layout">
+            <t t-set="additional_title" t-value="event.name" />
+            <div id="wrap">
+                <div class="container py-5" style="max-width: 640px;">
+                    <t t-call="calendar_public_meeting.meeting_header" />
+                    <p>This meeting is open to the public. Enter your name and email to watch
+                        and listen. You won't be seen or heard.</p>
+                    <div t-if="error" class="alert alert-warning" role="alert" t-out="error" />
+                    <form method="post" class="border rounded p-3">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <div class="mb-3">
+                            <label class="form-label" for="o_watch_name">Your name</label>
+                            <input class="form-control" id="o_watch_name" name="name" required="1"
+                                   maxlength="100" t-att-value="name" autocomplete="name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="o_watch_email">Email</label>
+                            <input class="form-control" id="o_watch_email" name="email" type="email"
+                                   required="1" maxlength="254" t-att-value="email" autocomplete="email" />
+                        </div>
+                        <p class="small text-muted">The organizer sees the names and emails of
+                            everyone who watches, and may contact you about this meeting.</p>
+                        <button type="submit" class="btn btn-primary">Watch the meeting</button>
+                    </form>
+                    <t t-call="calendar_public_meeting.meeting_documents" />
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="join_page" name="Join a Public Meeting as a Speaker">
+        <t t-call="website.layout">
+            <t t-set="additional_title" t-value="event.name" />
+            <div id="wrap">
+                <div class="container py-5" style="max-width: 640px;">
+                    <t t-call="calendar_public_meeting.meeting_header" />
+                    <p>You're joining as a speaker: others can see and hear you.</p>
+                    <form method="post" class="border rounded p-3">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <div class="mb-3">
+                            <label class="form-label" for="o_join_name">Your name</label>
+                            <input class="form-control" id="o_join_name" name="name" required="1"
+                                   maxlength="100" autocomplete="name" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Join the meeting</button>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="room_page" name="Public Meeting Room">
+        <t t-call="website.layout">
+            <t t-set="additional_title" t-value="event.name" />
+            <div id="wrap">
+                <div class="container-fluid py-3" style="max-width: 1280px;">
+                    <t t-call="calendar_public_meeting.meeting_header" />
+                    <p id="o_meeting_status" class="text-muted" role="status">Connecting...</p>
+                    <div id="o_meeting_root" t-att-data-room-token="room_token" t-att-data-role="role"
+                         style="width: 100%; aspect-ratio: 16 / 9; max-height: 75vh; background: #111; border-radius: 8px;" />
+                    <div class="o_meeting_controls d-flex flex-wrap gap-2 mt-2" role="toolbar"
+                         aria-label="Meeting controls">
+                        <t t-if="role == 'speaker'">
+                            <button type="button" class="btn btn-secondary" data-action="mic">Mute</button>
+                            <button type="button" class="btn btn-secondary" data-action="camera">Stop Camera</button>
+                            <button type="button" class="btn btn-secondary" data-action="screen">Share Screen</button>
+                        </t>
+                        <button type="button" class="btn btn-danger ms-auto" data-action="leave">Leave</button>
+                    </div>
+                    <p t-if="role == 'viewer'" class="small text-muted mt-2">You're watching: you
+                        can't be seen or heard. Use your device's volume to adjust the sound.</p>
+                    <t t-call="calendar_public_meeting.meeting_documents" />
+                </div>
+            </div>
+            <script src="/calendar_public_meeting/static/lib/video-sdk.js" />
+            <script src="/calendar_public_meeting/static/src/js/meeting_room.js" />
+        </t>
+    </template>
+
+    <template id="message_page" name="Public Meeting Message">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container py-5" style="max-width: 640px;">
+                    <t t-call="calendar_public_meeting.meeting_header" />
+                    <p t-out="message" />
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

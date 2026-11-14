@@ -42,5 +42,5 @@ class TestTelehealthCourse(TransactionCase):
 
     def test_no_vendor_names(self):
         """Customers see this course: no supplier names (white label)."""
-        text = " ".join(self.channel.slide_ids.mapped("html_content") + [self.channel.description])
+        text = " ".join(h for h in self.channel.slide_ids.mapped("html_content") + [self.channel.description] if h)
         self.assertNotIn("SignalWire", text)
