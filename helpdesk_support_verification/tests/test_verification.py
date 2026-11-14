@@ -32,7 +32,19 @@ class TestVerification(VerificationCase):
         ticket = self._ticket()
         self.assertEqual(ticket.verification_state, 'unverified')
         with self.assertRaises(UserError):
-            ticket.stage_id = self.in_progress
+            ticket.with_user(self.agent).stage_id = self.in_progress
+
+    def test_customers_and_automatic_moves_are_not_blocked(self):
+        ticket = self._ticket()
+        portal = new_test_user(self.env, login='pat2', groups='base.group_portal',
+                               partner_id=self.customer.id)
+        done = self.env.ref('helpdesk_mgmt.helpdesk_ticket_stage_done')
+        # The portal's Close button writes in sudo as the customer.
+        ticket.with_user(portal).sudo().stage_id = done
+        self.assertEqual(ticket.stage_id, done)
+        other = self._ticket()
+        other.sudo().stage_id = self.in_progress
+        self.assertEqual(other.stage_id, self.in_progress)
 
     def test_it_can_be_cancelled_unverified(self):
         ticket = self._ticket()
@@ -101,7 +113,7 @@ class TestVerification(VerificationCase):
         ticket = self._ticket()
         ticket.with_user(self.agent).action_mark_verification_not_needed()
         self.assertEqual(ticket.verification_state, 'not_needed')
-        ticket.stage_id = self.in_progress
+        ticket.with_user(self.agent).stage_id = self.in_progress
 
     def test_ticket_without_contact_needs_one_first(self):
         ticket = self.env['helpdesk.ticket'].create({'name': 'From a stranger', 'description': 'x'})

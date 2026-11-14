@@ -55,7 +55,11 @@ class HelpdeskTicket(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if vals.get('stage_id'):
+        # The rule is for staff working on an account. A customer closing their
+        # own ticket from the portal, and automatic moves (a customer's reply
+        # reopening a ticket, closing inactive ones), run as the customer or
+        # in sudo and pass.
+        if vals.get('stage_id') and not self.env.su and not self.env.user.share:
             stage = self.env['helpdesk.ticket.stage'].browse(vals['stage_id'])
             if stage.requires_verification:
                 blocked = self.filtered(lambda t: t.verification_state == 'unverified')

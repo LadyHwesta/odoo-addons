@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Helpdesk Customer Verification',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Services/Helpdesk',
     'summary': 'Customers prove who they are with a one-time support key before staff work on their account',
     'description': """
