@@ -61,7 +61,7 @@ class SignalWirePhoneNumber(models.Model):
             lambda p: ''.join(filter(str.isdigit, p.phone or ''))[-10:] == digits
         )[:1]
 
-    def send_sms(self, to, body):
+    def send_sms(self, to, body, log_body=None):
         """Send one SMS from this number - real money/usage the
         moment this succeeds, same caution as anything else in this
         project that spends real trial credit. Requires this number to
@@ -75,6 +75,10 @@ class SignalWirePhoneNumber(models.Model):
         docs), so this is the one real enforcement point. A loud
         failure here is deliberate: swallowing a compliance block
         quietly is worse than a visible one a human notices.
+
+        ``log_body``, when given, is what gets stored and logged in the
+        contact's chatter in place of ``body``: for one-time codes, which
+        staff must never be able to read back.
         """
         self.ensure_one()
         blocked = self._sms_blocked_partner(to)
@@ -97,7 +101,7 @@ class SignalWirePhoneNumber(models.Model):
             'direction': 'outbound',
             'from_number': self.name,
             'to_number': to,
-            'body': body,
+            'body': body if log_body is None else log_body,
             'sid': result.get('sid'),
             'state': result.get('status'),
         })

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_partner_form_support_mobile" model="ir.ui.view">
+        <field name="name">res.partner.form.support.mobile</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='phone']" position="after">
+                <field name="support_mobile" widget="phone" groups="helpdesk_mgmt.group_helpdesk_user_own" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_config_settings_support_sms" model="ir.ui.view">
+        <field name="name">res.config.settings.support.sms</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='helpdesk_mgmt']" position="inside">
+                <block title="Customer verification" name="helpdesk_support_verification">
+                    <setting id="support_sms_number" string="Text support codes"
+                             help="When a customer can't get a support key from the portal, agents can text a one-time code to their mobile from this number.">
+                        <field name="support_sms_number_id" options="{'no_create': True}" />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
