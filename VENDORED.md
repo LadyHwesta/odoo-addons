@@ -154,3 +154,11 @@ When OCA publishes `membership_prorate` and `membership_withdrawal` on their own
 branch, drop the ports here and depend on the upstream ones instead. The two ports are
 worth submitting back upstream. `contract`/`contract_sale`/`base_technical_features`
 need no porting - just pull a newer 19.0 commit if OCA ships fixes worth having.
+
+## Third-party libraries inside our own modules
+
+| File | Library | Licence |
+| --- | --- | --- |
+| `calendar_public_meeting/static/lib/video-sdk.js` | SignalWire JS SDK v3.30.0 (`dist/index.umd.js`), verbatim | MIT. Full text in `LICENSE-video-sdk.txt` beside it, as MIT requires. |
+
+The same SDK sits in the private `telehealth_booking_signalwire` with its licence text.
