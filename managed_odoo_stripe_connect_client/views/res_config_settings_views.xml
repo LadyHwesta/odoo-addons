@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="res_config_settings_view_form_inherit_stripe_connect_client" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.stripe.connect.client</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Stripe Connect" string="Stripe Connect" name="managed_odoo_stripe_connect_client" groups="base.group_system">
+                    <block title="Meskis Stripe Connect Bridge" name="managed_odoo_stripe_connect_client_settings">
+                        <setting id="stripe_connect_bridge_url_setting" help="Given to you during setup - the reseller's own Odoo address.">
+                            <field name="stripe_connect_bridge_url" />
+                        </setting>
+                        <setting id="stripe_connect_bridge_token_setting" help="Scoped to your own Stripe Connect account only.">
+                            <field name="stripe_connect_bridge_token" password="True" />
+                        </setting>
+                        <setting id="stripe_connect_account_id_setting">
+                            <field name="stripe_connect_account_id" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
