@@ -14,6 +14,8 @@ to fix.
     'author': 'Tiesa',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'depends': ['mail', 'base_setup'],
     'data': [
         'security/dmarc_security.xml',

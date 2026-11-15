@@ -34,6 +34,7 @@ See README.md for known edge cases and other limitations.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'images': ['static/description/banner.png'],
     'depends': ['calendar', 'mail'],

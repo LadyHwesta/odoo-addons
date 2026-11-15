@@ -1,4 +1,4 @@
-# ActivityPub / Fediverse Federation
+# Fediverse (ActivityPub)
 
 Federate an Odoo instance into the Fediverse (Mastodon, Pleroma, Misskey,
 Mobilizon, …) over [ActivityPub](https://www.w3.org/TR/activitypub/).

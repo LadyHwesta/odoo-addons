@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'eLearning: Publication Digest',
+    'name': 'eLearning Lesson Digest',
     'version': '19.0.1.0.0',
     'category': 'Website/eLearning',
     'summary': 'One email per course for lessons added by a module update, and no re-announcing published lessons',
@@ -22,6 +22,8 @@ email per lesson.
     'author': 'Meskis Works',
     'website': 'https://meskis.net',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'depends': ['website_slides'],
     'data': [
         'security/ir.model.access.csv',

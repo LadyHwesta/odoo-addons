@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'ActivityPub - Website Blog',
+    'name': 'Fediverse: Blog Posts',
     'version': '19.0.1.3.0',
     'category': 'Website/Blog',
     'summary': 'Federate published blog posts to the Fediverse',
@@ -28,6 +28,7 @@ Install ``activitypub`` first and configure at least one actor.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['activitypub', 'website_blog'],

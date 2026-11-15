@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'ActivityPub / Fediverse Federation',
+    'name': 'Fediverse (ActivityPub)',
     'version': '19.0.1.5.0',
     'category': 'Website',
     'summary': 'Federate this Odoo instance into the Fediverse (Mastodon, '
@@ -39,6 +39,7 @@ already bundled with Odoo.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['website', 'mail'],

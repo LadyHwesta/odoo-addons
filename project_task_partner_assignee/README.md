@@ -1,4 +1,4 @@
-# Project Task Contact Assignee
+# Assign Tasks to Contacts
 
 Adds one field, **Assigned Contact** (`assignee_partner_id`), to
 `project.task` - works identically on a regular task and a subtask

@@ -30,6 +30,7 @@ standard library.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'images': ['static/description/banner.png'],
     'depends': ['base'],

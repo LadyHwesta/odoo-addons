@@ -1,4 +1,4 @@
-# Mailing List Welcome Email
+# Mailing List Welcome
 
 Sends a welcome email to each person who signs up for a mailing list
 through a website newsletter block. The email carries Odoo's normal

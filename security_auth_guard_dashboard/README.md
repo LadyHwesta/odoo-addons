@@ -1,4 +1,4 @@
-# Security Auth Guard Dashboard
+# Security Dashboard
 
 Adds a **Threats** dashboard to the Dashboards app, and as the first page of
 the Security app. Only Security Officers can see it. Installs automatically

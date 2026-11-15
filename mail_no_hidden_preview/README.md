@@ -1,4 +1,4 @@
-# Notification Emails Without Hidden Preview Text
+# No Hidden Email Preview
 
 Removes the invisible "preview" block Odoo puts at the top of every
 notification email (chatter messages, followers' notifications, document

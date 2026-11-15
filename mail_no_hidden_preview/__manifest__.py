@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Notification Emails Without Hidden Preview Text',
+    'name': 'No Hidden Email Preview',
     'version': '19.0.1.0.0',
     'category': 'Discuss',
     'summary': "Drop the invisible preview block Odoo puts in every notification "
@@ -22,6 +22,8 @@ See ``README.md``.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['mail'],
     'data': [

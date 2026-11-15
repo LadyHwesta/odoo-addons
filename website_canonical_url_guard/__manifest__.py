@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Website: Canonical URL Guard',
+    'name': 'Canonical URL Guard',
     'version': '19.0.1.0.0',
     'category': 'Website/Website',
     'summary': "Bots probing odd addresses get a plain 404, not a server error in the log",
@@ -22,6 +22,8 @@ home page instead, so the 404 page renders normally.
     'author': 'Meskis Works',
     'website': 'https://meskis.net',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'depends': ['website'],
     'installable': True,
     'auto_install': True,

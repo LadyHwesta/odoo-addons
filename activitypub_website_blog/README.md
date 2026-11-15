@@ -1,4 +1,4 @@
-# ActivityPub – Website Blog
+# Fediverse: Blog Posts
 
 Federates `website_blog` posts to the Fediverse as ActivityStreams `Note`
 objects, on top of the [`activitypub`](../activitypub) engine.

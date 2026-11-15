@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Calendar Meeting Documents',
+    'name': 'Meeting Documents',
     'version': '19.0.1.2.0',
     'category': 'Productivity/Calendar',
     'summary': 'Attach documents to meetings, show them on the calendar, and send them with invitations',
@@ -35,6 +35,8 @@ Add-ons that install themselves when their apps are present:
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['calendar'],
     'data': ['views/calendar_event_views.xml'],

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Mailing List Welcome Email',
+    'name': 'Mailing List Welcome',
     'version': '19.0.1.0.0',
     'category': 'Marketing/Email Marketing',
     'summary': 'Send a welcome email, with an unsubscribe link, to each new website signup',
@@ -18,6 +18,8 @@ See ``README.md``.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['website_mass_mailing'],
     'data': [

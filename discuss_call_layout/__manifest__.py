@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Video Call Gallery and Speaker View',
+    'name': 'Video Call Gallery View',
     'version': '19.0.1.0.1',
     'category': 'Productivity/Discuss',
     'summary': 'Gallery / Speaker view switch for Discuss video calls, like Zoom and Teams',
@@ -27,6 +27,8 @@ Works for guests who join from a meeting invitation link too.
     'author': 'Meskis Works',
     'website': 'https://meskis.net',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'depends': ['mail'],
     'assets': {
         'web.assets_backend': ['discuss_call_layout/static/src/**/*'],

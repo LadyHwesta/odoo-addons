@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'App Drawer Order and Folders',
+    'name': 'App Folders and Order',
     'version': '19.0.1.0.0',
     'category': 'Hidden/Tools',
     'summary': 'Put apps in your own order and group them into folders, and keep it through upgrades',
@@ -30,6 +30,8 @@ testing).
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['web'],
     'data': [

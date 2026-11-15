@@ -25,6 +25,8 @@ See ``README.md`` for how to grant it to a customer.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['mail'],
     'data': [
