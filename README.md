@@ -17,7 +17,7 @@ Custom Odoo 19 modules.
   plain "Email Templates" menu under Settings (not nested in Technical),
   gated by Odoo's own existing "Mail Template Editor" permission - no
   Technical menu access granted at all.
-- [`account_invoice_reminder/`](account_invoice_reminder/) - a simple,
+- [`account_invoice_payment_reminder/`](account_invoice_payment_reminder/) - a simple,
   multi-stage automatic reminder schedule for overdue customer invoices
   (days-before/on/after-due stages, each with its own email), since OCA's
   own dunning module for Odoo 19 (`account_credit_control`) is a much

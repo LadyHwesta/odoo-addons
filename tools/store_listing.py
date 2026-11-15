@@ -103,7 +103,7 @@ LISTINGS = {
                   ('No developer mode', 'Staff edit wording without turning on developer mode.')],
         setup=['Give the person the Mail Template Editor permission on their user.',
                'They open Settings, Email Templates.']),
-    'account_invoice_reminder': dict(
+    'account_invoice_payment_reminder': dict(
         name='Invoice Payment Reminders', glyph='bell',
         tagline='Automatic reminder emails for unpaid customer invoices',
         intro=['A simple reminder schedule for customer invoices: a few named stages, each a number '
