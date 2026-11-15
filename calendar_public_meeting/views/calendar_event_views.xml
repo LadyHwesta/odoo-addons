@@ -25,11 +25,22 @@
                         invitation. This is a paid video service: every speaker and viewer is
                         billed per minute. Save the meeting to get its Watch Link.
                     </div>
+                    <separator string="Viewers" invisible="not public_meeting" />
                     <field name="public_viewer_ids" invisible="not public_meeting" readonly="1">
                         <list>
                             <field name="name" />
                             <field name="email" />
                             <field name="create_date" />
+                        </list>
+                    </field>
+                    <separator string="Questions and Speakers' Chat" invisible="not public_meeting" />
+                    <field name="public_message_ids" invisible="not public_meeting" readonly="1">
+                        <list>
+                            <field name="create_date" />
+                            <field name="kind" />
+                            <field name="author_name" />
+                            <field name="body" />
+                            <field name="answered" />
                         </list>
                     </field>
                 </page>

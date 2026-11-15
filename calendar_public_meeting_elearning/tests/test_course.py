@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo.tests import TransactionCase, tagged
+from odoo.tools import file_open
 
 
 @tagged("post_install", "-at_install")
@@ -27,9 +28,13 @@ class TestPublicMeetingsCourse(TransactionCase):
         self.assertEqual(event["public_watch_url"].string, "Watch Link")
         pages = self.env.ref("calendar_public_meeting.watch_page").arch \
             + self.env.ref("calendar_public_meeting.join_page").arch \
-            + self.env.ref("calendar_public_meeting.room_page").arch
-        for label in ("Watch the meeting", "Join the meeting", "Mute", "Stop Camera",
-                      "Share Screen", "Leave"):
+            + self.env.ref("calendar_public_meeting.room_page").arch \
+            + file_open("calendar_public_meeting/static/src/js/meeting_room.js").read()
+        for label in ("Watch the meeting", "Join the meeting", "Start watching", "Mute",
+                      "Stop Camera", "Share Screen", "Settings", "Panel", "Leave",
+                      "Check your camera and sound", "Microphone on", "Camera on", "Chat",
+                      "Questions", "Documents", "Add a document", "Show everyone",
+                      "Take down", "Mark answered", "Ask a question"):
             self.assertIn(label, pages)
 
     def test_no_vendor_names(self):

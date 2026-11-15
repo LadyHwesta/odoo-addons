@@ -18,6 +18,17 @@ JOIN_ROUTE = 'meeting/join'
 WATCH_ROUTE = 'meeting/watch'
 # What a viewer may do: listen, and set their own volume.
 VIEWER_PERMISSIONS = ['room.self.deaf', 'room.self.undeaf', 'room.self.set_output_volume']
+# What a speaker may do: the video service's defaults, plus setting the room's
+# shared notes, which is how a question is put on everyone's screen.
+SPEAKER_PERMISSIONS = [
+    'room.self.audio_mute', 'room.self.audio_unmute', 'room.self.video_mute',
+    'room.self.video_unmute', 'room.self.deaf', 'room.self.undeaf',
+    'room.self.set_input_volume', 'room.self.set_output_volume',
+    'room.self.set_input_sensitivity', 'room.self.screenshare', 'room.self.additional_source',
+    'room.set_meta',
+]
+CHAT_MAX = 1000       # characters in one chat message
+QUESTION_MAX = 500    # characters in one question
 
 
 class CalendarEvent(models.Model):
@@ -36,6 +47,8 @@ class CalendarEvent(models.Model):
     public_room_name = fields.Char(copy=False, readonly=True)
     public_viewer_ids = fields.One2many('calendar.public.viewer', 'event_id', string="Viewers")
     public_viewer_count = fields.Integer(compute='_compute_public_viewer_count')
+    public_message_ids = fields.One2many(
+        'calendar.public.message', 'event_id', string="Chat and Questions")
 
     @api.constrains('public_max_viewers', 'public_meeting')
     def _check_public_max_viewers(self):
@@ -127,7 +140,21 @@ class CalendarEvent(models.Model):
         if viewer:
             body.update({'permissions': VIEWER_PERMISSIONS,
                          'join_audio_muted': True, 'join_video_muted': True})
+        else:
+            body['permissions'] = SPEAKER_PERMISSIONS
         return self._video_server()._get_client().video_post('room_tokens', **body)['token']
+
+    def _public_seat(self, name, role, viewer=None):
+        """A place in the room for one person on one visit: its key lets
+        their page chat, ask and add documents without signing in."""
+        self.ensure_one()
+        return self.env['calendar.public.seat'].sudo().create({
+            'event_id': self.id, 'name': (name or '')[:100], 'role': role,
+            'viewer_id': viewer.id if viewer else False})
+
+    def _public_documents_version(self):
+        """Changes whenever the shared documents do, so pages know to refresh."""
+        return ','.join(str(i) for i in sorted(self.sudo()._shared_documents().ids))
 
     def _public_documents(self):
         """Documents shown on the watch and join pages: the ones that aren't
@@ -150,3 +177,37 @@ class CalendarPublicViewer(models.Model):
     name = fields.Char(required=True)
     email = fields.Char(required=True)
     create_date = fields.Datetime(string="Signed In", readonly=True)
+
+
+class CalendarPublicSeat(models.Model):
+    """One person's place in a public meeting room, for one visit."""
+    _name = 'calendar.public.seat'
+    _description = 'Public Meeting Seat'
+
+    event_id = fields.Many2one('calendar.event', required=True, ondelete='cascade', index=True)
+    name = fields.Char(required=True)
+    role = fields.Selection([('speaker', 'Speaker'), ('viewer', 'Viewer')], required=True)
+    viewer_id = fields.Many2one('calendar.public.viewer', ondelete='set null')
+    key = fields.Char(required=True, readonly=True, index=True, copy=False,
+                      default=lambda self: uuid.uuid4().hex + uuid.uuid4().hex)
+    last_sent = fields.Datetime(readonly=True)
+
+
+class CalendarPublicMessage(models.Model):
+    """Speakers' chat and viewers' questions in a public meeting."""
+    _name = 'calendar.public.message'
+    _description = 'Public Meeting Chat Message or Question'
+    _order = 'id'
+
+    event_id = fields.Many2one('calendar.event', required=True, ondelete='cascade', index=True)
+    seat_id = fields.Many2one('calendar.public.seat', ondelete='set null')
+    author_name = fields.Char(string="From", required=True)
+    kind = fields.Selection([('chat', 'Chat'), ('question', 'Question')], required=True)
+    body = fields.Text(required=True)
+    answered = fields.Boolean()
+    create_date = fields.Datetime(string="Sent", readonly=True)
+
+    def _to_json(self):
+        return [{'id': m.id, 'author': m.author_name, 'kind': m.kind, 'body': m.body,
+                 'answered': m.answered,
+                 'time': fields.Datetime.to_string(m.create_date)} for m in self]

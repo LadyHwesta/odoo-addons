@@ -75,28 +75,174 @@
         </t>
     </template>
 
+    <!-- Camera, microphone and speaker choices: in the lobby and in Settings. -->
+    <template id="device_fields" name="Public Meeting Device Choices">
+        <div class="o_mr_devices">
+            <label t-if="role == 'speaker'" class="o_mr_field">
+                <span>Camera</span>
+                <select class="form-select" data-device="videoinput" />
+            </label>
+            <label t-if="role == 'speaker'" class="o_mr_field">
+                <span>Microphone</span>
+                <select class="form-select" data-device="audioinput" />
+                <span class="o_mr_level" aria-hidden="true"><span class="o_mr_level_bar" /></span>
+            </label>
+            <label class="o_mr_field o_mr_speaker_field">
+                <span>Speaker</span>
+                <select class="form-select" data-device="audiooutput" />
+            </label>
+        </div>
+    </template>
+
     <template id="room_page" name="Public Meeting Room">
         <t t-call="website.layout">
             <t t-set="additional_title" t-value="event.name" />
-            <div id="wrap">
-                <div class="container-fluid py-3" style="max-width: 1280px;">
-                    <t t-call="calendar_public_meeting.meeting_header" />
-                    <p id="o_meeting_status" class="text-muted" role="status">Connecting...</p>
-                    <div id="o_meeting_root" t-att-data-room-token="room_token" t-att-data-role="role"
-                         style="width: 100%; aspect-ratio: 16 / 9; max-height: 75vh; background: #111; border-radius: 8px;" />
-                    <div class="o_meeting_controls d-flex flex-wrap gap-2 mt-2" role="toolbar"
-                         aria-label="Meeting controls">
-                        <t t-if="role == 'speaker'">
-                            <button type="button" class="btn btn-secondary" data-action="mic">Mute</button>
-                            <button type="button" class="btn btn-secondary" data-action="camera">Stop Camera</button>
-                            <button type="button" class="btn btn-secondary" data-action="screen">Share Screen</button>
-                        </t>
-                        <button type="button" class="btn btn-danger ms-auto" data-action="leave">Leave</button>
+            <link rel="stylesheet" href="/calendar_public_meeting/static/src/css/meeting_room.css" />
+            <div id="wrap" class="o_mr" t-att-data-role="role" t-att-data-seat="seat_key"
+                 t-att-data-documents-version="documents_version"
+                 t-att-data-max-upload-mb="max_upload_mb">
+                <header class="o_mr_top">
+                    <div>
+                        <h1 class="o_mr_title" t-out="event.name" />
+                        <p class="o_mr_when">
+                            <span t-out="event.start"
+                                  t-options="{'widget': 'datetime', 'tz_name': event.event_tz or event.user_id.tz or 'UTC'}" />
+                            <t t-if="event.event_tz or event.user_id.tz">
+                                (<t t-out="event.event_tz or event.user_id.tz" />)
+                            </t>
+                            · <t t-if="role == 'speaker'">Speaking as</t><t t-else="">Watching as</t>
+                            <strong t-out="name" />
+                        </p>
                     </div>
-                    <p t-if="role == 'viewer'" class="small text-muted mt-2">You're watching: you
-                        can't be seen or heard. Use your device's volume to adjust the sound.</p>
-                    <t t-call="calendar_public_meeting.meeting_documents" />
+                    <p id="o_meeting_status" class="o_mr_status" role="status" aria-live="polite" />
+                </header>
+
+                <div class="o_mr_body">
+                    <section class="o_mr_stage" aria-label="Meeting video">
+                        <div id="o_meeting_banner" class="o_mr_banner" hidden="1" role="status" aria-live="polite">
+                            <div>
+                                <span class="o_mr_banner_label">Question from <span data-field="author" /></span>
+                                <p data-field="body" />
+                            </div>
+                            <button t-if="role == 'speaker'" type="button" class="o_mr_btn o_mr_btn_quiet"
+                                    data-action="clear-banner">Take down</button>
+                        </div>
+
+                        <!-- Before joining: check camera and sound, or just press Enter. -->
+                        <div id="o_meeting_lobby" class="o_mr_lobby">
+                            <t t-if="role == 'speaker'">
+                                <div class="o_mr_preview">
+                                    <video id="o_meeting_preview" autoplay="1" muted="1" playsinline="1" />
+                                    <p class="o_mr_preview_off" hidden="1">Camera off</p>
+                                </div>
+                                <div class="o_mr_lobby_side">
+                                    <h2 class="o_mr_h2">Check your camera and sound</h2>
+                                    <t t-call="calendar_public_meeting.device_fields" />
+                                    <div class="o_mr_toggles">
+                                        <label><input type="checkbox" id="o_meeting_join_mic" checked="1" /> Microphone on</label>
+                                        <label><input type="checkbox" id="o_meeting_join_cam" checked="1" /> Camera on</label>
+                                    </div>
+                                    <button type="button" class="o_mr_btn o_mr_btn_primary o_mr_btn_big" data-action="enter">Join the meeting</button>
+                                    <p class="o_mr_hint">Your browser will ask to use your camera and microphone: choose Allow.</p>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_mr_lobby_side o_mr_lobby_viewer">
+                                    <h2 class="o_mr_h2">Ready to watch</h2>
+                                    <p>You'll see and hear the speakers. Nobody can see or hear you.
+                                        You can send the speakers questions in writing.</p>
+                                    <t t-call="calendar_public_meeting.device_fields" />
+                                    <button type="button" class="o_mr_btn o_mr_btn_primary o_mr_btn_big" data-action="enter">Start watching</button>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div id="o_meeting_root" class="o_mr_video" t-att-data-room-token="room_token" hidden="1" />
+                    </section>
+
+                    <aside class="o_mr_panel" id="o_meeting_panel" aria-label="Chat, questions and documents">
+                        <div class="o_mr_tabs" role="tablist">
+                            <t t-if="role == 'speaker'">
+                                <button type="button" role="tab" class="o_mr_tab" data-tab="chat" aria-selected="true">Chat <span class="o_mr_count" data-count="chat" hidden="1" /></button>
+                                <button type="button" role="tab" class="o_mr_tab" data-tab="questions" aria-selected="false">Questions <span class="o_mr_count" data-count="questions" hidden="1" /></button>
+                            </t>
+                            <button t-else="" type="button" role="tab" class="o_mr_tab" data-tab="ask" aria-selected="true">Ask a question</button>
+                            <button type="button" role="tab" class="o_mr_tab" data-tab="documents" aria-selected="false">Documents <span class="o_mr_count o_mr_count_plain" data-count="documents" t-out="len(documents) or ''" /></button>
+                        </div>
+
+                        <t t-if="role == 'speaker'">
+                            <div class="o_mr_tabpanel" data-panel="chat" role="tabpanel">
+                                <p class="o_mr_note">Only speakers see this chat.</p>
+                                <ol class="o_mr_messages" data-list="chat" aria-live="polite" />
+                                <form class="o_mr_compose" data-form="chat">
+                                    <textarea class="form-control" rows="2" t-att-maxlength="chat_max"
+                                              placeholder="Message the other speakers" aria-label="Chat message" />
+                                    <button type="submit" class="o_mr_btn o_mr_btn_primary">Send</button>
+                                </form>
+                            </div>
+                            <div class="o_mr_tabpanel" data-panel="questions" role="tabpanel" hidden="1">
+                                <p class="o_mr_note">Questions from viewers. <b>Show everyone</b> puts one
+                                    on screen for the whole room while you answer it.</p>
+                                <ol class="o_mr_messages" data-list="questions" aria-live="polite" />
+                                <p class="o_mr_empty" data-empty="questions">No questions yet.</p>
+                            </div>
+                        </t>
+                        <div t-else="" class="o_mr_tabpanel" data-panel="ask" role="tabpanel">
+                            <p class="o_mr_note">Your question goes to the speakers only. They may answer it
+                                out loud or show it to everyone.</p>
+                            <form class="o_mr_compose" data-form="ask">
+                                <textarea class="form-control" rows="3" t-att-maxlength="question_max"
+                                          placeholder="Type your question" aria-label="Your question" />
+                                <button type="submit" class="o_mr_btn o_mr_btn_primary">Send question</button>
+                            </form>
+                            <ol class="o_mr_messages" data-list="mine" />
+                        </div>
+
+                        <div class="o_mr_tabpanel" data-panel="documents" role="tabpanel" hidden="1">
+                            <ul class="o_mr_docs" data-list="documents">
+                                <li t-foreach="documents" t-as="doc">
+                                    <a t-att-href="doc['url']" target="_blank" rel="noopener" t-out="doc['name']" />
+                                </li>
+                            </ul>
+                            <p class="o_mr_empty" data-empty="documents" t-att-hidden="'1' if documents else None">No documents yet.</p>
+                            <form t-if="role == 'speaker'" class="o_mr_upload" data-form="upload">
+                                <label class="o_mr_btn o_mr_btn_quiet">
+                                    <input type="file" class="visually-hidden" name="file" />
+                                    Add a document
+                                </label>
+                                <span class="o_mr_hint">Everyone in the meeting can open it. Up to
+                                    <t t-out="max_upload_mb" /> MB.</span>
+                            </form>
+                        </div>
+                    </aside>
                 </div>
+
+                <div class="o_mr_controls" role="toolbar" aria-label="Meeting controls" hidden="1">
+                    <t t-if="role == 'speaker'">
+                        <button type="button" class="o_mr_btn" data-action="mic" aria-pressed="false">
+                            <i class="fa fa-microphone" aria-hidden="true" /> <span>Mute</span></button>
+                        <button type="button" class="o_mr_btn" data-action="camera" aria-pressed="false">
+                            <i class="fa fa-video-camera" aria-hidden="true" /> <span>Stop Camera</span></button>
+                        <button type="button" class="o_mr_btn" data-action="screen" aria-pressed="false">
+                            <i class="fa fa-desktop" aria-hidden="true" /> <span>Share Screen</span></button>
+                    </t>
+                    <button type="button" class="o_mr_btn" data-action="settings">
+                        <i class="fa fa-cog" aria-hidden="true" /> <span>Settings</span></button>
+                    <button type="button" class="o_mr_btn o_mr_panel_toggle" data-action="panel" aria-pressed="true">
+                        <i class="fa fa-comments" aria-hidden="true" /> <span>Panel</span></button>
+                    <button type="button" class="o_mr_btn o_mr_btn_leave" data-action="leave">
+                        <i class="fa fa-sign-out" aria-hidden="true" /> <span>Leave</span></button>
+                </div>
+
+                <dialog id="o_meeting_settings" class="o_mr_dialog" aria-labelledby="o_meeting_settings_title">
+                    <form method="dialog">
+                        <h2 id="o_meeting_settings_title" class="o_mr_h2">Settings</h2>
+                        <t t-call="calendar_public_meeting.device_fields" />
+                        <div class="o_mr_dialog_buttons">
+                            <button type="submit" class="o_mr_btn o_mr_btn_primary">Done</button>
+                        </div>
+                    </form>
+                </dialog>
             </div>
             <script src="/calendar_public_meeting/static/lib/video-sdk.js" />
             <script src="/calendar_public_meeting/static/src/js/meeting_room.js" />

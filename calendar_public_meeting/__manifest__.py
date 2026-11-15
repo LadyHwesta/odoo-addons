@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Public Meetings',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Productivity/Calendar',
     'summary': 'Meetings the public can watch: a view-only link, sign-in with name and email',
     'description': """
@@ -17,7 +17,14 @@ video room:
 - **The public** use the meeting's **Watch Link**, which can go on a website
   or in a newsletter. They give their name and email, then watch and listen;
   they can't speak, show video or share a screen.
-- The **Viewers** tab lists everyone who signed in to watch.
+- Before joining, speakers check their camera, microphone and speaker; in
+  the meeting, **Settings** switches them.
+- A side panel: the speakers' **Chat** (speakers only), **Questions** sent by
+  viewers (a speaker can put one on everyone's screen while answering it),
+  and the meeting's **Documents**. Speakers can add documents during the
+  meeting; they join the meeting's Documents tab.
+- The **Public** tab lists everyone who signed in to watch, and keeps the
+  questions and chat.
 - The meeting's documents that aren't private are listed on both pages.
 
 Up to 299 viewers per meeting, set per meeting (the room holds 300 people).

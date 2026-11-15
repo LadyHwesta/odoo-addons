@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
+import json
 import re
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
@@ -81,11 +82,14 @@ class TestPublicMeeting(PublicMeetingCase, TransactionCase):
         for permission in ('room.self.audio_unmute', 'room.self.video_unmute', 'room.self.screenshare'):
             self.assertNotIn(permission, body['permissions'])
 
-    def test_speakers_get_the_default_permissions(self):
+    def test_speakers_get_the_defaults_plus_putting_questions_on_screen(self):
         meeting = self._meeting()
         meeting._public_room_token('Chair', viewer=False)
         body = [c.kwargs for c in self.client.video_post.call_args_list if c.args[0] == 'room_tokens'][-1]
-        self.assertNotIn('permissions', body)
+        for permission in ('room.self.audio_unmute', 'room.self.video_unmute',
+                           'room.self.screenshare', 'room.set_meta'):
+            self.assertIn(permission, body['permissions'])
+        self.assertNotIn('room.member.remove', body['permissions'])
 
     def test_only_shared_documents_are_listed(self):
         docs = self.env['ir.attachment'].create([
@@ -140,6 +144,111 @@ class TestPublicMeetingPages(PublicMeetingCase, HttpCase):
         meeting.public_meeting = False
         self.assertEqual(self.url_open(f"/meeting/watch/{token}").status_code, 404)
         self.assertEqual(self.url_open("/meeting/watch/nonsense").status_code, 404)
+
+    # -- In the room -------------------------------------------------------------
+
+    def _seat_key(self, page):
+        return re.search(r'data-seat="([0-9a-f]{64})"', page).group(1)
+
+    def _enter(self, meeting, role):
+        if role == 'speaker':
+            url = f"/meeting/join/{meeting.access_token}"
+            csrf, _page = self._csrf(url)
+            page = self.url_open(url, data={'csrf_token': csrf, 'name': 'Board Chair'}).text
+        else:
+            url = f"/meeting/watch/{meeting.public_watch_token}"
+            csrf, _page = self._csrf(url)
+            page = self.url_open(url, data={'csrf_token': csrf, 'name': 'Pat Public',
+                                            'email': 'pat@example.com'}).text
+        return self._seat_key(page)
+
+    def _post(self, key, action, body):
+        return self.url_open(f"/meeting/room/{key}/{action}", data=json.dumps(body),
+                             headers={'Content-Type': 'application/json'})
+
+    def test_viewer_asks_and_speakers_see_it_with_their_chat(self):
+        meeting = self._meeting()
+        speaker = self._enter(meeting, 'speaker')
+        viewer = self._enter(meeting, 'viewer')
+        self.assertEqual(self._post(viewer, 'send', {'body': 'Will minutes be posted?'}).status_code, 200)
+        self.assertEqual(self._post(speaker, 'send', {'body': 'I can take that one'}).status_code, 200)
+        data = self._post(speaker, 'poll', {'after': 0}).json()
+        self.assertEqual([(m['kind'], m['author'], m['body']) for m in data['messages']], [
+            ('question', 'Pat Public', 'Will minutes be posted?'),
+            ('chat', 'Board Chair', 'I can take that one')])
+        # Only new ones next time, and the answered flag comes back.
+        question = data['messages'][0]['id']
+        self._post(speaker, 'answered', {'id': question, 'answered': True})
+        again = self._post(speaker, 'poll', {'after': data['messages'][-1]['id'],
+                                             'documents_version': data['documents_version']}).json()
+        self.assertEqual(again['messages'], [])
+        self.assertEqual(again['answered'], [question])
+        self.assertNotIn('documents', again)
+        self.assertEqual(meeting.public_message_ids.mapped('kind'), ['question', 'chat'])
+
+    def test_viewers_can_only_ask(self):
+        meeting = self._meeting()
+        viewer = self._enter(meeting, 'viewer')
+        self._post(viewer, 'send', {'body': 'Hello speakers'})
+        self.assertEqual(meeting.public_message_ids.kind, 'question')
+        self.assertEqual(self._post(viewer, 'poll', {}).status_code, 403)
+        self.assertEqual(self._post(viewer, 'answered', {'id': meeting.public_message_ids.id}).status_code, 403)
+        upload = self.url_open(f"/meeting/room/{viewer}/upload",
+                               files={'file': ('x.pdf', b'x', 'application/pdf')})
+        self.assertEqual(upload.status_code, 403)
+
+    def test_viewers_cant_flood_the_questions(self):
+        meeting = self._meeting()
+        viewer = self._enter(meeting, 'viewer')
+        self.assertEqual(self._post(viewer, 'send', {'body': 'One'}).status_code, 200)
+        self.assertEqual(self._post(viewer, 'send', {'body': 'Two'}).status_code, 429)
+        self.assertEqual(len(meeting.public_message_ids), 1)
+
+    def test_long_questions_are_cut_and_empty_ones_refused(self):
+        meeting = self._meeting()
+        viewer = self._enter(meeting, 'viewer')
+        self.assertEqual(self._post(viewer, 'send', {'body': '   '}).status_code, 400)
+        self._post(viewer, 'send', {'body': 'x' * 2000})
+        self.assertEqual(len(meeting.public_message_ids.body), 500)
+
+    def test_a_speaker_adds_a_document_everyone_can_open(self):
+        meeting = self._meeting()
+        speaker = self._enter(meeting, 'speaker')
+        viewer = self._enter(meeting, 'viewer')
+        response = self.url_open(f"/meeting/room/{speaker}/upload",
+                                 files={'file': ('Budget.pdf', b'%PDF-1.4', 'application/pdf')})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([d['name'] for d in response.json()['documents']], ['Budget.pdf'])
+        self.assertEqual(meeting.document_ids.mapped('name'), ['Budget.pdf'])
+        self.assertFalse(meeting.document_ids.meeting_private)
+        listed = self.url_open(f"/meeting/room/{viewer}/documents").json()
+        self.assertEqual([d['name'] for d in listed['documents']], ['Budget.pdf'])
+        self.assertIn('access_token=', listed['documents'][0]['url'])
+        self.assertIn('Budget.pdf', meeting.message_ids[0].body)
+
+    def test_seats_dont_work_on_other_meetings_or_after_the_end(self):
+        meeting = self._meeting()
+        speaker = self._enter(meeting, 'speaker')
+        self.assertEqual(self._post('f' * 64, 'poll', {}).status_code, 403)
+        meeting.write({'start': datetime.now() - timedelta(hours=6),
+                       'stop': datetime.now() - timedelta(hours=5)})
+        self.assertEqual(self._post(speaker, 'poll', {}).status_code, 403)
+
+    def test_room_page_has_lobby_chat_and_documents(self):
+        meeting = self._meeting()
+        url = f"/meeting/join/{meeting.access_token}"
+        csrf, _page = self._csrf(url)
+        page = self.url_open(url, data={'csrf_token': csrf, 'name': 'Board Chair'}).text
+        for part in ('Check your camera and sound', 'data-device="videoinput"', 'data-tab="chat"',
+                     'data-tab="questions"', 'Add a document', 'data-action="settings"'):
+            self.assertIn(part, page)
+        url = f"/meeting/watch/{meeting.public_watch_token}"
+        csrf, _page = self._csrf(url)
+        page = self.url_open(url, data={'csrf_token': csrf, 'name': 'Pat', 'email': 'p@x.org'}).text
+        self.assertIn('data-tab="ask"', page)
+        self.assertNotIn('data-tab="chat"', page)
+        self.assertNotIn('Add a document', page)
+        self.assertNotIn('data-device="videoinput"', page)
 
     def test_an_ended_meeting_says_so(self):
         start = datetime.now() - timedelta(hours=5)
