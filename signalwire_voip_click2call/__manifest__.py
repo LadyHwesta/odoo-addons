@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP Click-to-Call',
-    'version': '19.0.4.13.1',
+    'version': '19.0.4.16.0',
     'category': 'Productivity/VOIP',
     'summary': 'An in-browser softphone, desk phones, call routing, voicemail and a receptionist panel',
     'description': """
@@ -30,12 +30,13 @@ Setup notes are in ``README.md``.
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': [
-        'signalwire_voip', 'voip_oca', 'phone_validation', 'mail', 'resource'],
+        'signalwire_voip', 'voip_oca', 'phone_validation', 'mail', 'resource', 'calendar'],
     'data': [
         'security/signalwire_receptionist_security.xml',
         'security/ir.model.access.csv',
         'security/signalwire_voicemail_security.xml',
         'security/signalwire_call_routing_security.xml',
+        'security/signalwire_callback_request_security.xml',
         'data/ir_cron.xml',
         'views/res_users_views.xml',
         'views/signalwire_voip_layout_views.xml',
@@ -51,6 +52,10 @@ Setup notes are in ``README.md``.
             'signalwire_voip_click2call/static/src/services/voip_agent_turn.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_attended_transfer.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_receptionist_status.esm.js',
+            'signalwire_voip_click2call/static/src/components/schedule_callback/schedule_callback_dialog.esm.js',
+            'signalwire_voip_click2call/static/src/components/schedule_callback/schedule_callback_dialog.xml',
+            'signalwire_voip_click2call/static/src/services/signalwire_callback_alert_service.esm.js',
+            'signalwire_voip_click2call/static/src/scss/receptionist_panel.scss',
             'signalwire_voip_click2call/static/src/components/receptionist_panel/receptionist_panel.esm.js',
             'signalwire_voip_click2call/static/src/components/receptionist_panel/receptionist_panel.xml',
             'signalwire_voip_click2call/static/src/components/transfer/transfer.esm.js',
@@ -65,6 +70,10 @@ Setup notes are in ``README.md``.
             'signalwire_voip_click2call/static/src/services/signalwire_voicemail_service.esm.js',
             'signalwire_voip_click2call/static/src/components/voicemail_systray/voicemail_systray.esm.js',
             'signalwire_voip_click2call/static/src/components/voicemail_systray/voicemail_systray.xml',
+            'signalwire_voip_click2call/static/src/scss/signalwire_presence.scss',
+            'signalwire_voip_click2call/static/src/services/signalwire_presence_service.esm.js',
+            'signalwire_voip_click2call/static/src/components/presence_systray/presence_systray.esm.js',
+            'signalwire_voip_click2call/static/src/components/presence_systray/presence_systray.xml',
         ],
     },
     'installable': True,

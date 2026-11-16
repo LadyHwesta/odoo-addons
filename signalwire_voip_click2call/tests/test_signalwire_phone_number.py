@@ -60,7 +60,9 @@ class TestSignalWirePhoneNumberClick2Call(TransactionCase):
 
         self.signalwire_client.compat_post.assert_called_once_with(
             'Accounts/sub-abc/IncomingPhoneNumbers/pn-123.json',
-            VoiceUrl='https://odoo.example.com/signalwire/voice/inbound')
+            VoiceUrl='https://odoo.example.com/signalwire/voice/inbound',
+            StatusCallback='https://odoo.example.com/signalwire/voice/status',
+            StatusCallbackMethod='POST')
 
     def test_configure_routing_confirms_success_with_a_notification(self):
         # Regression test: this used to return nothing at all on
@@ -458,3 +460,30 @@ class TestVoipDashboardPage(HttpCase):
                             ready="!!document.querySelector('.o_signalwire_dashboard h4')",
                             login='admin', timeout=120)
         self.assertTrue(self.env.company.signalwire_closed_until)
+
+
+@tagged('post_install', '-at_install')
+class TestStatusCallbackUpgrade(TransactionCase):
+
+    def test_connected_numbers_get_the_status_callback_and_failures_are_logged(self):
+        server = self.env['signalwire.server'].create({
+            'name': 'S', 'space': 'x.signalwire.com', 'sip_domain': 'x.sip.signalwire.com',
+            'project_id': 'p', 'api_token': 't'})
+        sub = self.env['signalwire.subproject'].create({
+            'name': 'Sub', 'server_id': server.id, 'account_sid': 'sub-x', 'state': 'active'})
+        Number = self.env['signalwire.phone_number']
+        connected = Number.create({'name': '+12085550001', 'sid': 'pn-1',
+                                   'subproject_id': sub.id, 'inbound_connected': True})
+        Number.create({'name': '+12085550002', 'sid': 'pn-2', 'subproject_id': sub.id})
+        self.env['ir.config_parameter'].sudo().set_param('web.base.url', 'https://o.example.com')
+        client = MagicMock()
+        with patch('odoo.addons.signalwire_voip.models.signalwire_server.'
+                   'SignalWireServer._get_client', return_value=client):
+            Number.search([('subproject_id', '=', sub.id)])._signalwire_set_status_callback()
+            client.compat_post.assert_called_once_with(
+                'Accounts/sub-x/IncomingPhoneNumbers/pn-1.json',
+                StatusCallback='https://o.example.com/signalwire/voice/status',
+                StatusCallbackMethod='POST')
+            client.compat_post.side_effect = RuntimeError('down')
+            with self.assertLogs('odoo.addons.signalwire_voip_click2call.models.signalwire_phone_number', 'WARNING'):
+                connected._signalwire_set_status_callback()

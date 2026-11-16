@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import logging
 from datetime import timedelta
 
 import pytz
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class SignalWirePhoneNumber(models.Model):
@@ -175,6 +178,24 @@ class SignalWirePhoneNumber(models.Model):
             return 'group_voicemail', self.after_hours_call_group_id
         return 'user', self.after_hours_user_id
 
+    def _signalwire_set_status_callback(self):
+        """Points each connected number's call status callback at this
+        Odoo (also set by Connect). Numbers connected before 19.0.4.14.0
+        get it on upgrade. A failure is logged, never raised: the cleanup
+        job still ends calls, just a few minutes later."""
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        for number in self.filtered('inbound_connected'):
+            try:
+                number.subproject_id.server_id._get_client().compat_post(
+                    f'Accounts/{number.subproject_id.account_sid}/'
+                    f'IncomingPhoneNumbers/{number.sid}.json',
+                    StatusCallback=f'{base_url}/signalwire/voice/status',
+                    StatusCallbackMethod='POST')
+            except Exception as exc:  # noqa: BLE001 - see docstring
+                _logger.warning(
+                    "SignalWire: couldn't set the status callback on %s: %s",
+                    number.name, exc)
+
     def action_configure_inbound_routing(self):
         """Points this number's Voice URL at this database's own
         /signalwire/voice/inbound webhook - a standard Twilio-
@@ -207,7 +228,10 @@ class SignalWirePhoneNumber(models.Model):
         client.compat_post(
             f'Accounts/{self.subproject_id.account_sid}/'
             f'IncomingPhoneNumbers/{self.sid}.json',
-            VoiceUrl=f'{base_url}/signalwire/voice/inbound')
+            VoiceUrl=f'{base_url}/signalwire/voice/inbound',
+            # Tells us the moment a call ends, however it ended.
+            StatusCallback=f'{base_url}/signalwire/voice/status',
+            StatusCallbackMethod='POST')
         self.inbound_connected = True
         # A real, pre-existing gap: this call previously returned nothing
         # at all on success - no error, no confirmation, nothing visibly

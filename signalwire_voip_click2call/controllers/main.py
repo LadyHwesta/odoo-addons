@@ -4,11 +4,14 @@ import re
 from xml.sax import saxutils
 
 import requests
+import werkzeug.urls
 
 from odoo import http
 from odoo.http import request
 
 from odoo.addons.signalwire_voip.webhook_security import signalwire_signed
+
+from ..models.signalwire_live_call import FINISHED_STATUSES
 
 _logger = logging.getLogger(__name__)
 
@@ -47,25 +50,56 @@ class SignalWireVoiceController(http.Controller):
             if step == 'forward' and user.signalwire_active_forward_id:
                 return 'forward'
             if step == 'group' and any(
-                    teammate.voip_username or teammate.signalwire_desk_phone_ids.filtered(
-                        'voip_username')
+                    teammate.signalwire_presence != 'away' and (
+                        teammate.voip_username or teammate.signalwire_desk_phone_ids.filtered(
+                            'voip_username'))
                     for teammate in user.signalwire_ring_group_ids):
                 return 'group'
             if step == 'voicemail' and user.signalwire_voicemail_enabled:
                 return 'voicemail'
         return None
 
-    def _sip_targets(self, user, sip_domain):
+    def _sip_targets(self, user, sip_domain, ignore_presence=False):
         """Every SIP URI that should ring for `user` right now - their
         own softphone (if provisioned) plus any of their own desk
         phones (each its own separate SIP Endpoint, rung together via
         this single <Dial>'s multiple <Sip> children rather than
         relying on multi-registration on one shared endpoint).
         """
+        presence = 'available' if ignore_presence else user.signalwire_presence
+        if presence == 'away':
+            return ''
         usernames = [user.voip_username] if user.voip_username else []
-        usernames += user.signalwire_desk_phone_ids.filtered('voip_username').mapped(
-            'voip_username')
-        return ''.join(f'<Sip>sip:{username}@{sip_domain}</Sip>' for username in usernames)
+        if presence == 'available':
+            # Desk phones only ring while they're at their desk.
+            usernames += user.signalwire_desk_phone_ids.filtered('voip_username').mapped(
+                'voip_username')
+        attrs = self._answered_callback_attrs(user)
+        targets = ''.join(
+            f'<Sip{attrs}>sip:{username}@{sip_domain}</Sip>' for username in usernames)
+        mobile = user.signalwire_mobile_forward_id.phone_number
+        if presence == 'mobile' and mobile:
+            targets += f'<Number{attrs} url={self._screen_url(user)}>{saxutils.escape(mobile)}</Number>'
+        return targets
+
+    def _screen_url(self, user):
+        """The quoted url= for a mobile leg: SignalWire fetches it when the
+        mobile answers, and only connects the caller after a 1 is pressed,
+        so the mobile's own voicemail can't take the call."""
+        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        caller = request.httprequest.form.get('From', '')
+        url = f'{base_url}/signalwire/voice/screen/{user.id}'
+        if caller:
+            url += '?' + werkzeug.urls.url_encode({'caller': caller})
+        return saxutils.quoteattr(url)
+
+    def _answered_callback_attrs(self, user):
+        """Asks SignalWire to tell us when this leg is answered, so the
+        live call shows Connected (and who took it) instead of Ringing."""
+        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        return (
+            ' statusCallbackEvent="answered" statusCallbackMethod="POST"'
+            f' statusCallback="{base_url}/signalwire/voice/leg_answered/{user.id}"')
 
     def _group_sip_targets(self, group, sip_domain):
         return ''.join(self._sip_targets(member, sip_domain) for member in group.member_ids)
@@ -183,7 +217,8 @@ class SignalWireVoiceController(http.Controller):
             piper_voice=getattr(group, 'voicemail_piper_voice', False),
             piper_speaker_id=getattr(group, 'voicemail_piper_speaker_id', False))
 
-    def _route_dial_cxml(self, route_type, target, number, sip_domain, attempt=0):
+    def _route_dial_cxml(self, route_type, target, number, sip_domain, attempt=0,
+                         ignore_presence=False):
         """The <Dial> block for a resolved 'user' or 'group' route -
         shared by inbound_call's own initial dial and an IVR menu
         option set to "Ring a User"/"Ring a Call Group", so both
@@ -206,13 +241,14 @@ class SignalWireVoiceController(http.Controller):
             if attempt:
                 action += f'?attempt={attempt}'
         else:
-            targets = self._sip_targets(target, sip_domain) if target else ''
+            targets = self._sip_targets(
+                target, sip_domain, ignore_presence=ignore_presence) if target else ''
             if not targets:
                 return ''
             action = f'/signalwire/voice/fallback/{target.id}/{number.id}'
         return f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">{targets}</Dial>'
 
-    def _hold_cxml(self, record, default_message, res_model):
+    def _hold_cxml(self, record, default_message, res_model, offer=''):
         """The spoken hold message (via _say_or_play, so an optional
         Piper voice is honored the same way a greeting's is) followed
         by looped hold music if `record.hold_music` is set, or a
@@ -234,9 +270,33 @@ class SignalWireVoiceController(http.Controller):
         if music_attachment:
             base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             return (
-                f'{message}<Play loop="3">{base_url}/signalwire/voice/'
+                f'{message}{offer}<Play loop="3">{base_url}/signalwire/voice/'
                 f'hold_music/{music_attachment.id}</Play>')
-        return f'{message}<Pause length="20" />'
+        return f'{message}{offer}<Pause length="20" />'
+
+    CALLBACK_OFFER = 'To be called back instead, press 1 at any time.'
+    CALLBACK_CONFIRM = (
+        'Thank you. We will call you back at the number you are calling from. Goodbye.')
+
+    def _hold_with_callback_offer(self, record, default_message, res_model, kind, target,
+                                  number, attempt=0):
+        """The hold message and music, inside a <Gather> that takes a 1 as
+        "call me back instead" (callback_offer). Not offered when the
+        caller's number is withheld: there'd be nothing to call back. No
+        key pressed: the hold ends and the call carries on exactly as
+        before (a <Gather> without input falls through to what follows)."""
+        caller_digits = re.sub(r'\D', '', request.httprequest.form.get('From', ''))
+        if len(caller_digits) < 7:
+            return self._hold_cxml(record, default_message, res_model)
+        offer = self._say_or_play(
+            self.CALLBACK_OFFER, getattr(record, 'hold_piper_voice', False),
+            getattr(record, 'hold_piper_speaker_id', False))
+        hold = self._hold_cxml(record, default_message, res_model, offer=offer)
+        action = (f'/signalwire/voice/callback_offer/{kind}/'
+                  f'{target.id if target else 0}/{number.id}')
+        if attempt:
+            action += f'?attempt={attempt}'
+        return f'<Gather numDigits="1" timeout="1" action="{saxutils.escape(action)}">{hold}</Gather>'
 
     def _mark_live_call_ended(self):
         """Called from every terminal point in the routing chain
@@ -250,6 +310,18 @@ class SignalWireVoiceController(http.Controller):
             request.env['signalwire.live_call'].sudo().search(
                 [('call_sid', '=', call_sid), ('state', '!=', 'ended')]
             ).write({'state': 'ended'})
+
+    def _nobody_to_ring_cxml(self, route_type, target, number):
+        """No phone to ring: someone set to Away goes straight to what
+        happens when they don't answer, an all-Away group to its
+        voicemail; anything else (nobody set up) is rejected as before."""
+        if route_type == 'user' and target and target.signalwire_presence == 'away':
+            return self._user_fallback_cxml(target, number)
+        if route_type == 'group' and target and target.member_ids.filtered(
+                lambda m: m.signalwire_presence == 'away'):
+            return self._group_unanswered_cxml(target, number)
+        self._mark_live_call_ended()
+        return self._cxml('<Reject/>')
 
     def _ivr_menu_cxml(self, menu, number):
         """The <Gather> prompt for `menu` - a re-prompt if the caller
@@ -338,8 +410,7 @@ class SignalWireVoiceController(http.Controller):
         sip_domain = number.subproject_id.server_id._get_sip_domain()
         dial = self._route_dial_cxml(route_type, target, number, sip_domain)
         if not dial:
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._nobody_to_ring_cxml(route_type, target, number)
         return self._cxml(dial)
 
     @http.route(
@@ -380,13 +451,19 @@ class SignalWireVoiceController(http.Controller):
             dial = self._route_dial_cxml(
                 'group', group, number, sip_domain, attempt=attempt + 1)
             if dial:
-                hold = self._hold_cxml(
-                    group, self.DEFAULT_GROUP_HOLD_MESSAGE, 'signalwire.call.group')
+                hold = self._hold_with_callback_offer(
+                    group, self.DEFAULT_GROUP_HOLD_MESSAGE, 'signalwire.call.group',
+                    'group', group, number, attempt=attempt + 1)
                 return self._cxml(hold + dial)
             # No usable SIP target at all (e.g. every member lost
             # their softphone since the first ring) - nothing to
             # retry, fall through to voicemail_mode below.
 
+        return self._group_unanswered_cxml(group, number)
+
+    def _group_unanswered_cxml(self, group, number):
+        """Nobody in the group took the call (or everyone's Away): the
+        group's own voicemail choice, or a plain apology."""
         if group.voicemail_mode == 'user' and group.voicemail_user_id:
             return self._cxml(self._user_voicemail_cxml(group.voicemail_user_id, number))
         if group.voicemail_mode == 'group':
@@ -453,12 +530,16 @@ class SignalWireVoiceController(http.Controller):
             sip_domain = number.subproject_id.server_id._get_sip_domain()
             dial = self._route_dial_cxml(
                 'group', option.target_call_group_id, number, sip_domain)
-            return self._cxml(dial or '<Reject/>')
+            if not dial:
+                return self._nobody_to_ring_cxml('group', option.target_call_group_id, number)
+            return self._cxml(dial)
 
         # action_type == 'user'
         sip_domain = number.subproject_id.server_id._get_sip_domain()
         dial = self._route_dial_cxml('user', option.target_user_id, number, sip_domain)
-        return self._cxml(dial or '<Reject/>')
+        if not dial:
+            return self._nobody_to_ring_cxml('user', option.target_user_id, number)
+        return self._cxml(dial)
 
     @http.route(
         '/signalwire/voice/fallback/<int:user_id>/<int:phone_number_id>',
@@ -484,15 +565,20 @@ class SignalWireVoiceController(http.Controller):
         if not user.exists() or not number.exists():
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
+        return self._user_fallback_cxml(user, number, after=step)
 
-        next_step = self._next_step(user, after=step)
+    def _user_fallback_cxml(self, user, number, after=None):
+        """What happens when `user` doesn't answer: their next configured
+        step after `after` (forward, ring group, voicemail). Also where a
+        call for someone who's Away starts, without ringing them first."""
+        next_step = self._next_step(user, after=after)
         action = f'/signalwire/voice/fallback/{user.id}/{number.id}?step={next_step}'
 
         if next_step == 'forward':
             target = user.signalwire_active_forward_id.phone_number
             return self._cxml(
                 f'<Dial timeout="{DIAL_TIMEOUT}" action="{action}">'
-                f'<Number>{target}</Number></Dial>')
+                f'<Number{self._answered_callback_attrs(user)}>{target}</Number></Dial>')
 
         if next_step == 'group':
             sip_domain = number.subproject_id.server_id._get_sip_domain()
@@ -666,6 +752,63 @@ class SignalWireVoiceController(http.Controller):
         return request.make_response('', headers=[('Content-Type', 'text/plain')])
 
     @http.route(
+        '/signalwire/voice/screen/<int:user_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def screen(self, user_id, caller=None, **kwargs):
+        """Played to a Mobile user's phone when it answers, before the
+        caller is connected: press 1 to take the call. Anything else
+        (including the phone's own voicemail answering) hangs up this leg
+        only; the caller keeps ringing the other phones."""
+        who = ' '.join(re.sub(r'\D', '', caller or '')) or 'an unknown number'
+        return self._cxml(
+            f'<Gather numDigits="1" timeout="8" action="/signalwire/voice/screen_answer">'
+            f'<Say>Call for you from {saxutils.escape(who)}. Press 1 to take it.</Say>'
+            '</Gather><Hangup/>')
+
+    @http.route(
+        '/signalwire/voice/screen_answer', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def screen_answer(self, **kwargs):
+        if request.httprequest.form.get('Digits') == '1':
+            return self._cxml('')  # an empty response connects the caller
+        return self._cxml('<Hangup/>')
+
+    @http.route(
+        '/signalwire/voice/status', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def call_status(self, **kwargs):
+        """The number's own status callback (set by Connect Inbound
+        Calls): SignalWire posts here when the caller's call is over,
+        however it ended. Without it, a caller who hangs up while it's
+        still ringing left the call "in progress" until the cleanup job."""
+        status = request.httprequest.form.get('CallStatus', '')
+        if status in FINISHED_STATUSES:
+            self._mark_live_call_ended()
+        return request.make_response('', status=204)
+
+    @http.route(
+        '/signalwire/voice/leg_answered/<int:user_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def leg_answered(self, user_id, **kwargs):
+        """One of the phones we rang picked up: the caller's call (the
+        leg's parent) is now Connected, to this user."""
+        form = request.httprequest.form
+        parent_sid = form.get('ParentCallSid', '')
+        if parent_sid and form.get('CallStatus') in ('in-progress', 'answered'):
+            calls = request.env['signalwire.live_call'].sudo().search(
+                [('call_sid', '=', parent_sid), ('state', '!=', 'ended')])
+            user = request.env['res.users'].sudo().browse(user_id).exists()
+            values = {'state': 'connected'}
+            if user:
+                values['assigned_user_id'] = user.id
+            calls.write(values)
+        return request.make_response('', status=204)
+
+    @http.route(
         '/signalwire/voice/route_to_user/<int:user_id>/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
     @signalwire_signed
@@ -684,7 +827,9 @@ class SignalWireVoiceController(http.Controller):
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
         sip_domain = number.subproject_id.server_id._get_sip_domain()
-        dial = self._route_dial_cxml('user', user, number, sip_domain)
+        # The receptionist chose this person on purpose: ring them even if
+        # they're Away (the panel shows it).
+        dial = self._route_dial_cxml('user', user, number, sip_domain, ignore_presence=True)
         if not dial:
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
@@ -709,7 +854,7 @@ class SignalWireVoiceController(http.Controller):
         '/signalwire/voice/hold_loop/<int:phone_number_id>',
         type='http', auth='public', methods=['POST'], csrf=False)
     @signalwire_signed
-    def hold_loop(self, phone_number_id, **kwargs):
+    def hold_loop(self, phone_number_id, user=None, **kwargs):
         """A receptionist panel's own redirect target while the
         receptionist places a separate, ordinary outbound call to
         check whether a colleague can take it - see
@@ -724,8 +869,59 @@ class SignalWireVoiceController(http.Controller):
         if not number.exists():
             self._mark_live_call_ended()
             return self._cxml('<Reject/>')
-        hold = self._hold_cxml(number, self.DEFAULT_HOLD_MESSAGE, 'signalwire.phone_number')
-        return self._cxml(f'{hold}<Redirect>/signalwire/voice/hold_loop/{phone_number_id}</Redirect>')
+        target = request.env['res.users'].sudo().browse(int(user or 0)).exists()
+        hold = self._hold_with_callback_offer(
+            number, self.DEFAULT_HOLD_MESSAGE, 'signalwire.phone_number',
+            'hold', target, number)
+        again = f'/signalwire/voice/hold_loop/{phone_number_id}'
+        if target:
+            again += f'?user={target.id}'
+        return self._cxml(f'{hold}<Redirect>{saxutils.escape(again)}</Redirect>')
+
+    @http.route(
+        '/signalwire/voice/callback_offer/<string:kind>/<int:target_id>/<int:phone_number_id>',
+        type='http', auth='public', methods=['POST'], csrf=False)
+    @signalwire_signed
+    def callback_offer(self, kind, target_id, phone_number_id, attempt=None, **kwargs):
+        """A key was pressed during hold. 1: record a callback request for
+        whoever the caller was waiting for, thank them and hang up; they're
+        alerted when free. Any other key: carry on where the hold was."""
+        form = request.httprequest.form
+        number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
+        if not number.exists() or kind not in ('group', 'hold'):
+            self._mark_live_call_ended()
+            return self._cxml('<Hangup/>')
+        group = request.env['signalwire.call.group'].sudo().browse(
+            target_id if kind == 'group' else 0).exists()
+        user = request.env['res.users'].sudo().browse(
+            target_id if kind == 'hold' else 0).exists()
+
+        if form.get('Digits') == '1':
+            caller = form.get('From', '')
+            live_call = request.env['signalwire.live_call'].sudo().search(
+                [('call_sid', '=', form.get('CallSid', ''))], limit=1)
+            request.env['signalwire.callback_request'].sudo().create({
+                'source': 'phone',
+                'phone_number': caller,
+                'partner_id': request.env['res.users'].sudo()._signalwire_match_partner(
+                    caller).id or False,
+                'target_user_id': user.id or False,
+                'target_group_id': group.id or False,
+                'live_call_id': live_call.id or False,
+                'company_id': number.company_id.id or request.env.company.id,
+            })
+            self._mark_live_call_ended()
+            return self._cxml(f'{self._say(self.CALLBACK_CONFIRM)}<Hangup/>')
+
+        if kind == 'group' and group:
+            sip_domain = number.subproject_id.server_id._get_sip_domain()
+            dial = self._route_dial_cxml(
+                'group', group, number, sip_domain, attempt=int(attempt or 0))
+            return self._cxml(dial) if dial else self._group_unanswered_cxml(group, number)
+        again = f'/signalwire/voice/hold_loop/{number.id}'
+        if user:
+            again += f'?user={user.id}'
+        return self._cxml(f'<Redirect>{saxutils.escape(again)}</Redirect>')
 
     @http.route(
         '/signalwire/provisioning/<string:filename>',

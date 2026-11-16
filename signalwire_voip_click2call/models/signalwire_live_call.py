@@ -136,7 +136,7 @@ class SignalWireLiveCall(models.Model):
         self._redirect(f'/signalwire/voice/route_to_user/{user.id}/{self.phone_number_id.id}')
         self.write({'assigned_user_id': user.id, 'state': 'ringing'})
 
-    def action_park(self):
+    def action_park(self, user_id=None):
         """Puts the caller on a "please hold" loop, freeing the
         receptionist to place a normal, separate outbound call to
         check whether a colleague can take it - see this module's own
@@ -144,7 +144,12 @@ class SignalWireLiveCall(models.Model):
         bridge.
         """
         self.ensure_one()
-        self._redirect(f'/signalwire/voice/hold_loop/{self.phone_number_id.id}')
+        url = f'/signalwire/voice/hold_loop/{self.phone_number_id.id}'
+        if user_id:
+            # Who's being checked: a caller who asks for a callback while
+            # holding is asking for them.
+            url += f'?user={int(user_id)}'
+        self._redirect(url)
         self.state = 'parked'
 
     def action_send_to_voicemail(self, user_id):

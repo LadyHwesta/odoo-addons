@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<t t-name="signalwire_voip_click2call.PresenceSystray">
+    <Dropdown t-if="state.enabled" position="'bottom-end'">
+        <button class="dropdown-toggle o-dropdown--no-caret btn d-flex align-items-center gap-1"
+                t-att-title="'Phone status: ' + current.label">
+            <span t-attf-class="o_sw_presence_dot o_sw_presence_{{ state.presence }}" />
+            <span class="d-none d-md-inline small" t-esc="current.label" />
+        </button>
+        <t t-set-slot="content">
+            <DropdownItem t-foreach="options" t-as="option" t-key="option.value"
+                          onSelected="() => this.presence.set(option.value)">
+                <div class="d-flex align-items-start gap-2">
+                    <span t-attf-class="o_sw_presence_dot o_sw_presence_{{ option.value }} mt-1" />
+                    <div>
+                        <div t-att-class="option.value === state.presence ? 'fw-bold' : ''"
+                             t-esc="option.label" />
+                        <div class="text-muted small" t-esc="option.hint" />
+                        <div t-if="option.value === 'mobile' and !state.hasMobileNumber"
+                             class="text-warning small">
+                            No mobile number set: only the mobile app rings.
+                            Add one in My Preferences, VOIP tab.
+                        </div>
+                    </div>
+                </div>
+            </DropdownItem>
+        </t>
+    </Dropdown>
+</t>
+
+</templates>

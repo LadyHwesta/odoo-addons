@@ -52,18 +52,15 @@ SignalWire `call_sid`; a callback request has no call in progress
 yet, and conflating the two would mean an awkward nullable `call_sid`
 and two different lifecycles jammed into one model.
 
-On creation: broadcasts to the same `group_signalwire_receptionist`
-group `signalwire_voip_click2call`'s own receptionist panel already
-listens on (`bus.bus._sendone()`, no new channel plumbing at all) and
-posts to the request's own chatter. The receptionist panel itself
-gains a new **Callback Requests** section (patched in via
-`callback_requests.esm.js`/`.xml`, not a separate page) - **Claim**
-(assigns it to whoever clicked, schedules a "call back" activity for
-them - there's no natural single owner until someone claims it, so no
-activity exists before that point), **Call Now** (literally
-`agent.call({number: req.phone_number})` - the exact same already-
-working outbound-call path every other click-to-call in this project
-uses, zero new SIP/VoIP code), and **Done**.
+Since 19.0.1.2.0 the model itself lives in `signalwire_voip_click2call`
+(so callers on hold, portal customers and receptionists share one list);
+this module keeps a stub `_inherit` so its access rows and the portal
+record rule stay valid, and marks its requests `source = 'portal'`. They
+show in the receptionist panel's **Callback requests** section with
+**Call now**, **Schedule** (books it in the calendar), **Claim** (assigns
+it and adds a "call back" to-do) and **Done**. The panel patch this module
+used to add is gone: the rebuilt panel covers it. See
+`signalwire_voip_click2call`'s README, "Callback requests".
 
 ## Live browser-to-agent calling (not yet built)
 

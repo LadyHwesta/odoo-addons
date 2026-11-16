@@ -76,12 +76,12 @@ class SignalWireDashboard(models.AbstractModel):
             'rows': [{
                 'cells': [
                     user.name,
-                    call_states.get(user.signalwire_call_state, ""),
+                    call_states.get(user._signalwire_effective_call_state(), ""),
                     (_("Forwards to %(name)s", name=user.signalwire_active_forward_id.name)
                      if user.signalwire_active_forward_id else
                      _("Voicemail") if user.signalwire_voicemail_enabled else _("Keeps ringing")),
                 ],
-                'tone': 'ok' if user.signalwire_call_state == 'idle' else 'warning',
+                'tone': 'ok' if user._signalwire_effective_call_state() == 'idle' else 'warning',
                 'open': {'res_model': 'res.users', 'res_id': user.id, 'view_id': extension_form.id},
             } for user in users],
             'empty': _("Nobody has a softphone yet. Set one up from Extensions."),

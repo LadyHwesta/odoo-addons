@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<t t-name="signalwire_voip_click2call.ScheduleCallbackDialog">
+    <Dialog title="'Schedule a callback'" size="'md'">
+        <div class="o_sw_schedule_callback d-flex flex-column gap-3">
+            <div t-if="props.callerName" class="fw-bold" t-esc="props.callerName" />
+            <div t-if="!props.requestId">
+                <label class="form-label" for="sw_cb_number">Number to call</label>
+                <input id="sw_cb_number" class="form-control" type="tel"
+                       t-model="state.phoneNumber" placeholder="+15551234567" />
+            </div>
+            <div t-if="props.users">
+                <label class="form-label" for="sw_cb_user">Who calls back</label>
+                <select id="sw_cb_user" class="form-select" t-model="state.userId">
+                    <option t-foreach="props.users" t-as="u" t-key="u.id"
+                            t-att-value="u.id" t-esc="u.name" />
+                </select>
+            </div>
+            <div class="row g-2">
+                <div class="col-8">
+                    <label class="form-label" for="sw_cb_start">When</label>
+                    <input id="sw_cb_start" class="form-control" type="datetime-local"
+                           t-model="state.start" />
+                </div>
+                <div class="col-4">
+                    <label class="form-label" for="sw_cb_duration">Length</label>
+                    <select id="sw_cb_duration" class="form-select" t-model="state.duration">
+                        <option t-foreach="durations" t-as="d" t-key="d" t-att-value="d">
+                            <t t-esc="d" /> min
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="form-label" for="sw_cb_note">Note</label>
+                <textarea id="sw_cb_note" class="form-control" rows="2" t-model="state.note"
+                          placeholder="What it's about" />
+            </div>
+            <div t-if="canEmailCaller" class="form-check">
+                <input id="sw_cb_email" class="form-check-input" type="checkbox"
+                       t-model="state.emailCaller" />
+                <label class="form-check-label" for="sw_cb_email">
+                    Email the caller a calendar invitation
+                </label>
+            </div>
+        </div>
+        <t t-set-slot="footer">
+            <button class="btn btn-primary" t-att-disabled="state.saving or !state.userId"
+                    t-on-click="save">Book callback</button>
+            <button class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

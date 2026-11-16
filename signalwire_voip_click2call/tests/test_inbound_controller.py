@@ -77,7 +77,7 @@ class TestInboundCallController(HttpCase):
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
         body = response.text
-        self.assertEqual(body.count('<Sip>'), 2)
+        self.assertEqual(body.count('<Sip '), 2)
         self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
         self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)
 
@@ -95,7 +95,7 @@ class TestInboundCallController(HttpCase):
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
         body = response.text
-        self.assertEqual(body.count('<Sip>'), 1)
+        self.assertEqual(body.count('<Sip '), 1)
         self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)
 
     def test_inbound_call_to_a_group_routed_number_dials_every_member(self):

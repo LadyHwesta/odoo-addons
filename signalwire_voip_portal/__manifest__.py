@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP Portal Support Calling',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Productivity/VOIP',
     'summary': 'Let portal customers request a support callback, without ever reaching an outside number',
     'description': """
@@ -38,12 +38,6 @@ ticket or using Discuss.
         'security/ir.model.access.csv',
         'views/portal_templates.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'signalwire_voip_portal/static/src/components/receptionist_panel/callback_requests.esm.js',
-            'signalwire_voip_portal/static/src/components/receptionist_panel/callback_requests.xml',
-        ],
-    },
     'installable': True,
     'application': False,
 }

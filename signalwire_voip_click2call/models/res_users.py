@@ -2,9 +2,13 @@
 import re
 import secrets
 import unicodedata
+from datetime import timedelta
 
 from odoo import _, api, models, fields
 from odoo.exceptions import UserError
+
+# No real call rings longer than this (the dial timeout is 20 seconds).
+RINGING_GIVES_UP_AFTER = timedelta(minutes=2)
 
 
 class ResUsers(models.Model):
@@ -104,6 +108,30 @@ class ResUsers(models.Model):
              "alongside Odoo's own online/away/offline status "
              "(im_status), which only reflects browser activity, not "
              "whether this user is actually on a phone call.")
+    signalwire_presence = fields.Selection(
+        [('available', "Available"), ('away', "Away"), ('mobile', "Mobile")],
+        string="Phone Presence", default='available', required=True, copy=False,
+        help="Available: calls ring as usual. Away (set after a few idle "
+             "minutes, or with Alt+Shift+W; Control+Shift+W on a Mac): calls skip you and go straight to "
+             "what happens when you don't answer, and call groups skip you. "
+             "Mobile: calls ring the softphone in the mobile app and your "
+             "mobile number together.")
+    signalwire_presence_at = fields.Datetime(copy=False)
+    signalwire_mobile_forward_id = fields.Many2one(
+        'signalwire.forwarding.number', string="Mobile Number",
+        domain="[('user_id', '=', id)]",
+        help="Rung alongside the mobile app's softphone while you're set to "
+             "Mobile. You hear \"press 1 to take this call\" first, so your "
+             "phone's own voicemail can't pick the call up.")
+    signalwire_auto_away_minutes = fields.Integer(
+        string="Away After (minutes)", default=10,
+        help="Set to Away after this many minutes without using Odoo; using "
+             "it again sets you back to Available. 0 turns this off.")
+    signalwire_call_state_at = fields.Datetime(
+        string="Call State Since", copy=False,
+        help="When the softphone last reported its call state. A ringing "
+             "state older than a couple of minutes is shown as Available: "
+             "no call rings that long, so the hang-up report was lost.")
     signalwire_has_softphone = fields.Boolean(
         string="Softphone", compute='_compute_signalwire_extension')
     signalwire_desk_phone_count = fields.Integer(
@@ -134,6 +162,8 @@ class ResUsers(models.Model):
             'signalwire_voicemail_greeting', 'signalwire_voicemail_greeting_filename',
             'signalwire_voicemail_greeting_text', 'signalwire_voicemail_max_length',
             'signalwire_voicemail_beep', 'signalwire_call_state',
+            'signalwire_presence', 'signalwire_mobile_forward_id',
+            'signalwire_auto_away_minutes',
         ]
 
     @property
@@ -144,8 +174,74 @@ class ResUsers(models.Model):
             'signalwire_voicemail_greeting', 'signalwire_voicemail_greeting_filename',
             'signalwire_voicemail_greeting_text', 'signalwire_voicemail_max_length',
             'signalwire_voicemail_beep',
-            'signalwire_call_state',
+            'signalwire_call_state', 'signalwire_call_state_at',
+            'signalwire_presence', 'signalwire_presence_at',
+            'signalwire_mobile_forward_id', 'signalwire_auto_away_minutes',
         ]
+
+    def _signalwire_effective_call_state(self):
+        """The reported call state, except a ringing that's gone on longer
+        than any real call rings: the softphone's hang-up report never
+        arrived (tab closed mid-ring, network drop), so it's Available."""
+        self.ensure_one()
+        state = self.signalwire_call_state or 'idle'
+        if state == 'ringing' and (
+                not self.signalwire_call_state_at
+                or self.signalwire_call_state_at
+                < fields.Datetime.now() - RINGING_GIVES_UP_AFTER):
+            return 'idle'
+        return state
+
+    @api.model
+    def get_signalwire_presence_info(self):
+        """What the softphone's presence service needs at start-up."""
+        user = self.env.user
+        return {
+            'presence': user.signalwire_presence,
+            'auto_away_minutes': user.signalwire_auto_away_minutes,
+            'has_softphone': bool(user.voip_username),
+            'has_mobile_number': bool(user.signalwire_mobile_forward_id),
+        }
+
+    @api.model
+    def set_signalwire_presence(self, presence):
+        """Called from the browser (idle timer, Alt+Shift+A, the status
+        menu). api.model, like set_signalwire_call_state: the RPC layer
+        would otherwise take `presence` as record ids. Only ever changes
+        the calling user's own presence."""
+        if presence not in dict(self._fields['signalwire_presence'].selection):
+            return False
+        user = self.env.user
+        if user.signalwire_presence != presence:
+            user.write({
+                'signalwire_presence': presence,
+                'signalwire_presence_at': fields.Datetime.now(),
+            })
+            self.env['bus.bus']._sendone(
+                user.partner_id, 'signalwire_presence/updated', {'presence': presence})
+            group = self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist')
+            self.env['bus.bus']._sendone(group, 'signalwire_live_call/updated', {})
+            if presence == 'available':
+                user._signalwire_on_free()
+        return presence
+
+    def _signalwire_is_free(self):
+        self.ensure_one()
+        return (self.signalwire_presence != 'away'
+                and self._signalwire_effective_call_state() == 'idle')
+
+    def _signalwire_on_free(self):
+        """This user just became free to take a call (hung up, or came back
+        from Away): alert them to callbacks waiting for them or their call
+        groups."""
+        self.ensure_one()
+        if not self.voip_username:
+            return
+        self.env['signalwire.callback_request'].sudo().search([
+            ('state', '=', 'pending'),
+            '|', ('target_user_id', '=', self.id),
+            ('target_group_id.member_ids', 'in', self.id),
+        ])._alert_free_users(users=self)
 
     @api.model
     def set_signalwire_call_state(self, state):
@@ -161,10 +257,15 @@ class ResUsers(models.Model):
         valid_states = dict(self._fields['signalwire_call_state'].selection)
         if state not in valid_states:
             return
-        self.env.user.signalwire_call_state = state
+        self.env.user.write({
+            'signalwire_call_state': state,
+            'signalwire_call_state_at': fields.Datetime.now(),
+        })
         group = self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist')
         self.env['bus.bus']._sendone(
             group, 'signalwire_live_call/updated', {})
+        if state == 'idle' and self.env.user.signalwire_presence != 'away':
+            self.env.user._signalwire_on_free()
 
     @api.model
     def get_signalwire_turn_credentials(self):
@@ -202,8 +303,9 @@ class ResUsers(models.Model):
         return [
             {
                 'id': u.id, 'name': u.name, 'partner_id': u.partner_id.id,
-                'im_status': u.im_status, 'call_state': u.signalwire_call_state,
+                'im_status': u.im_status, 'call_state': u._signalwire_effective_call_state(),
                 'voip_username': u.voip_username, 'has_softphone': bool(u.voip_username),
+                'presence': u.signalwire_presence,
             }
             for u in users
         ]

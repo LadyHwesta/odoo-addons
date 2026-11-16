@@ -10,12 +10,24 @@ import {patch} from "@web/core/utils/patch";
  * Best-effort: a failed report (e.g. the receptionist panel/group
  * isn't set up yet) is swallowed rather than surfacing an error
  * toast for something that isn't the user's own active task.
+ *
+ * Idle is also reported whenever a call's SIP session ends, however it
+ * ended (some endings, such as the call being answered on another of
+ * the user's devices, bypass the hang-up handlers below), and once the
+ * softphone registers, so a state left over from a closed tab clears.
  */
 patch(VoipAgent.prototype, {
     _reportCallState(state) {
         this.orm.call("res.users", "set_signalwire_call_state", [state]).catch(() => {});
     },
     onInvite(session) {
+        if (this.session) {
+            // Already on a call. voip_oca answers busy here but then
+            // carries on and replaces the call in progress with this one;
+            // stop after the busy instead.
+            session.reject({statusCode: 486});
+            return;
+        }
         this._reportCallState("ringing");
         return super.onInvite(session);
     },
@@ -42,5 +54,17 @@ patch(VoipAgent.prototype, {
     async _onHanghup() {
         this._reportCallState("idle");
         return super._onHanghup();
+    },
+    _onSessionStateChange(newState) {
+        if (newState === "Terminated") {
+            this._reportCallState("idle");
+        }
+        return super._onSessionStateChange(newState);
+    },
+    _onRegistererStateChange(state) {
+        if (state === "Registered" && !this.session) {
+            this._reportCallState("idle");
+        }
+        return super._onRegistererStateChange(state);
     },
 });

@@ -60,7 +60,7 @@ class TestFallbackController(HttpCase):
 
         response = self.url_open(self._fallback_url(), data={'DialCallStatus': 'no-answer'})
 
-        self.assertIn('<Number>+15559876543</Number>', response.text)
+        self.assertRegex(response.text, r'<Number [^>]*>\+15559876543</Number>')
         self.assertIn('step=forward', response.text)
 
     def test_forward_step_falls_through_to_group(self):
@@ -162,5 +162,5 @@ class TestFallbackController(HttpCase):
 
         response = self.url_open(self._fallback_url(), data={'DialCallStatus': 'no-answer'})
 
-        self.assertIn('<Number>+15559876543</Number>', response.text)
+        self.assertRegex(response.text, r'<Number [^>]*>\+15559876543</Number>')
         self.assertNotIn('user_backup', response.text)

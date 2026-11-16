@@ -482,6 +482,29 @@ round trip against the local test server) - what's untested is
 SignalWire actually reaching it, which needs the database to be
 publicly addressable first.
 
+### Knowing when a call is answered and when it ends (19.0.4.14.0)
+
+Found live 2026-11-16: a call stayed "ringing" on the receptionist panel
+after it ended. A call was only marked ended at the end of its routing
+flow or by the 5-minute cleanup job, and never marked Connected at all.
+
+- **Ended:** Connect also sets the number's call status callback,
+  `POST /signalwire/voice/status`, which ends the live call the moment
+  SignalWire reports it over (completed, canceled, no-answer, busy,
+  failed), however it ended. Numbers connected earlier get it from the
+  19.0.4.14.0 upgrade step (a failure there is logged, not raised). The
+  cleanup job stays as the safety net.
+- **Connected:** every rung `<Sip>` and forwarded `<Number>` asks for an
+  `answered` status callback, `POST /signalwire/voice/leg_answered/<user>`,
+  which marks the caller's call (the leg's `ParentCallSid`) Connected, to
+  whoever picked up.
+- **The user's own state:** the softphone also reports idle whenever a
+  SIP session ends however it ended, and when it registers. A "ringing"
+  state older than 2 minutes is shown as Available
+  (`_signalwire_effective_call_state`), since no call rings that long.
+- A second call arriving during a call now just gets "busy": voip_oca
+  answered busy but then replaced the call in progress with the new one.
+
 ## If nobody's at the softphone: the fallback chain
 
 **SignalWire has no presence/registration API at all** - confirmed
@@ -730,66 +753,87 @@ before being considered done, not just a clean code read.
 
 ## The live receptionist panel
 
-A new **Receptionist Panel** menu (visible only to the SignalWire
-Receptionist security group) shows two things in real time: every
-active inbound call, and the whole team's status.
+A **Receptionist Panel** menu (Receptionist security group only), rebuilt
+in 19.0.4.16.0 after its first real use showed a sparse page with no clear
+sections. One call, `res.users.get_signalwire_receptionist_panel_data`
+(group-checked: hiding a menu doesn't stop a method call), feeds four
+bordered sections, refreshed over the bus whenever a call, a callback
+request or someone's status changes:
 
-**A real inbound call** (`signalwire.live_call`, distinct from
-`voip_oca`'s own `voip.call` - that's a per-user call *log* entry,
-this is the call's own routing-journey record, tracked by SignalWire's
-own `CallSid` from the moment the inbound webhook fires until it ends)
-can be routed straight from the panel:
+- **Calls**: one card per call in progress, with the caller's contact
+  (matched by number), how long they've waited, Ringing / On hold /
+  Connected (and to whom), and the caller's own appointments today and in
+  the next week ("Today 2:00 PM · Consultation with Sam"). Actions:
+  - **Send** (blind): redirects the live call to a colleague's phones via
+    SignalWire's "Update a call" endpoint. Rings them even if they're Away
+    (the receptionist chose them).
+  - **Check first**: holds the caller (music, plus "press 1 to be called
+    back") while the receptionist rings the colleague from their own
+    softphone. Deliberately not a 3-way conference bridge: no second
+    session on the caller's leg. **Send** then completes it.
+  - **Voicemail**, and **Callback** (book one in the calendar).
+- **Callback requests**: from callers on hold, the customer portal and the
+  receptionist, with **Call now**, **Schedule**, **Claim** and **Done**.
+- **Team**: everyone with a softphone, one status each (Available,
+  Ringing, On a call, Away, Mobile, Offline; see
+  `_signalwire_panel_status`), what they're in now or next from their
+  calendar, and Call / Message buttons (Message uses core's
+  `useOpenChat`).
+- **Today**: the team's events for the day; the caller's own appointments
+  are highlighted, the one in progress is marked, past ones fade. Private
+  events show only as Busy.
 
-- **Send** (blind) - redirects the live call to a chosen colleague's
-  SIP targets via SignalWire's Compatibility API "Update a call"
-  endpoint. The caller never hangs up and calls back; the call's own
-  live cXML flow just changes.
-- **Check First** - parks the caller on a "please hold" loop (the same
-  redirect mechanism, pointed at a small new hold-loop route) while
-  the receptionist places a perfectly normal, separate outbound call
-  via their own already-working softphone to confirm the colleague can
-  take it. **Deliberately not a 3-way conference bridge** - no new
-  SIP/media complexity, no second session on the caller's own leg at
-  all, matching the same "server-side call control, not browser-side
-  session juggling" principle Phase C's attended transfer needed
-  vendored-code surgery to achieve for a *different* problem (two
-  parties the *agent themselves* is bridging). Once ready, **Send**
-  completes the actual transfer the normal way.
-- **Voicemail** - redirects into the exact same `<Say>`+`<Record>`
-  flow the personal fallback chain already uses.
+A **Schedule callback** button in the header books a callback for anyone
+without leaving the panel (see Callback requests below).
 
-**Team status** combines two genuinely different signals rather than
-inventing a new presence system: Odoo core's own `im_status` (browser
-online/away/offline, driven by `mail.presence`/`bus` - confirmed by
-reading Odoo 19's own source rather than assuming) says whether
-someone's logged into Odoo at all, and this module's own new
-`signalwire_call_state` (idle/ringing/on a call, reported live by each
-user's own softphone - patched onto `VoipAgent`'s lifecycle handlers)
-says whether they're actually on the phone, since SignalWire itself
-has no presence API at all (confirmed earlier in this project). A
-**Message** button per person reuses core's own `useOpenChat` hook -
-the exact same one `AvatarCardPopover`'s "Send message" button already
-uses - to open a real Discuss chat, no new backend needed for that
-part at all.
+## Presence: Available, Away, Mobile (19.0.4.16.0)
 
-**A real, pre-existing bug caught while building this**: none of this
-module's own "self-service" `res.users` fields (forwarding number,
-personal ring group, voicemail toggles) had ever actually been added
-to `SELF_WRITEABLE_FIELDS`/`SELF_READABLE_FIELDS` - only `voip_oca`'s
-own fields were, in its own `res_users.py`. A plain (non-admin) user
-editing their own Preferences got a real `AccessError`, confirmed live
-via `with_user()` against an actual non-admin user, contradicting this
-module's own long-standing documentation that these were self-service.
-Fixed alongside adding `signalwire_call_state` to the same list.
+`res.users.signalwire_presence`, changed from the status menu in the top
+bar (shown to softphone users only), and self-service like the rest of
+their phone settings:
 
-**Not live-tested** - the bus broadcast targets the Receptionist
-security group directly (`bus.bus._sendone()` requires an actual
-record, not a plain string; every connected user is already auto-
-subscribed to their own group records via
-`ir_websocket._build_bus_channel_list()`, confirmed by reading Odoo
-19's own source, so this needed no extra client-side subscription
-code) - the mechanism is sound by inspection but hasn't been exercised
-against a real inbound call and a real second browser tab yet.
+- **Away**: set after the user's own **Away After** minutes without using
+  Odoo (default 10, 0 = off), measured by Odoo's own `presence` service so
+  it's shared across tabs, or at once with **Alt+Shift+W** (Odoo maps its
+  Alt shortcuts to **Control** on a Mac: Control+Shift+W). Using Odoo again
+  sets Available, after a 3-second grace so the shortcut doesn't undo
+  itself. While Away, a direct call skips their phones and goes straight
+  to what happens when they don't answer; call groups and ring groups skip
+  them; an all-Away group goes to its voicemail choice.
+- **Mobile**: rings the softphone (which also runs in the mobile app) and
+  the user's chosen **Mobile Number** together. A phone browser keeps the
+  softphone connected only while the app is open on screen, so the mobile
+  number is what makes Mobile reliable. The mobile leg has a `url=` screen
+  (`/signalwire/voice/screen/<user>`): "Call for you from …, press 1 to take
+  it"; anything else hangs up that leg only, so the mobile's own voicemail
+  can't take the call. Desk phones don't ring while Mobile or Away.
+
+`set_signalwire_presence` is `api.model`, like `set_signalwire_call_state`:
+without it the RPC layer reads the first argument as record ids, which is
+how the call state never reached the server before 19.0.4.13.1.
+
+## Callback requests (19.0.4.16.0)
+
+`signalwire.callback_request` moved here from `signalwire_voip_portal`, so
+phone, portal and receptionist requests are one list (`source`). The
+portal module keeps a stub `_inherit`, so its access rows and record rules
+stay valid; the upgrade marks existing requests as portal ones.
+
+- **While on hold** (call group hold-and-retry, and Check first), the hold
+  message and music sit inside a `<Gather>`: "To be called back instead,
+  press 1 at any time." 1 records a request for whoever the caller was
+  waiting for, says so, and hangs up. No key: the call carries on exactly
+  as before. Not offered when caller ID is withheld.
+- **Alerts when free**: the person (or everyone free in the group) gets a
+  sticky "Callback requested" alert with **Call now** (dials from the
+  softphone) and **Schedule**. If they're on a call or Away, it comes as
+  soon as they hang up or come back. The first to act takes it; everyone
+  else's alert closes.
+- **Schedule** books a `calendar.event` (the user and the caller's contact
+  as attendees, "Callback: <caller>") without emailing anyone, unless
+  "Email the caller a calendar invitation" is ticked.
+- Internal users see requests for themselves, their call groups, or that
+  they took; receptionists see all.
 
 ## Hold music and messaging
 

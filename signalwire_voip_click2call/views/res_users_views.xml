@@ -23,6 +23,16 @@
                         (VoIP › Phone Numbers). 911 can't be dialled from these phones until then.
                     </div>
                 </group>
+                <group string="Presence" invisible="not signalwire_sip_endpoint_id">
+                    <field name="signalwire_presence" />
+                    <field name="signalwire_auto_away_minutes" />
+                    <field name="signalwire_mobile_forward_id" options="{'no_create': True}" />
+                    <div colspan="2" class="text-muted">
+                        Away skips you; Mobile also rings your mobile number. Change it any time
+                        from the status menu in the top bar, or press Alt+Shift+W (Control+Shift+W on a Mac) to go Away.
+                        Pick the mobile number from your saved numbers below.
+                    </div>
+                </group>
                 <group string="If I don't answer..." invisible="not signalwire_sip_endpoint_id">
                     <field name="signalwire_forwarding_number_ids" nolabel="1" colspan="2">
                         <list editable="bottom">
@@ -84,6 +94,16 @@
                             string="Release Softphone" class="btn-secondary"
                             invisible="not signalwire_sip_endpoint_id" />
                 </div>
+                <group string="Presence" invisible="not signalwire_sip_endpoint_id">
+                    <field name="signalwire_presence" />
+                    <field name="signalwire_auto_away_minutes" />
+                    <field name="signalwire_mobile_forward_id" options="{'no_create': True}" />
+                    <div colspan="2" class="text-muted">
+                        Away skips you; Mobile also rings your mobile number. Change it any time
+                        from the status menu in the top bar, or press Alt+Shift+W (Control+Shift+W on a Mac) to go Away.
+                        Pick the mobile number from your saved numbers below.
+                    </div>
+                </group>
                 <group string="If I don't answer..." invisible="not signalwire_sip_endpoint_id">
                     <field name="signalwire_forwarding_number_ids" nolabel="1" colspan="2">
                         <list editable="bottom">

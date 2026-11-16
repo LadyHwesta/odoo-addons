@@ -1,0 +1,12 @@
+// Phone presence dots (top bar menu, receptionist panel).
+.o_sw_presence_dot {
+    display: inline-block;
+    flex: none;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background-color: $gray-400;
+}
+.o_sw_presence_available { background-color: $success; }
+.o_sw_presence_away { background-color: $warning; }
+.o_sw_presence_mobile { background-color: $info; }

@@ -1,0 +1,149 @@
+// Receptionist panel: two columns of clearly separated sections. Colours
+// come from Bootstrap's theme variables, so light and dark mode both work.
+.o_sw_reception {
+    background-color: var(--body-bg, $o-webclient-background-color);
+
+    .o_sw_reception_header {
+        border-bottom: 1px solid var(--border-color, $border-color);
+        background-color: var(--o-view-background-color, $o-view-background-color);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .o_sw_reception_grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        align-items: start;
+        @include media-breakpoint-down(lg) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    .o_sw_section {
+        background-color: var(--o-view-background-color, $o-view-background-color);
+        border: 1px solid var(--border-color, $border-color);
+        border-radius: $border-radius-lg;
+        overflow: hidden;
+    }
+
+    .o_sw_section_title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: $text-muted;
+        background-color: rgba($gray-500, 0.08);
+        border-bottom: 1px solid var(--border-color, $border-color);
+    }
+
+    .o_sw_empty {
+        padding: 0.9rem;
+        color: $text-muted;
+    }
+
+    .o_sw_row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.55rem 0.9rem;
+        & + .o_sw_row {
+            border-top: 1px solid var(--border-color, $border-color);
+        }
+    }
+
+    // ---- calls ----
+    .o_sw_call {
+        padding: 0.75rem 0.9rem;
+        border-left: 4px solid $gray-400;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        & + .o_sw_call {
+            border-top: 1px solid var(--border-color, $border-color);
+        }
+    }
+    .o_sw_call_ringing { border-left-color: $warning; }
+    .o_sw_call_parked { border-left-color: $info; }
+    .o_sw_call_connected { border-left-color: $success; }
+
+    .o_sw_call_events {
+        font-size: 0.875rem;
+        padding: 0.35rem 0.6rem;
+        border-radius: $border-radius;
+        background-color: rgba($warning, 0.12);
+    }
+
+    .o_sw_route_select {
+        width: auto;
+        min-width: 12rem;
+        flex: 1 1 12rem;
+    }
+
+    // ---- chips and avatars ----
+    .o_sw_chip {
+        display: inline-block;
+        padding: 0.1rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+        background-color: rgba($gray-500, 0.15);
+    }
+    .o_sw_chip_available, .o_sw_chip_connected { background-color: rgba($success, 0.18); }
+    .o_sw_chip_ringing, .o_sw_chip_away { background-color: rgba($warning, 0.25); }
+    .o_sw_chip_on_call { background-color: rgba($danger, 0.18); }
+    .o_sw_chip_mobile, .o_sw_chip_parked { background-color: rgba($info, 0.2); }
+
+    .o_sw_avatar {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background-color: rgba($gray-500, 0.15);
+        box-shadow: 0 0 0 3px $gray-400;
+    }
+    .o_sw_status_available { box-shadow: 0 0 0 3px $success; }
+    .o_sw_status_ringing, .o_sw_status_away { box-shadow: 0 0 0 3px $warning; }
+    .o_sw_status_on_call { box-shadow: 0 0 0 3px $danger; }
+    .o_sw_status_mobile { box-shadow: 0 0 0 3px $info; }
+    .o_sw_status_offline { opacity: 0.55; }
+
+    // ---- callbacks ----
+    .o_sw_callback_scheduled { opacity: 0.75; }
+
+    // ---- agenda ----
+    .o_sw_agenda_item {
+        display: grid;
+        grid-template-columns: 9.75rem minmax(0, 1fr) auto;
+        gap: 0.75rem;
+        align-items: start;
+        padding: 0.45rem 0.9rem;
+        & + .o_sw_agenda_item {
+            border-top: 1px solid var(--border-color, $border-color);
+        }
+    }
+    .o_sw_agenda_time {
+        font-variant-numeric: tabular-nums;
+        font-size: 0.85rem;
+        color: $text-muted;
+        white-space: nowrap;
+    }
+    .o_sw_agenda_past { opacity: 0.5; }
+    .o_sw_agenda_now { box-shadow: inset 4px 0 0 $primary; }
+    .o_sw_agenda_caller { background-color: rgba($warning, 0.14); }
+
+    .min-w-0 { min-width: 0; }
+    .flex-none { flex: none; }
+}

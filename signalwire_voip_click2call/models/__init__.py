@@ -13,3 +13,5 @@ from . import res_users
 from . import signalwire_e911_outbound
 from . import signalwire_open_status
 from . import signalwire_dashboard
+from . import signalwire_callback_request
+from . import signalwire_receptionist_panel
