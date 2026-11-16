@@ -147,11 +147,16 @@ class ResUsers(models.Model):
             'signalwire_call_state',
         ]
 
+    @api.model
     def set_signalwire_call_state(self, state):
-        """Called from the softphone's own JS - deliberately not
-        api.model, since it's always about "my own" state (self is
-        the calling user, enforced by only ever writing to self.id
-        below regardless of what record this gets called on).
+        """Called from the softphone's own JS as
+        orm.call("res.users", "set_signalwire_call_state", [state]).
+
+        Must be api.model: without it, the RPC layer takes the first
+        argument as record ids, so the state never arrived and every
+        call failed with a TypeError (swallowed by the JS, logged as an
+        ERROR on the server). It only ever writes the calling user's own
+        state (self.env.user), whatever record it's called on.
         """
         valid_states = dict(self._fields['signalwire_call_state'].selection)
         if state not in valid_states:
