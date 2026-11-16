@@ -69,6 +69,11 @@ class SignalWireCallGroup(models.Model):
              "and following \"If Nobody Answers\" above. 0 (the "
              "default) rings once and falls straight through, exactly "
              "like before this setting existed.")
+    queue_max_wait_minutes = fields.Integer(
+        string="Longest Wait (minutes)", default=0,
+        help="Callers wait in this group's queue until someone is free. After "
+             "this many minutes they're sent to \"If nobody answers\" instead. "
+             "0 means no limit (they can always choose a callback or a message).")
     hold_music = fields.Binary(
         string="Hold Music", attachment=True, copy=False,
         help="Looped between ring attempts while \"Hold and Retry "

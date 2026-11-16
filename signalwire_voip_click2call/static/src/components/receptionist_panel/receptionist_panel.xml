@@ -33,7 +33,8 @@
                                     <div class="fw-bold text-truncate" t-esc="call.caller || call.from_number" />
                                     <div class="text-muted small">
                                         <t t-if="call.caller"><t t-esc="call.from_number" /> · </t>
-                                        <t t-if="call.state === 'connected' and call.assigned">Connected to <t t-esc="call.assigned" /></t>
+                                        <t t-if="call.state === 'queued'">In <t t-esc="call.queue" />, <t t-if="call.position === 1">next in line</t><t t-else="">#<t t-esc="call.position" /></t></t>
+                                        <t t-elif="call.state === 'connected' and call.assigned">Connected to <t t-esc="call.assigned" /></t>
                                         <t t-elif="call.assigned">For <t t-esc="call.assigned" /></t>
                                         <t t-else="">Waiting</t>
                                     </div>
@@ -66,6 +67,8 @@
                                         title="Send the call straight to them">Send</button>
                                 <button class="btn btn-sm btn-secondary" t-on-click="() => this.checkFirst(call)"
                                         title="Put the caller on hold and ring them first">Check first</button>
+                                <button class="btn btn-sm btn-secondary" t-on-click="() => this.addToQueue(call)"
+                                        title="The caller waits in their personal queue until they're free">Add to queue</button>
                                 <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.sendToVoicemail(call)">Voicemail</button>
                                 <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.scheduleForCall(call)"
                                         title="Book a callback in the calendar">
@@ -112,8 +115,31 @@
                     </section>
                 </div>
 
-                <!-- Right: who's around, and the day -->
+                <!-- Right: who's waiting, who's around, and the day -->
                 <div class="d-flex flex-column gap-3">
+                    <section class="o_sw_section" aria-labelledby="sw_queues_title">
+                        <h3 id="sw_queues_title" class="o_sw_section_title">
+                            Queues <span class="badge rounded-pill text-bg-secondary" t-esc="queuedCount" />
+                        </h3>
+                        <div t-if="!state.queues.length" class="o_sw_empty">Nobody is waiting.</div>
+                        <div t-foreach="state.queues" t-as="queue" t-key="queue.key" class="o_sw_queue">
+                            <div class="d-flex align-items-baseline gap-2">
+                                <i t-attf-class="fa {{ queue.personal ? 'fa-user' : 'fa-users' }} text-muted" />
+                                <span class="fw-semibold" t-esc="queue.name" />
+                                <span class="text-muted small ms-auto">
+                                    <t t-esc="queue.free" /> of <t t-esc="queue.agents" /> free
+                                </span>
+                            </div>
+                            <ol class="o_sw_queue_callers mb-0">
+                                <li t-foreach="queue.callers" t-as="caller" t-key="caller.id">
+                                    <span class="o_sw_queue_pos" t-esc="caller_index + 1" />
+                                    <span class="text-truncate flex-grow-1" t-esc="caller.caller" />
+                                    <span class="text-muted small flex-none">waiting <t t-esc="waiting(caller.since)" /></span>
+                                </li>
+                            </ol>
+                        </div>
+                    </section>
+
                     <section class="o_sw_section" aria-labelledby="sw_team_title">
                         <h3 id="sw_team_title" class="o_sw_section_title">Team</h3>
                         <div t-if="!state.team.length" class="o_sw_empty">Nobody has a softphone yet.</div>

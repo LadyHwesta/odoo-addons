@@ -20,3 +20,4 @@ from . import test_call_status_controller
 from . import test_presence
 from . import test_callbacks
 from . import test_receptionist_panel
+from . import test_queue

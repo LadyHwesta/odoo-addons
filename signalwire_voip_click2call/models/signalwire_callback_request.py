@@ -47,6 +47,11 @@ class SignalWireCallbackRequest(models.Model):
     event_id = fields.Many2one('calendar.event', string="Scheduled Call", ondelete='set null')
     company_id = fields.Many2one(
         'res.company', default=lambda self: self.env.company, index=True)
+    not_before = fields.Datetime(
+        string="Call Back From", index=True,
+        help="Not before this time: set for \"Callback when we open\" requests "
+             "made after hours. Nobody is alerted until then.")
+    alerted_at = fields.Datetime(copy=False)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -74,7 +79,8 @@ class SignalWireCallbackRequest(models.Model):
 
     def _users_to_alert(self):
         self.ensure_one()
-        if self.state != 'pending':
+        if self.state != 'pending' or (
+                self.not_before and self.not_before > fields.Datetime.now()):
             return self.env['res.users']
         users = self.target_user_id | self.target_group_id.member_ids
         return users.filtered(lambda u: u.voip_username and u._signalwire_is_free())
@@ -96,10 +102,23 @@ class SignalWireCallbackRequest(models.Model):
         is free right now (or just `users`). The browser ignores repeats of
         an alert that's already showing."""
         Bus = self.env['bus.bus'].sudo()
-        for request in self.sudo():
+        for request in self.sudo().sorted('create_date'):
+            alerted = False
             for user in request._users_to_alert():
                 if users is None or user in users:
                     Bus._sendone(user.partner_id, ALERT_CHANNEL, request._alert_payload())
+                    alerted = True
+            if alerted and not request.alerted_at:
+                request.alerted_at = fields.Datetime.now()
+
+    @api.model
+    def _cron_alert_due_callbacks(self):
+        """"Callback when we open" requests: once their time has come,
+        alert whoever is free in the group, in the order people called."""
+        self.sudo().search([
+            ('state', '=', 'pending'), ('alerted_at', '=', False),
+            ('not_before', '!=', False), ('not_before', '<=', fields.Datetime.now()),
+        ], order='create_date')._alert_free_users()
 
     def _close_alerts(self):
         """Someone dealt with it: close everyone else's alert."""

@@ -232,10 +232,14 @@ class ResUsers(models.Model):
 
     def _signalwire_on_free(self):
         """This user just became free to take a call (hung up, or came back
-        from Away): alert them to callbacks waiting for them or their call
-        groups."""
+        from Away): offer them the longest-waiting queued caller, else alert
+        them to callbacks waiting for them or their call groups."""
         self.ensure_one()
-        if not self.voip_username:
+        if not (self.voip_username or self.signalwire_mobile_forward_id):
+            return
+        # A caller waiting in line comes first; if they're offered one,
+        # they're no longer free and the callback alerts wait until after.
+        if self.env['signalwire.live_call'].sudo()._queue_dispatch_for(self):
             return
         self.env['signalwire.callback_request'].sudo().search([
             ('state', '=', 'pending'),

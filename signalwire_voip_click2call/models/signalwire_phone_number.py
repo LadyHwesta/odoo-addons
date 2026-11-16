@@ -145,6 +145,24 @@ class SignalWirePhoneNumber(models.Model):
             now, now + timedelta(minutes=1))
         return bool(intervals.get(False))
 
+    def _signalwire_next_opening(self):
+        """When this number's phones next open (naive UTC): now if they're
+        open, else the start of the next business-hours period (respecting
+        the calendar's time off and a "closed early" until), looking up to
+        two weeks ahead. Now if no business hours are set."""
+        self.ensure_one()
+        now = fields.Datetime.now()
+        if not self.calendar_id:
+            return now
+        start = max(now, (self.company_id or self.env.company)._signalwire_closed_until() or now)
+        start_utc = start.replace(tzinfo=pytz.UTC)
+        intervals = self.calendar_id._work_intervals_batch(
+            start_utc, start_utc + timedelta(days=14)).get(False)
+        for interval_start, interval_stop, _meta in intervals or []:
+            if interval_stop > start_utc:
+                return max(interval_start, start_utc).astimezone(pytz.UTC).replace(tzinfo=None)
+        return start
+
     def _effective_route(self):
         """(route_type, target) actually in effect right now for this
         number - the day-mode routing fields above, or the after-

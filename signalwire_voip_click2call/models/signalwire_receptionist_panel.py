@@ -67,7 +67,7 @@ class ResUsers(models.Model):
         ], order='start')
 
         calls = self.env['signalwire.live_call'].search(
-            [('state', 'in', ['ringing', 'parked', 'connected'])], order='create_date')
+            [('state', 'in', ['ringing', 'queued', 'parked', 'connected'])], order='create_date')
         Users = self.sudo()
         caller_partners = self.env['res.partner']
         call_rows = []
@@ -91,6 +91,8 @@ class ResUsers(models.Model):
                 'assigned': call.assigned_user_id.name or '',
                 'assigned_id': call.assigned_user_id.id or False,
                 'started': _dt(call.create_date),
+                'queue': call._queue_label() if call.state == 'queued' else '',
+                'position': call._queue_position() if call.state == 'queued' else 0,
                 'events': [self._signalwire_panel_event(e, team) for e in caller_events],
             })
 
@@ -108,12 +110,14 @@ class ResUsers(models.Model):
                 'status_label': _(STATUS_LABELS[status]),
                 'voip_username': user.voip_username,
                 'is_me': user == self.env.user,
-                'now': current and {
+                # False, not an empty recordset: that reaches the browser as
+                # [], which counts as something there ("In  until").
+                'now': {
                     'name': self._signalwire_panel_event_name(current),
-                    'until': _dt(current.stop)},
-                'next': upcoming and {
+                    'until': _dt(current.stop)} if current else False,
+                'next': {
                     'name': self._signalwire_panel_event_name(upcoming),
-                    'start': _dt(upcoming.start)},
+                    'start': _dt(upcoming.start)} if upcoming else False,
             })
 
         Request = self.env['signalwire.callback_request']
@@ -137,6 +141,25 @@ class ResUsers(models.Model):
             'requested': _dt(r.create_date),
         } for r in requests]
 
+        queues = {}
+        for call in calls.filtered(lambda c: c.state == 'queued').sorted(
+                lambda c: (c.queued_at, c.id)):
+            key = (call.queue_user_id.id, call.queue_group_id.id)
+            queue = queues.setdefault(key, {
+                'key': f'{key[0]}-{key[1]}',
+                'name': call._queue_label(),
+                'personal': bool(call.queue_user_id),
+                'free': len(call._queue_agents().filtered(call._agent_can_take)),
+                'agents': len(call._queue_agents()),
+                'callers': [],
+            })
+            queue['callers'].append({
+                'id': call.id,
+                'caller': Users._signalwire_match_partner(call.from_number).name
+                or call.from_number or _("Unknown caller"),
+                'since': _dt(call.queued_at),
+            })
+
         company = self.env.company
         closed_until = company.sudo()._signalwire_closed_until()
         return {
@@ -145,6 +168,7 @@ class ResUsers(models.Model):
             'calls': call_rows,
             'team': team_rows,
             'callbacks': callback_rows,
+            'queues': list(queues.values()),
             'agenda': [
                 dict(self._signalwire_panel_event(e, team),
                      highlight=bool(e.partner_ids & caller_partners))

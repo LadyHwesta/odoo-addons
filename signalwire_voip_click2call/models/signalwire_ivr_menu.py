@@ -47,7 +47,7 @@ class SignalWireIvrMenuOption(models.Model):
     action_type = fields.Selection(
         [('user', "Ring a User"), ('group', "Ring a Call Group"),
          ('submenu', "Go to Another Menu"), ('voicemail', "Take a Voicemail"),
-         ('hangup', "Hang Up")],
+         ('callback_open', "Callback When We Open"), ('hangup', "Hang Up")],
         required=True, default='user')
     target_user_id = fields.Many2one(
         'res.users', string="User", check_company=True,

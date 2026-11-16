@@ -36,7 +36,8 @@
                             <field name="target_user_id"
                                    invisible="action_type not in ('user', 'voicemail')" />
                             <field name="target_call_group_id"
-                                   invisible="action_type != 'group'" />
+                                   invisible="action_type not in ('group', 'callback_open')"
+                                   required="action_type == 'callback_open'" />
                             <field name="target_submenu_id"
                                    invisible="action_type != 'submenu'" />
                         </list>

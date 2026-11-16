@@ -59,18 +59,6 @@ class TestCallbackRequests(HttpCase):
 
     # ---- the offer while on hold ----
 
-    def test_group_hold_offers_a_callback(self):
-        body = self.url_open(f'/signalwire/voice/group_fallback/{self.group.id}/{self.number.id}', data={
-            'DialCallStatus': 'no-answer', 'From': '+15551234567', 'CallSid': 'CA-1'}).text
-        self.assertIn(f'action="/signalwire/voice/callback_offer/group/{self.group.id}/{self.number.id}?attempt=1"', body)
-        self.assertIn('press 1', body)
-        self.assertIn('<Dial', body)  # no key pressed: rings again, as before
-
-    def test_no_offer_when_caller_id_is_withheld(self):
-        body = self.url_open(f'/signalwire/voice/group_fallback/{self.group.id}/{self.number.id}', data={
-            'DialCallStatus': 'no-answer', 'From': 'anonymous', 'CallSid': 'CA-1'}).text
-        self.assertNotIn('callback_offer', body)
-
     def test_pressing_1_records_the_request_and_hangs_up(self):
         live = self.env['signalwire.live_call'].create({
             'call_sid': 'CA-1', 'phone_number_id': self.number.id, 'from_number': '+15551234567'})
@@ -85,13 +73,6 @@ class TestCallbackRequests(HttpCase):
         self.assertEqual(request.partner_id, self.customer)
         live.invalidate_recordset()
         self.assertEqual(live.state, 'ended')
-
-    def test_another_key_carries_on_ringing(self):
-        body = self.url_open(
-            f'/signalwire/voice/callback_offer/group/{self.group.id}/{self.number.id}?attempt=1',
-            data={'Digits': '5', 'From': '+15551234567', 'CallSid': 'CA-1'}).text
-        self.assertIn(f'sip:user_jane@{SIP}', body)
-        self.assertFalse(self.env['signalwire.callback_request'].search([('phone_number', '=', '+15551234567')]))
 
     def test_check_first_hold_offers_a_callback_for_that_colleague(self):
         body = self.url_open(f'/signalwire/voice/hold_loop/{self.number.id}?user={self.jane.id}', data={

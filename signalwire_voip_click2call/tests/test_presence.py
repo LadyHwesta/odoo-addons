@@ -67,12 +67,13 @@ class TestPresence(HttpCase):
         self.assertNotIn('user_jane', body)
         self.assertIn(f'sip:user_bob@{SIP}', body)
 
-    def test_all_away_group_goes_to_its_voicemail_choice(self):
+    def test_all_away_group_puts_the_caller_in_its_queue(self):
         (self.jane | self.bob).write({'signalwire_presence': 'away'})
         self.group.write({'voicemail_mode': 'user', 'voicemail_user_id': self.jane.id})
         body = self._inbound('+12084449666')
         self.assertNotIn('<Sip', body)
-        self.assertIn('<Record', body)
+        self.assertIn('/signalwire/voice/queue_choice/', body)
+        self.assertIn('press 2', body)
 
     def test_mobile_rings_app_and_mobile_number_with_a_screen(self):
         cell = self.env['signalwire.forwarding.number'].create({

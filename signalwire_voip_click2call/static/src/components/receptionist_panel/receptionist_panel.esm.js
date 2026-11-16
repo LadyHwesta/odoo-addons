@@ -31,6 +31,7 @@ export class SignalWireReceptionistPanel extends Component {
             team: [],
             callbacks: [],
             agenda: [],
+            queues: [],
             closedUntil: false,
             routeTarget: {},
             now: DateTime.now(),
@@ -65,6 +66,7 @@ export class SignalWireReceptionistPanel extends Component {
             team: data.team,
             callbacks: data.callbacks,
             agenda: data.agenda,
+            queues: data.queues,
             closedUntil: data.closed_until,
             now: DateTime.now(),
         });
@@ -173,6 +175,19 @@ export class SignalWireReceptionistPanel extends Component {
                 .call("signalwire.live_call", "action_park", [[call.id], userId])
                 .then(() => colleague && this.agent.call({number: colleague.voip_username}))
         );
+    }
+
+    addToQueue(call) {
+        const userId = this._target(call);
+        if (userId) {
+            this._run(
+                this.orm.call("signalwire.live_call", "action_add_to_queue", [[call.id], userId])
+            );
+        }
+    }
+
+    get queuedCount() {
+        return this.state.queues.reduce((total, q) => total + q.callers.length, 0);
     }
 
     sendToVoicemail(call) {

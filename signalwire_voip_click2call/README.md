@@ -771,7 +771,12 @@ request or someone's status changes:
     back") while the receptionist rings the colleague from their own
     softphone. Deliberately not a 3-way conference bridge: no second
     session on the caller's leg. **Send** then completes it.
+  - **Add to queue**: the caller waits in the chosen colleague's
+    personal queue (Situation 2 below) until they're free.
   - **Voicemail**, and **Callback** (book one in the calendar).
+- **Queues**: every call group and personal queue with someone waiting,
+  callers in order with how long they've waited, and how many agents are
+  free.
 - **Callback requests**: from callers on hold, the customer portal and the
   receptionist, with **Call now**, **Schedule**, **Claim** and **Done**.
 - **Team**: everyone with a softphone, one status each (Available,
@@ -819,11 +824,14 @@ phone, portal and receptionist requests are one list (`source`). The
 portal module keeps a stub `_inherit`, so its access rows and record rules
 stay valid; the upgrade marks existing requests as portal ones.
 
-- **While on hold** (call group hold-and-retry, and Check first), the hold
-  message and music sit inside a `<Gather>`: "To be called back instead,
-  press 1 at any time." 1 records a request for whoever the caller was
-  waiting for, says so, and hangs up. No key: the call carries on exactly
-  as before. Not offered when caller ID is withheld.
+- **While waiting**: in a queue (press 1, see Call queues below) and
+  during Check first ("To be called back instead, press 1 at any time").
+  1 records a request for whoever the caller was waiting for, says so, and
+  hangs up. Not offered when caller ID is withheld.
+- **When we open**: an IVR option (see Call queues) records a request that
+  nobody is alerted to until the phones next open (`not_before`).
+- **Missed calls**: where nothing is set up to take a call, a request with
+  no one named lands on the receptionist panel.
 - **Alerts when free**: the person (or everyone free in the group) gets a
   sticky "Callback requested" alert with **Call now** (dials from the
   softphone) and **Schedule**. If they're on a call or Away, it comes as
@@ -834,6 +842,58 @@ stay valid; the upgrade marks existing requests as portal ones.
   "Email the caller a calendar invitation" is ticked.
 - Internal users see requests for themselves, their call groups, or that
   they took; receptionists see all.
+
+## Call queues: no caller is refused (19.0.4.17.0)
+
+People have no extensions, on purpose: a caller can't pick an agent (a
+dedicated-agent contract may come later). Instead calls queue, built on
+`signalwire.live_call` (state `queued`, `queue_group_id` or `queue_user_id`,
+`queued_at` = place in line), the panel's redirect (`_redirect`) and the
+"became free" hook (`res.users._signalwire_on_free`). Not SignalWire's
+`<Enqueue>`: it can't see Away, Mobile, who's on a call, the calendar or the
+panel.
+
+1. **Call groups** (a number, an IVR option, or after hours): the caller
+   joins the group's queue and is offered to **one agent at a time**, the one
+   free the longest (`signalwire_call_state_at`). Ring-all and hold-and-retry
+   are gone (`max_ring_attempts` is hidden; `group_fallback` only still runs
+   for calls in flight during the upgrade).
+2. **Personal queues**: the receptionist's **Add to queue**, and a direct
+   line whose person is already ringing or on a call. Only that person is
+   offered the caller.
+3. **After hours**: IVR option **Callback When We Open** (pick the call
+   group): a callback request with `not_before` = the number's next opening
+   (`_signalwire_next_opening`, business hours, time off and "closed early"
+   included). A cron alerts free group members once it's time, in the order
+   people called.
+
+**Waiting** (`/signalwire/voice/queue_wait/<call>`): "You are next in line" /
+"caller number N" every other turn, the hold message and music of the group
+(or the number, for a personal queue), and "press 1 to be called back, 2 to
+leave a message, or stay on the line" (no 1 without caller ID; no 2 without a
+mailbox). Each turn first checks whether someone is free.
+
+**Offering**: an agent can take a call if they have a softphone (or Mobile
+with a mobile number), aren't Away and aren't ringing or on a call. Offering
+marks them ringing at once, and both the caller's and the agent's rows are
+taken `FOR UPDATE SKIP LOCKED`, so nobody gets two offers and no caller is
+handed out twice. Only the caller at the front is ever offered: a newcomer
+who finds an agent free hands them to the front caller. The `<Dial>` rings
+that one agent for 20 seconds (25 for Mobile, for the "press 1" screen); its
+action, `queue_result`, either ends the call or puts the caller back in the
+same place and tries the next free agent. An agent who missed stays
+Available but is tried last, and not again for 60 seconds.
+
+**Becoming free** (hanging up, coming back from Away) offers that agent the
+longest-waiting caller in their personal queue, then in their groups' queues
+(`_queue_dispatch_for`, which redirects the waiting caller to
+`queue_connect`); callback alerts come after that. A one-minute cron
+(`_cron_queue_tick`) is the safety net and enforces a group's **Longest
+Wait** (then its "If nobody answers" choice).
+
+**No more `<Reject/>`** except for numbers that aren't ours: every other dead
+end says "Sorry, we couldn't connect your call" and, with caller ID, leaves a
+"missed call" callback request for the panel (`_dead_end_cxml`).
 
 ## Hold music and messaging
 

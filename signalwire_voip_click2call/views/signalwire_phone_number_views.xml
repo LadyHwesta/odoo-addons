@@ -101,10 +101,16 @@
                         <h1><field name="name" /></h1>
                     </div>
                     <group>
-                        <group string="Who rings">
+                        <group string="Who takes the calls">
                             <field name="company_id" groups="base.group_multi_company" />
                             <field name="member_ids" widget="many2many_tags" />
-                            <field name="max_ring_attempts" />
+                            <field name="max_ring_attempts" invisible="1" />
+                            <field name="queue_max_wait_minutes" />
+                            <div colspan="2" class="text-muted">
+                                Callers are offered to whoever has been free the longest, one at a
+                                time. If nobody is free they wait in this group's queue, where they
+                                can also ask for a callback or leave a message.
+                            </div>
                         </group>
                         <group string="If nobody answers">
                             <field name="voicemail_mode" widget="radio" nolabel="1" colspan="2" />
@@ -122,8 +128,8 @@
                                    filename="voicemail_greeting_filename" />
                         </group>
                     </div>
-                    <div invisible="not max_ring_attempts">
-                        <separator string="While callers wait between rings" />
+                    <div>
+                        <separator string="While callers wait in the queue" />
                         <field name="hold_message_text" nolabel="1" rows="3"
                                placeholder="What callers hear while they wait." />
                         <group name="hold_voice">

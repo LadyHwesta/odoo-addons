@@ -120,6 +120,32 @@
     .o_sw_status_mobile { box-shadow: 0 0 0 3px $info; }
     .o_sw_status_offline { opacity: 0.55; }
 
+    // ---- queues ----
+    .o_sw_queue {
+        padding: 0.55rem 0.9rem;
+        & + .o_sw_queue {
+            border-top: 1px solid var(--border-color, $border-color);
+        }
+    }
+    .o_sw_queue_pos {
+        flex: none;
+        width: 1.25rem;
+        color: $text-muted;
+        text-align: right;
+    }
+    .o_sw_queue_callers {
+        margin-top: 0.35rem;
+        padding-left: 0.4rem;
+        font-variant-numeric: tabular-nums;
+        li {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+    }
+    .o_sw_call_queued { border-left-color: $primary; }
+    .o_sw_chip_queued { background-color: rgba($primary, 0.15); }
+
     // ---- callbacks ----
     .o_sw_callback_scheduled { opacity: 0.75; }
 

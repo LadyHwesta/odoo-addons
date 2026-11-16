@@ -47,10 +47,15 @@ class TestFallbackController(HttpCase):
         response = self.url_open(self._fallback_url(), data={'DialCallStatus': 'no-answer'})
         self.assertIn('<Record', response.text)
 
-    def test_nothing_configured_at_all_rejects(self):
+    def test_nothing_configured_at_all_is_never_refused(self):
         self.user.signalwire_voicemail_enabled = False
-        response = self.url_open(self._fallback_url(), data={'DialCallStatus': 'no-answer'})
-        self.assertIn('<Reject', response.text)
+        response = self.url_open(self._fallback_url(), data={
+            'DialCallStatus': 'no-answer', 'From': '+15551234567', 'CallSid': 'CA-x'})
+        self.assertNotIn('<Reject', response.text)
+        self.assertIn("couldn't connect your call", response.text)
+        missed = self.env['signalwire.callback_request'].search([('phone_number', '=', '+15551234567')])
+        self.assertEqual(missed.source, 'phone')
+        self.assertFalse(missed.target_user_id)
 
     def test_forward_configured_dials_the_saved_number(self):
         number = self.env['signalwire.forwarding.number'].create({

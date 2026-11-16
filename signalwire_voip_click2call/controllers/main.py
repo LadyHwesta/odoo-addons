@@ -6,12 +6,13 @@ from xml.sax import saxutils
 import requests
 import werkzeug.urls
 
-from odoo import http
+from odoo import fields, http
 from odoo.http import request
 
 from odoo.addons.signalwire_voip.webhook_security import signalwire_signed
 
-from ..models.signalwire_live_call import FINISHED_STATUSES
+from ..models.signalwire_live_call import (
+    FINISHED_STATUSES, OFFER_TIMEOUT, OFFER_TIMEOUT_MOBILE)
 
 _logger = logging.getLogger(__name__)
 
@@ -320,8 +321,117 @@ class SignalWireVoiceController(http.Controller):
         if route_type == 'group' and target and target.member_ids.filtered(
                 lambda m: m.signalwire_presence == 'away'):
             return self._group_unanswered_cxml(target, number)
+        return self._dead_end_cxml(number)
+
+    def _caller_has_number(self):
+        return len(re.sub(r'\D', '', request.httprequest.form.get('From', ''))) >= 7
+
+    def _dead_end_cxml(self, number=None):
+        """Nothing is set up to take this call. Never a busy/rejected tone
+        for a real caller: say so, and (with caller ID) leave a "missed
+        call" callback request for the receptionist panel."""
         self._mark_live_call_ended()
-        return self._cxml('<Reject/>')
+        number = number.exists() if number else number
+        if not number:
+            return self._cxml('<Reject/>')  # not one of our numbers
+        body = self._say("Sorry, we couldn't connect your call.")
+        if self._caller_has_number():
+            caller = request.httprequest.form.get('From', '')
+            request.env['signalwire.callback_request'].sudo().create({
+                'source': 'phone', 'phone_number': caller,
+                'partner_id': request.env['res.users'].sudo()._signalwire_match_partner(
+                    caller).id or False,
+                'note': 'Missed call: nobody was set up to take it.',
+                'company_id': number.company_id.id or request.env.company.id,
+            })
+            body += self._say("We will call you back at the number you are calling from. Goodbye.")
+        else:
+            body += self._say('Please try again later. Goodbye.')
+        return self._cxml(body + '<Hangup/>')
+
+    # ---- queues ------------------------------------------------------
+
+    QUEUE_OPTIONS = 'To be called back instead, press 1. To leave a message, press 2. Or stay on the line.'
+    QUEUE_OPTIONS_NO_CALLBACK = 'To leave a message, press 2. Or stay on the line.'
+    QUEUE_OPTIONS_CALLBACK_ONLY = 'To be called back instead, press 1. Or stay on the line.'
+
+    def _live_call_for_request(self, number):
+        """The live call for the call this webhook is about (made if the
+        inbound webhook somehow didn't)."""
+        form = request.httprequest.form
+        LiveCall = request.env['signalwire.live_call'].sudo()
+        call = LiveCall.search([('call_sid', '=', form.get('CallSid', ''))], limit=1)
+        if not call:
+            call = LiveCall.create({
+                'call_sid': form.get('CallSid') or f'unknown-{fields.Datetime.now()}',
+                'phone_number_id': number.id, 'from_number': form.get('From', '')})
+        return call
+
+    def _queue_mailbox(self, call):
+        """(kind, owner) of the voicemail press 2 leads to, or (None, None)."""
+        if call.queue_user_id:
+            user = call.queue_user_id
+            return ('user', user) if user.signalwire_voicemail_enabled else (None, None)
+        group = call.queue_group_id
+        if group.voicemail_mode == 'user' and group.voicemail_user_id:
+            return 'user', group.voicemail_user_id
+        if group.voicemail_mode == 'group':
+            return 'group', group
+        return None, None
+
+    def _queue_offer_dial_cxml(self, call, agent):
+        number = call.phone_number_id
+        sip_domain = number.subproject_id.server_id._get_sip_domain()
+        targets = self._sip_targets(agent, sip_domain)
+        if not targets:
+            call._queue_offer_missed()
+            return self._queue_wait_cxml(call)
+        timeout = OFFER_TIMEOUT_MOBILE if agent.signalwire_presence == 'mobile' else OFFER_TIMEOUT
+        return (f'<Dial timeout="{timeout}" action="/signalwire/voice/queue_result/{call.id}">'
+                f'{targets}</Dial>')
+
+    def _queue_wait_cxml(self, call, turn=0):
+        """One turn of waiting: where they are in line (every other turn),
+        the hold message, the options, the music; then round again."""
+        record = call.queue_group_id if call.queue_group_id and not call.queue_user_id \
+            else call.phone_number_id
+        res_model = record._name
+        voice = (getattr(record, 'hold_piper_voice', False),
+                 getattr(record, 'hold_piper_speaker_id', False))
+        position = call._queue_position()
+        intro = ''
+        if turn % 2 == 0:
+            intro = self._say_or_play(
+                'You are next in line.' if position == 1
+                else f'You are caller number {position} in line.', *voice)
+        callback = self._caller_has_number()
+        mailbox = self._queue_mailbox(call)[0]
+        options_text = (self.QUEUE_OPTIONS if callback and mailbox
+                        else self.QUEUE_OPTIONS_CALLBACK_ONLY if callback
+                        else self.QUEUE_OPTIONS_NO_CALLBACK if mailbox else '')
+        options = self._say_or_play(options_text, *voice) if options_text else ''
+        hold = self._hold_cxml(record, self.DEFAULT_HOLD_MESSAGE, res_model, offer=options)
+        again = f'/signalwire/voice/queue_wait/{call.id}?turn={turn + 1}'
+        return (f'<Gather numDigits="1" timeout="1" action="/signalwire/voice/queue_choice/{call.id}">'
+                f'{intro}{hold}</Gather><Redirect>{saxutils.escape(again)}</Redirect>')
+
+    def _queue_join_cxml(self, number, group=None, user=None):
+        """Situations 1 and 2: the caller joins a call group's queue or one
+        person's own, and is offered at once to whoever is free the
+        longest; if nobody is, they wait."""
+        call = self._live_call_for_request(number)
+        call._queue_join(group=group, user=user)
+        agent = call._queue_try_offer()
+        if agent:
+            return self._cxml(self._queue_offer_dial_cxml(call, agent))
+        # Someone was ahead of them: if an agent is free, the caller at the
+        # front gets them; this one waits their turn.
+        call._queue_dispatch_head()
+        return self._cxml(self._queue_wait_cxml(call))
+
+    def _person_is_busy(self, user):
+        return bool(user) and user.signalwire_presence != 'away' and \
+            user._signalwire_effective_call_state() in ('ringing', 'on_call')
 
     def _ivr_menu_cxml(self, menu, number):
         """The <Gather> prompt for `menu` - a re-prompt if the caller
@@ -389,8 +499,7 @@ class SignalWireVoiceController(http.Controller):
 
         if route_type == 'ivr':
             if not target:
-                self._mark_live_call_ended()
-                return self._cxml('<Reject/>')
+                return self._dead_end_cxml(number)
             return self._cxml(self._ivr_menu_cxml(target, number))
 
         if route_type in ('user_voicemail', 'group_voicemail'):
@@ -401,12 +510,24 @@ class SignalWireVoiceController(http.Controller):
             # that itself once the recording actually finishes, same as
             # every other voicemail entry point in this controller.
             if not target:
-                self._mark_live_call_ended()
-                return self._cxml('<Reject/>')
+                return self._dead_end_cxml(number)
             if route_type == 'user_voicemail':
                 return self._cxml(self._user_voicemail_cxml(target, number))
             return self._cxml(self._group_voicemail_cxml(target, number))
 
+        return self._ring_route_cxml(route_type, target, number)
+
+    def _ring_route_cxml(self, route_type, target, number):
+        """A number's or an IVR option's user/group route. A group: its
+        queue (offered to whoever is free the longest). One person: rung
+        as before, but if they're already on a call the caller waits in
+        their personal queue instead of getting a busy line."""
+        if route_type == 'group':
+            if not target:
+                return self._dead_end_cxml(number)
+            return self._queue_join_cxml(number, group=target)
+        if self._person_is_busy(target):
+            return self._queue_join_cxml(number, user=target)
         sip_domain = number.subproject_id.server_id._get_sip_domain()
         dial = self._route_dial_cxml(route_type, target, number, sip_domain)
         if not dial:
@@ -442,24 +563,11 @@ class SignalWireVoiceController(http.Controller):
         group = request.env['signalwire.call.group'].sudo().browse(group_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not group.exists() or not number.exists():
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
 
-        attempt = int(attempt or 0)
-        if attempt < group.max_ring_attempts:
-            sip_domain = number.subproject_id.server_id._get_sip_domain()
-            dial = self._route_dial_cxml(
-                'group', group, number, sip_domain, attempt=attempt + 1)
-            if dial:
-                hold = self._hold_with_callback_offer(
-                    group, self.DEFAULT_GROUP_HOLD_MESSAGE, 'signalwire.call.group',
-                    'group', group, number, attempt=attempt + 1)
-                return self._cxml(hold + dial)
-            # No usable SIP target at all (e.g. every member lost
-            # their softphone since the first ring) - nothing to
-            # retry, fall through to voicemail_mode below.
-
-        return self._group_unanswered_cxml(group, number)
+        # Since 19.0.4.17.0 group calls go through the queue; this route
+        # only still runs for calls that were ringing during the upgrade.
+        return self._queue_join_cxml(number, group=group)
 
     def _group_unanswered_cxml(self, group, number):
         """Nobody in the group took the call (or everyone's Away): the
@@ -469,8 +577,7 @@ class SignalWireVoiceController(http.Controller):
         if group.voicemail_mode == 'group':
             return self._cxml(self._group_voicemail_cxml(group, number))
 
-        self._mark_live_call_ended()
-        return self._cxml('<Say>Sorry, no one is available to take your call.</Say>')
+        return self._dead_end_cxml(number)
 
     @http.route(
         '/signalwire/voice/ivr/<int:menu_id>/<int:phone_number_id>',
@@ -484,7 +591,7 @@ class SignalWireVoiceController(http.Controller):
         menu = request.env['signalwire.ivr.menu'].sudo().browse(menu_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not menu.exists() or not number.exists():
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
         return self._cxml(self._ivr_menu_cxml(menu, number))
 
     @http.route(
@@ -501,7 +608,7 @@ class SignalWireVoiceController(http.Controller):
         menu = request.env['signalwire.ivr.menu'].sudo().browse(menu_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not menu.exists() or not number.exists():
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
 
         option = menu.option_ids.filtered(lambda o: o.digit == digit)[:1]
         if not option:
@@ -519,27 +626,45 @@ class SignalWireVoiceController(http.Controller):
             return self._cxml('<Hangup/>')
         if option.action_type == 'submenu':
             if not option.target_submenu_id:
-                self._mark_live_call_ended()
-                return self._cxml('<Reject/>')
+                return self._dead_end_cxml(number)
             return self._cxml(self._ivr_menu_cxml(option.target_submenu_id, number))
         if option.action_type == 'voicemail':
             if not option.target_user_id:
-                return self._cxml('<Reject/>')
+                return self._dead_end_cxml(number)
             return self._cxml(self._user_voicemail_cxml(option.target_user_id, number))
         if option.action_type == 'group':
-            sip_domain = number.subproject_id.server_id._get_sip_domain()
-            dial = self._route_dial_cxml(
-                'group', option.target_call_group_id, number, sip_domain)
-            if not dial:
-                return self._nobody_to_ring_cxml('group', option.target_call_group_id, number)
-            return self._cxml(dial)
+            return self._ring_route_cxml('group', option.target_call_group_id, number)
+        if option.action_type == 'callback_open':
+            return self._callback_when_open_cxml(option, menu, number)
 
         # action_type == 'user'
-        sip_domain = number.subproject_id.server_id._get_sip_domain()
-        dial = self._route_dial_cxml('user', option.target_user_id, number, sip_domain)
-        if not dial:
-            return self._nobody_to_ring_cxml('user', option.target_user_id, number)
-        return self._cxml(dial)
+        return self._ring_route_cxml('user', option.target_user_id, number)
+
+    def _callback_when_open_cxml(self, option, menu, number):
+        """Situation 3: after hours, "call me back when you open". Records a
+        callback request for the option's call group that nobody is alerted
+        to until the phones next open; then whoever is free is, in the
+        order people called."""
+        voice = (getattr(menu, 'piper_voice', False), getattr(menu, 'piper_speaker_id', False))
+        if not self._caller_has_number():
+            sorry = self._say_or_play(
+                "Sorry, we can't call you back without your number.", *voice)
+            return self._cxml(sorry + self._ivr_menu_cxml(menu, number))
+        caller = request.httprequest.form.get('From', '')
+        request.env['signalwire.callback_request'].sudo().create({
+            'source': 'phone', 'phone_number': caller,
+            'partner_id': request.env['res.users'].sudo()._signalwire_match_partner(
+                caller).id or False,
+            'target_group_id': option.target_call_group_id.id or False,
+            'not_before': number._signalwire_next_opening(),
+            'note': 'Asked after hours to be called back when we open.',
+            'company_id': number.company_id.id or request.env.company.id,
+        })
+        self._mark_live_call_ended()
+        thanks = self._say_or_play(
+            'Thank you. We will call you back at the number you are calling from '
+            'when we open. Goodbye.', *voice)
+        return self._cxml(thanks + '<Hangup/>')
 
     @http.route(
         '/signalwire/voice/fallback/<int:user_id>/<int:phone_number_id>',
@@ -563,8 +688,7 @@ class SignalWireVoiceController(http.Controller):
         user = request.env['res.users'].sudo().browse(user_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not user.exists() or not number.exists():
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
         return self._user_fallback_cxml(user, number, after=step)
 
     def _user_fallback_cxml(self, user, number, after=None):
@@ -591,8 +715,7 @@ class SignalWireVoiceController(http.Controller):
         if next_step == 'voicemail':
             return self._cxml(self._user_voicemail_cxml(user, number))
 
-        self._mark_live_call_ended()
-        return self._cxml('<Reject/>')
+        return self._dead_end_cxml(number)
 
     def _create_voicemail(self, number, from_number, duration, recording_url, transcribe, extra_vals):
         """Shared by a personal and a group voicemail box - fetches
@@ -751,6 +874,107 @@ class SignalWireVoiceController(http.Controller):
 
         return request.make_response('', headers=[('Content-Type', 'text/plain')])
 
+    def _queued_call(self, call_id):
+        return request.env['signalwire.live_call'].sudo().browse(call_id).exists()
+
+    @http.route(
+        '/signalwire/voice/queue_wait/<int:call_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def queue_wait(self, call_id, turn=None, **kwargs):
+        """A waiting caller's hold loop. Each turn first checks whether
+        someone has become free (in case nobody pushed the caller to them)."""
+        call = self._queued_call(call_id)
+        if not call or call.state == 'ended':
+            return self._cxml('<Hangup/>')
+        if call.state != 'queued':
+            call._queue_join(group=call.queue_group_id, user=call.queue_user_id)
+        agent = call._queue_try_offer()
+        if agent:
+            return self._cxml(self._queue_offer_dial_cxml(call, agent))
+        return self._cxml(self._queue_wait_cxml(call, int(turn or 0)))
+
+    @http.route(
+        '/signalwire/voice/queue_choice/<int:call_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def queue_choice(self, call_id, **kwargs):
+        """A key pressed while waiting: 1 a callback, 2 a message,
+        anything else back to waiting (keeping their place)."""
+        call = self._queued_call(call_id)
+        if not call or call.state == 'ended':
+            return self._cxml('<Hangup/>')
+        digit = request.httprequest.form.get('Digits', '')
+        if digit == '1' and self._caller_has_number():
+            caller = request.httprequest.form.get('From', '')
+            request.env['signalwire.callback_request'].sudo().create({
+                'source': 'phone', 'phone_number': caller,
+                'partner_id': request.env['res.users'].sudo()._signalwire_match_partner(
+                    caller).id or False,
+                'target_user_id': call.queue_user_id.id or False,
+                'target_group_id': (call.queue_group_id.id
+                                    if not call.queue_user_id else False),
+                'live_call_id': call.id,
+                'company_id': call.company_id.id or request.env.company.id,
+            })
+            call.state = 'ended'
+            return self._cxml(f'{self._say(self.CALLBACK_CONFIRM)}<Hangup/>')
+        if digit == '2':
+            kind, owner = self._queue_mailbox(call)
+            if kind:
+                # Out of the queue; the voicemail webhook finishes the record.
+                call.write({'state': 'ended', 'offer_user_id': False})
+                if kind == 'user':
+                    return self._cxml(self._user_voicemail_cxml(owner, call.phone_number_id))
+                return self._cxml(self._group_voicemail_cxml(owner, call.phone_number_id))
+        return self._cxml(f'<Redirect>/signalwire/voice/queue_wait/{call.id}?turn=1</Redirect>')
+
+    @http.route(
+        '/signalwire/voice/queue_connect/<int:call_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def queue_connect(self, call_id, **kwargs):
+        """Where a waiting caller is redirected once an agent became free
+        and was given them (signalwire.live_call._queue_push_to)."""
+        call = self._queued_call(call_id)
+        if not call or call.state == 'ended':
+            return self._cxml('<Hangup/>')
+        if call.state == 'ringing' and call.offer_user_id:
+            return self._cxml(self._queue_offer_dial_cxml(call, call.offer_user_id))
+        return self._cxml(self._queue_wait_cxml(call))
+
+    @http.route(
+        '/signalwire/voice/queue_result/<int:call_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def queue_result(self, call_id, **kwargs):
+        """The agent the caller was offered to answered (and the call is
+        now over), or didn't: then the caller goes back in line in the same
+        place and the next free agent is tried."""
+        call = self._queued_call(call_id)
+        if not call or call.state == 'ended':
+            return self._cxml('<Hangup/>')
+        if request.httprequest.form.get('DialCallStatus') == 'completed':
+            call.state = 'ended'
+            return self._cxml('')
+        call._queue_offer_missed()
+        agent = call._queue_try_offer()
+        if agent:
+            return self._cxml(self._queue_offer_dial_cxml(call, agent))
+        return self._cxml(self._queue_wait_cxml(call, 1))
+
+    @http.route(
+        '/signalwire/voice/queue_timeout/<int:call_id>', type='http', auth='public',
+        methods=['POST'], csrf=False)
+    @signalwire_signed
+    def queue_timeout(self, call_id, **kwargs):
+        """The caller waited past the group's Longest Wait."""
+        call = self._queued_call(call_id)
+        if not call or call.state == 'ended':
+            return self._cxml('<Hangup/>')
+        call.write({'state': 'ended', 'offer_user_id': False})
+        return self._group_unanswered_cxml(call.queue_group_id, call.phone_number_id)
+
     @http.route(
         '/signalwire/voice/screen/<int:user_id>', type='http', auth='public',
         methods=['POST'], csrf=False)
@@ -824,15 +1048,13 @@ class SignalWireVoiceController(http.Controller):
         user = request.env['res.users'].sudo().browse(user_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not user.exists() or not number.exists():
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
         sip_domain = number.subproject_id.server_id._get_sip_domain()
         # The receptionist chose this person on purpose: ring them even if
         # they're Away (the panel shows it).
         dial = self._route_dial_cxml('user', user, number, sip_domain, ignore_presence=True)
         if not dial:
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
         return self._cxml(dial)
 
     @http.route(
@@ -846,8 +1068,7 @@ class SignalWireVoiceController(http.Controller):
         user = request.env['res.users'].sudo().browse(user_id)
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not user.exists() or not number.exists():
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
         return self._cxml(self._user_voicemail_cxml(user, number))
 
     @http.route(
@@ -867,8 +1088,7 @@ class SignalWireVoiceController(http.Controller):
         """
         number = request.env['signalwire.phone_number'].sudo().browse(phone_number_id)
         if not number.exists():
-            self._mark_live_call_ended()
-            return self._cxml('<Reject/>')
+            return self._dead_end_cxml(number)
         target = request.env['res.users'].sudo().browse(int(user or 0)).exists()
         hold = self._hold_with_callback_offer(
             number, self.DEFAULT_HOLD_MESSAGE, 'signalwire.phone_number',
@@ -914,10 +1134,7 @@ class SignalWireVoiceController(http.Controller):
             return self._cxml(f'{self._say(self.CALLBACK_CONFIRM)}<Hangup/>')
 
         if kind == 'group' and group:
-            sip_domain = number.subproject_id.server_id._get_sip_domain()
-            dial = self._route_dial_cxml(
-                'group', group, number, sip_domain, attempt=int(attempt or 0))
-            return self._cxml(dial) if dial else self._group_unanswered_cxml(group, number)
+            return self._queue_join_cxml(number, group=group)
         again = f'/signalwire/voice/hold_loop/{number.id}'
         if user:
             again += f'?user={user.id}'

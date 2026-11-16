@@ -61,6 +61,7 @@ class TestReceptionistPanelData(TransactionCase):
         self.assertTrue(agenda[event.id]['highlight'])
         sam = next(m for m in data['team'] if m['id'] == self.sam.id)
         self.assertEqual(sam['next']['name'], 'Consultation')
+        self.assertFalse(sam['now'])  # nothing on now: False, not an empty list
 
     def test_status_combines_presence_and_calls(self):
         self.sam.write({'signalwire_presence': 'away'})
