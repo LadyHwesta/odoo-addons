@@ -18,6 +18,7 @@ class SecurityEvent(models.Model):
     event_type = fields.Selection(
         [("login_cooldown", "Login Cooldown Triggered"),
          ("ip_blocked", "IP Blocked"),
+         ("probe_blocked", "Probe Blocked"),
          ("anomaly", "Anomaly")],
         required=True, tracking=True)
     severity = fields.Selection(

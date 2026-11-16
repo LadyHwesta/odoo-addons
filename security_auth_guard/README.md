@@ -69,6 +69,49 @@ to. A Security app menu (gated to the new `group_security_officer` group,
 granted to admins by default) shows a dashboard, filterable by severity/
 type, with a one-click "Block This IP" escalation from any event.
 
+## Probe blocking
+
+Scanners ask every site for the same handful of addresses: secrets and
+version control left in a web root (`/.env`, `/.git/config`), other
+platforms' admin pages and scripts (`/wp-login.php`, `/xmlrpc.php`,
+`/phpmyadmin`, anything ending `.php`), and `../` tricks to reach outside
+it. Odoo never serves any of these, and search engines never ask for them.
+
+`ir.http._serve_fallback` (every address no controller matched) counts a
+request as a probe only **after** Odoo has found nothing for it, so a real
+page, redirect or file can never match. `/wp-content/` and
+`/wp-includes/` are left out on purpose: a site moved from WordPress still
+has old links to images there.
+
+- 3 probes from one address (its /64 for IPv6) within 10 minutes: blocked
+  for 24 hours, with one `probe_blocked` event.
+- The 3rd probe block within 30 days is permanent.
+- All three numbers are in Settings > Security > Probe Blocking; -1 turns
+  blocking (or the permanent step) off.
+- Probes are kept a day under Security > Probe Requests, then cleaned up.
+- Protected addresses (Cloudflare, private, loopback) are never blocked: a
+  critical `anomaly` event says the proxy may have stopped passing on
+  real addresses, as for login escalation.
+- Blocked addresses are now refused on unmatched addresses (website pages,
+  404s) as well as on controllers.
+
+## Request error summary
+
+Core logs a failed request as "Exception during request handling." with
+the traceback underneath. Monitoring that reads the log line by line only
+sees that first line. `request_error_summary.py` adds a filter to the
+`odoo.http` logger that appends one summary to that same line:
+
+```text
+Exception during request handling. TypeError: ...missing 1 required positional argument: 'state' | at odoo/service/model.py:97 call_kw | POST /web/dataset/call_kw/res.users/set_signalwire_call_state | user tiesa | 203.0.113.5
+```
+
+The error, where it was raised (plus the deepest frame in an add-on, when
+that's somewhere else), the method and path, the signed-in login or
+"anonymous", and the address. Nothing from the query string or body, which
+can hold tokens. The traceback is still logged in full. The filter is
+process-wide, so every database on the same Odoo process gets it.
+
 ## Optional SMS alerting
 
 If `signalwire_sms`/`signalwire_voip` happens to also be installed, a

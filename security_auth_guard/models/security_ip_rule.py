@@ -198,12 +198,14 @@ class SecurityIpRule(models.Model):
             address in network for network in self._protected_networks())
 
     @api.model
-    def _block_ip(self, ip, reason):
-        """Create a permanent block for `ip` (its /64 for IPv6), or
-        extend an existing active one's reason rather than creating a
-        duplicate. Returns an empty recordset, blocking nothing, if `ip`
-        is protected. Rules created by hand aren't checked, so an admin
-        can still make that call deliberately.
+    def _block_ip(self, ip, reason, expires_at=None):
+        """Block `ip` (its /64 for IPv6): permanently, or until
+        `expires_at`. An existing active block is updated rather than
+        duplicated: it never gets shorter, an expired one starts again,
+        and a permanent request makes it permanent. Returns an empty
+        recordset, blocking nothing, if `ip` is protected. Rules created
+        by hand aren't checked, so an admin can still make that call
+        deliberately.
         """
         if self._is_protected(ip):
             _logger.warning(
@@ -214,8 +216,15 @@ class SecurityIpRule(models.Model):
             ("ip_or_cidr", "=", target), ("action", "=", "block"),
             ("active", "=", True)], limit=1)
         if existing:
-            existing.reason = reason
+            values = {"reason": reason}
+            if expires_at is None:
+                values["expires_at"] = False
+            elif existing.expires_at:
+                values["expires_at"] = max(existing.expires_at, expires_at)
+            existing.write(values)
             return existing
-        _logger.warning("Auto-blocking %s: %s", target, reason)
+        _logger.warning("Auto-blocking %s%s: %s", target,
+                        f" until {expires_at}" if expires_at else "", reason)
         return self.sudo().create({
-            "ip_or_cidr": target, "action": "block", "reason": reason})
+            "ip_or_cidr": target, "action": "block", "reason": reason,
+            "expires_at": expires_at or False})

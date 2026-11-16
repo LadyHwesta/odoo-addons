@@ -242,10 +242,15 @@ LISTINGS = {
                    'name, kept and reportable.'),
                   ('Permanent blocks', 'An address that triggers Odoo\'s slowdown too often in a day '
                    'is blocked, before any page runs.'),
+                  ('Scanners blocked', 'An address that asks for files only attackers look for, '
+                   'such as /.env or /wp-login.php, is blocked for a day; repeat scanners for good. '
+                   'Search engines never ask for these, so indexing is unaffected.'),
                   ('Allow and block lists', 'Add your own allowed or blocked addresses.'),
-                  ('One security log', 'Events in a Security app, by severity, to review.')],
+                  ('One security log', 'Events in a Security app, by severity, to review.'),
+                  ('Errors that explain themselves', 'Each request error in the log gets one line '
+                   'naming the error, the page and whether a signed-in user or a bot caused it.')],
         setup=['Install it, then open the Security app.',
-               'Set how many slowdowns in a day lead to a permanent block in its settings.']),
+               'Adjust login and scanner blocking in its settings, or keep the defaults.']),
     'security_auth_guard_dashboard': dict(
         name='Security Dashboard', glyph='gauge',
         tagline='A threat level, failed logins and blocks in the Dashboards app',

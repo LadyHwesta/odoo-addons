@@ -25,6 +25,17 @@
                             <field name="alert_phone_number" />
                         </setting>
                     </block>
+                    <block title="Probe Blocking" name="security_auth_guard_probe_settings">
+                        <setting id="probe_block_threshold_setting" help="Requests for addresses only attackers ask for (/.env, /wp-login.php, ../) from one address within 10 minutes before it's blocked. Only addresses that found nothing count, so real pages never do. Use -1 to turn this off.">
+                            <field name="probe_block_threshold" />
+                        </setting>
+                        <setting id="probe_block_hours_setting" help="How long a probe block lasts, in hours.">
+                            <field name="probe_block_hours" />
+                        </setting>
+                        <setting id="probe_permanent_after_setting" help="An address blocked this many times for probing within 30 days is blocked permanently. Use -1 to keep every probe block temporary.">
+                            <field name="probe_permanent_after" />
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>
