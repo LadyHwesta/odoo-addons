@@ -1,0 +1,46 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#4a2f7a;">Missing Argument Guard</h2>
+        <h3 class="oe_slogan" style="color:#666;">Requests missing a page's required values get a plain 404, not a server error</h3>
+        <div class="oe_span12">
+            <p class="oe_mt32" style="text-align:center;">
+                <img src="banner.png" class="img img-responsive" style="max-width:100%;border-radius:8px;" alt="Missing Argument Guard"/>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">What it does</h3>
+            <p>Odoo hands the values in a request straight to the page's code. When a page needs a value the request doesn't carry, such as /scoped_app without app_id, nothing checks first: the code crashes, the visitor gets a server error and your log a traceback. Real visitors never send these requests; scanners send them all day.</p><p>This module checks every request before the page runs. If a required value is missing, the answer is a plain 404, which isn't logged as an error.</p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced"><div class="oe_span6"><h3 class="oe_slogan">Every page at once</h3><p>Covers every page and JSON-RPC call, including ones added by other modules later.</p></div><div class="oe_span6"><h3 class="oe_slogan">Quiet logs</h3><p>Scanner traffic stops filling your log with tracebacks and setting off error alerts.</p></div></div><div class="oe_row oe_spaced"><div class="oe_span6"><h3 class="oe_slogan">Nothing else changes</h3><p>Requests that carry what the page needs work exactly as before.</p></div><div class="oe_span6"><h3 class="oe_slogan">Installs itself</h3><p>It installs automatically with Odoo's web client.</p></div></div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Setting it up</h3>
+            <ol><li>Install it; there is nothing to set up.</li></ol>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h3 class="oe_slogan">Support</h3>
+            <p class="oe_mt32" style="text-align:center;">
+                This module is free. Help installing, setting up or using it is available from
+                Meskis Works with a support contract:
+                <a href="mailto:sales@meskis.net">sales@meskis.net</a>.
+            </p>
+        </div>
+    </div>
+</section>

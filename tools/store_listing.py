@@ -41,6 +41,7 @@ GLYPHS = {
     'user_check': '<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><path d="M16 11l2 2 4-4"/>',
     'send': '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
     'shield': '<path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/>',
+    'query': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/>',
     'gauge': '<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
 }
 
@@ -139,6 +140,23 @@ LISTINGS = {
                   ('Saves first', 'Saves the open record before reloading; if it can\'t, or a dialog '
                    'is open, it asks instead.'),
                   ('Fresh screens', 'Clears the browser caches so the new screens load.')],
+        setup=['Install it; there is nothing to set up.']),
+    'http_route_args_guard': dict(
+        name='Missing Argument Guard', glyph='query',
+        tagline="Requests missing a page's required values get a plain 404, not a server error",
+        intro=['Odoo hands the values in a request straight to the page\'s code. When a page needs a '
+               'value the request doesn\'t carry, such as /scoped_app without app_id, nothing checks '
+               'first: the code crashes, the visitor gets a server error and your log a traceback. '
+               'Real visitors never send these requests; scanners send them all day.',
+               'This module checks every request before the page runs. If a required value is '
+               'missing, the answer is a plain 404, which isn\'t logged as an error.'],
+        features=[('Every page at once', 'Covers every page and JSON-RPC call, including ones added '
+                   'by other modules later.'),
+                  ('Quiet logs', 'Scanner traffic stops filling your log with tracebacks and '
+                   'setting off error alerts.'),
+                  ('Nothing else changes', 'Requests that carry what the page needs work exactly as '
+                   'before.'),
+                  ('Installs itself', 'It installs automatically with Odoo\'s web client.')],
         setup=['Install it; there is nothing to set up.']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
