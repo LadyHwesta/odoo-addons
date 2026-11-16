@@ -91,6 +91,26 @@ class CalDAVAccount(models.Model):
             return None
         return value if value > 0 else None
 
+    def action_open_settings(self):
+        """Edit or Add from the Preferences list: this account's own form in
+        a pop-up. Runs with the person's own rights, so only their own
+        accounts (record rule)."""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': self.name or 'CalDAV Calendar',
+            'res_model': 'caldav.account',
+            'view_mode': 'form',
+            'res_id': self.id or False,
+            'target': 'new',
+            'context': {'default_user_id': self.env.uid},
+        }
+
+    def action_remove(self):
+        """Remove from the Preferences list. Events already synced stay in
+        Odoo; they just stop syncing."""
+        self.unlink()
+        return True
+
     def action_caldav_test_connection(self):
         self.ensure_one()
         try:

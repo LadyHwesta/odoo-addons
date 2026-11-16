@@ -29,11 +29,18 @@
                             <field name="read_only" optional="show"/>
                             <field name="url"/>
                             <field name="last_sync"/>
+                            <button name="action_open_settings" type="object" string="Edit"
+                                    icon="fa-pencil" class="btn-link"/>
+                            <button name="action_remove" type="object" string="Remove"
+                                    icon="fa-trash" class="btn-link text-danger"
+                                    confirm="Remove this calendar account? Events already synced stay in Odoo; they just stop syncing."/>
                         </list>
                     </field>
                     <div class="o_row" name="caldav_accounts_button" colspan="2">
+                        <button type="object" name="action_caldav_add_account"
+                                string="Add a calendar" class="btn-secondary" icon="fa-plus"/>
                         <button type="action" name="%(caldav_calendar.action_caldav_account)d"
-                                string="Manage CalDAV Calendars" class="btn-secondary"
+                                string="All my CalDAV calendars" class="btn-link"
                                 context="{'default_user_id': id}"/>
                     </div>
                 </group>
