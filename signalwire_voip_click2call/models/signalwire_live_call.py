@@ -2,7 +2,7 @@
 import logging
 from datetime import timedelta
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -17,6 +17,10 @@ MISSED_COOLDOWN = timedelta(seconds=60)
 # How long a queued caller rings one agent before trying the next.
 OFFER_TIMEOUT = 20
 OFFER_TIMEOUT_MOBILE = 25  # the mobile leg's "press 1" needs a few seconds more
+# A personal queue's wait before the person's own no-answer steps take over.
+PERSONAL_QUEUE_MAX_WAIT = 10
+# Nobody waits longer than this, whatever a group's Longest Wait says.
+QUEUE_HARD_LIMIT = 60
 
 
 class SignalWireLiveCall(models.Model):
@@ -57,6 +61,10 @@ class SignalWireLiveCall(models.Model):
     offered_at = fields.Datetime()
     last_missed_user_id = fields.Many2one('res.users', ondelete='set null')
     last_missed_at = fields.Datetime()
+    answered_user_id = fields.Many2one(
+        'res.users', ondelete='set null',
+        help="Who picked up (reported by the rung phone itself).")
+    answered_at = fields.Datetime()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -65,10 +73,35 @@ class SignalWireLiveCall(models.Model):
         return records
 
     def write(self, vals):
+        ending = self.filtered(lambda c: c.state != 'ended') if vals.get('state') == 'ended' else None
         result = super().write(vals)
         if 'state' in vals:
             self._notify_panel()
+        if ending:
+            ending._free_answering_agents()
         return result
+
+    def _mark_answered(self, user):
+        """A phone of `user` picked this call up. They're on a call now,
+        even if it wasn't their softphone (desk phone, mobile) that can't
+        tell us so itself."""
+        now = fields.Datetime.now()
+        self.write({'state': 'connected', 'assigned_user_id': user.id,
+                    'answered_user_id': user.id, 'answered_at': now})
+        user.sudo().write({'signalwire_call_state': 'on_call', 'signalwire_call_state_at': now})
+
+    def _free_answering_agents(self):
+        """The call is over: whoever answered it is free again, unless
+        their softphone has reported something newer since (then it's the
+        softphone's word that counts)."""
+        for call in self.filtered('answered_user_id'):
+            user = call.answered_user_id.sudo()
+            if user.signalwire_call_state == 'on_call' and \
+                    user.signalwire_call_state_at == call.answered_at:
+                user.write({'signalwire_call_state': 'idle',
+                            'signalwire_call_state_at': fields.Datetime.now()})
+                if user.signalwire_presence != 'away':
+                    user._signalwire_on_free()
 
     @api.model
     def _cron_close_finished_calls(self):
@@ -213,9 +246,7 @@ class SignalWireLiveCall(models.Model):
     def _agent_can_take(self, user):
         """Has something to ring, isn't Away, and isn't ringing or on a call
         (an offer marks them ringing, so nobody gets two offers at once)."""
-        reachable = user.voip_username or (
-            user.signalwire_presence == 'mobile' and user.signalwire_mobile_forward_id)
-        return bool(reachable) and user._signalwire_is_free()
+        return user._signalwire_ringable() and user._signalwire_is_free()
 
     def _queue_candidates(self):
         """Agents who could take this caller now, best first: the one free
@@ -235,13 +266,15 @@ class SignalWireLiveCall(models.Model):
     def _queue_join(self, group=None, user=None):
         """Put this caller in a queue (keeps their place if already there)."""
         self.ensure_one()
+        same_queue = (self.queue_group_id == (group or self.env['signalwire.call.group'])
+                      and self.queue_user_id == (user or self.env['res.users']))
         values = {
             'state': 'queued',
             'queue_group_id': group.id if group else False,
             'queue_user_id': user.id if user else False,
             'offer_user_id': False,
         }
-        if not self.queued_at or self.state != 'queued':
+        if not (self.queued_at and same_queue):
             values['queued_at'] = fields.Datetime.now()
         self.write(values)
 
@@ -280,6 +313,19 @@ class SignalWireLiveCall(models.Model):
             return agent
         return Users
 
+    def _queue_max_wait(self):
+        """Minutes this caller may wait: the group's Longest Wait, a fixed
+        limit for a personal queue, and never more than QUEUE_HARD_LIMIT."""
+        self.ensure_one()
+        limit = PERSONAL_QUEUE_MAX_WAIT if self.queue_user_id else \
+            self.queue_group_id.queue_max_wait_minutes
+        return min(limit, QUEUE_HARD_LIMIT) if limit else QUEUE_HARD_LIMIT
+
+    def _queue_waited_too_long(self):
+        self.ensure_one()
+        return bool(self.queued_at) and self.queued_at < fields.Datetime.now() - timedelta(
+            minutes=self._queue_max_wait())
+
     def _queue_dispatch_head(self):
         """If someone is free, give them the caller at the front of this
         caller's queue (who is waiting in the hold loop, so is redirected)."""
@@ -305,19 +351,38 @@ class SignalWireLiveCall(models.Model):
             agent.sudo().write({'signalwire_call_state': 'idle',
                                 'signalwire_call_state_at': now})
 
+    def _redirect_after_commit(self, url, release_agent=None):
+        """Redirects this call once the current transaction is committed:
+        SignalWire fetches `url` straight away, and that request must see
+        what this transaction decided (the offer), not what was there
+        before. If SignalWire can't redirect it (the caller hung up), the
+        call is ended and `release_agent` freed again."""
+        self.ensure_one()
+        call_id, agent_id, registry = self.id, release_agent.id if release_agent else False, self.env.registry
+
+        @self.env.cr.postcommit.add
+        def redirect():
+            with registry.cursor() as cr:
+                env = api.Environment(cr, SUPERUSER_ID, {})
+                call = env['signalwire.live_call'].browse(call_id).exists()
+                if not call:
+                    return
+                try:
+                    call._redirect(url)
+                except Exception as exc:  # noqa: BLE001 - the call is gone
+                    _logger.info("SignalWire: call %s couldn't be redirected to %s: %s",
+                                 call.call_sid, url, exc)
+                    call.state = 'ended'
+                    if agent_id:
+                        env['res.users'].browse(agent_id).write({
+                            'signalwire_call_state': 'idle',
+                            'signalwire_call_state_at': fields.Datetime.now()})
+
     def _queue_push_to(self, agent):
         """Redirects this caller (waiting in the hold loop) to ring `agent`,
-        who has just become free. Undoes the offer if SignalWire can't
-        redirect it (the caller hung up meanwhile)."""
+        who has just become free, once the offer is committed."""
         self.ensure_one()
-        try:
-            self._redirect(f'/signalwire/voice/queue_connect/{self.id}')
-        except Exception as exc:  # noqa: BLE001 - the call is gone; keep going
-            _logger.info("SignalWire: queued call %s couldn't be redirected: %s", self.call_sid, exc)
-            self.write({'state': 'ended'})
-            agent.sudo().write({'signalwire_call_state': 'idle',
-                                'signalwire_call_state_at': fields.Datetime.now()})
-            return False
+        self._redirect_after_commit(f'/signalwire/voice/queue_connect/{self.id}', agent)
         return True
 
     @api.model
@@ -340,15 +405,11 @@ class SignalWireLiveCall(models.Model):
         """Safety net, every minute: offer waiting callers to anyone free
         (in case a hang-up report was missed), and send callers who've
         waited past their group's limit to its voicemail choice."""
-        now = fields.Datetime.now()
         for call in self.search([('state', '=', 'queued')], order='queued_at, id'):
-            limit = call.queue_group_id.queue_max_wait_minutes if not call.queue_user_id else 0
-            if limit and call.queued_at and call.queued_at < now - timedelta(minutes=limit):
-                try:
-                    call._redirect(f'/signalwire/voice/queue_timeout/{call.id}')
-                except Exception as exc:  # noqa: BLE001
-                    _logger.info("SignalWire: queued call %s is gone: %s", call.call_sid, exc)
-                    call.state = 'ended'
+            if call._queue_waited_too_long():
+                # Out of the queue now, so nothing offers them meanwhile.
+                call.state = 'parked'
+                call._redirect_after_commit(f'/signalwire/voice/queue_timeout/{call.id}')
                 continue
             agent = call._queue_try_offer()
             if agent:
@@ -363,5 +424,5 @@ class SignalWireLiveCall(models.Model):
         if not user:
             raise UserError(_("Pick a colleague first."))
         self._queue_join(user=user)
-        self._redirect(f'/signalwire/voice/queue_wait/{self.id}')
+        self._redirect_after_commit(f'/signalwire/voice/queue_wait/{self.id}')
 

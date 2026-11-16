@@ -71,8 +71,10 @@ class ResUsers(models.Model):
         Users = self.sudo()
         caller_partners = self.env['res.partner']
         call_rows = []
+        partner_of = {}
         for call in calls:
             partner = Users._signalwire_match_partner(call.from_number)
+            partner_of[call.id] = partner
             caller_partners |= partner
             caller_events = Event.browse()
             if partner:
@@ -145,18 +147,19 @@ class ResUsers(models.Model):
         for call in calls.filtered(lambda c: c.state == 'queued').sorted(
                 lambda c: (c.queued_at, c.id)):
             key = (call.queue_user_id.id, call.queue_group_id.id)
-            queue = queues.setdefault(key, {
-                'key': f'{key[0]}-{key[1]}',
-                'name': call._queue_label(),
-                'personal': bool(call.queue_user_id),
-                'free': len(call._queue_agents().filtered(call._agent_can_take)),
-                'agents': len(call._queue_agents()),
-                'callers': [],
-            })
-            queue['callers'].append({
+            if key not in queues:
+                agents = call._queue_agents()
+                queues[key] = {
+                    'key': f'{key[0]}-{key[1]}',
+                    'name': call._queue_label(),
+                    'personal': bool(call.queue_user_id),
+                    'free': len(agents.filtered(call._agent_can_take)),
+                    'agents': len(agents),
+                    'callers': [],
+                }
+            queues[key]['callers'].append({
                 'id': call.id,
-                'caller': Users._signalwire_match_partner(call.from_number).name
-                or call.from_number or _("Unknown caller"),
+                'caller': partner_of[call.id].name or call.from_number or _("Unknown caller"),
                 'since': _dt(call.queued_at),
             })
 

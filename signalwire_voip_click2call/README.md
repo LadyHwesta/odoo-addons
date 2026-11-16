@@ -891,6 +891,27 @@ longest-waiting caller in their personal queue, then in their groups' queues
 (`_cron_queue_tick`) is the safety net and enforces a group's **Longest
 Wait** (then its "If nobody answers" choice).
 
+**Hardened after a review (19.0.4.17.1)**:
+- Redirects that hand a caller to an agent are sent **after the commit**
+  (`_redirect_after_commit`, a post-commit hook): SignalWire fetches the
+  new URL at once and must see the offer, not the state before it.
+- Answering on a desk phone or the mobile number marks the agent **On a
+  call** (`leg_answered` → `_mark_answered`); when the call ends they're
+  free again, unless their softphone has reported something newer. An
+  "on a call" nobody ever ended counts as free after 4 hours.
+- One rule for "would anything ring for this person"
+  (`res.users._signalwire_ringable`), used for queue offers, ring groups
+  and "became free", so desk-phone-only agents get queued callers and an
+  empty `<Dial>` can't happen.
+- A wait-loop turn that arrives while an offer is in flight keeps waiting
+  and keeps the caller's place; rejoining the same queue never resets it.
+- Waits are bounded: a group's Longest Wait, 10 minutes in a personal
+  queue (then that person's own no-answer steps), and never more than 60
+  minutes. A group where nobody has any phone goes straight to its
+  voicemail choice.
+- Away → Mobile counts as becoming free. A missed call is left with the
+  person or group that was called, so they're alerted, not only the panel.
+
 **No more `<Reject/>`** except for numbers that aren't ours: every other dead
 end says "Sorry, we couldn't connect your call" and, with caller ID, leaves a
 "missed call" callback request for the panel (`_dead_end_cxml`).

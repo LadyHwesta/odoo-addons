@@ -55,7 +55,8 @@ class TestFallbackController(HttpCase):
         self.assertIn("couldn't connect your call", response.text)
         missed = self.env['signalwire.callback_request'].search([('phone_number', '=', '+15551234567')])
         self.assertEqual(missed.source, 'phone')
-        self.assertFalse(missed.target_user_id)
+        # Left with the person they called, who is alerted when free.
+        self.assertEqual(missed.target_user_id, self.user)
 
     def test_forward_configured_dials_the_saved_number(self):
         number = self.env['signalwire.forwarding.number'].create({

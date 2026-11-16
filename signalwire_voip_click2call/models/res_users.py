@@ -9,6 +9,7 @@ from odoo.exceptions import UserError
 
 # No real call rings longer than this (the dial timeout is 20 seconds).
 RINGING_GIVES_UP_AFTER = timedelta(minutes=2)
+ON_CALL_GIVES_UP_AFTER = timedelta(hours=4)
 
 
 class ResUsers(models.Model):
@@ -185,10 +186,13 @@ class ResUsers(models.Model):
         arrived (tab closed mid-ring, network drop), so it's Available."""
         self.ensure_one()
         state = self.signalwire_call_state or 'idle'
-        if state == 'ringing' and (
-                not self.signalwire_call_state_at
-                or self.signalwire_call_state_at
-                < fields.Datetime.now() - RINGING_GIVES_UP_AFTER):
+        at = self.signalwire_call_state_at
+        now = fields.Datetime.now()
+        if state == 'ringing' and (not at or at < now - RINGING_GIVES_UP_AFTER):
+            return 'idle'
+        if state == 'on_call' and at and at < now - ON_CALL_GIVES_UP_AFTER:
+            # A call that ended without anyone telling us (a lost status
+            # report): nobody stays "on a call" all day.
             return 'idle'
         return state
 
@@ -221,9 +225,23 @@ class ResUsers(models.Model):
                 user.partner_id, 'signalwire_presence/updated', {'presence': presence})
             group = self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist')
             self.env['bus.bus']._sendone(group, 'signalwire_live_call/updated', {})
-            if presence == 'available':
+            if presence != 'away':
+                # Back from Away as Available or Mobile: free again.
                 user._signalwire_on_free()
         return presence
+
+    def _signalwire_ringable(self):
+        """Something would ring for this person right now: the same rules
+        as the controller's _sip_targets (Away: nothing; desk phones only
+        while Available; the mobile number only while Mobile)."""
+        self.ensure_one()
+        if self.signalwire_presence == 'away':
+            return False
+        if self.voip_username:
+            return True
+        if self.signalwire_presence == 'available':
+            return bool(self.signalwire_desk_phone_ids.filtered('voip_username'))
+        return bool(self.signalwire_mobile_forward_id.phone_number)
 
     def _signalwire_is_free(self):
         self.ensure_one()
@@ -235,7 +253,7 @@ class ResUsers(models.Model):
         from Away): offer them the longest-waiting queued caller, else alert
         them to callbacks waiting for them or their call groups."""
         self.ensure_one()
-        if not (self.voip_username or self.signalwire_mobile_forward_id):
+        if not self._signalwire_ringable():
             return
         # A caller waiting in line comes first; if they're offered one,
         # they're no longer free and the callback alerts wait until after.
