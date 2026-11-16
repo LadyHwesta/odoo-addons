@@ -30,7 +30,7 @@ class SignalWireDashboard(models.AbstractModel):
         super()._dashboard_parts(data)
         Number = self.env['signalwire.phone_number']
         until = self.env.company._signalwire_closed_until()
-        with_hours = Number.search_count([('calendar_id', '!=', False)])
+        with_hours = Number.search_count([('calendar_id', '!=', False), ('number_use', '=', 'own')])
         data['status'] = {
             'closed': bool(until),
             'title': _("Closed early") if until else _("Open as usual"),

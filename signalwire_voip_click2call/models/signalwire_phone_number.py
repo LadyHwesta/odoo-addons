@@ -214,6 +214,17 @@ class SignalWirePhoneNumber(models.Model):
                     "SignalWire: couldn't set the status callback on %s: %s",
                     number.name, exc)
 
+    ROUTING_FIELDS = (
+        'route_type', 'assigned_user_id', 'call_group_id', 'ivr_menu_id', 'calendar_id',
+        'after_hours_route_type', 'after_hours_user_id', 'after_hours_call_group_id',
+        'after_hours_ivr_menu_id',
+    )
+
+    def write(self, vals):
+        if any(field in vals for field in self.ROUTING_FIELDS):
+            self._check_not_customer()
+        return super().write(vals)
+
     def action_configure_inbound_routing(self):
         """Points this number's Voice URL at this database's own
         /signalwire/voice/inbound webhook - a standard Twilio-
@@ -226,6 +237,8 @@ class SignalWirePhoneNumber(models.Model):
         SignalWire obviously can't reach it until this Odoo is
         actually public.
         """
+        # From here it would point a customer's calls at this Odoo.
+        self._check_not_customer()
         self.ensure_one()
         route_type, target = self._day_route()
         if not target:

@@ -21,3 +21,4 @@ from . import test_presence
 from . import test_callbacks
 from . import test_receptionist_panel
 from . import test_queue
+from . import test_customer_numbers

@@ -19,9 +19,10 @@ class SignalWireAPIError(Exception):
     the carrier's suggested addresses on a rejected E911 address).
     """
 
-    def __init__(self, message, payload=None):
+    def __init__(self, message, payload=None, status=None):
         super().__init__(message)
         self.payload = payload or {}
+        self.status = status  # HTTP status code, when there was a response
 
 
 class SignalWireClient:
@@ -181,7 +182,8 @@ class SignalWireClient:
                 payload = {}
             raise SignalWireAPIError(
                 self._extract_error_message(response),
-                payload=payload if isinstance(payload, dict) else {})
+                payload=payload if isinstance(payload, dict) else {},
+                status=response.status_code)
 
         if not response.content:
             # DELETE endpoints (e.g. SIP Endpoints) return 204 with no

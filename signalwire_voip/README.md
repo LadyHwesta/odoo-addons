@@ -154,3 +154,65 @@ can register addresses for numbers in its subprojects (the docs say the
 address must be "in the same project"). On a customer's own Odoo connected
 with a token scoped to their subproject (as TFL is), both are the same
 project, so that's the safe place to set E911.
+
+## E911 status kept in step, customers kept apart (2026-11-16)
+
+Found live: every number showed "Not registered". Odoo only re-checked
+numbers it already thought were Pending, so E911 registered anywhere else
+(the provider's control panel, a customer's own Odoo) never showed, and the
+form's Check Status button was hidden for exactly those numbers.
+
+- **Daily check** (`_cron_refresh_e911_all`): every one of our own numbers
+  is asked for its real E911 status (one savepoint each; a failure is logged
+  and the rest carry on). Check Status is always on the form; Import Numbers
+  checks new numbers straight away. Hook `_after_e911_refresh_all`
+  (signalwire_voip_click2call re-applies outside-call rules there).
+- **Customer numbers** (`number_use = 'customer'`): their sub-account isn't
+  readable with this account (the provider answers 404, confirmed live), and
+  their own Odoo manages routing, E911 and caller ID name. So nothing is
+  asked about them, the form says so, and E911 / caller ID actions refuse
+  them (`_check_not_customer`). Release is allowed: customers release their
+  own numbers through the portal, which runs here.
+- **Customers section** in the VoIP app: Sub-accounts and Customer Numbers
+  (plus 10DLC and call records from the reseller modules). Phone Numbers, the
+  dashboard and Messages show only our own numbers.
+
+## Caller ID name (CNAM) (2026-11-16, not yet live-verified)
+
+The name people see when a number calls them, requested through the
+provider's API (`POST /api/relay/rest/phone_numbers/{id}/cnam {"name"}`, the
+same `{id}` as our other number calls; `GET` for the latest request). On the
+number form: **Caller ID Name** and **Request Caller ID Name**; a list action
+requests it for several numbers. Without a name, one is made from the
+company name. Rules checked before sending (the provider's own): at most 15
+characters after upper-casing and collapsing spaces, starting with a letter
+or digit, only letters, digits, spaces and `& ' . , -`. Toll-free numbers are
+refused up front (carriers don't show names for them); names don't show to
+Canadian phones. The provider reviews each request (pending, in review,
+approved, rejected with a reason, failed); an hourly job follows pending ones
+up and posts the outcome on the sub-account. Approved names can take up to
+48 hours to show. A "isn't available for this number" answer (422) means the
+carrier doesn't offer it; the provider's support can sometimes arrange it with
+proof of the business name. Each customer's own Odoo requests names for its
+own numbers, so nobody processes them by hand.
+
+## Checking for leftover phone logins
+
+Every softphone and desk phone has its own login (SIP endpoint) at the
+provider. To list them against the ones Odoo knows (read-only), on the
+server:
+
+```
+sudo -u odoo /opt/odoo19/venv/bin/python /opt/odoo19/odoo/odoo-bin shell -c /etc/odoo/odoo.conf -d meskis --no-http <<'EOF2'
+known = set(env['res.users'].search([('signalwire_sip_endpoint_id', '!=', False)]).mapped('signalwire_sip_endpoint_id'))
+known |= set(env['signalwire.desk_phone'].search([]).mapped('signalwire_sip_endpoint_id'))
+for server in env['signalwire.server'].search([]):
+    data = server._get_client().relay_get('endpoints/sip')
+    for ep in data.get('data', data if isinstance(data, list) else []):
+        print('ENDPOINT', ep.get('id'), ep.get('username'), 'in Odoo' if ep.get('id') in known else 'NOT IN ODOO')
+EOF2
+```
+
+A "NOT IN ODOO" login is a leftover (2026-11-16: `fabrictest1`, from early
+testing). Releasing a softphone in Odoo deletes its login at the provider.
+

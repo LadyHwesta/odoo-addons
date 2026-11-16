@@ -292,7 +292,9 @@ class SignalWireVoiceController(http.Controller):
         """No phone to ring: someone set to Away goes straight to what
         happens when they don't answer, an all-Away group to its
         voicemail; anything else (nobody set up) is rejected as before."""
-        if route_type == 'user' and target and target.signalwire_presence == 'away':
+        if route_type == 'user' and target:
+            # Away, or no phone set up at all: straight to what happens when
+            # they don't answer (forward, ring group, voicemail).
             return self._user_fallback_cxml(target, number)
         if route_type == 'group' and target and target.member_ids.filtered(
                 lambda m: m.signalwire_presence == 'away'):

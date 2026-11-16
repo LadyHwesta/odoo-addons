@@ -46,8 +46,10 @@ class ResUsers(models.Model):
             return {'call_handler': OUTSIDE_ALLOWED, 'send_as': number.name}
         return {'call_handler': INTERNAL_ONLY}
 
-    def _signalwire_sync_outbound(self):
-        """Apply the outbound rule to every phone of these users."""
+    def _signalwire_sync_outbound(self, raise_errors=True):
+        """Apply the outbound rule to every phone of these users. With
+        raise_errors=False (the daily re-apply), a phone that can't be
+        updated is logged and the rest carry on."""
         for user in self:
             settings = user._signalwire_outbound_settings()
             endpoints = []
@@ -59,6 +61,10 @@ class ResUsers(models.Model):
                 try:
                     server._get_client().relay_put(f'endpoints/sip/{endpoint_id}', **settings)
                 except SignalWireAPIError as exc:
+                    if not raise_errors:
+                        _logger.warning("Couldn't apply the outside-call rule to %s's phone %s: %s",
+                                        user.name, endpoint_id, exc)
+                        continue
                     raise UserError(_("Couldn't update %(user)s's phone: %(error)s",
                                       user=user.name, error=str(exc))) from exc
 
@@ -85,6 +91,17 @@ class SignalWireDeskPhone(models.Model):
 
 class SignalWirePhoneNumber(models.Model):
     _inherit = 'signalwire.phone_number'
+
+    def _after_e911_refresh_all(self):
+        """Daily: re-apply the outside-call rule to every phone, so the
+        provider never drifts from what Odoo says (phones set up before the
+        rule existed were never restricted, found live 2026-11-16)."""
+        result = super()._after_e911_refresh_all()
+        users = self.env['res.users'].sudo().search([
+            '|', ('signalwire_sip_endpoint_id', '!=', False),
+            ('signalwire_desk_phone_ids.signalwire_sip_endpoint_id', '!=', False)])
+        users._signalwire_sync_outbound(raise_errors=False)
+        return result
 
     def _on_e911_status_changed(self):
         result = super()._on_e911_status_changed()

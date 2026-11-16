@@ -1008,3 +1008,19 @@ and on demand with **Apply E911 to Phones** on the Phone Account.
 Existing endpoints set to Passthrough by hand in the dashboard keep that
 until one of those happens: run Apply E911 to Phones after setting each
 person's Calls Out As.
+
+### The rule was never applied to older phones (found live 2026-11-16)
+
+The outside-call rule is ours, pushed to each phone's login (`call_handler`
+`passthrough` or `block-pstn`) only when a phone is set up, its Calls Out As
+number changes, or that number's E911 status changes. Softphones set up
+before the rule existed were never restricted: the owner could call out while
+Odoo said the number had no E911. Now the daily E911 check
+(`_after_e911_refresh_all`) re-applies the rule to every phone; a phone that
+can't be updated is logged and the rest carry on. A person with no Calls Out
+As number is internal-only, by design.
+
+Also: a number routed to one person who has no phone set up at all now goes
+to their no-answer steps (forward, ring group, voicemail), not "couldn't
+connect".
+

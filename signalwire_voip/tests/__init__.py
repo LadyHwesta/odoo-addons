@@ -8,3 +8,4 @@ from . import test_signalwire_dashboard
 from . import test_webhook_security
 from . import test_white_label
 from . import test_e911
+from . import test_e911_sync_and_cnam

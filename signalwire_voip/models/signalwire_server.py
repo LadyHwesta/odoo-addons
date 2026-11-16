@@ -158,7 +158,16 @@ class SignalWireServer(models.Model):
             for n in result.get('incoming_phone_numbers', [])
             if n.get('sid') and n['sid'] not in known
         ]
-        Number.create(new)
+        created = Number.create(new)
+        # Pick up E911 and caller ID names already set up at the provider,
+        # so the new numbers don't show "Not registered" by mistake.
+        for number in created:
+            try:
+                with self.env.cr.savepoint():
+                    number.action_refresh_e911()
+                    number.action_refresh_cnam()
+            except UserError:
+                continue
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',

@@ -117,7 +117,7 @@ class ResUsers(models.Model):
              "what happens when you don't answer, and call groups skip you. "
              "Mobile: calls ring the softphone in the mobile app and your "
              "mobile number together.")
-    signalwire_presence_at = fields.Datetime(copy=False)
+    signalwire_presence_at = fields.Datetime(string="Presence Since", copy=False)
     signalwire_mobile_forward_id = fields.Many2one(
         'signalwire.forwarding.number', string="Mobile Number",
         domain="[('user_id', '=', id)]",

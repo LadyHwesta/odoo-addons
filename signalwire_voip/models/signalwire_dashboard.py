@@ -47,7 +47,9 @@ class SignalWireDashboard(models.AbstractModel):
         return data
 
     def _dashboard_parts(self, data):
-        numbers = self.env['signalwire.phone_number'].search([], order='name')
+        # Our own numbers: customers' are run from their own Odoo.
+        numbers = self.env['signalwire.phone_number'].search(
+            [('number_use', '=', 'own')], order='name')
         data['tables'].append({
             'key': 'numbers',
             'title': _("Your Numbers"),
