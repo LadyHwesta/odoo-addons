@@ -1039,3 +1039,32 @@ connect".
   its own phone account; the login name comes from the person's name and
   user number, so it can be the same in two databases for two different
   softphones.
+
+## Caller ID by company (19.0.4.21.0, 2026-11-17)
+
+Softphones and desk phones dial straight out at the provider, which only
+knows one "send as" number per phone. With **Choose Caller ID by Company**
+ticked on the phone account, its phones ask Odoo for every outside call
+instead (call handler `laml_webhooks` with `/signalwire/voice/outbound`,
+confirmed live 2026-11-17: the provider posts From = the phone's SIP address,
+To = the dialed number), and the call goes out as the **Main Phone Number**
+(company form) of the first company that applies:
+
+1. the record the call was started from (clicking a phone number in Odoo),
+2. the contact called: their company, else the company of their latest
+   quote, invoice, lead or ticket,
+3. the company being worked in (Odoo's current company),
+4. the person's own company,
+
+else their **Calls Out As** number. A branch without a main number uses its
+parent's. 911 always goes out as Calls Out As (its E911 address), and the
+E911 rule for outside calls is unchanged. Odoo's softphone shows
+"Calling as <company> (<number>)" as it dials.
+
+While Odoo is unreachable (a restart during a deploy, for example), phones
+on such an account can't call outside numbers; untick the setting to go
+back to dialing straight out.
+
+Phone accounts can also have a **Company**: softphones and desk phones are
+set up in the account of the person's company (or its parent), else the one
+without a company.

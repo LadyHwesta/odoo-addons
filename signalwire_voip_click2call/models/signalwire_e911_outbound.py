@@ -20,6 +20,7 @@ _logger = logging.getLogger(__name__)
 
 OUTSIDE_ALLOWED = 'passthrough'
 INTERNAL_ONLY = 'block-pstn'
+VIA_ODOO = 'laml_webhooks'  # confirmed live 2026-11-17: outbound dials ask call_request_url
 
 
 class ResUsers(models.Model):
@@ -43,6 +44,11 @@ class ResUsers(models.Model):
         self.ensure_one()
         number = self.signalwire_outbound_number_id
         if number and number.e911_status == 'active':
+            if self.signalwire_server_id.sudo().caller_id_by_company:
+                # Ask Odoo for each outside call (controllers/outbound.py); send_as stays set.
+                base_url = (self.env['ir.config_parameter'].sudo().get_param('web.base.url') or '').rstrip('/')
+                return {'call_handler': VIA_ODOO, 'send_as': number.name,
+                        'call_request_url': f'{base_url}/signalwire/voice/outbound', 'call_request_method': 'POST'}
             return {'call_handler': OUTSIDE_ALLOWED, 'send_as': number.name}
         return {'call_handler': INTERNAL_ONLY}
 
@@ -67,27 +73,6 @@ class ResUsers(models.Model):
                         continue
                     raise UserError(_("Couldn't update %(user)s's phone: %(error)s",
                                       user=user.name, error=str(exc))) from exc
-
-    # ---- live test: outside calls through Odoo (see controllers/outbound.py) ----
-
-    def action_signalwire_outbound_via_odoo(self):
-        """Point this person's softphone at Odoo for outside calls. A test
-        switch for now; Back to Direct undoes it."""
-        self.ensure_one()
-        if not (self.signalwire_sip_endpoint_id and self.signalwire_outbound_allowed):
-            raise UserError(_("Set up the softphone and an E911-active Calls Out As number first."))
-        base_url = (self.env['ir.config_parameter'].sudo().get_param('web.base.url') or '').rstrip('/')
-        try:
-            self.signalwire_server_id._get_client().relay_put(
-                f'endpoints/sip/{self.signalwire_sip_endpoint_id}',
-                call_handler='laml_webhooks', call_request_url=f'{base_url}/signalwire/voice/outbound',
-                call_request_method='POST')
-        except SignalWireAPIError as exc:
-            raise UserError(_("Couldn't update the softphone: %s", exc)) from exc
-
-    def action_signalwire_outbound_direct(self):
-        """Back to dialing straight out (the normal setup)."""
-        self._signalwire_sync_outbound()
 
     def write(self, vals):
         result = super().write(vals)

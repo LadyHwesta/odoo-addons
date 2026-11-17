@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP Click-to-Call',
-    'version': '19.0.4.20.0',
+    'version': '19.0.4.21.0',
     'category': 'Productivity/VOIP',
     'summary': 'An in-browser softphone, desk phones, call routing, voicemail and a receptionist panel',
     'description': """
@@ -45,6 +45,7 @@ Setup notes are in ``README.md``.
         'views/signalwire_server_views.xml',
         'views/signalwire_voicemail_views.xml',
         'views/signalwire_callback_request_views.xml',
+        'views/res_company_views.xml',
         'views/signalwire_receptionist_panel_views.xml',
     ],
     'assets': {
@@ -53,6 +54,7 @@ Setup notes are in ``README.md``.
             'signalwire_voip_click2call/static/src/services/voip_agent_turn.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_attended_transfer.esm.js',
             'signalwire_voip_click2call/static/src/services/voip_agent_receptionist_status.esm.js',
+            'signalwire_voip_click2call/static/src/services/voip_agent_caller_id.esm.js',
             'signalwire_voip_click2call/static/src/components/schedule_callback/schedule_callback_dialog.esm.js',
             'signalwire_voip_click2call/static/src/components/schedule_callback/schedule_callback_dialog.xml',
             'signalwire_voip_click2call/static/src/services/signalwire_callback_alert_service.esm.js',

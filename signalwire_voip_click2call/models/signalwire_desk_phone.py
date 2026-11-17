@@ -104,7 +104,7 @@ class SignalWireDeskPhone(models.Model):
         if self.signalwire_sip_endpoint_id:
             raise UserError(_(
                 "%(name)s is already provisioned.", name=self.name))
-        server = self.env['signalwire.server'].search([], limit=1)
+        server = self.env['signalwire.server']._for_company(self.user_id.company_id or self.env.company)
         if not server:
             raise UserError(_("No phone account is configured yet."))
 

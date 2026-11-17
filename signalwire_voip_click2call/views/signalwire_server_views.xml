@@ -17,6 +17,8 @@
                 <field name="sip_domain" />
                 <field name="turn_host" />
                 <field name="turn_secret" password="True" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="caller_id_by_company" />
             </xpath>
         </field>
     </record>

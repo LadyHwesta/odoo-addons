@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Outside calls placed from a softphone, routed through Odoo.
+"""Outside calls placed from softphones and desk phones, through Odoo.
 
-LIVE TEST (2026-11-17): the provider doesn't document whether a SIP
-endpoint with call_handler "laml_webhooks" asks its call_request_url when
-it DIALS OUT. This route answers that: it logs every field the provider
-sends, then places the call exactly as the endpoint would on its own
-(the person's Calls Out As number, same E911 rule), so the test call
-works normally. Once confirmed, the caller ID is chosen per company here.
+With "Choose Caller ID by Company" on a phone account, its phones ask this
+route for every outside call (confirmed live 2026-11-17: an endpoint with
+call_handler "laml_webhooks" posts here when it dials out, From = the
+phone's SIP address, To = the dialed number at the SIP domain). The call
+goes out as the number chosen in models/signalwire_caller_id.py, with the
+same E911 rule as before.
 """
 import logging
 import re
@@ -67,11 +67,10 @@ class SignalWireOutboundController(http.Controller):
         if not number:  # another phone on the account: ring it as before
             target = saxutils.escape((kwargs.get('To') or '').strip('<>'))
             return self._cxml(f'<Dial><Sip>{target}</Sip></Dial>')
-        settings = user._signalwire_outbound_settings()
-        caller_id = settings.get('send_as')
-        if not caller_id:  # same rule as on the phone: no E911, no outside calls
+        if not user.signalwire_outbound_allowed:  # same rule as on the phone: no E911, no outside calls
             return self._cxml(
                 '<Say>Outside calls need an emergency address on your number first. '
                 'Please ask your administrator.</Say><Hangup/>')
+        caller = user._signalwire_outbound_caller(number) or user.signalwire_outbound_number_id
         return self._cxml(
-            f'<Dial callerId="{saxutils.escape(caller_id)}"><Number>{saxutils.escape(number)}</Number></Dial>')
+            f'<Dial callerId="{saxutils.escape(caller.name)}"><Number>{saxutils.escape(number)}</Number></Dial>')

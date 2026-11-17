@@ -429,7 +429,7 @@ class ResUsers(models.Model):
             raise UserError(_(
                 "%(user)s already has a softphone provisioned.",
                 user=self.name))
-        server = self.env['signalwire.server'].search([], limit=1)
+        server = self.env['signalwire.server']._for_company(self.company_id)
         if not server:
             raise UserError(_("No phone account is configured yet."))
 

@@ -4,7 +4,7 @@ import hashlib
 import hmac
 import time
 
-from odoo import _, fields, models
+from odoo import api, _, fields, models
 from odoo.exceptions import UserError
 
 
@@ -56,6 +56,36 @@ class SignalWireServer(models.Model):
              "provider's dashboard (the part of the SIP URI after the "
              "@); it usually can't be worked out from the account "
              "domain.")
+
+    company_id = fields.Many2one(
+        'res.company', string="Company",
+        help="Softphones and desk phones of this company's people are set up in this account. "
+             "Empty: any company (the only account, usually).")
+    caller_id_by_company = fields.Boolean(
+        string="Choose Caller ID by Company",
+        help="Outside calls from this account's phones ask Odoo which number to call as: the main "
+             "number of the company of the record clicked, the contact called, or the company "
+             "being worked in. Phones can't call out while Odoo is unreachable (a restart, for "
+             "example).")
+
+    @api.model
+    def _for_company(self, company):
+        """The phone account for `company` (or its parent), else one for
+        any company, else any."""
+        while company:
+            server = self.search([('company_id', '=', company.id)], limit=1)
+            if server:
+                return server
+            company = company.parent_id
+        return self.search([('company_id', '=', False)], limit=1) or self.search([], limit=1)
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'caller_id_by_company' in vals:
+            users = self.env['res.users'].sudo().search([('signalwire_server_id', 'in', self.ids)])
+            desk = self.env['signalwire.desk_phone'].sudo().search([('signalwire_server_id', 'in', self.ids)])
+            (users | desk.user_id)._signalwire_sync_outbound()
+        return result
 
     def _get_sip_domain(self):
         """The hostname SIP.js/JsSIP and desk phones actually register
