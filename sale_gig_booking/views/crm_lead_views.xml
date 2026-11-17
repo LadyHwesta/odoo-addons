@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="crm_lead_view_form_gig" model="ir.ui.view">
+        <field name="name">crm.lead.form.gig</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='internal_notes']" position="before">
+                <page string="Gig" name="gig">
+                    <field name="gig_has_conflict" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not gig_has_conflict">
+                        <strong>Already booked around this time:</strong>
+                        <field name="gig_conflict_summary" class="d-block"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="gig_date"/>
+                            <field name="gig_start_hour" widget="float_time"/>
+                            <field name="gig_end_hour" widget="float_time"/>
+                            <field name="gig_type"/>
+                        </group>
+                        <group>
+                            <field name="venue_name"/>
+                            <field name="venue_address"/>
+                            <field name="guest_count"/>
+                            <field name="gig_setting"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

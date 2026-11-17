@@ -175,6 +175,21 @@ LISTINGS = {
                    'appearances, even if someone posts to them directly.')],
         setup=['Install it, open an event and tick Appearance.',
                'Choose how people get in and paste the host\'s link.']),
+    'sale_gig_booking': dict(
+        name='Gig Bookings', glyph='mic',
+        tagline='Booking requests for performers: gig details, e-signed quotes with a deposit, no double bookings',
+        intro=['For DJs, bands and other performers booked for events. A request form on your website '
+               'creates a lead with the gig: date, times, venue, type of event and guests.',
+               'Quotes carry the same details, Odoo\'s own online signature and deposit book the date, and '
+               'every date is checked against your other gigs and events first.'],
+        features=[('Booking request form', 'A ready Book a Date page on your website, protected like any '
+                   'other Odoo form.'),
+                  ('Never booked twice', 'Gigs, appearances and events too close together are flagged, '
+                   'and confirming one is stopped until you say so.'),
+                  ('Booked Dates calendar', 'Every confirmed gig and event in one place.'),
+                  ('Balance reminders', 'A to-do to invoice what\'s left, a set number of days before each gig.')],
+        setup=['Install it, and turn on Online Signature and Online Payment (with a deposit) in Sales settings.',
+               'Link your website to the Book a Date page (/book).']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
         tagline='Bots probing odd addresses get a plain 404, not a server error',
