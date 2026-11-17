@@ -1,0 +1,22 @@
+.o_my_day {
+    background-color: $o-webclient-background-color;
+
+    .o_my_day_date,
+    .o_my_day_column {
+        letter-spacing: 0.06em;
+    }
+    .o_my_day_section .card-header {
+        border-bottom-color: $border-color;
+    }
+    .o_my_day_when {
+        min-width: 4.5rem;
+        font-variant-numeric: tabular-nums;
+    }
+    .o_my_day_item {
+        cursor: pointer;
+    }
+    // Happening now: a mark in the margin, not a colour change.
+    .o_my_day_now {
+        box-shadow: inset 3px 0 0 $primary;
+    }
+}

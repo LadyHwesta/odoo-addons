@@ -206,3 +206,44 @@ class TestGigBooking(HttpCase):
             'sale_gig_booking.report_gig_load_in', order.ids)[0].decode()
         for text in ('Timeline', '19:30', 'Grand entrance', order.name, 'maya@example.com', '00:00'):
             self.assertIn(text, html)
+
+    # ---- billing the gig's hours ----
+
+    def test_hourly_products_bill_the_gigs_length(self):
+        hourly = self.env['product.product'].create({
+            'name': 'DJ, per hour', 'type': 'service', 'list_price': 150, 'gig_bill_hours': True})
+        order = self._order(date(2026, 12, 5), 19.0, 23.5)
+        line = self.env['sale.order.line'].create({'order_id': order.id, 'product_id': hourly.id})
+        flat = order.order_line - line
+        self.assertEqual(line.product_uom_qty, 4.5)
+        self.assertEqual(flat.product_uom_qty, 1)  # other products keep their quantity
+        order.gig_end_hour = 1.0  # runs past midnight now
+        self.assertEqual(line.product_uom_qty, 6)
+        self.env.company.gig_min_hours = 8
+        order.gig_end_hour = 22.0
+        self.assertEqual(line.product_uom_qty, 8)
+        order.with_context(gig_conflict_ok=True).action_confirm()
+        order.gig_end_hour = 23.0
+        self.assertEqual(line.product_uom_qty, 8, "a booked gig's hours stay as agreed")
+
+    def test_quote_templates_use_the_gigs_hours(self):
+        hourly = self.env['product.product'].create({
+            'name': 'Sound engineer, per hour', 'type': 'service', 'list_price': 125, 'gig_bill_hours': True})
+        template = self.env['sale.order.template'].create({
+            'name': 'Sound', 'sale_order_template_line_ids': [(0, 0, {'product_id': hourly.id, 'product_uom_qty': 1})]})
+        order = self._order(date(2026, 12, 5), 18.0, 22.0)
+        order.sale_order_template_id = template
+        order._onchange_sale_order_template_id()
+        line = order.order_line.filtered(lambda l: l.product_id == hourly)
+        self.assertEqual(line.product_uom_qty, 4)
+
+    def test_booking_creates_the_products_todo(self):
+        research = self.env['product.product'].create({
+            'name': 'Sound engineer, house gear', 'type': 'service', 'list_price': 125,
+            'gig_booked_todo': "Get the venue's equipment list\nResearch each piece before the gig."})
+        order = self._order(date(2026, 12, 12))
+        order.write({'order_line': [(0, 0, {'product_id': research.id})]})
+        order.with_context(gig_conflict_ok=True).action_confirm()
+        todo = order.activity_ids.filtered(lambda a: a.summary == "Get the venue's equipment list")
+        self.assertEqual(len(todo), 1)
+        self.assertIn('Research each piece', str(todo.note))

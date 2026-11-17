@@ -8,7 +8,7 @@ Needs **Gig Bookings** (`sale_gig_booking`).
 1. **Sales > Configuration > Gear**: add your gear (speakers, lights, mics,
    cables...), its category, and how many of each you own. A note (for
    example which case it lives in) shows on the checklist.
-2. On each package or add-on product, the **Gig Gear** tab lists the gear it
+2. On each package or add-on product, the **Gigs** tab's **Gig Gear** list has the gear it
    needs and how many.
 
 ## On a gig

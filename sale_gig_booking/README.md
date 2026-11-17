@@ -73,3 +73,16 @@ status, total, who booked it), times, venue, every contact, what was booked,
 the timeline and the load-in notes. Gig Gear Checklist (`sale_gig_gear`)
 adds the gear checklist, and Gig Song Requests (`sale_gig_song_requests`)
 adds the song request card as the last page.
+
+## Hourly packages and booking to-dos
+
+A product's **Gigs** tab:
+
+- **Bill the Gig's Hours**: on a gig's quote, the quantity is the gig's
+  length (start to end, to the quarter hour), and never below the
+  **Minimum Hours** in Settings > Sales > Gig Bookings. It follows the gig's
+  times while the quote is a draft or sent; once booked, the hours stay as
+  agreed. Quote templates use it too.
+- **To-do When Booked**: when a gig with this product is booked, the
+  salesperson gets this to-do (first line: title; the rest: notes). For
+  example: get the venue's equipment list and research it.

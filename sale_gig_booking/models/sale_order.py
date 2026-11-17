@@ -49,7 +49,9 @@ class SaleOrder(models.Model):
                 order.activity_schedule(
                     'mail.mail_activity_data_warning', user_id=order.user_id.id or self.env.uid,
                     summary=_("Double booking"), note=order.gig_conflict_summary)
-        return super().action_confirm()
+        result = super().action_confirm()
+        self._gig_booked_todos()
+        return result
 
     def action_confirm_gig_anyway(self):
         return self.with_context(gig_conflict_ok=True).action_confirm()
@@ -74,6 +76,33 @@ class SaleOrder(models.Model):
             'type': 'ir.actions.act_window', 'res_model': 'event.event',
             'res_id': self.gig_event_id.id, 'view_mode': 'form', 'target': 'current',
         }
+
+    @api.onchange('sale_order_template_id')
+    def _onchange_sale_order_template_id(self):
+        result = super()._onchange_sale_order_template_id()
+        self.order_line._gig_set_hours()
+        return result
+
+    def _gig_billable_hours(self):
+        """The gig's length in hours (to the quarter hour), at least the
+        company's minimum; 0 when the gig has no times yet."""
+        self.ensure_one()
+        if not (self.gig_start and self.gig_end):
+            return 0.0
+        hours = round((self.gig_end - self.gig_start).total_seconds() / 900) / 4
+        return max(hours, (self.company_id or self.env.company).gig_min_hours)
+
+    def _gig_booked_todos(self):
+        """The products' 'To-do When Booked', once per product."""
+        for order in self.filtered('is_gig'):
+            for product in order.order_line.product_id.product_tmpl_id:
+                text = (product.gig_booked_todo or '').strip()
+                if not text:
+                    continue
+                title, _sep, note = text.partition('\n')
+                order.activity_schedule(
+                    'mail.mail_activity_data_todo', user_id=order.user_id.id or self.env.uid,
+                    summary=title.strip()[:120], note=note.strip() or False)
 
     def _gig_client_edit_open(self):
         """The client can change their timeline (and music lists) from the

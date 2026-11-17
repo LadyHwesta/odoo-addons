@@ -4,11 +4,11 @@
     <record id="product_template_form_gig_gear" model="ir.ui.view">
         <field name="name">product.template.form.gig.gear</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="inherit_id" ref="sale_gig_booking.product_template_form_gig"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='general_information']" position="after">
-                <page string="Gig Gear" name="gig_gear" invisible="not sale_ok"
-                      groups="sales_team.group_sale_salesman">
+            <xpath expr="//page[@name='gigs']" position="inside">
+                <separator string="Gig Gear"/>
+                <div name="gig_gear">
                     <p class="text-muted">Gear a gig with this package or add-on needs. It's added to the
                         gig's packing checklist when the gig is booked.</p>
                     <field name="gig_gear_default_ids">
@@ -18,7 +18,7 @@
                             <field name="quantity"/>
                         </list>
                     </field>
-                </page>
+                </div>
             </xpath>
         </field>
     </record>

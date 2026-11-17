@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gig Gear Checklist',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Sales/Sales',
     'summary': "Your gear list, default gear per package, and a packing checklist on every gig",
     'description': """

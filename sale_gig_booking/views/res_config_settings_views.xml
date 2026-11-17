@@ -16,6 +16,10 @@
                              help="A to-do to invoice the balance appears this many days before each gig.">
                         <field name="gig_balance_days"/>
                     </setting>
+                    <setting id="gig_min_hours_setting"
+                             help="Products set to bill the gig's hours never bill fewer than this.">
+                        <field name="gig_min_hours" widget="float_time"/>
+                    </setting>
                     <setting id="gig_tz_setting" help="Gig times are entered and shown in this time zone.">
                         <field name="gig_tz"/>
                     </setting>

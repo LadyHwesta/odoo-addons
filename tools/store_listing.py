@@ -46,6 +46,7 @@ GLYPHS = {
     'gauge': '<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
     'checklist': '<rect x="4" y="3" width="16" height="19" rx="2"/><path d="M9 2h6v3H9z"/><path d="M8 11l2 2 4-4"/><path d="M8 17h8"/>',
     'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+    'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     'ticket': '<path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M9 10l2 2 4-4"/>',
     'press': '<path d="M4 4h13v16H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v10a2 2 0 0 1-2 2"/><path d="M8 8h5M8 12h5M8 16h3"/>',
 }
@@ -258,6 +259,20 @@ LISTINGS = {
                    'checked in by mistake.')],
         setup=['Install it (it needs POS - Event) and open your Point of Sale.',
                'Scan a ticket on the register screen, or use Actions > Check In.']),
+    'my_day': dict(
+        name='My Day', glyph='sun',
+        tagline='A start screen to plan and work through your day, across your companies and branches',
+        intro=['Today\'s calendar and your to-dos on one side; what needs attention on the other: tasks '
+               'coming due, money owed and due, quotes waiting on customers, this week\'s events.',
+               'It follows the company switcher, so with several companies or branches selected you see '
+               'them all, each item marked by company. Make it the first screen after login.'],
+        features=[('Plan the day', 'Today\'s meetings with a Join button, to-dos you can tick off, voicemails and callbacks.'),
+                  ('Needs attention', 'Helpdesk tickets, tasks due, money owed and due, quotes waiting, events.'),
+                  ('Companies and branches', 'Money per company, a badge on every item, one tap to see one company.'),
+                  ('Your start screen', 'One tick in Preferences opens it after login.'),
+                  ('Only what you may see', 'Sections appear for installed apps and your access rights.')],
+        setup=['Install it and open My Day.',
+               'Tick Start on My Day in your Preferences to open it after login.']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
         tagline='Bots probing odd addresses get a plain 404, not a server error',

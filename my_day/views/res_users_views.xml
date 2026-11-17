@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_users_form_simple_modif_my_day" model="ir.ui.view">
+        <field name="name">res.users.preferences.my.day</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <group name="other_preferences" position="inside">
+                <field name="my_day_home" readonly="0"/>
+            </group>
+        </field>
+    </record>
+
+    <!-- Admins can set it for anyone, on the user's form. -->
+    <record id="view_users_form_my_day" model="ir.ui.view">
+        <field name="name">res.users.form.my.day</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences']//group[@name='other_preferences']" position="inside">
+                <field name="my_day_home"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

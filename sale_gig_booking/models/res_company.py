@@ -14,6 +14,9 @@ class ResCompany(models.Model):
     gig_balance_days = fields.Integer(
         string="Invoice Balance Before (days)", default=14,
         help="A to-do to invoice what's left is created this many days before each gig.")
+    gig_min_hours = fields.Float(
+        string="Minimum Hours", default=0.0,
+        help="Hourly gig products never bill fewer hours than this.")
     gig_tz = fields.Selection(
         _tz_get, string="Gig Time Zone",
         help="Gig start and end times are in this time zone (usually where you play). "
