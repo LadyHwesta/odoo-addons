@@ -33,8 +33,8 @@ class ResCompany(models.Model):
 
     signalwire_main_number_id = fields.Many2one(
         'signalwire.phone_number', string="Main Phone Number",
-        # A branch can use its own numbers or any of its parent companies'.
-        domain="['|', ('company_id', '=', False), ('company_id', 'parent_of', id)]",
+        # Our own numbers (never a customer's), the branch's own or any of its parent companies'.
+        domain="[('number_use', '=', 'own'), '|', ('company_id', '=', False), ('company_id', 'parent_of', id)]",
         help="Outside calls made for this company go out as this number. "
              "A branch without one uses its parent company's.")
 

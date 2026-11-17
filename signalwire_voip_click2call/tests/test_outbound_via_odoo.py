@@ -129,8 +129,15 @@ class TestOutboundViaOdoo(HttpCase):
         self.assertEqual(Server._for_company(self.branch), self.server)
 
     def test_a_branch_can_pick_its_parents_numbers(self):
+        customer = self.env['res.partner'].create({'name': 'TFL Conference'})
+        their_sub = self.env['signalwire.subproject'].create({
+            'name': 'TFL', 'server_id': self.server.id, 'account_sid': 'sub-tfl', 'state': 'active',
+            'partner_id': customer.id})
+        theirs = self.env['signalwire.phone_number'].create({
+            'name': '+17075898352', 'sid': 'pn-tfl', 'subproject_id': their_sub.id})
         domain = self.env['res.company']._fields['signalwire_main_number_id'].domain
         allowed = self.env['signalwire.phone_number'].search(
             eval(domain, {'id': self.branch.id}))
         self.assertIn(self.meskis_number, allowed)
         self.assertNotIn(self.dj_number, allowed)  # another company's
+        self.assertNotIn(theirs, allowed)  # a customer's
