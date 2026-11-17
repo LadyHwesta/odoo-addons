@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="website_press_kit_view_form" model="ir.ui.view">
+        <field name="name">website.press.kit.form</field>
+        <field name="model">website.press.kit</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_view_page" type="object" string="View Page" class="btn-secondary"
+                            invisible="not is_published"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Not published" bg_color="text-bg-warning" invisible="is_published"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. DJ EmBass"/></h1>
+                        <field name="tagline" placeholder="One line, e.g. Open-format DJ for weddings, clubs and festivals"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="website_id" options="{'no_create': True}"/>
+                            <field name="is_published"/>
+                            <field name="genres" placeholder="House, Disco, Top 40"/>
+                            <field name="based_in" placeholder="Sonoma County, California"/>
+                        </group>
+                        <group>
+                            <field name="booking_email" widget="email"/>
+                            <field name="booking_phone" widget="phone"/>
+                            <field name="book_url"/>
+                            <field name="show_events"/>
+                            <field name="rider" filename="rider_filename"/>
+                            <field name="rider_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Bio" name="bio">
+                            <field name="bio" placeholder="A short bio promoters and journalists can copy..."/>
+                        </page>
+                        <page string="Photos" name="photos">
+                            <p class="text-muted">The first photo is the big one at the top. Upload full size: that's what
+                                people download; the page shows a smaller copy.</p>
+                            <field name="photo_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="image_full" widget="image" options="{'size': [0, 60], 'preview_image': 'image_display'}"/>
+                                    <field name="caption"/>
+                                    <field name="credit"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Links" name="links">
+                            <field name="link_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="kind"/>
+                                    <field name="label"/>
+                                    <field name="url" widget="url"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="website_press_kit_view_list" model="ir.ui.view">
+        <field name="name">website.press.kit.list</field>
+        <field name="model">website.press.kit</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="website_id"/>
+                <field name="is_published"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_website_press_kit" model="ir.actions.act_window">
+        <field name="name">Press Kit</field>
+        <field name="res_model">website.press.kit</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your press kit</p>
+            <p>One per website, shown at /press-kit: bio, photos to download, links, upcoming events and a
+               Book button.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_website_press_kit" name="Press Kit" parent="website.menu_content"
+              action="action_website_press_kit" sequence="45" groups="website.group_website_designer"/>
+
+</odoo>

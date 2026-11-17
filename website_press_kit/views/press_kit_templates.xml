@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The press kit: who, what they sound like, what's coming up, photos
+         to take away. Plain Bootstrap and the theme's color classes (o_cc),
+         so each website's theme lays it out in its own style. -->
+    <template id="press_kit_page" name="Press Kit">
+        <t t-call="website.layout">
+            <t t-set="additional_title" t-value="kit.name + ' · Press Kit'"/>
+            <t t-set="meta_description" t-value="kit.tagline"/>
+            <t t-set="lead_photo" t-value="kit.photo_ids[:1]"/>
+            <div id="wrap" class="o_press_kit">
+
+                <section class="o_cc o_cc5 pt64 pb64">
+                    <div class="container">
+                        <div class="row align-items-center g-5">
+                            <div t-if="lead_photo" class="col-lg-5 order-last order-lg-first">
+                                <img t-attf-src="/press-kit/photo/#{lead_photo.id}" class="img-fluid rounded w-100"
+                                     t-att-alt="lead_photo.caption or kit.name" style="object-fit: cover; aspect-ratio: 4 / 5"/>
+                            </div>
+                            <div t-att-class="'col-lg-7' if lead_photo else 'col-12'">
+                                <p class="text-uppercase small mb-2" style="letter-spacing: .12em">Press kit</p>
+                                <h1 class="display-4 mb-2" t-out="kit.name"/>
+                                <p t-if="kit.tagline" class="lead mb-4" t-out="kit.tagline"/>
+                                <div t-if="kit.genre_list()" class="d-flex flex-wrap gap-2 mb-4">
+                                    <span t-foreach="kit.genre_list()" t-as="genre"
+                                          class="badge rounded-pill px-3 py-2 fw-normal" style="--badge-border-color: currentColor" t-out="genre"/>
+                                </div>
+                                <dl class="row mb-4 small">
+                                    <t t-if="kit.based_in">
+                                        <dt class="col-sm-3">Based in</dt>
+                                        <dd class="col-sm-9" t-out="kit.based_in"/>
+                                    </t>
+                                    <t t-if="kit.booking_email or kit.booking_phone">
+                                        <dt class="col-sm-3">Bookings</dt>
+                                        <dd class="col-sm-9">
+                                            <a t-if="kit.booking_email" t-attf-href="mailto:#{kit.booking_email}" t-out="kit.booking_email"/>
+                                            <t t-if="kit.booking_email and kit.booking_phone"> · </t>
+                                            <a t-if="kit.booking_phone" t-attf-href="tel:#{kit.booking_phone}" t-out="kit.booking_phone"/>
+                                        </dd>
+                                    </t>
+                                </dl>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a t-if="kit.book_url" t-att-href="kit.book_url" class="btn btn-primary btn-lg">Book a date</a>
+                                    <a t-if="kit.rider" href="/press-kit/rider" class="btn btn-outline-light btn-lg">Technical rider</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section t-if="kit.bio and not is_html_empty(kit.bio)" class="o_cc o_cc1 pt64 pb48">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-3"><h2 class="h4">Bio</h2></div>
+                            <div class="col-lg-8" style="max-width: 44rem"><div t-field="kit.bio"/></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section t-if="events" class="o_cc o_cc2 pt48 pb48">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-3"><h2 class="h4">Upcoming</h2></div>
+                            <div class="col-lg-9">
+                                <ul class="list-unstyled mb-0">
+                                    <li t-foreach="events" t-as="event" class="d-flex gap-4 align-items-baseline py-3 border-bottom">
+                                        <div style="min-width: 6.5rem; font-variant-numeric: tabular-nums">
+                                            <strong t-field="event.date_begin" t-options="{'widget': 'date', 'format': 'd MMM yyyy', 'tz_name': event.date_tz}"/>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <a t-att-href="event.website_url" class="fw-bold" t-out="event.name"/>
+                                            <span t-if="'is_appearance' in event._fields and event.is_appearance"
+                                                  class="badge text-bg-secondary ms-2 fw-normal"
+                                                  t-out="event.appearance_badge or 'Performing'"/>
+                                            <div t-if="event.address_id.city" class="small text-muted">
+                                                <t t-out="event.address_id.name"/><t t-if="event.address_id.name and event.address_id.city">, </t><t t-out="event.address_id.city"/>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section t-if="kit.link_ids" class="o_cc o_cc1 pt48 pb48">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-3"><h2 class="h4">Listen &amp; watch</h2></div>
+                            <div class="col-lg-9 d-flex flex-wrap gap-2">
+                                <a t-foreach="kit.link_ids" t-as="link" t-att-href="link.url" target="_blank"
+                                   rel="noopener noreferrer" class="btn btn-outline-primary">
+                                    <span class="small text-uppercase opacity-75 me-1" t-field="link.kind"/>
+                                    <t t-out="link.label"/>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section t-if="kit.photo_ids" class="o_cc o_cc1 pt48 pb64">
+                    <div class="container">
+                        <div class="d-flex align-items-baseline justify-content-between mb-3">
+                            <h2 class="h4 mb-0">Photos</h2>
+                            <span class="small text-muted">Free to use with credit. Download for full size.</span>
+                        </div>
+                        <div class="row g-4">
+                            <div t-foreach="kit.photo_ids" t-as="photo" class="col-sm-6 col-lg-4">
+                                <figure class="mb-0">
+                                    <img t-attf-src="/press-kit/photo/#{photo.id}" class="img-fluid rounded w-100"
+                                         style="object-fit: cover; aspect-ratio: 4 / 3" loading="lazy"
+                                         t-att-alt="photo.caption or kit.name"/>
+                                    <figcaption class="d-flex justify-content-between align-items-baseline gap-2 mt-2 small">
+                                        <span>
+                                            <t t-out="photo.caption or ''"/>
+                                            <span t-if="photo.credit" class="text-muted d-block">Photo: <t t-out="photo.credit"/></span>
+                                        </span>
+                                        <a t-attf-href="/press-kit/photo/#{photo.id}?download=1" class="text-nowrap">Download</a>
+                                    </figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

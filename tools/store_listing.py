@@ -46,6 +46,7 @@ GLYPHS = {
     'gauge': '<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
     'checklist': '<rect x="4" y="3" width="16" height="19" rx="2"/><path d="M9 2h6v3H9z"/><path d="M8 11l2 2 4-4"/><path d="M8 17h8"/>',
     'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+    'press': '<path d="M4 4h13v16H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v10a2 2 0 0 1-2 2"/><path d="M8 8h5M8 12h5M8 16h3"/>',
 }
 
 # module -> listing. art=False keeps the module's existing icon and banner.
@@ -223,6 +224,24 @@ LISTINGS = {
                   ('Played or skipped', 'One tap per request during the gig.')],
         setup=['Install it (it needs Gig Bookings).',
                'On a booked gig, open the Music tab and use Print Song Card.']),
+    'website_press_kit': dict(
+        name='Website Press Kit', glyph='press',
+        tagline='A press kit page for performers: bio, photos to download, links, upcoming shows, Book button',
+        intro=['Promoters, venues and journalists ask every act for the same things: a bio, photos, '
+               'something to listen to, and dates. This module puts them on one page of your website, '
+               'at /press-kit.',
+               'Your upcoming events appear on it by themselves, and photos download at full size, so '
+               'they print well.'],
+        features=[('Bio, genres, where you\'re based', 'With booking email and phone.'),
+                  ('Photos at full size', 'Shown at web size on the page; Download gives the original, '
+                   'with your caption and photo credit.'),
+                  ('Mixes, videos and socials', 'Links grouped as buttons; a technical rider to download.'),
+                  ('Upcoming events', 'Published events on this website, appearances included, '
+                   'straight from your Events app.'),
+                  ('Your theme, one kit per website', 'Laid out with your website\'s colors; each '
+                   'website has its own.')],
+        setup=['Install it and open Website > Site > Press Kit.',
+               'Fill it in, tick Published, and add /press-kit to your website menu.']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
         tagline='Bots probing odd addresses get a plain 404, not a server error',
