@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- During the gig: tonight's requests, newest first, one tap to mark. -->
+    <record id="gig_song_request_view_list" model="ir.ui.view">
+        <field name="name">gig.song.request.list</field>
+        <field name="model">gig.song.request</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="state != 'new'" decoration-danger="on_do_not_play and state == 'new'">
+                <field name="create_date" string="At" widget="datetime" options="{'show_date': false}"/>
+                <field name="song"/>
+                <field name="artist"/>
+                <field name="requested_by" optional="show"/>
+                <field name="order_id" optional="show"/>
+                <field name="on_do_not_play" string="Do-not-play" widget="boolean" optional="show"/>
+                <field name="state" widget="badge" decoration-success="state == 'played'"/>
+                <button name="action_played" type="object" string="Played" icon="fa-check"
+                        invisible="state != 'new'"/>
+                <button name="action_skipped" type="object" string="Skip" icon="fa-times"
+                        invisible="state != 'new'"/>
+                <button name="action_reset" type="object" string="Undo" icon="fa-undo"
+                        invisible="state == 'new'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="gig_song_request_view_search" model="ir.ui.view">
+        <field name="name">gig.song.request.search</field>
+        <field name="model">gig.song.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="song"/>
+                <field name="artist"/>
+                <field name="order_id"/>
+                <filter name="new" string="Not played yet" domain="[('state', '=', 'new')]"/>
+                <filter name="today" string="Today"
+                        domain="[('order_id.gig_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="group_order" string="Gig" context="{'group_by': 'order_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_gig_song_request" model="ir.actions.act_window">
+        <field name="name">Song Requests</field>
+        <field name="res_model">gig.song.request</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[('kind', '=', 'request')]</field>
+        <field name="context">{'search_default_today': 1, 'search_default_new': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No requests yet</p>
+            <p>Guests request songs from the QR card on each gig (Print Song Card on the gig's Music tab).</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_gig_song_request" name="Song Requests" parent="sale.sale_order_menu"
+              action="action_gig_song_request" sequence="60"/>
+
+</odoo>

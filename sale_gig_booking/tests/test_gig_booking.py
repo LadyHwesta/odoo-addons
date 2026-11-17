@@ -142,3 +142,15 @@ class TestGigBooking(HttpCase):
             website.crm_default_team_id = own_team
         self.assertIn(f'name="team_id" value="{own_team.id}"', self.url_open('/book').text)
 
+
+    # ---- load-in sheet ----
+
+    def test_load_in_sheet_prints_the_day(self):
+        order = self._order(date(2026, 12, 5), 19.5, 1.0)
+        order.write({'gig_load_in_hour': 17.25, 'gig_contact_name': 'Pat (venue)',
+                     'gig_contact_phone': '+1 707 555 0100', 'gig_load_in_notes': 'Back door, 2 steps'})
+        self.assertEqual(order._gig_sheet_times(), {'load_in': '17:15', 'start': '19:30', 'end': '01:00'})
+        html = self.env['ir.actions.report']._render_qweb_html(
+            'sale_gig_booking.report_gig_load_in', order.ids)[0].decode()
+        for text in ('Ledson Winery', '17:15', 'Pat (venue)', 'Back door, 2 steps', 'DJ package, 4 hours'):
+            self.assertIn(text, html)

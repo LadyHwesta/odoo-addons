@@ -58,3 +58,12 @@ and submitted in a real browser.
 ## License
 
 LGPL-3.
+
+## Load-in sheet
+
+The Gig tab also holds the **load-in time**, the **on-site contact** and
+**load-in notes** (parking, entrance, stairs, power, curfew).
+**Print > Load-in Sheet** puts the day on one page: times, venue, contacts,
+what was booked and the notes. Gig Gear Checklist (`sale_gig_gear`) adds the
+gear list, and Gig Song Requests (`sale_gig_song_requests`) adds the client's
+music lists.

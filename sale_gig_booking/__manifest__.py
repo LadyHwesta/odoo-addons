@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gig Bookings',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'category': 'Sales/Sales',
     'summary': "Booking requests for performers: gig details, quote with e-sign and deposit, double-booking check",
     'description': """
@@ -30,6 +30,7 @@ never booked twice. A calendar shows every booked date.
         'views/gig_booking_slot_views.xml',
         'views/res_config_settings_views.xml',
         'views/website_templates.xml',
+        'report/gig_load_in_report.xml',
     ],
     'installable': True,
 }

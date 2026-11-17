@@ -65,7 +65,7 @@
             <span t-if="event.is_appearance and event.appearance_badge"
                   class="badge o_wevent_appearance_badge" t-out="event.appearance_badge"/>
         </xpath>
-        <xpath expr="//div[contains(@class, 'align-items-end text-center')]/t[@t-if='not event.event_registrations_open']" position="before">
+        <xpath expr="//div[hasclass('align-items-end', 'text-center')]/t[@t-if='not event.event_registrations_open']" position="before">
             <t t-if="event.is_appearance">
                 <small t-if="event.sudo().appearance_host_id" class="text-muted fw-bold w-100" t-out="event.sudo().appearance_host_id.display_name"/>
                 <button type="button" class="btn btn-primary mt-auto">
@@ -73,7 +73,7 @@
                 </button>
             </t>
         </xpath>
-        <xpath expr="//div[contains(@class, 'align-items-end text-center')]/t[@t-if='not event.event_registrations_open']" position="attributes">
+        <xpath expr="//div[hasclass('align-items-end', 'text-center')]/t[@t-if='not event.event_registrations_open']" position="attributes">
             <attribute name="t-if"/>
             <attribute name="t-elif">not event.event_registrations_open</attribute>
         </xpath>

@@ -4,6 +4,8 @@ from datetime import timedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .gig_booking_mixin import hours_to_time
+
 BALANCE_SUMMARY = "Invoice the balance"
 
 
@@ -13,6 +15,13 @@ class SaleOrder(models.Model):
 
     is_gig = fields.Boolean(compute='_compute_is_gig', store=True)
     gig_event_id = fields.Many2one('event.event', string="Promoted As", copy=False)
+    # The load-in sheet: what the crew needs on the day.
+    gig_load_in_hour = fields.Float(string="Load-in", help="Time of day you can start setting up.")
+    gig_contact_name = fields.Char(string="On-site Contact",
+                                   help="Who to ask for on the day: venue manager, planner...")
+    gig_contact_phone = fields.Char(string="On-site Phone")
+    gig_load_in_notes = fields.Text(
+        string="Load-in Notes", help="Parking, entrance, stairs or lift, power, curfew...")
 
     @api.depends('gig_date')
     def _compute_is_gig(self):
@@ -63,6 +72,22 @@ class SaleOrder(models.Model):
         return {
             'type': 'ir.actions.act_window', 'res_model': 'event.event',
             'res_id': self.gig_event_id.id, 'view_mode': 'form', 'target': 'current',
+        }
+
+    @staticmethod
+    def _gig_hhmm(hours):
+        if not hours:
+            return ''
+        t = hours_to_time(hours)
+        return f"{t.hour:02d}:{t.minute:02d}"
+
+    def _gig_sheet_times(self):
+        """Load-in, start and end as the crew reads them (HH:MM, local)."""
+        self.ensure_one()
+        return {
+            'load_in': self._gig_hhmm(self.gig_load_in_hour),
+            'start': self._gig_hhmm(self.gig_start_hour),
+            'end': self._gig_hhmm(self.gig_end_hour),
         }
 
     @api.model

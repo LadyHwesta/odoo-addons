@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gig_gear_item_salesman,gig.gear.item salesman,model_gig_gear_item,sales_team.group_sale_salesman,1,0,0,0
+access_gig_gear_item_manager,gig.gear.item manager,model_gig_gear_item,sales_team.group_sale_manager,1,1,1,1
+access_gig_gear_default_salesman,gig.gear.default salesman,model_gig_gear_default,sales_team.group_sale_salesman,1,0,0,0
+access_gig_gear_default_manager,gig.gear.default manager,model_gig_gear_default,sales_team.group_sale_manager,1,1,1,1
+access_gig_gear_line_salesman,gig.gear.line salesman,model_gig_gear_line,sales_team.group_sale_salesman,1,1,1,1

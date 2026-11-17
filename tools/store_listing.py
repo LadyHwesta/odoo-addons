@@ -44,6 +44,8 @@ GLYPHS = {
     'query': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/>',
     'mic': '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5M8 22h8"/>',
     'gauge': '<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
+    'checklist': '<rect x="4" y="3" width="16" height="19" rx="2"/><path d="M9 2h6v3H9z"/><path d="M8 11l2 2 4-4"/><path d="M8 17h8"/>',
+    'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
 }
 
 # module -> listing. art=False keeps the module's existing icon and banner.
@@ -190,6 +192,36 @@ LISTINGS = {
                   ('Balance reminders', 'A to-do to invoice what\'s left, a set number of days before each gig.')],
         setup=['Install it, and turn on Online Signature and Online Payment (with a deposit) in Sales settings.',
                'Link your website to the Book a Date page (/book).']),
+    'sale_gig_gear': dict(
+        name='Gig Gear Checklist', glyph='checklist',
+        tagline='Your gear list, default gear per package, and a packing checklist on every gig',
+        intro=['Keep a list of the gear you take to gigs: speakers, lights, mics, cables, and how many '
+               'of each you own. On each package or add-on, say which gear it needs.',
+               'Every booked gig then gets its own packing checklist, and the load-in sheet prints it '
+               'with boxes to tick as it goes in the van.'],
+        features=[('Checklist on every gig', 'Filled from the booked packages when the gig is confirmed; '
+                   'add or change items by hand.'),
+                  ('Packed ticks', '"5 of 12 packed" at a glance, and a printed list to tick on the day.'),
+                  ('More than you own', 'A gig needing more of something than you have is flagged.'),
+                  ('Load-in sheet', 'Times, venue, on-site contact, notes and gear, on one page.')],
+        setup=['Install it (it needs Gig Bookings) and add your gear in Sales > Configuration > Gear.',
+               'Open each package product and list its gear on the Gig Gear tab.']),
+    'sale_gig_song_requests': dict(
+        name='Gig Song Requests', glyph='music',
+        tagline='Guests request songs from a QR code; clients set must-play and do-not-play lists',
+        intro=['Every booked gig gets a private song request page and a QR card to stand on the tables. '
+               'Guests request a song from their phone, and the page closes when the gig ends.',
+               'Before the gig, your client fills in must-play and do-not-play lists from their customer '
+               'portal. You see everything on the gig, and requests on the do-not-play list are flagged.'],
+        features=[('QR card for the tables', 'Print it from the gig; it opens the request page on your '
+                   'own website.'),
+                  ('Protected and rate-limited', 'Turnstile or reCAPTCHA if you use them, a hidden bot trap, '
+                   'and a limit per phone.'),
+                  ('Client music lists', 'Must play (with the moment, e.g. First dance) and do not play, '
+                   'from the customer portal until the gig starts.'),
+                  ('Played or skipped', 'One tap per request, and both lists on the load-in sheet.')],
+        setup=['Install it (it needs Gig Bookings).',
+               'On a booked gig, open the Music tab and use Print Song Card.']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
         tagline='Bots probing odd addresses get a plain 404, not a server error',

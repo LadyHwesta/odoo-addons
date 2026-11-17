@@ -39,6 +39,17 @@
                             <field name="gig_event_id" invisible="not gig_event_id"/>
                         </group>
                     </group>
+                    <group string="Load-in">
+                        <group>
+                            <field name="gig_load_in_hour" widget="float_time"/>
+                            <field name="gig_contact_name"/>
+                            <field name="gig_contact_phone" widget="phone"/>
+                        </group>
+                        <group>
+                            <field name="gig_load_in_notes" nolabel="1" colspan="2"
+                                   placeholder="Parking, entrance, stairs or lift, power, curfew..."/>
+                        </group>
+                    </group>
                 </page>
             </xpath>
         </field>
