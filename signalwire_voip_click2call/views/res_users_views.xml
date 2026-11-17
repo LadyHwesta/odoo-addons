@@ -24,6 +24,14 @@
                 <group string="Outside calls" invisible="not signalwire_sip_endpoint_id">
                     <field name="signalwire_outbound_number_id" options="{'no_create': true}" />
                     <field name="signalwire_outbound_allowed" readonly="1" />
+                    <div colspan="2" groups="base.group_system" invisible="not signalwire_outbound_allowed">
+                        <button name="action_signalwire_outbound_via_odoo" type="object" class="btn-link px-0"
+                                string="Test: outside calls through Odoo"
+                                help="Live test: this softphone asks Odoo for each outside call. Calls still go out as the Calls Out As number."/>
+                        <span class="text-muted mx-2">·</span>
+                        <button name="action_signalwire_outbound_direct" type="object" class="btn-link px-0"
+                                string="Back to direct"/>
+                    </div>
                     <div colspan="2" class="text-muted" invisible="signalwire_outbound_allowed">
                         Internal calls only until the Calls Out As number has active E911
                         (VoIP › Phone Numbers). 911 can't be dialled from these phones until then.
