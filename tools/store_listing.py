@@ -46,6 +46,7 @@ GLYPHS = {
     'gauge': '<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
     'checklist': '<rect x="4" y="3" width="16" height="19" rx="2"/><path d="M9 2h6v3H9z"/><path d="M8 11l2 2 4-4"/><path d="M8 17h8"/>',
     'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+    'ticket': '<path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M9 10l2 2 4-4"/>',
     'press': '<path d="M4 4h13v16H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v10a2 2 0 0 1-2 2"/><path d="M8 8h5M8 12h5M8 16h3"/>',
 }
 
@@ -242,6 +243,21 @@ LISTINGS = {
                    'website has its own.')],
         setup=['Install it and open Website > Site > Press Kit.',
                'Fill it in, tick Published, and add /press-kit to your website menu.']),
+    'pos_event_checkin': dict(
+        name='POS Event Check-in', glyph='ticket',
+        tagline='Check people in at the door from the Point of Sale: scan their ticket or look them up',
+        intro=['Odoo\'s Point of Sale already sells event tickets at the door. This adds the other half: '
+               'checking in the people who bought their tickets beforehand, at the same till.',
+               'Scan a ticket and it\'s checked in with the Registration Desk\'s rules, or open the door '
+               'list to find someone by name and see how many are in.'],
+        features=[('Scan to check in', 'Scanner or the device\'s camera; product barcodes still work.'),
+                  ('Clear answers', 'Checked in, already in (and when), another day\'s ticket, cancelled '
+                   'or unconfirmed.'),
+                  ('The door list', 'Today\'s attendees with search and a running "42 of 120 in".'),
+                  ('Today and your company only', 'Other days\' and other companies\' tickets are never '
+                   'checked in by mistake.')],
+        setup=['Install it (it needs POS - Event) and open your Point of Sale.',
+               'Scan a ticket on the register screen, or use Actions > Check In.']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
         tagline='Bots probing odd addresses get a plain 404, not a server error',

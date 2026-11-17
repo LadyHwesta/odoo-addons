@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_event_checkin.CheckInPopup">
+        <Dialog title="title" size="'lg'">
+            <div class="o_event_checkin d-flex flex-column gap-3">
+                <div t-if="state.last" t-attf-class="alert alert-{{ state.last.type }} mb-0 py-2" role="status">
+                    <div class="fw-bold fs-5" t-out="state.last.title"/>
+                    <div t-if="state.last.message" t-out="state.last.message"/>
+                </div>
+
+                <div t-if="!state.loading and !state.events.length" class="text-muted text-center py-4">
+                    No events today for this point of sale's company.
+                </div>
+                <div t-foreach="state.events" t-as="event" t-key="event.id"
+                     class="d-flex justify-content-between align-items-baseline">
+                    <span class="fw-bold" t-out="event.name"/>
+                    <span class="fs-5" style="font-variant-numeric: tabular-nums">
+                        <t t-out="event.checked_in"/> <span class="text-muted fs-6">of</span> <t t-out="event.total"/>
+                        <span class="text-muted fs-6"> in</span>
+                    </span>
+                </div>
+
+                <div t-if="state.events.length" class="d-flex gap-2">
+                    <input type="search" class="form-control form-control-lg" placeholder="Name, email or ticket number"
+                           t-att-value="state.query" t-on-input="onInput" aria-label="Search attendees"/>
+                    <button class="btn btn-secondary btn-lg text-nowrap" t-on-click="scanWithCamera">
+                        <i class="fa fa-camera me-1"/>Scan
+                    </button>
+                </div>
+
+                <ul t-if="state.events.length" class="list-group" style="max-height: 50vh; overflow-y: auto">
+                    <li t-if="!state.attendees.length and !state.loading" class="list-group-item text-muted">
+                        Nobody found.
+                    </li>
+                    <li t-foreach="state.attendees" t-as="attendee" t-key="attendee.id"
+                        class="list-group-item d-flex align-items-center gap-3">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" t-out="attendee.name"/>
+                            <div class="small text-muted">
+                                <t t-out="attendee.ticket"/><t t-if="attendee.ticket and state.events.length > 1"> · </t>
+                                <t t-if="state.events.length > 1" t-out="attendee.event"/>
+                            </div>
+                        </div>
+                        <span t-if="attendee.status === 'already'" class="text-success text-nowrap">
+                            <i class="fa fa-check me-1"/>In <t t-out="attendee.checked_in_at"/>
+                        </span>
+                        <span t-elif="attendee.status === 'unconfirmed'" class="text-danger text-nowrap"
+                              t-out="statusLabel(attendee.status)"/>
+                        <button t-else="" class="btn btn-primary" t-on-click="() => this.checkIn(attendee)">
+                            Check in
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary btn-lg" t-on-click="props.close">Done</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>
