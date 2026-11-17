@@ -42,6 +42,7 @@ GLYPHS = {
     'send': '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
     'shield': '<path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/>',
     'query': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/>',
+    'mic': '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5M8 22h8"/>',
     'gauge': '<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
 }
 
@@ -158,6 +159,22 @@ LISTINGS = {
                    'before.'),
                   ('Installs itself', 'It installs automatically with Odoo\'s web client.')],
         setup=['Install it; there is nothing to set up.']),
+    'website_event_appearance': dict(
+        name='Event Appearances', glyph='mic',
+        tagline="List events you're performing at: link to the host's tickets, show their flyer",
+        intro=['Performers, speakers and vendors appear at events someone else runs. Listing those '
+               'as normal events makes Odoo try to sell tickets and take registrations for them.',
+               'Mark an event as an appearance and it is listed on your website with your own events, '
+               'but nothing is sold here: the page shows who is hosting, their flyer and materials, '
+               'and a button to where people buy tickets or register.'],
+        features=[('Link to the host', 'Get tickets, Register or More info, opening the host\'s page; '
+                   'or Free entry.'),
+                  ('Their flyer and materials', 'Images and files from the host, on the event page.'),
+                  ('A badge in your events list', 'Shown on each appearance, e.g. "Performing".'),
+                  ('Nothing sold by mistake', 'Odoo\'s registration and tickets are switched off for '
+                   'appearances, even if someone posts to them directly.')],
+        setup=['Install it, open an event and tick Appearance.',
+               'Choose how people get in and paste the host\'s link.']),
     'website_canonical_url_guard': dict(
         name='Canonical URL Guard', glyph='link',
         tagline='Bots probing odd addresses get a plain 404, not a server error',

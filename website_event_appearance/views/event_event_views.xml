@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_event_form_appearance" model="ir.ui.view">
+        <field name="name">event.event.form.appearance</field>
+        <field name="model">event.event</field>
+        <field name="inherit_id" ref="event.view_event_form"/>
+        <field name="arch" type="xml">
+            <field name="organizer_id" position="before">
+                <field name="is_appearance"/>
+                <field name="appearance_host_id" invisible="not is_appearance"
+                       placeholder="The venue, promoter or organisation"/>
+            </field>
+            <xpath expr="//notebook/page[@name='tickets']" position="attributes">
+                <attribute name="invisible">is_appearance</attribute>
+            </xpath>
+            <xpath expr="//notebook/page[@name='tickets']" position="before">
+                <page string="Appearance" name="appearance" invisible="not is_appearance">
+                    <div class="alert alert-info" role="alert">
+                        Someone else runs this event. It's listed on your website, but people get in
+                        through the host: nothing is sold or registered here.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="appearance_entry" widget="radio"/>
+                            <field name="appearance_url" widget="url"
+                                   invisible="appearance_entry == 'free'"
+                                   required="is_appearance and appearance_entry != 'free'"
+                                   placeholder="https://..."/>
+                            <field name="appearance_button_label"
+                                   invisible="appearance_entry == 'free'"/>
+                            <field name="appearance_badge"/>
+                        </group>
+                        <group string="Marketing materials">
+                            <field name="appearance_material_ids" widget="many2many_binary" nolabel="1"
+                                   colspan="2"/>
+                            <div colspan="2" class="text-muted small">
+                                Flyers, posters and press images from the host. Anyone viewing the
+                                event page can open them. Use the event's cover image for the main flyer.
+                            </div>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_event_search_appearance" model="ir.ui.view">
+        <field name="name">event.event.search.appearance</field>
+        <field name="model">event.event</field>
+        <field name="inherit_id" ref="event.view_event_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="appearances" string="Appearances" domain="[('is_appearance', '=', True)]"/>
+                <filter name="own_events" string="Our Own Events" domain="[('is_appearance', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
