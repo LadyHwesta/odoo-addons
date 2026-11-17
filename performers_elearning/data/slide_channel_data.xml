@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Built by performers_elearning/tools/build_course_data.py: edit there and rebuild. -->
+<odoo noupdate="1">
+
+    <record id="channel_bookings" model="slide.channel">
+        <field name="name">Bookings: From Request to Gig Day</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Take a booking request to a signed, paid, never-double-booked gig, and walk into the day with everything on one sheet.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('sales_team.group_sale_salesman')])]" />
+    </record>
+    <record id="channel_bookings_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Requests and quotes</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_bookings_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">The Book a Date form</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Clients ask for a date on your website's <span class="oe-path">Book a Date</span> page (<code>/book</code>): their name and contact, the type of event, the date, start and end times, the venue, the number of guests and anything you should know.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/book_form.png" alt="The Book a Date form on the website" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the Book a Date page.</p></div><p>Each request becomes a lead in <span class="oe-path">CRM</span>, named after the gig, with all of that on its <strong>Gig</strong> details. Add the page to your website menu once, and it's protected from spam like any other Odoo form.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-clock-o" /></span><div><span class="oe-callout-label">Times past midnight</span><p>An end time earlier than the start means the gig runs past midnight: 21:00 to 01:00 is a four-hour gig.</p></div></div></div></field>
+    </record>
+    <record id="channel_bookings_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Packages and quotes</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>From the lead, <span class="oe-path">New Quotation</span> starts a quote with the gig's details already on its <strong>Gig</strong> tab. Pick a quote template for the package, and add-ons from its optional products.</p><p>Packages priced by the hour bill the gig's own length. On the product's <span class="oe-path">Gigs</span> tab, tick <strong>Bill the Gig's Hours</strong>: a 17:00 to 23:00 gig puts 6 hours on the quote, and changing the gig's times changes the hours while it's still a quote. A <strong>Minimum Hours</strong> setting in <span class="oe-path">Sales › Configuration › Settings</span> keeps short gigs from billing less.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/quote_lines.png" alt="A quote with an hourly package at six hours and a PA rental" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>an hourly package at the gig's 6 hours, and a flat-priced PA rental.</p></div><div class="oe-diagram"><img src="/performers_elearning/static/img/product_gigs_tab.png" alt="A product's Gigs tab" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a package's <strong>Gigs</strong> tab: hourly billing, a to-do when booked, and its gear.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-check-square-o" /></span><div><span class="oe-callout-label">A to-do when booked</span><p><strong>To-do When Booked</strong> on a product becomes a to-do for the salesperson the moment a gig with it is booked: for example, "Get the venue's equipment list" for a sound engineer working on house gear.</p></div></div></div></field>
+    </record>
+    <record id="channel_bookings_s1_l3" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Never booked twice</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">13</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Every quote is checked against your confirmed gigs, your appearances and your own events, with a gap around each (set as <strong>Gap Between Gigs</strong> in Settings, 2 hours by default) for setup, travel and pack-down. Anything too close shows at the top of the quote.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/double_booking.png" alt="A quote warning that the date is already booked" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a quote that clashes with a gig already booked that night.</p></div><p>Confirming a clashing quote is stopped; if you really mean it (two short sets, say), use <strong>Confirm Anyway</strong>. <span class="oe-path">Sales › Orders › Booked Dates</span> shows every booked gig and event on a calendar.</p></div></field>
+    </record>
+    <record id="channel_bookings_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Booked: signature, deposit and balance</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">23</field>
+    </record>
+    <record id="channel_bookings_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Signature and deposit</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Send the quote from Odoo. With <strong>Online Signature</strong> and <strong>Online Payment</strong> on (Settings, with the deposit as a percentage), the client signs and pays the deposit from the link, and that books the date: the quote becomes a sales order.</p><div class="oe-diagram"><div class="oe-flow"><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-paper-plane" /></span>Send the quote</div><span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-pencil" /></span>Client signs</div><span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-credit-card" /></span>Pays the deposit</div><span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-calendar-check-o" /></span>Date booked</div></div></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-bell" /></span><div><span class="oe-callout-label">The balance</span><p>A daily job adds an <strong>Invoice the balance</strong> to-do on each booked gig coming up within <strong>Invoice Balance Before</strong> days (Settings, 14 by default).</p></div></div></div></field>
+    </record>
+    <record id="channel_bookings_s3" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">On the day</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">34</field>
+    </record>
+    <record id="channel_bookings_s3_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">The timeline</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">35</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>The quote's <strong>Timeline</strong> tab holds the moments of the event: grand entrance, first dance, toasts, last song. Times after midnight sort after the evening.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/timeline_tab.png" alt="A gig's timeline" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a wedding's timeline.</p></div><p>Clients add to it themselves from their order in the customer portal (<strong>Your event timeline</strong>) until the gig starts; their moments are marked <strong>From Client</strong>.</p></div></field>
+    </record>
+    <record id="channel_bookings_s3_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">The Gig Sheet</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">36</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>The <strong>Gig</strong> tab also takes the load-in time, the on-site contact and load-in notes (parking, stairs, power, curfew). <span class="oe-path">Print › Gig Sheet</span> puts the whole day on paper: the booking, times, venue, contacts, what was booked, the timeline, the notes and the gear checklist, with the song request card as its last page.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/gig_sheet.png" alt="The Gig Sheet" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the start of a Gig Sheet.</p></div></div></field>
+    </record>
+    <record id="channel_bookings_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_bookings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">86</field>
+    </record>
+    <record id="channel_bookings_q1" model="slide.question">
+        <field name="slide_id" ref="channel_bookings_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A wedding runs 17:00 to 23:00. How many hours does a package with Bill the Gig's Hours put on the quote?</field>
+    </record>
+    <record id="channel_bookings_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">6</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bookings_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">1</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Whatever the template says</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">None until the gig is booked</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q2" model="slide.question">
+        <field name="slide_id" ref="channel_bookings_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">A quote clashes with a gig already booked that night, and you're sure you can do both. What do you do?</field>
+    </record>
+    <record id="channel_bookings_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Use Confirm Anyway</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bookings_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Delete the other gig</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Change the gap in Settings to zero</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Send it without confirming</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q3" model="slide.question">
+        <field name="slide_id" ref="channel_bookings_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">What books the date when Online Signature and Online Payment are on?</field>
+    </record>
+    <record id="channel_bookings_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">The client signing and paying the deposit</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bookings_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Sending the quote</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">The lead being created</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">Printing the Gig Sheet</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q4" model="slide.question">
+        <field name="slide_id" ref="channel_bookings_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Where do clients add their grand entrance and first dance times?</field>
+    </record>
+    <record id="channel_bookings_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Your event timeline, on their order in the customer portal</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bookings_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">The Book a Date form</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Songs to Get</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bookings_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_bookings_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">They email the Gig Sheet back</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music" model="slide.channel">
+        <field name="name">Gear and Music</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Pack the right gear for every gig, and handle the client's music lists and guests' song requests.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('sales_team.group_sale_salesman')])]" />
+    </record>
+    <record id="channel_gear_music_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Gear</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_gear_music_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your gear and each package's</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>List your gear once in <span class="oe-path">Sales › Configuration › Gear</span>: speakers, lights, mics, cables, and how many of each you own. Then, on each package or add-on, its <span class="oe-path">Gigs</span> tab lists the gear it needs.</p><p>When a gig is booked, its <strong>Gear</strong> tab fills from the packages sold: two products each needing a speaker need two. <strong>Add Gear from Packages</strong> adds anything new (after an add-on, say) without removing what you added by hand.</p></div></field>
+    </record>
+    <record id="channel_gear_music_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Packing</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Tick items off as they go in the van: "2 of 6 packed" at the top. Anything needing more than you own is flagged in red. The Gig Sheet prints the list with boxes to tick on the day.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/gear_tab.png" alt="A gig's gear checklist" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a gig's Gear tab, two items packed.</p></div></div></field>
+    </record>
+    <record id="channel_gear_music_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Music</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">22</field>
+    </record>
+    <record id="channel_gear_music_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">The client's lists</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Clients fill in two lists from their order in the customer portal: <strong>Must play</strong> (with the moment, like First dance) and <strong>Do not play</strong>. They can change them until the gig starts.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/portal_music.png" alt="The client's music lists in the portal" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the client's view.</p></div><p>Both lists are on the gig's <strong>Music</strong> tab too, for you to edit.</p></div></field>
+    </record>
+    <record id="channel_gear_music_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Song requests from guests</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Every booked gig has a private song request page. <span class="oe-path">Print Song Card</span> on the Music tab prints a card with its QR code for the tables (the Gig Sheet ends with one too).</p><div class="oe-diagram"><img src="/performers_elearning/static/img/song_request_phone.png" alt="The song request page on a phone" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>what a guest sees.</p></div><p>Requests close when the gig ends, and each phone can send a few at a time. On the Music tab, or in <span class="oe-path">Sales › Orders › Song Requests</span> during the gig, mark them <strong>Played</strong> or <strong>Skip</strong>; a request for a do-not-play song is shown in red.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/music_tab.png" alt="A gig's Music tab" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a gig's Music tab: the client's lists and guest requests.</p></div></div></field>
+    </record>
+    <record id="channel_gear_music_s2_l3" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Songs to Get</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">25</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Sales › Orders › Songs to Get</span> lists the must-play songs and guest requests for upcoming gigs that you don't have yet. Mark each <strong>Got it</strong>, or <strong>Can't get</strong> with a note saying why: the client sees that note on their must-play list and can pick another song.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/songs_to_get.png" alt="Songs to Get" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>songs still to get for an upcoming wedding.</p></div></div></field>
+    </record>
+    <record id="channel_gear_music_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_gear_music" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">75</field>
+    </record>
+    <record id="channel_gear_music_q1" model="slide.question">
+        <field name="slide_id" ref="channel_gear_music_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">A package and an add-on each need one speaker. How many does the gig's gear checklist ask for?</field>
+    </record>
+    <record id="channel_gear_music_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">2</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_gear_music_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">1</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">None, gear is added by hand</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Whatever you own</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q2" model="slide.question">
+        <field name="slide_id" ref="channel_gear_music_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">You can't find a client's must-play song anywhere. What do you do?</field>
+    </record>
+    <record id="channel_gear_music_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Mark it Can't get with a note, so the client can choose another</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_gear_music_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Delete it from their list</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Mark it Played</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Nothing, they'll notice on the night</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q3" model="slide.question">
+        <field name="slide_id" ref="channel_gear_music_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">When do guests stop being able to request songs?</field>
+    </record>
+    <record id="channel_gear_music_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">When the gig ends</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_gear_music_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">When the gig starts</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">A week before</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">Never</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q4" model="slide.question">
+        <field name="slide_id" ref="channel_gear_music_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">A guest requests a song on the client's do-not-play list. How does it show?</field>
+    </record>
+    <record id="channel_gear_music_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">In red, flagged as do-not-play</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_gear_music_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">It's refused on the guest's phone</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">It goes on the must-play list</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_gear_music_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_gear_music_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">It doesn't show at all</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion" model="slide.channel">
+        <field name="name">Getting Booked Again</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>List the gigs you play at other people's events, and give promoters a press kit page.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('sales_team.group_sale_salesman')])]" />
+    </record>
+    <record id="channel_promotion_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_promotion" />
+        <field name="is_published" eval="True" />
+        <field name="name">Appearances</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_promotion_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_promotion" />
+        <field name="is_published" eval="True" />
+        <field name="name">Gigs at other people's events</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>An event someone else runs, where you're performing, is an <strong>Appearance</strong>: tick it on the event. Your website lists it with your own events, with a badge ("Performing"), but nothing is sold or registered in Odoo.</p><p>On the <span class="oe-path">Appearance</span> tab: the host, how people get in (tickets sold by the host, registration with the host, free entry, or just more information), the host's link and the button's label, and the host's flyer and materials to show on the page.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/appearance_form.png" alt="An event set up as an appearance" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>an appearance at a festival.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-bullhorn" /></span><div><span class="oe-callout-label">Promote It</span><p>On a booked public gig, <strong>Promote It</strong> creates a draft appearance from the gig: add the host's link and flyer, then publish it.</p></div></div></div></field>
+    </record>
+    <record id="channel_promotion_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_promotion" />
+        <field name="is_published" eval="True" />
+        <field name="name">Press kit</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">21</field>
+    </record>
+    <record id="channel_promotion_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_promotion" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your press kit page</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Promoters, venues and journalists all ask for the same things. <span class="oe-path">Website › Site › Press Kit</span> puts them on one page, <code>/press-kit</code>: your bio, genres, where you're based, booking contacts, photos, mixes and videos, a technical rider and a Book button.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/press_kit_form.png" alt="The press kit form" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>filling in the press kit.</p></div><p>Your upcoming events and appearances appear on it by themselves. Photos show at web size and download at full size, so they print well. Tick <strong>Published</strong> and add the page to your menu.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/press_kit_page.png" alt="The press kit page" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the published page, in the website's own colors.</p></div></div></field>
+    </record>
+    <record id="channel_promotion_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_promotion" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">72</field>
+    </record>
+    <record id="channel_promotion_q1" model="slide.question">
+        <field name="slide_id" ref="channel_promotion_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">You're playing a festival run by someone else, who sells the tickets. How do you list it?</field>
+    </record>
+    <record id="channel_promotion_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">As an appearance, with the host's ticket link</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_promotion_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">As an event selling tickets in Odoo</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">As a quote</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">On the press kit only</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q2" model="slide.question">
+        <field name="slide_id" ref="channel_promotion_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">What does Promote It on a booked gig do?</field>
+    </record>
+    <record id="channel_promotion_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Creates a draft appearance from the gig</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_promotion_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Publishes the press kit</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Emails the client</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Posts to social media</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q3" model="slide.question">
+        <field name="slide_id" ref="channel_promotion_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Where do your upcoming appearances show on the press kit page?</field>
+    </record>
+    <record id="channel_promotion_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">They appear by themselves</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_promotion_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">You type them into the bio</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Only in the rider</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">They don't</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q4" model="slide.question">
+        <field name="slide_id" ref="channel_promotion_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">A promoter downloads a press photo. What size do they get?</field>
+    </record>
+    <record id="channel_promotion_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">The full-size original</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_promotion_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">1024 pixels wide</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">A thumbnail</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_promotion_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_promotion_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Whatever fits their screen</field>
+        <field name="is_correct" eval="False" />
+    </record>
+</odoo>
