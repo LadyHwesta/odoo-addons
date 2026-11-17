@@ -7,7 +7,7 @@ DJ EmBass (djembass.com), 2026-11-16.
 
 1. **Request**: the **Book a Date** page (`/book`) is an ordinary Odoo
    website form (so Turnstile/reCAPTCHA protect it like any other) that
-   creates a lead in the website's sales team, named after the gig
+   creates a lead, named after the gig
    ("Booking request: Wedding 2027-02-14 Robin"). Times are offered in
    half hours; an end time earlier than the start means after midnight.
 2. **Quote**: New Quotation from the lead starts with its gig details
@@ -22,6 +22,16 @@ DJ EmBass (djembass.com), 2026-11-16.
 5. **Promote It** (on a booked gig): creates a draft Appearance
    (`website_event_appearance`) for public gigs, to add the host's link
    and flyer and publish.
+
+## Which sales team
+
+Requests go to a team in the website's own company: the website's lead
+team (set on a form in the website editor) if it belongs to that company,
+otherwise its shop orders team (Website settings, eCommerce, Orders
+Assignment), otherwise the company's first sales team. Found live on
+djembass.com: the website belongs to the DJ Em Bass company while the
+default lead team belonged to Meskis Works, and Odoo refused every
+request.
 
 ## Never booked twice
 
@@ -42,7 +52,7 @@ Settings: Sales → Settings → Gig Bookings.
 with gigs, events and appearances; the confirm stop and Confirm Anyway;
 deposit confirmation with a warning; quote defaults from the lead; the
 website form creating a lead; the /book page; Promote It; the balance
-to-do once; the Booked Dates calendar. 12 tests. The form was also filled
+to-do once; the Booked Dates calendar, the team for a website in another company. 13 tests. The form was also filled
 and submitted in a real browser.
 
 ## License

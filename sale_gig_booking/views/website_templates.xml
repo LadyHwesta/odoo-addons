@@ -20,6 +20,7 @@
                             <div class="s_website_form_rows row s_col_no_bgcolor">
                                 <div data-name="Field" class="s_website_form_field s_website_form_dnone">
                                     <input type="hidden" class="form-control s_website_form_input" name="name" value="Booking request"/>
+                                    <input t-if="team" type="hidden" class="form-control s_website_form_input" name="team_id" t-att-value="team.id"/>
                                 </div>
                     <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="char">
                         <label class="s_website_form_label form-label" for="gig_contact_name">

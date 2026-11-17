@@ -128,3 +128,17 @@ class TestGigBooking(HttpCase):
         slots = self.env['gig.booking.slot'].search([])
         self.assertIn(order, slots.order_id)
         self.assertIn('Our Party', slots.mapped('name'))
+
+    def test_requests_go_to_a_team_in_the_websites_own_company(self):
+        """djembass.com belongs to another company than the default lead
+        team: the request must not fail."""
+        other = self.env['res.company'].create({'name': 'DJ Company'})
+        own_team = self.env['crm.team'].create({'name': 'DJ Team', 'company_id': other.id})
+        website = self.env['website'].get_current_website()
+        website.write({'company_id': other.id})
+        if 'salesteam_id' in website._fields:
+            website.salesteam_id = own_team
+        else:
+            website.crm_default_team_id = own_team
+        self.assertIn(f'name="team_id" value="{own_team.id}"', self.url_open('/book').text)
+

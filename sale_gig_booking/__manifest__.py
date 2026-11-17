@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gig Bookings',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Sales/Sales',
     'summary': "Booking requests for performers: gig details, quote with e-sign and deposit, double-booking check",
     'description': """
