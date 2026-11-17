@@ -31,6 +31,9 @@
                     <strong t-out="line.song"/>
                     <span t-if="line.artist" class="text-muted"> · <t t-out="line.artist"/></span>
                     <div t-if="line.note" class="small text-muted" t-out="line.note"/>
+                    <div t-if="line.acquire_state == 'unavailable'" class="small text-warning-emphasis">
+                        <strong>Can't get this one:</strong> <t t-out="line.acquire_note"/>
+                    </div>
                 </div>
                 <form t-if="open" method="post" class="m-0">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>

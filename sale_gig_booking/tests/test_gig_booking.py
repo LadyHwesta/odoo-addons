@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from datetime import date, datetime, timedelta
 
 from odoo import fields
@@ -153,4 +154,55 @@ class TestGigBooking(HttpCase):
         html = self.env['ir.actions.report']._render_qweb_html(
             'sale_gig_booking.report_gig_load_in', order.ids)[0].decode()
         for text in ('Ledson Winery', '17:15', 'Pat (venue)', 'Back door, 2 steps', 'DJ package, 4 hours'):
+            self.assertIn(text, html)
+
+    # ---- timeline ----
+
+    def test_timeline_runs_past_midnight_in_order(self):
+        order = self._order(date(2026, 12, 31), 20.0, 1.0)
+        Line = self.env['gig.timeline.line']
+        for hour, moment in ((0.0, 'Countdown'), (20.5, 'Doors'), (0.75, 'Last song'), (21.0, 'First set')):
+            Line.create({'order_id': order.id, 'hour': hour, 'moment': moment})
+        order.invalidate_recordset(['gig_timeline_ids'])  # read back in the stored order
+        self.assertEqual(order.gig_timeline_ids.mapped('moment'), ['Doors', 'First set', 'Countdown', 'Last song'])
+        self.assertEqual(order.gig_timeline_ids[2]._hhmm(), '00:00')
+
+    def _csrf(self, html):
+        found = re.search(r'name="csrf_token" value="([^"]+)"', html) or re.search(
+            r'name="csrf_token" value="([^"]+)"', self.url_open('/web/login').text)
+        return found.group(1)
+
+    def _client_post(self, order, **data):
+        html = self.url_open(order.get_portal_url(suffix='/timeline')).text
+        data.update(csrf_token=self._csrf(html), access_token=order._portal_ensure_token())
+        return self.url_open(f'/my/orders/{order.id}/timeline', data=data)
+
+    def test_client_plans_their_timeline_in_the_portal(self):
+        order = self._order(fields.Date.today() + timedelta(days=30), 17.0, 23.0)
+        order._portal_ensure_token()
+        self.assertIn('Your event timeline', self.url_open(order.get_portal_url()).text)
+        self._client_post(order, time='18:15', moment='First dance', note='At Last')
+        self._client_post(order, time='18:00', moment=' Grand  entrance ')
+        self._client_post(order, time='25:00', moment='Nonsense')
+        self.assertEqual(order.gig_timeline_ids.mapped('moment'), ['Grand entrance', 'First dance'])
+        self.assertTrue(all(order.gig_timeline_ids.mapped('added_by_client')))
+        self.assertIn('First dance', self.url_open(order.get_portal_url(suffix='/timeline')).text)
+        other = self._order(fields.Date.today() + timedelta(days=60))
+        theirs = self.env['gig.timeline.line'].create({'order_id': other.id, 'hour': 19, 'moment': 'X'})
+        self._client_post(order, remove=str(theirs.id))
+        self.assertTrue(theirs.exists())
+        self._client_post(order, remove=str(order.gig_timeline_ids[0].id))
+        self.assertEqual(order.gig_timeline_ids.mapped('moment'), ['First dance'])
+
+    def test_timeline_locks_when_the_gig_starts(self):
+        order = self._order(fields.Date.today() - timedelta(days=1))
+        self.assertIn('locked', self._client_post(order, time='18:00', moment='Late').text)
+        self.assertFalse(order.gig_timeline_ids)
+
+    def test_gig_sheet_has_the_booking_and_timeline(self):
+        order = self._order(date(2026, 12, 5), 19.0, 0.0)
+        self.env['gig.timeline.line'].create({'order_id': order.id, 'hour': 19.5, 'moment': 'Grand entrance'})
+        html = self.env['ir.actions.report']._render_qweb_html(
+            'sale_gig_booking.report_gig_load_in', order.ids)[0].decode()
+        for text in ('Timeline', '19:30', 'Grand entrance', order.name, 'maya@example.com', '00:00'):
             self.assertIn(text, html)

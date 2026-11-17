@@ -13,43 +13,35 @@
     </record>
 
     <!-- A page to print and stand on the tables: scan, request. -->
+    <template id="song_card_body">
+        <div class="text-center" style="padding-top: 3em">
+            <h1 style="font-size: 3.2em" class="mb-2">Request a song</h1>
+            <p style="font-size: 1.4em" class="mb-4">Scan with your phone camera</p>
+            <img t-if="o.song_request_url" t-att-src="o._song_request_qr_src()"
+                 style="width: 9cm; height: 9cm" alt="QR code for song requests"/>
+            <p class="mt-4 text-muted" style="font-size: 1.1em; word-break: break-all"
+               t-out="o.song_request_url"/>
+            <p class="mt-5" style="font-size: 1.6em"><strong t-out="o.company_id.name"/></p>
+        </div>
+    </template>
+
     <template id="report_song_card">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.basic_layout">
-                    <div class="page text-center" style="padding-top: 3em">
-                        <h1 style="font-size: 3.2em" class="mb-2">Request a song</h1>
-                        <p style="font-size: 1.4em" class="mb-4">Scan with your phone camera</p>
-                        <img t-if="o.song_request_url" t-att-src="o._song_request_qr_src()"
-                             style="width: 9cm; height: 9cm" alt="QR code for song requests"/>
-                        <p class="mt-4 text-muted" style="font-size: 1.1em; word-break: break-all"
-                           t-out="o.song_request_url"/>
-                        <p class="mt-5" style="font-size: 1.6em"><strong t-out="o.company_id.name"/></p>
+                    <div class="page">
+                        <t t-call="sale_gig_song_requests.song_card_body"/>
                     </div>
                 </t>
             </t>
         </t>
     </template>
 
-    <!-- The client's lists on the load-in sheet. -->
+    <!-- The Gig Sheet ends with the request card, ready to stand on a table. -->
     <template id="report_gig_load_in_music" inherit_id="sale_gig_booking.report_gig_load_in">
         <xpath expr="//div[@id='gig_music']" position="inside">
-            <div t-if="o.song_must_ids" class="mb-3">
-                <h4>Must play</h4>
-                <table class="table table-sm">
-                    <tr t-foreach="o.song_must_ids" t-as="line">
-                        <td style="width: 30%" class="text-muted" t-out="line.note or ''"/>
-                        <td><strong t-out="line.song"/> <span t-if="line.artist" class="text-muted"> · <t t-out="line.artist"/></span></td>
-                    </tr>
-                </table>
-            </div>
-            <div t-if="o.song_never_ids" class="mb-3">
-                <h4>Do not play</h4>
-                <ul>
-                    <li t-foreach="o.song_never_ids" t-as="line">
-                        <t t-out="line.song"/> <span t-if="line.artist" class="text-muted"> · <t t-out="line.artist"/></span>
-                    </li>
-                </ul>
+            <div t-if="o.song_requests_enabled and o.song_request_url" style="page-break-before: always">
+                <t t-call="sale_gig_song_requests.song_card_body"/>
             </div>
         </xpath>
     </template>

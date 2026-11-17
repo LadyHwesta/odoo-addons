@@ -3,6 +3,7 @@ import re
 from datetime import timedelta
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests.common import HttpCase, tagged
 
 
@@ -143,5 +144,36 @@ class TestSongRequests(HttpCase):
         self.assertIn(self.gig.sudo().song_request_token, card)
         self.assertIn('data:image/png;base64,', card)
         sheet = Report._render_qweb_html('sale_gig_booking.report_gig_load_in', self.gig.ids)[0].decode()
-        for text in ('Must play', 'At Last', 'First dance', 'Do not play', 'Macarena'):
-            self.assertIn(text, sheet)
+        self.assertIn('Request a song', sheet)
+        self.assertIn('data:image/png;base64,', sheet)
+        self.assertNotIn('Macarena', sheet)  # song lists aren't printed: they're worked online
+        self.gig.song_requests_enabled = False
+        sheet = Report._render_qweb_html('sale_gig_booking.report_gig_load_in', self.gig.ids)[0].decode()
+        self.assertNotIn('Request a song', sheet)
+
+    # ---- getting the tracks ----
+
+    def test_got_it_and_cant_get_with_a_reason(self):
+        must = self.env['gig.song.request'].create(
+            {'order_id': self.gig.id, 'kind': 'must_play', 'song': 'Rare Remix', 'note': 'First dance'})
+        guest = self.env['gig.song.request'].create({'order_id': self.gig.id, 'kind': 'request', 'song': 'Hit'})
+        guest.action_got_it()
+        self.assertEqual(guest.acquire_state, 'got')
+        action = must.action_cant_get()
+        self.assertEqual((action['res_id'], action['target']), (must.id, 'new'))
+        with self.assertRaises(UserError):
+            must.action_confirm_cant_get()  # no reason given
+        must.acquire_note = 'Only a live bootleg exists'
+        must.action_confirm_cant_get()
+        self.assertEqual(must.acquire_state, 'unavailable')
+        self.assertIn("Can't get this one", self._portal(self.gig))
+        self.assertIn('Only a live bootleg exists', self._portal(self.gig))
+        must.action_reset_acquire()
+        self.assertEqual((must.acquire_state, must.acquire_note), ('to_get', False))
+
+    def test_songs_to_get_lists_must_play_and_requests_only(self):
+        R = self.env['gig.song.request']
+        R.create([{'order_id': self.gig.id, 'kind': k, 'song': k} for k in ('must_play', 'request', 'do_not_play')])
+        action = self.env.ref('sale_gig_song_requests.action_gig_song_to_get')
+        found = R.search(eval(action.domain) + [('order_id', '=', self.gig.id)])
+        self.assertEqual(sorted(found.mapped('kind')), ['must_play', 'request'])

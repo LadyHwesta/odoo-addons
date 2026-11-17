@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- On the client's order in the portal: a way in to their timeline. -->
+    <template id="sale_order_portal_content_timeline" inherit_id="sale.sale_order_portal_content">
+        <xpath expr="//div[@id='informations']" position="after">
+            <div t-if="sale_order.is_gig" id="gig_timeline" class="card mb-4">
+                <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title mb-1">Your event timeline</h5>
+                        <p class="card-text text-muted mb-0">
+                            The moments that matter: grand entrance, first dance, toasts, last song.
+                            <t t-if="sale_order.gig_timeline_ids"><strong t-out="len(sale_order.gig_timeline_ids)"/> planned so far.</t>
+                        </p>
+                    </div>
+                    <a class="btn btn-secondary" t-att-href="sale_order.get_portal_url(suffix='/timeline')">
+                        <t t-if="sale_order._gig_client_edit_open()">Plan your timeline</t>
+                        <t t-else="">See your timeline</t>
+                    </a>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="portal_timeline_page" name="Your Event Timeline">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="False"/>
+            <div class="py-3">
+                <a t-att-href="order.get_portal_url()" class="small">← Back to <t t-out="order.name"/></a>
+                <h2 class="mt-2 mb-1">Your event timeline</h2>
+                <p class="text-muted">
+                    <span t-out="order.venue_name or ''"/>
+                    <t t-if="order.gig_date"> · <span t-field="order.gig_date" t-options="{'widget': 'date', 'format': 'EEEE d MMMM yyyy'}"/></t>
+                    <t t-set="times" t-value="order._gig_sheet_times()"/>
+                    <t t-if="times['start']"> · <t t-out="times['start']"/> to <t t-out="times['end']"/></t>
+                </p>
+                <div t-if="error" class="alert alert-warning" role="alert" t-out="error"/>
+                <div t-if="not open" class="alert alert-info">This timeline is locked now that the event has started.</div>
+
+                <ul class="list-group mb-3">
+                    <li t-if="not lines" class="list-group-item text-muted">Nothing planned yet.</li>
+                    <li t-foreach="lines" t-as="line" class="list-group-item d-flex align-items-center gap-3">
+                        <strong style="min-width: 3.5rem; font-variant-numeric: tabular-nums" t-out="line._hhmm()"/>
+                        <div class="flex-grow-1">
+                            <span t-out="line.moment"/>
+                            <div t-if="line.note" class="small text-muted" t-out="line.note"/>
+                        </div>
+                        <form t-if="open" method="post" class="m-0">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="access_token" t-att-value="access_token"/>
+                            <button type="submit" name="remove" t-att-value="line.id" class="btn btn-sm btn-link text-danger"
+                                    t-attf-aria-label="Remove #{line.moment}">Remove</button>
+                        </form>
+                    </li>
+                </ul>
+                <form t-if="open" method="post" class="row g-2">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="access_token" t-att-value="access_token"/>
+                    <div class="col-md-2">
+                        <input type="time" name="time" class="form-control" required="required" aria-label="Time"/>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="moment" class="form-control" maxlength="80" required="required"
+                               placeholder="What happens, e.g. First dance" aria-label="What happens"/>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="note" class="form-control" maxlength="120"
+                               placeholder="Details (optional)" aria-label="Details"/>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Add</button>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+
+</odoo>

@@ -59,11 +59,17 @@ and submitted in a real browser.
 
 LGPL-3.
 
-## Load-in sheet
+## Timeline and Gig Sheet
 
-The Gig tab also holds the **load-in time**, the **on-site contact** and
-**load-in notes** (parking, entrance, stairs, power, curfew).
-**Print > Load-in Sheet** puts the day on one page: times, venue, contacts,
-what was booked and the notes. Gig Gear Checklist (`sale_gig_gear`) adds the
-gear list, and Gig Song Requests (`sale_gig_song_requests`) adds the client's
-music lists.
+The **Gig** tab holds the **load-in time**, the **on-site contact** and
+**load-in notes** (parking, entrance, stairs, power, curfew). The
+**Timeline** tab lists the moments of the event (18:00 Grand entrance,
+18:15 First dance...); times up to the end of a gig that runs past midnight
+sort after midnight. The client can add to the timeline from their order in
+the customer portal (**Your event timeline**) until the gig starts.
+
+**Print > Gig Sheet** puts everything on paper: the booking (reference,
+status, total, who booked it), times, venue, every contact, what was booked,
+the timeline and the load-in notes. Gig Gear Checklist (`sale_gig_gear`)
+adds the gear checklist, and Gig Song Requests (`sale_gig_song_requests`)
+adds the song request card as the last page.

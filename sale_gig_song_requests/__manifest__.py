@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gig Song Requests',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales/Sales',
     'summary': "Guests request songs from a QR code; clients set must-play and do-not-play lists in their portal",
     'description': """

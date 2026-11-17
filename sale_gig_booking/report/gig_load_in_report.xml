@@ -2,18 +2,19 @@
 <odoo>
 
     <record id="action_report_gig_load_in" model="ir.actions.report">
-        <field name="name">Load-in Sheet</field>
+        <field name="name">Gig Sheet</field>
         <field name="model">sale.order</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">sale_gig_booking.report_gig_load_in</field>
         <field name="report_file">sale_gig_booking.report_gig_load_in</field>
-        <field name="print_report_name">'Load-in - %s - %s' % (object.venue_name or object.partner_id.name, object.gig_date or '')</field>
+        <field name="print_report_name">'Gig - %s - %s' % (object.venue_name or object.partner_id.name, object.gig_date or '')</field>
         <field name="binding_model_id" ref="sale.model_sale_order"/>
         <field name="binding_type">report</field>
     </record>
 
-    <!-- One page per gig for the crew: when, where, who to ask, what was
-         booked. Gear and music modules add their sections at the ids below. -->
+    <!-- Everything about one gig: when, where, who to ask, what was booked,
+         the timeline. The gear module adds its checklist at #gig_gear and
+         the song module its request card as a last page at #gig_music. -->
     <template id="report_gig_load_in">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
@@ -53,6 +54,20 @@
                                 <td>
                                     <span t-out="o.partner_id.name"/>
                                     <div t-if="o.partner_id.phone" t-out="o.partner_id.phone"/>
+                                    <div t-if="o.partner_id.email" t-out="o.partner_id.email"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Booking</th>
+                                <td><span t-field="o.name"/> · <span t-field="o.state"/></td>
+                                <th>Total</th>
+                                <td><span t-field="o.amount_total"/></td>
+                            </tr>
+                            <tr t-if="o.user_id">
+                                <th>Booked by</th>
+                                <td colspan="3">
+                                    <span t-out="o.user_id.name"/>
+                                    <t t-if="o.user_id.phone"> · <t t-out="o.user_id.phone"/></t>
                                 </td>
                             </tr>
                             <tr t-if="o.guest_count or o.gig_setting">
@@ -73,6 +88,19 @@
                                     </li>
                                 </t>
                             </ul>
+                        </div>
+
+                        <div id="gig_timeline" t-if="o.gig_timeline_ids" class="mb-3">
+                            <h4>Timeline</h4>
+                            <table class="table table-sm">
+                                <tr t-foreach="o.gig_timeline_ids" t-as="line">
+                                    <td style="width: 12%; font-variant-numeric: tabular-nums"><strong t-out="line._hhmm()"/></td>
+                                    <td>
+                                        <span t-out="line.moment"/>
+                                        <div t-if="line.note" class="text-muted" t-out="line.note"/>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
 
                         <div id="gig_notes" t-if="o.gig_load_in_notes" class="mb-3">

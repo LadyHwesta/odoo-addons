@@ -72,9 +72,7 @@ class SaleOrder(models.Model):
 
     def _song_lists_open(self):
         """The client can change their lists until the gig starts."""
-        self.ensure_one()
-        return bool(self.is_gig and self.state in ('draft', 'sent', 'sale')
-                    and (not self.gig_start or fields.Datetime.now() < self.gig_start))
+        return self._gig_client_edit_open()
 
     def action_print_song_card(self):
         return self.env.ref('sale_gig_song_requests.action_report_song_card').report_action(self)

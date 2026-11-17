@@ -29,6 +29,10 @@
                                     <field name="song"/>
                                     <field name="artist"/>
                                     <field name="note" string="Moment"/>
+                                    <field name="acquire_state" widget="badge" readonly="1"
+                                           decoration-success="acquire_state == 'got'"
+                                           decoration-warning="acquire_state == 'unavailable'"/>
+                                    <field name="acquire_note" optional="hide"/>
                                     <field name="state" column_invisible="1"/>
                                     <button name="action_played" type="object" icon="fa-check" title="Played"
                                             invisible="state == 'played'"/>
@@ -54,6 +58,9 @@
                             <field name="artist"/>
                             <field name="requested_by"/>
                             <field name="on_do_not_play" string="Do-not-play" readonly="1"/>
+                            <field name="acquire_state" widget="badge" readonly="1" optional="show"
+                                   decoration-success="acquire_state == 'got'"
+                                   decoration-warning="acquire_state == 'unavailable'"/>
                             <field name="state" widget="badge" decoration-success="state == 'played'" readonly="1"/>
                             <button name="action_played" type="object" icon="fa-check" title="Played"
                                     invisible="state != 'new'"/>

@@ -219,7 +219,8 @@ LISTINGS = {
                    'and a limit per phone.'),
                   ('Client music lists', 'Must play (with the moment, e.g. First dance) and do not play, '
                    'from the customer portal until the gig starts.'),
-                  ('Played or skipped', 'One tap per request, and both lists on the load-in sheet.')],
+                  ('Songs to Get', 'Mark each song Got it, or Can\'t get with a reason the client sees.'),
+                  ('Played or skipped', 'One tap per request during the gig.')],
         setup=['Install it (it needs Gig Bookings).',
                'On a booked gig, open the Music tab and use Print Song Card.']),
     'website_canonical_url_guard': dict(

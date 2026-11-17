@@ -51,6 +51,18 @@
                         </group>
                     </group>
                 </page>
+                <page string="Timeline" name="gig_timeline" invisible="not is_gig">
+                    <p class="text-muted">The moments of the event, in order. The client can add to it from their
+                        portal until the gig starts.</p>
+                    <field name="gig_timeline_ids">
+                        <list editable="bottom" default_order="sort_hour, sequence, id">
+                            <field name="hour" widget="float_time"/>
+                            <field name="moment"/>
+                            <field name="note"/>
+                            <field name="added_by_client" string="From Client" optional="show"/>
+                        </list>
+                    </field>
+                </page>
             </xpath>
         </field>
     </record>

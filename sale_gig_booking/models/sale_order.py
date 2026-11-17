@@ -22,6 +22,7 @@ class SaleOrder(models.Model):
     gig_contact_phone = fields.Char(string="On-site Phone")
     gig_load_in_notes = fields.Text(
         string="Load-in Notes", help="Parking, entrance, stairs or lift, power, curfew...")
+    gig_timeline_ids = fields.One2many('gig.timeline.line', 'order_id', string="Timeline", copy=True)
 
     @api.depends('gig_date')
     def _compute_is_gig(self):
@@ -74,9 +75,16 @@ class SaleOrder(models.Model):
             'res_id': self.gig_event_id.id, 'view_mode': 'form', 'target': 'current',
         }
 
+    def _gig_client_edit_open(self):
+        """The client can change their timeline (and music lists) from the
+        portal until the gig starts."""
+        self.ensure_one()
+        return bool(self.is_gig and self.state in ('draft', 'sent', 'sale')
+                    and (not self.gig_start or fields.Datetime.now() < self.gig_start))
+
     @staticmethod
     def _gig_hhmm(hours):
-        if not hours:
+        if hours is False or hours is None:
             return ''
         t = hours_to_time(hours)
         return f"{t.hour:02d}:{t.minute:02d}"
@@ -85,9 +93,10 @@ class SaleOrder(models.Model):
         """Load-in, start and end as the crew reads them (HH:MM, local)."""
         self.ensure_one()
         return {
-            'load_in': self._gig_hhmm(self.gig_load_in_hour),
-            'start': self._gig_hhmm(self.gig_start_hour),
-            'end': self._gig_hhmm(self.gig_end_hour),
+            'load_in': self._gig_hhmm(self.gig_load_in_hour) if self.gig_load_in_hour else '',
+            # A gig ending at 00:00 ends at midnight; 0 isn't "not set" here.
+            'start': self._gig_hhmm(self.gig_start_hour) if self.gig_date else '',
+            'end': self._gig_hhmm(self.gig_end_hour) if self.gig_date else '',
         }
 
     @api.model

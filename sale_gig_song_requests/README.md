@@ -26,6 +26,16 @@ card. It opens their **Must play** list (with the moment, e.g. First dance)
 and **Do not play** list. They can change both until the gig starts. You can
 also edit both lists on the gig's Music tab.
 
-## Load-in sheet
+## Getting the tracks
 
-Both lists print on the gig's **Load-in Sheet**.
+**Sales > Orders > Songs to Get** lists the must-play songs and guest
+requests for upcoming gigs that you don't have yet, grouped by gig. Mark each
+**Got it**, or **Can't get** with a note saying why (for example "only a live
+version exists"). The client sees that note on their must-play list, so they
+can choose another song. **Undo** puts a song back on the list.
+
+## Gig Sheet
+
+The song request card prints as the last page of the gig's **Gig Sheet**
+(when song requests are on for that gig). The song lists themselves aren't
+printed: work from them online.
