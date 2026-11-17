@@ -109,6 +109,8 @@
                                     <button t-if="req.state === 'pending'" class="btn btn-sm btn-outline-secondary"
                                             t-on-click="() => this.claim(req)" title="Take it on (adds a to-do for you)">Claim</button>
                                 </t>
+                                <button class="btn btn-sm btn-link" t-on-click="() => this.openRequest(req)"
+                                        title="Details: set what it's about">Details</button>
                                 <button class="btn btn-sm btn-link" t-on-click="() => this.complete(req)">Done</button>
                             </div>
                         </div>

@@ -13,9 +13,11 @@ version for review.
   (marks the activity done, as from the chatter) and a count of the rest of
   the week.
 - **Phone** (with the SignalWire VoIP click-to-call module): unread
-  voicemails for you and your call groups, with the start of the transcript
-  and **Heard**, and callbacks waiting for you (asked for you or your group,
-  or claimed by you).
+  voicemails for you and your call groups, with the start of the transcript,
+  **Call back** and **Heard**; and callbacks waiting for you (asked for you or
+  your group, or claimed by you), with **Call back** (dials through your
+  softphone and marks it done) and **Done**. Clicking a callback opens what
+  it's about (set by the receptionist on the callback), else the contact.
 
 **Needs attention** (right), each only if the app is installed and you may
 see it:
@@ -52,4 +54,6 @@ It sets Odoo's own Home Action for the user.
 Extend `my.day._my_day_sections()` with `(column, key)` and add a method
 `_my_day_section_<key>(today)` returning a dict (`title`, `icon`, `count`,
 `items`, `empty`, optionally `note` and `more`), or `None` when it doesn't
-apply. Run it with the user's own rights, within `self.env.companies`.
+apply. Items come from `_my_day_item()`; give them `buttons` made with
+`_my_day_button()` (run a method, then remove the item, dial the number it
+returns, or reload) and a `record` to open when it isn't the item itself. Run it with the user's own rights, within `self.env.companies`.

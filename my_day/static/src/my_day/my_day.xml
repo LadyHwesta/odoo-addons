@@ -27,9 +27,11 @@
                                 t-on-click="(ev) => this.joinCall(item, ev)">
                             <i class="fa fa-video-camera me-1"/>Join
                         </button>
-                        <button t-if="item.done" class="btn btn-sm btn-outline-success text-nowrap"
-                                t-on-click="(ev) => this.markDone(item, ev)" t-attf-aria-label="{{ item.done.label }}: {{ item.name }}">
-                            <i class="fa fa-check me-1"/><t t-out="item.done.label"/>
+                        <button t-foreach="item.buttons or []" t-as="button" t-key="button_index"
+                                t-attf-class="btn btn-sm btn-outline-{{ button.style }} text-nowrap"
+                                t-on-click="(ev) => this.press(item, button, ev)"
+                                t-attf-aria-label="{{ button.label }}: {{ item.name }}">
+                            <i t-attf-class="fa {{ button.icon }} me-1"/><t t-out="button.label"/>
                         </button>
                     </li>
                 </t>

@@ -56,16 +56,25 @@ class MyDay(models.AbstractModel):
             return ''
         return record[field].name or ''
 
-    def _my_day_item(self, record, name=None, meta='', when='', overdue=False, **extra):
+    def _my_day_item(self, rec, name=None, meta='', when='', overdue=False, **extra):
+        """An item for `rec`. Extra keys: record (what clicking opens, if not
+        rec), buttons, url, now..."""
         item = {
-            'id': record.id, 'model': record._name, 'name': name or record.display_name,
-            'meta': meta, 'when': when, 'overdue': overdue, 'company': self._my_day_company_label(record),
+            'id': rec.id, 'model': rec._name, 'name': name or rec.display_name,
+            'meta': meta, 'when': when, 'overdue': overdue, 'company': self._my_day_company_label(rec),
         }
         item.update(extra)
         return item
 
     def _my_day_more(self, label, model, domain, name):
         return {'label': label, 'model': model, 'domain': domain, 'name': name}
+
+    def _my_day_button(self, label, icon, model=False, method=False, after='remove', style='secondary', dial=False):
+        """A button on an item. Runs `method` on the item's record (model),
+        then: 'remove' takes the item off the page, 'dial' calls the number
+        the method returns (or `dial` without a method), 'reload' refreshes."""
+        return {'label': label, 'icon': icon, 'model': model, 'method': method, 'after': after,
+                'style': style, 'dial': dial}
 
     # ---- the day ----
 
@@ -151,7 +160,8 @@ class MyDay(models.AbstractModel):
                 'when': format_date(self.env, activity.date_deadline, date_format='d MMM') if overdue else _("Today"),
                 'overdue': overdue, 'company': '',
                 'record': {'model': activity.res_model, 'id': activity.res_id} if activity.res_model else False,
-                'done': {'model': 'mail.activity', 'method': 'action_feedback', 'label': _("Done")},
+                'buttons': [self._my_day_button(_("Done"), 'fa-check', 'mail.activity', 'action_feedback',
+                                                after='remove', style='success')],
             })
         week = Activity.search_count([('user_id', '=', self.env.uid), ('date_deadline', '>', today),
                                       ('date_deadline', '<=', today + timedelta(days=7))])
@@ -181,11 +191,14 @@ class MyDay(models.AbstractModel):
             for vm in Voicemail.search(domain, limit=LIMIT):
                 who = vm.partner_id.name or vm.from_number
                 snippet = (vm.transcription_text or '').strip().replace('\n', ' ')
+                buttons = [self._my_day_button(_("Call back"), 'fa-phone', after='dial', style='primary',
+                                               dial=vm.from_number)] if vm.from_number else []
+                buttons.append(self._my_day_button(_("Heard"), 'fa-check', 'signalwire.voicemail',
+                                                   'action_mark_read', style='success'))
                 items.append(self._my_day_item(
                     vm, name=_("Voicemail from %s", who),
                     meta=(snippet[:90] + ('…' if len(snippet) > 90 else '')) or (vm.call_group_id.name or ''),
-                    when=self._my_day_when(vm.create_date, today, tz),
-                    done={'model': 'signalwire.voicemail', 'method': 'action_mark_read', 'label': _("Heard")}))
+                    when=self._my_day_when(vm.create_date, today, tz), buttons=buttons))
         if Callback is not None:
             domain = [('state', 'in', ('pending', 'claimed', 'scheduled')), '|', '|',
                       ('target_user_id', '=', uid), ('claimed_by_user_id', '=', uid),
@@ -194,9 +207,19 @@ class MyDay(models.AbstractModel):
             count += Callback.search_count(domain)
             for cb in Callback.search(domain, limit=LIMIT):
                 who = cb.partner_id.name or cb.phone_number
+                about = cb.related_ref.display_name if 'related_ref' in cb._fields and cb.related_ref else ''
                 items.append(self._my_day_item(
-                    cb, name=_("Call back %s", who), meta=(cb.note or '').strip()[:90],
-                    when=self._my_day_when(cb.create_date, today, tz), overdue=cb.state == 'pending'))
+                    cb, name=_("Call back %s", who),
+                    meta=" · ".join(filter(None, [about, (cb.note or '').strip()[:90]])),
+                    when=self._my_day_when(cb.create_date, today, tz), overdue=cb.state == 'pending',
+                    # Opening it shows what it's about (set by the receptionist), else the contact.
+                    record=cb._open_target() if hasattr(cb, '_open_target') else False,
+                    buttons=[
+                        self._my_day_button(_("Call back"), 'fa-phone', 'signalwire.callback_request',
+                                            'action_call_now', after='dial', style='primary'),
+                        self._my_day_button(_("Done"), 'fa-check', 'signalwire.callback_request',
+                                            'action_complete', style='success'),
+                    ]))
         return {
             'title': _("Phone"), 'icon': 'fa-phone', 'count': count, 'items': items[:LIMIT],
             'empty': _("No voicemails or callbacks waiting."),

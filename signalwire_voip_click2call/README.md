@@ -1024,3 +1024,18 @@ Also: a number routed to one person who has no phone set up at all now goes
 to their no-answer steps (forward, ring group, voicemail), not "couldn't
 connect".
 
+
+## Callbacks screen and "About" (19.0.4.19.0, 2026-11-17)
+
+- **VoIP > Phones > Callbacks** lists callback requests (waiting ones
+  first), with a form: Claim, Done, and **Open**.
+- **About**: what the callback is about (a quote, lead, ticket, task,
+  invoice, event or contact), set by the receptionist on the form (the
+  panel's new **Details** button opens it). Opening the callback (from the
+  form or My Day) shows that record; without it, the contact. Callbacks from
+  callers on hold or the portal have no About and open the contact.
+- The softphone's line in Preferences and on the user form now says which
+  **phone account** it's in. Each database provisions its own softphone in
+  its own phone account; the login name comes from the person's name and
+  user number, so it can be the same in two databases for two different
+  softphones.

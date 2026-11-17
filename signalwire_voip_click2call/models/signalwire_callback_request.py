@@ -52,6 +52,39 @@ class SignalWireCallbackRequest(models.Model):
         help="Not before this time: set for \"Callback when we open\" requests "
              "made after hours. Nobody is alerted until then.")
     alerted_at = fields.Datetime(copy=False)
+    related_ref = fields.Reference(
+        selection='_selection_related_models', string="About",
+        help="What the call is about (a quote, ticket, task...). Opening the callback "
+             "opens it; without it, the contact opens.")
+
+    # Records a callback can be about, when their apps are installed.
+    RELATED_MODELS = ['res.partner', 'sale.order', 'crm.lead', 'helpdesk.ticket', 'project.task',
+                      'account.move', 'event.event', 'calendar.event']
+
+    @api.model
+    def _selection_related_models(self):
+        return [(name, self.env[name]._description) for name in self.RELATED_MODELS if name in self.env]
+
+    def _open_target(self):
+        """What opening this callback should show: what it's about, else the
+        contact, else the request itself. {'model', 'id'}"""
+        self.ensure_one()
+        related = self.related_ref
+        if related and related.exists() and related.has_access('read'):
+            return {'model': related._name, 'id': related.id}
+        if self.partner_id:
+            return {'model': 'res.partner', 'id': self.partner_id.id}
+        return {'model': self._name, 'id': self.id}
+
+    def action_open_target(self):
+        target = self._open_target()
+        return {'type': 'ir.actions.act_window', 'res_model': target['model'], 'res_id': target['id'],
+                'views': [(False, 'form')], 'target': 'current'}
+
+    def action_open_details(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'res_model': self._name, 'res_id': self.id,
+                'views': [(False, 'form')], 'target': 'current'}
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -247,6 +247,14 @@ export class SignalWireReceptionistPanel extends Component {
         this._run(this.orm.call("signalwire.callback_request", "action_claim", [[req.id]]));
     }
 
+    openRequest(req) {
+        this._run(
+            this.orm
+                .call("signalwire.callback_request", "action_open_details", [[req.id]])
+                .then((action) => this.env.services.action.doAction(action))
+        );
+    }
+
     complete(req) {
         this._run(this.orm.call("signalwire.callback_request", "action_complete", [[req.id]]));
     }

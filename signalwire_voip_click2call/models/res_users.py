@@ -157,6 +157,7 @@ class ResUsers(models.Model):
         # so, confirmed live via with_user() against a real non-admin
         # user (an AccessError, not a silent no-op this time).
         return super().SELF_READABLE_FIELDS + [
+            'signalwire_phone_account_name', 'signalwire_sip_endpoint_id',
             'signalwire_forwarding_number_ids', 'signalwire_desk_phone_ids',
             'signalwire_active_forward_id', 'signalwire_ring_group_ids',
             'signalwire_voicemail_enabled', 'signalwire_voicemail_transcribe',
@@ -385,6 +386,14 @@ class ResUsers(models.Model):
         return candidates.filtered(
             lambda p: ''.join(filter(str.isdigit, p.phone or ''))[-10:] == digits
         )[:1]
+
+    signalwire_phone_account_name = fields.Char(
+        string="Phone Account", compute='_compute_signalwire_phone_account_name',
+        help="The phone account this softphone lives in.")
+
+    def _compute_signalwire_phone_account_name(self):
+        for user in self:
+            user.signalwire_phone_account_name = user.sudo().signalwire_server_id.name or False
 
     def _signalwire_sip_username(self):
         """A SIP username built from this user's own real name, not a

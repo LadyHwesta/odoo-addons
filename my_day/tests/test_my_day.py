@@ -50,6 +50,7 @@ class TestMyDay(TransactionCase):
         self.assertEqual([i['name'] for i in section['items']], ['Late one', 'Today one'])
         self.assertTrue(section['items'][0]['overdue'])
         self.assertEqual(section['items'][0]['record'], {'model': 'res.partner', 'id': partner.id})
+        self.assertEqual(section['items'][0]['buttons'][0]['method'], 'action_feedback')
         self.assertIn('1', section['note'])
         late.with_user(self.user).action_feedback()
         names = [i['name'] for i in self._section(self.MyDay.get_day(), 'todo')['items']]
@@ -181,9 +182,30 @@ class TestMyDaySections(TransactionCase):
         self.assertEqual(section['count'], 3)
         item = next(i for i in section['items'] if i['id'] == mine.id and i['model'] == 'signalwire.voicemail')
         self.assertIn('Saturday', item['meta'])
-        self.assertEqual(item['done']['method'], 'action_mark_read')
+        self.assertEqual([b['method'] for b in item['buttons']], [False, 'action_mark_read'])
+        self.assertEqual(item['buttons'][0]['dial'], '+15551230000')  # Call back dials the caller
         mine.with_user(self.admin).action_mark_read()
         self.assertEqual(self._section('phone')['count'], 2)
+
+    def test_callbacks_open_what_theyre_about(self):
+        if 'signalwire.callback_request' not in self.env:
+            self.skipTest('phone modules not installed')
+        contact = self.env['res.partner'].create({'name': 'Dana Contact'})
+        about = self.env['res.partner'].create({'name': 'The Thing It Is About'})
+        Callback = self.env['signalwire.callback_request']
+        plain = Callback.create({'phone_number': '+15550001111', 'partner_id': contact.id,
+                                 'target_user_id': self.admin.id, 'source': 'phone'})
+        noted = Callback.create({'phone_number': '+15550002222', 'partner_id': contact.id,
+                                 'target_user_id': self.admin.id, 'related_ref': f'res.partner,{about.id}'})
+        items = {i['id']: i for i in self._section('phone')['items'] if i['model'] == 'signalwire.callback_request'}
+        self.assertEqual(items[plain.id]['record'], {'model': 'res.partner', 'id': contact.id})
+        self.assertEqual(items[noted.id]['record'], {'model': 'res.partner', 'id': about.id})
+        self.assertIn('The Thing It Is About', items[noted.id]['meta'])
+        self.assertEqual([b['method'] for b in items[plain.id]['buttons']], ['action_call_now', 'action_complete'])
+        self.assertEqual(plain.with_user(self.admin).action_call_now(), '+15550001111')
+        self.assertEqual(plain.state, 'completed')
+        noted.with_user(self.admin).action_complete()
+        self.assertFalse([i for i in self._section('phone')['items'] if i['model'] == 'signalwire.callback_request'])
 
     def test_helpdesk_tickets(self):
         if 'helpdesk.ticket' not in self.env:

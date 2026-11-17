@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP Click-to-Call',
-    'version': '19.0.4.18.0',
+    'version': '19.0.4.19.0',
     'category': 'Productivity/VOIP',
     'summary': 'An in-browser softphone, desk phones, call routing, voicemail and a receptionist panel',
     'description': """
@@ -44,6 +44,7 @@ Setup notes are in ``README.md``.
         'views/signalwire_ivr_menu_views.xml',
         'views/signalwire_server_views.xml',
         'views/signalwire_voicemail_views.xml',
+        'views/signalwire_callback_request_views.xml',
         'views/signalwire_receptionist_panel_views.xml',
     ],
     'assets': {

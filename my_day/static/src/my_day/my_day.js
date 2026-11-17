@@ -100,17 +100,46 @@ export class MyDay extends Component {
         return this.openList(more);
     }
 
-    async markDone(item, ev) {
+    /** A button on an item: run its method, then dial, remove or reload. */
+    async press(item, button, ev) {
         ev.stopPropagation();
-        await this.orm.call(item.done.model, item.done.method, [[item.id]]);
-        this.state.done[`${item.done.model}-${item.id}`] = true;
-        this.notification.add(_t("%(action)s: %(name)s", { action: item.done.label, name: item.name }), {
-            type: "success",
-        });
+        let result = false;
+        if (button.method) {
+            result = await this.orm.call(button.model, button.method, [[item.id]]);
+        }
+        if (button.after === "dial") {
+            const number = typeof result === "string" && result ? result : button.dial;
+            this.dial(number);
+            this.state.done[this.key(item)] = true;
+        } else if (button.after === "remove") {
+            this.state.done[this.key(item)] = true;
+            this.notification.add(_t("%(action)s: %(name)s", { action: button.label, name: item.name }), {
+                type: "success",
+            });
+        } else {
+            await this.load();
+        }
+    }
+
+    /** Call through the softphone when there is one, else the device's dialer. */
+    dial(number) {
+        if (!number) {
+            return;
+        }
+        const agent = this.env.services.voip_agent_oca;
+        if (agent) {
+            agent.call({ number });
+        } else {
+            window.location.href = `tel:${number}`;
+        }
+    }
+
+    key(item) {
+        return `${item.model}-${item.id}`;
     }
 
     isDone(item) {
-        return item.done && this.state.done[`${item.done.model}-${item.id}`];
+        return Boolean(this.state.done[this.key(item)]);
     }
 
     joinCall(item, ev) {
