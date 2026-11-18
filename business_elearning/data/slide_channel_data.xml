@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Built by business_elearning/tools/build_course_data.py: edit there and rebuild. -->
+<odoo noupdate="1">
+
+    <record id="channel_sales" model="slide.channel">
+        <field name="name">Customers and Sales</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Start the day on My Day, keep the pipeline moving, and send quotes customers sign and pay online.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+    <record id="channel_sales_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your day</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_sales_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Starting on My Day</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">My Day</span> is a start screen for the day: today's meetings, to-dos, tasks and tickets, money owed to you and money due, and quotes waiting on customers, each with a link to the full list.</p><div class="oe-diagram"><img src="/business_elearning/static/img/my_day.png" alt="My Day with today's schedule, tickets, tasks due and money" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a print shop's My Day: a proof review, a ticket, a task due tomorrow and $1,830 overdue.</p></div><p>To open it every time you log in, tick <strong>Start on My Day</strong> in your <span class="oe-path">Preferences</span> (your picture, top right). Everything on it is yours: other people see their own day.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span><div><span class="oe-callout-label">Work from the top</span><p>Plan with the left column (schedule and to-dos), then clear the right column (what needs attention) between meetings.</p></div></div></div></field>
+    </record>
+    <record id="channel_sales_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Leads to quotes</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">21</field>
+    </record>
+    <record id="channel_sales_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">The pipeline</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">CRM › Sales › My Pipeline</span> shows every opportunity as a card, in columns from <strong>New</strong> to <strong>Won</strong>. Drag a card to the next column as it moves on. Each column totals the expected revenue.</p><div class="oe-diagram"><img src="/business_elearning/static/img/pipeline.png" alt="The CRM pipeline with opportunities in four columns" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the pipeline: six opportunities from New to Proposition.</p></div><p>Requests from your website's <span class="oe-path">Contact us</span> form arrive here as new leads. The clock on a card is its next activity: schedule a call or a to-do so nothing goes quiet, and it shows on your My Day when it's due.</p></div></field>
+    </record>
+    <record id="channel_sales_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Quotes customers sign and pay online</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>From an opportunity, <span class="oe-path">New Quotation</span> starts a quote for that customer. Add the products, then <span class="oe-path">Send by Email</span>. The customer opens a link, reads the quote, signs it and pays the deposit right there.</p><div class="oe-diagram"><img src="/business_elearning/static/img/quote_portal.png" alt="A quote as the customer sees it, with a Sign &amp; Pay button" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>what the customer sees: the quote, a 50% down payment and Sign &amp; Pay.</p></div><p>Switch it on once in <span class="oe-path">Sales › Configuration › Settings</span>: <strong>Online Signature</strong> and <strong>Online Payment</strong> (with the deposit percentage). Payments need a payment provider, set up in <span class="oe-path">Accounting › Configuration › Online Payments › Payment Providers</span>.</p><div class="oe-callout oe-callout-success"><span class="oe-callout-icon"><i class="fa fa-check" /></span><div><span class="oe-callout-label">Signed and paid</span><p>When the customer signs and pays, the quote becomes a confirmed sales order on its own, and the payment is recorded.</p></div></div></div></field>
+    </record>
+    <record id="channel_sales_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">73</field>
+    </record>
+    <record id="channel_sales_q1" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">How do you make My Day open when you log in?</field>
+    </record>
+    <record id="channel_sales_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Tick Start on My Day in your Preferences</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Pin it in the app drawer</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Ask an administrator</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Bookmark the page</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q2" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">A customer fills in the Contact us form on your website. Where does it go?</field>
+    </record>
+    <record id="channel_sales_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">A new lead in the CRM pipeline</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Your personal inbox only</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">A helpdesk ticket</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Nowhere until you import it</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q3" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">What does the customer need to do for a quote to become a sales order on its own?</field>
+    </record>
+    <record id="channel_sales_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Sign it and pay the deposit online</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Reply to the email</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Download the PDF</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">Call you</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q4" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Where are Online Signature and Online Payment switched on?</field>
+    </record>
+    <record id="channel_sales_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Sales, Configuration, Settings</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Each quote's Other Info tab</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">CRM, Configuration</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">The website editor</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books" model="slide.channel">
+        <field name="name">Getting Paid and Keeping the Books</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Invoices that chase themselves, a bank statement matched in minutes, and the reports your accountant asks for.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('account.group_account_invoice')])]" />
+    </record>
+    <record id="channel_books_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Getting paid</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_books_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Payment reminders</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Overdue invoices are chased by email on a schedule. <span class="oe-path">Accounting › Configuration › Payment Reminders</span> lists the steps: each has a <strong>Days Offset</strong> from the due date (negative is before it) and the email it sends.</p><div class="oe-diagram"><img src="/business_elearning/static/img/reminders.png" alt="Four payment reminder steps from 3 days before due to a final notice" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the standard schedule: a friendly note 3 days before, on the day, a week late and a final notice.</p></div><p>Reminders go out once a day, each step once per invoice, and stop as soon as it's paid. Edit the emails' wording in <span class="oe-path">Settings › Email Templates</span>. For a customer you'd rather call, tick <strong>Exclude from Automatic Payment Reminders</strong> on their contact.</p></div></field>
+    </record>
+    <record id="channel_books_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Customer statements</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>A statement lists everything a customer owes. In <span class="oe-path">Accounting › Customers › Customers</span>, tick the customer, then <span class="oe-path">Actions › Partner Outstanding Statement</span>. <strong>View</strong> shows it on screen; <strong>Export PDF</strong> makes one to email.</p><div class="oe-diagram"><img src="/business_elearning/static/img/statement_wizard.png" alt="The outstanding statement options for one customer" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>an outstanding statement for Bright Path Tutoring.</p></div><p>Tick <strong>Show Aging Buckets</strong> to split the total into current, 1 to 30 days late and so on. The <strong>Activity Statement</strong> instead lists every invoice and payment between two dates.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-cog" /></span><div><span class="oe-callout-label">Switch them on first</span><p>Statements appear in the Actions menu once <strong>Outstanding Statement</strong> and <strong>Activity Statements</strong> are ticked in <span class="oe-path">Accounting › Configuration › Settings</span>, under Partner Statements.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">The bank</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">22</field>
+    </record>
+    <record id="channel_books_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Importing a bank statement</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Download a statement from your bank's website as a CSV or Excel file, then on the <span class="oe-path">Accounting › Dashboard</span> click <strong>Import File</strong> on the Bank card.</p><div class="oe-diagram"><img src="/business_elearning/static/img/dashboard.png" alt="The Accounting dashboard with Sales, Purchases and Bank cards" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the dashboard: what's unpaid and late, and the bank card's Import File and Reconcile buttons.</p></div><p>Pick your bank's <strong>mapping</strong> (which column is the date, the amount, the description), upload the file, and choose <strong>Import and Start to Reconcile</strong>.</p><div class="oe-diagram"><img src="/business_elearning/static/img/import_statement.png" alt="The Import Bank Statement File dialog" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>importing a statement file with a mapping.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-table" /></span><div><span class="oe-callout-label">Set the mapping up once</span><p>Each bank's file is laid out a little differently. Describe yours in <span class="oe-path">Accounting › Configuration › Accounting › Statement Sheet Mappings</span> the first time, and pick it every month after.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Reconciling</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Reconciling means saying what each line on the statement was. Click <strong>Reconcile</strong> on the Bank card: the statement lines are on the left, and for the selected line the open invoices and bills are listed below.</p><div class="oe-diagram"><img src="/business_elearning/static/img/reconcile.png" alt="The reconcile screen with four statement lines and matching invoices" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a $85 card deposit from Pinecone Studio, about to be matched to its invoice.</p></div><p>Click the invoice it pays to add it, then <strong>Reconcile</strong>: the invoice is marked paid. For a line with no invoice, such as a bank fee, use a button like <strong>Bank Fees</strong>, or the <strong>Manual operation</strong> tab to choose the account yourself.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-question-circle" /></span><div><span class="oe-callout-label">Not sure?</span><p>Mark it <strong>To Check</strong> and carry on; your bookkeeper can find those later.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s3" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Reports and closing</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">34</field>
+    </record>
+    <record id="channel_books_s3_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">The reports your accountant asks for</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">35</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Accounting › Reporting › Financial Reports</span> has the Trial Balance, General Ledger, Aged Partner Balance, Open Items and Journal Ledger. Pick a <strong>Date range</strong> (or type the dates), then <strong>View</strong>, <strong>Export PDF</strong> or <strong>Export XLSX</strong> for a spreadsheet.</p><div class="oe-diagram"><img src="/business_elearning/static/img/trial_balance_wizard.png" alt="The Trial Balance options with the 2026 date range" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the Trial Balance for 2026.</p></div><div class="oe-diagram"><img src="/business_elearning/static/img/trial_balance.png" alt="A trial balance for the year" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the result: each account's opening balance, debits, credits and closing balance.</p></div><p>Click any amount to see the entries behind it. The sales tax owed is in <span class="oe-path">Accounting › Reporting › Taxes Balance</span>.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-calendar" /></span><div><span class="oe-callout-label">Date ranges</span><p>Make one per year (and per quarter, if you file quarterly) in <span class="oe-path">Accounting › Configuration › Date Ranges › Generate Date Ranges</span>.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s3_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Fiscal years and lock dates</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">36</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Set your fiscal year once in <span class="oe-path">Accounting › Configuration › Accounting › Fiscal Years</span>. Then, once a period is filed, lock it so nothing in it can change by accident: <span class="oe-path">Accounting › Accounting › Lock Dates</span>.</p><div class="oe-diagram"><img src="/business_elearning/static/img/lock_dates.png" alt="The Lock Dates dialog" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>lock dates: sales, purchases, tax returns, everything.</p></div><p>A <strong>Tax Return Lock Date</strong> after you file sales tax, and a <strong>Global Lock Date</strong> once the accountant has closed the year, are usually all you need.</p><div class="oe-callout oe-callout-warning"><span class="oe-callout-icon"><i class="fa fa-exclamation-triangle" /></span><div><span class="oe-callout-label">The hard lock can't be undone</span><p>The <strong>Hard Lock Date</strong> is permanent. Leave it to your accountant.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s3_l3" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Assets and repeating entries</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">37</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Equipment you'll use for years (a printer, a vehicle) goes in <span class="oe-path">Accounting › Assets › Assets</span> with an <strong>Asset Profile</strong> that says how it depreciates; <span class="oe-path">Compute Assets</span> posts the depreciation for the period.</p><p>For an entry you make the same way every month, such as a loan payment split between interest and principal, save it once in <span class="oe-path">Accounting › Configuration › Accounting › Journal Entry Templates</span> and use <span class="oe-path">Accounting › Accounting › Create Entry from Template</span>.</p></div></field>
+    </record>
+    <record id="channel_books_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">87</field>
+    </record>
+    <record id="channel_books_q1" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">An invoice is due on the 10th. When does a step with a Days Offset of -3 send its email?</field>
+    </record>
+    <record id="channel_books_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">On the 7th</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">On the 13th</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">On the 10th</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Three days after it's paid</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q2" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Where do you click to bring in this month's bank statement file?</field>
+    </record>
+    <record id="channel_books_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Import File on the Bank card of the Accounting dashboard</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Sales, Orders</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Settings, Technical</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">The customer's contact</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q3" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">A statement line is a $12 monthly bank fee with no bill. How do you reconcile it?</field>
+    </record>
+    <record id="channel_books_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">With the Bank Fees button or the Manual operation tab</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Create a fake customer invoice</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Delete the line</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">Leave it until the end of the year</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q4" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Your accountant has closed last year. What stops anyone changing it?</field>
+    </record>
+    <record id="channel_books_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">A Global Lock Date at the year's last day</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Archiving the old invoices</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Changing the fiscal year</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Nothing, it's automatic</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work" model="slide.channel">
+        <field name="name">Projects, Helpdesk and Your Website</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Projects that include outside people, customer questions as tickets, and a website that sends you leads.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+    <record id="channel_work_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Projects and tickets</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_work_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Tasks for outside contacts</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>A task can belong to someone outside the company: a freelancer, or the customer themselves. Set <strong>Assigned Contact</strong> on the task, alongside or instead of staff assignees.</p><div class="oe-diagram"><img src="/business_elearning/static/img/task_contact.png" alt="A task assigned to a freelance designer" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>Final artwork, assigned to a freelance designer.</p></div><p>The contact becomes a follower, so messages you send from the task's chatter reach them by email, and their email replies land back on the task.</p></div></field>
+    </record>
+    <record id="channel_work_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Helpdesk tickets</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Helpdesk › Tickets › All Tickets</span> lists customers' questions and problems, each with a number, who has it and its stage.</p><div class="oe-diagram"><img src="/business_elearning/static/img/helpdesk.png" alt="Two helpdesk tickets" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>two tickets: faded banners and a reprint question.</p></div><p>Customers open tickets by email (each team's <strong>Email Alias</strong> in <span class="oe-path">Helpdesk › Configuration › Teams</span>) or from their account on your website. Reply from the ticket's chatter; your reply is emailed to them and the conversation stays on the ticket.</p></div></field>
+    </record>
+    <record id="channel_work_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your website and your system</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">22</field>
+    </record>
+    <record id="channel_work_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your website</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Website</span> opens your site with an <strong>Edit</strong> button: click any text to change it, and drag blocks in from the left. Its <strong>Contact us</strong> form sends leads to CRM.</p><p>Newsletter sign-ups go to <span class="oe-path">Email Marketing › Mailing Lists</span>. Choose a <strong>Welcome Email</strong> on a list and everyone who signs up gets it once.</p></div></field>
+    </record>
+    <record id="channel_work_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Looking after your system</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Security › Login Attempts</span> shows failed logins; addresses that keep guessing passwords are blocked for good, listed in <span class="oe-path">Security › IP Rules</span>.</p><p>An administrator can put the apps in order and group them into folders in <span class="oe-path">Settings › Users &amp; Companies › App Drawer</span>.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-life-ring" /></span><div><span class="oe-callout-label">Need a hand?</span><p>Your hosting includes support: ask us before changing settings you're unsure about.</p></div></div></div></field>
+    </record>
+    <record id="channel_work_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">74</field>
+    </record>
+    <record id="channel_work_q1" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">You set a freelancer as a task's Assigned Contact. What happens when you send a message from the task?</field>
+    </record>
+    <record id="channel_work_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">They get it by email, and their reply comes back to the task</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Nothing, contacts can't receive messages</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">It's posted on your website</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">It goes to your helpdesk</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q2" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">How can a customer open a helpdesk ticket?</field>
+    </record>
+    <record id="channel_work_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">By emailing the team's alias, or from their account on your website</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Only by phoning</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Only through CRM</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">By editing your website</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q3" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Someone keeps guessing passwords on your login page. What happens?</field>
+    </record>
+    <record id="channel_work_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Their address is blocked for good</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Your account is deleted</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Nothing</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">The website goes offline</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q4" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Where do you change the words on your website's home page?</field>
+    </record>
+    <record id="channel_work_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Website, then Edit, then click the text</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Settings, Technical</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Email Marketing</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Helpdesk</field>
+        <field name="is_correct" eval="False" />
+    </record>
+</odoo>
