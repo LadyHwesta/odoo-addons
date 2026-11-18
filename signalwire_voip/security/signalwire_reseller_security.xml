@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Given to administrators automatically while this database resells
+         phone service (a sub-account belongs to a customer): it shows the
+         VoIP Customers section. A customer's own database never gets it. -->
+    <record id="group_signalwire_reseller" model="res.groups">
+        <field name="name">VoIP: Resells Phone Service</field>
+    </record>
+</odoo>

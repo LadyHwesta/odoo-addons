@@ -22,6 +22,39 @@ class SignalWireSubproject(models.Model):
     server_id = fields.Many2one(
         'signalwire.server', string="Phone Account", required=True, ondelete='restrict')
     partner_id = fields.Many2one('res.partner', tracking=True)
+
+    @api.model
+    def _signalwire_sync_reseller_group(self):
+        """Administrators see the Customers section only while a sub-account
+        belongs to a customer (anyone but this database's own companies)."""
+        group = self.env.ref('signalwire_voip.group_signalwire_reseller', raise_if_not_found=False)
+        admins = self.env.ref('base.group_system', raise_if_not_found=False)
+        if not (group and admins):
+            return
+        ours = self.env['res.company'].sudo().search([]).partner_id
+        resells = bool(self.sudo().search_count([('partner_id', '!=', False), ('partner_id', 'not in', ours.ids)]))
+        if resells and group not in admins.implied_ids:
+            admins.sudo().implied_ids = [(4, group.id)]
+        elif not resells and group in admins.implied_ids:
+            admins.sudo().implied_ids = [(3, group.id)]
+            group.sudo().user_ids = [(5, 0, 0)]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        self._signalwire_sync_reseller_group()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'partner_id' in vals:
+            self._signalwire_sync_reseller_group()
+        return result
+
+    def unlink(self):
+        result = super().unlink()
+        self._signalwire_sync_reseller_group()
+        return result
     account_sid = fields.Char(
         string="Account SID", readonly=True, copy=False,
         help="The phone provider's ID for this sub-account, assigned when "

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP',
-    'version': '19.0.1.12.0',
+    'version': '19.0.1.13.0',
     'category': 'Productivity/VOIP',
     'summary': 'Phone service: accounts, sub-accounts and phone numbers',
     'description': """
@@ -25,6 +25,7 @@ Provider setup notes are in ``README.md``.
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['mail'],
     'data': [
+        'security/signalwire_reseller_security.xml',
         'security/ir.model.access.csv',
         'security/signalwire_phone_number_security.xml',
         'wizards/signalwire_phone_number_search_views.xml',
