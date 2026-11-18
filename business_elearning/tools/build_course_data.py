@@ -104,110 +104,6 @@ SALES = ('channel_sales', "Customers and Sales",
      ["Sales, Configuration, Settings", "Each quote's Other Info tab", "CRM, Configuration", "The website editor"], 0),
 ])
 
-BOOKS = ('channel_books', "Getting Paid and Keeping the Books",
-    "Invoices that chase themselves, a bank statement matched in minutes, and the reports your accountant asks for.",
-    'account.group_account_invoice', [
-    ("Getting paid", [
-        ("Payment reminders", ''.join([
-            p("Overdue invoices are chased by email on a schedule. " + path("Accounting", "Configuration",
-              "Payment Reminders") + " lists the steps: each has a <strong>Days Offset</strong> from the due "
-              "date (negative is before it) and the email it sends."),
-            shot(M, 'reminders.png', "Four payment reminder steps from 3 days before due to a final notice",
-                 "the standard schedule: a friendly note 3 days before, on the day, a week late and a final notice."),
-            p("Reminders go out once a day, each step once per invoice, and stop as soon as it's paid. Edit the "
-              "emails' wording in " + path("Settings", "Email Templates") + ". For a customer you'd rather call, "
-              "tick <strong>Exclude from Automatic Payment Reminders</strong> on their contact."),
-        ])),
-        ("Customer statements", ''.join([
-            p("A statement lists everything a customer owes. In " + path("Accounting", "Customers", "Customers") +
-              ", tick the customer, then " + path("Actions", "Partner Outstanding Statement") + ". "
-              "<strong>View</strong> shows it on screen; <strong>Export PDF</strong> makes one to email."),
-            shot(M, 'statement_wizard.png', "The outstanding statement options for one customer",
-                 "an outstanding statement for Bright Path Tutoring."),
-            p("Tick <strong>Show Aging Buckets</strong> to split the total into current, 1 to 30 days late and "
-              "so on. The <strong>Activity Statement</strong> instead lists every invoice and payment between "
-              "two dates."),
-            callout('fa-cog', "Switch them on first", "Statements appear in the Actions menu once "
-                    "<strong>Outstanding Statement</strong> and <strong>Activity Statements</strong> are ticked "
-                    "in " + path("Accounting", "Configuration", "Settings") + ", under Partner Statements."),
-        ])),
-    ]),
-    ("The bank", [
-        ("Importing a bank statement", ''.join([
-            p("Download a statement from your bank's website as a CSV or Excel file, then on the " +
-              path("Accounting", "Dashboard") + " click <strong>Import File</strong> on the Bank card."),
-            shot(M, 'dashboard.png', "The Accounting dashboard with Sales, Purchases and Bank cards",
-                 "the dashboard: what's unpaid and late, and the bank card's Import File and Reconcile buttons."),
-            p("Pick your bank's <strong>mapping</strong> (which column is the date, the amount, the description), "
-              "upload the file, and choose <strong>Import and Start to Reconcile</strong>."),
-            shot(M, 'import_statement.png', "The Import Bank Statement File dialog",
-                 "importing a statement file with a mapping."),
-            callout('fa-table', "Set the mapping up once", "Each bank's file is laid out a little "
-                    "differently. Describe yours in " + path("Accounting", "Configuration", "Accounting",
-                    "Statement Sheet Mappings") + " the first time, and pick it every month after."),
-        ])),
-        ("Reconciling", ''.join([
-            p("Reconciling means saying what each line on the statement was. Click <strong>Reconcile</strong> on "
-              "the Bank card: the statement lines are on the left, and for the selected line the open invoices "
-              "and bills are listed below."),
-            shot(M, 'reconcile.png', "The reconcile screen with four statement lines and matching invoices",
-                 "a $85 card deposit from Pinecone Studio, about to be matched to its invoice."),
-            p("Click the invoice it pays to add it, then <strong>Reconcile</strong>: the invoice is marked paid. "
-              "For a line with no invoice, such as a bank fee, use a button like <strong>Bank Fees</strong>, or "
-              "the <strong>Manual operation</strong> tab to choose the account yourself."),
-            callout('fa-question-circle', "Not sure?", "Mark it <strong>To Check</strong> and carry on; your "
-                    "bookkeeper can find those later."),
-        ])),
-    ]),
-    ("Reports and closing", [
-        ("The reports your accountant asks for", ''.join([
-            p(path("Accounting", "Reporting", "Financial Reports") + " has the Trial Balance, General Ledger, "
-              "Aged Partner Balance, Open Items and Journal Ledger. Pick a <strong>Date range</strong> (or type "
-              "the dates), then <strong>View</strong>, <strong>Export PDF</strong> or <strong>Export "
-              "XLSX</strong> for a spreadsheet."),
-            shot(M, 'trial_balance_wizard.png', "The Trial Balance options with the 2026 date range",
-                 "the Trial Balance for 2026."),
-            shot(M, 'trial_balance.png', "A trial balance for the year",
-                 "the result: each account's opening balance, debits, credits and closing balance."),
-            p("Click any amount to see the entries behind it. The sales tax owed is in " +
-              path("Accounting", "Reporting", "Taxes Balance") + "."),
-            callout('fa-calendar', "Date ranges", "Make one per year (and per quarter, if you file quarterly) "
-                    "in " + path("Accounting", "Configuration", "Date Ranges", "Generate Date Ranges") + "."),
-        ])),
-        ("Fiscal years and lock dates", ''.join([
-            p("Set your fiscal year once in " + path("Accounting", "Configuration", "Accounting", "Fiscal Years") +
-              ". Then, once a period is filed, lock it so nothing in it can change by accident: " +
-              path("Accounting", "Accounting", "Lock Dates") + "."),
-            shot(M, 'lock_dates.png', "The Lock Dates dialog", "lock dates: sales, purchases, tax returns, everything."),
-            p("A <strong>Tax Return Lock Date</strong> after you file sales tax, and a <strong>Global Lock "
-              "Date</strong> once the accountant has closed the year, are usually all you need."),
-            callout('fa-exclamation-triangle', "The hard lock can't be undone", "The <strong>Hard Lock "
-                    "Date</strong> is permanent. Leave it to your accountant.", 'warning'),
-        ])),
-        ("Assets and repeating entries", ''.join([
-            p("Equipment you'll use for years (a printer, a vehicle) goes in " + path("Accounting", "Assets",
-              "Assets") + " with an <strong>Asset Profile</strong> that says how it depreciates; "
-              + path("Compute Assets") + " posts the depreciation for the period."),
-            p("For an entry you make the same way every month, such as a loan payment split between interest "
-              "and principal, save it once in " + path("Accounting", "Configuration", "Accounting",
-              "Journal Entry Templates") + " and use " + path("Accounting", "Accounting",
-              "Create Entry from Template") + "."),
-        ])),
-    ]),
-], [
-    ("An invoice is due on the 10th. When does a step with a Days Offset of -3 send its email?",
-     ["On the 7th", "On the 13th", "On the 10th", "Three days after it's paid"], 0),
-    ("Where do you click to bring in this month's bank statement file?",
-     ["Import File on the Bank card of the Accounting dashboard", "Sales, Orders", "Settings, Technical",
-      "The customer's contact"], 0),
-    ("A statement line is a $12 monthly bank fee with no bill. How do you reconcile it?",
-     ["With the Bank Fees button or the Manual operation tab", "Create a fake customer invoice",
-      "Delete the line", "Leave it until the end of the year"], 0),
-    ("Your accountant has closed last year. What stops anyone changing it?",
-     ["A Global Lock Date at the year's last day", "Archiving the old invoices", "Changing the fiscal year",
-      "Nothing, it's automatic"], 0),
-])
-
 WORK = ('channel_work', "Projects, Helpdesk and Your Website",
     "Projects that include outside people, customer questions as tickets, and a website that sends you leads.",
     'base.group_user', [
@@ -331,4 +227,4 @@ def write(module, courses):
 
 
 if __name__ == '__main__':
-    write(M, [SALES, BOOKS, WORK])
+    write(M, [SALES, WORK])

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Built by accounting_elearning/tools/build_course_data.py: edit there and rebuild. -->
+<odoo noupdate="1">
+
+    <record id="channel_books" model="slide.channel">
+        <field name="name">Getting Paid and Keeping the Books</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Invoices that chase themselves, a bank statement matched in minutes, and the reports your accountant asks for.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('account.group_account_invoice')])]" />
+    </record>
+    <record id="channel_books_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Getting paid</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_books_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Payment reminders</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Overdue invoices are chased by email on a schedule. <span class="oe-path">Accounting › Configuration › Payment Reminders</span> lists the steps: each has a <strong>Days Offset</strong> from the due date (negative is before it) and the email it sends.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/reminders.png" alt="Four payment reminder steps from 3 days before due to a final notice" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the standard schedule: a friendly note 3 days before, on the day, a week late and a final notice.</p></div><p>Reminders go out once a day, each step once per invoice, and stop as soon as it's paid. Edit the emails' wording in <span class="oe-path">Settings › Email Templates</span>. For a customer you'd rather call, tick <strong>Exclude from Automatic Payment Reminders</strong> on their contact.</p></div></field>
+    </record>
+    <record id="channel_books_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Customer statements</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>A statement lists everything a customer owes. In <span class="oe-path">Accounting › Customers › Customers</span>, tick the customer, then <span class="oe-path">Actions › Partner Outstanding Statement</span>. <strong>View</strong> shows it on screen; <strong>Export PDF</strong> makes one to email.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/statement_wizard.png" alt="The outstanding statement options for one customer" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>an outstanding statement for Bright Path Tutoring.</p></div><p>Tick <strong>Show Aging Buckets</strong> to split the total into current, 1 to 30 days late and so on. The <strong>Activity Statement</strong> instead lists every invoice and payment between two dates.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-cog" /></span><div><span class="oe-callout-label">Switch them on first</span><p>Statements appear in the Actions menu once <strong>Outstanding Statement</strong> and <strong>Activity Statements</strong> are ticked in <span class="oe-path">Accounting › Configuration › Settings</span>, under Partner Statements.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">The bank</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">22</field>
+    </record>
+    <record id="channel_books_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Importing a bank statement</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Download a statement from your bank's website as a CSV or Excel file, then on the <span class="oe-path">Accounting › Dashboard</span> click <strong>Import File</strong> on the Bank card.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/dashboard.png" alt="The Accounting dashboard with Sales, Purchases and Bank cards" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the dashboard: what's unpaid and late, and the bank card's Import File and Reconcile buttons.</p></div><p>Pick your bank's <strong>mapping</strong> (which column is the date, the amount, the description), upload the file, and choose <strong>Import and Start to Reconcile</strong>.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/import_statement.png" alt="The Import Bank Statement File dialog" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>importing a statement file with a mapping.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-table" /></span><div><span class="oe-callout-label">Set the mapping up once</span><p>Each bank's file is laid out a little differently. Describe yours in <span class="oe-path">Accounting › Configuration › Accounting › Statement Sheet Mappings</span> the first time, and pick it every month after.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Reconciling</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Reconciling means saying what each line on the statement was. Click <strong>Reconcile</strong> on the Bank card: the statement lines are on the left, and for the selected line the open invoices and bills are listed below.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/reconcile.png" alt="The reconcile screen with four statement lines and matching invoices" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a $85 card deposit from Pinecone Studio, about to be matched to its invoice.</p></div><p>Click the invoice it pays to add it, then <strong>Reconcile</strong>: the invoice is marked paid. For a line with no invoice, such as a bank fee, use a button like <strong>Bank Fees</strong>, or the <strong>Manual operation</strong> tab to choose the account yourself.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-question-circle" /></span><div><span class="oe-callout-label">Not sure?</span><p>Mark it <strong>To Check</strong> and carry on; your bookkeeper can find those later.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s3" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Reports and closing</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">34</field>
+    </record>
+    <record id="channel_books_s3_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">The reports your accountant asks for</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">35</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Accounting › Reporting › Financial Reports</span> has the Trial Balance, General Ledger, Aged Partner Balance, Open Items and Journal Ledger. Pick a <strong>Date range</strong> (or type the dates), then <strong>View</strong>, <strong>Export PDF</strong> or <strong>Export XLSX</strong> for a spreadsheet.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/trial_balance_wizard.png" alt="The Trial Balance options with the 2026 date range" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the Trial Balance for 2026.</p></div><div class="oe-diagram"><img src="/accounting_elearning/static/img/trial_balance.png" alt="A trial balance for the year" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the result: each account's opening balance, debits, credits and closing balance.</p></div><p>Click any amount to see the entries behind it. The sales tax owed is in <span class="oe-path">Accounting › Reporting › Taxes Balance</span>.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-calendar" /></span><div><span class="oe-callout-label">Date ranges</span><p>Make one per year (and per quarter, if you file quarterly) in <span class="oe-path">Accounting › Configuration › Date Ranges › Generate Date Ranges</span>.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s3_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Fiscal years and lock dates</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">36</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Set your fiscal year once in <span class="oe-path">Accounting › Configuration › Accounting › Fiscal Years</span>. Then, once a period is filed, lock it so nothing in it can change by accident: <span class="oe-path">Accounting › Accounting › Lock Dates</span>.</p><div class="oe-diagram"><img src="/accounting_elearning/static/img/lock_dates.png" alt="The Lock Dates dialog" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>lock dates: sales, purchases, tax returns, everything.</p></div><p>A <strong>Tax Return Lock Date</strong> after you file sales tax, and a <strong>Global Lock Date</strong> once the accountant has closed the year, are usually all you need.</p><div class="oe-callout oe-callout-warning"><span class="oe-callout-icon"><i class="fa fa-exclamation-triangle" /></span><div><span class="oe-callout-label">The hard lock can't be undone</span><p>The <strong>Hard Lock Date</strong> is permanent. Leave it to your accountant.</p></div></div></div></field>
+    </record>
+    <record id="channel_books_s3_l3" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Assets and repeating entries</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">37</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Equipment you'll use for years (a printer, a vehicle) goes in <span class="oe-path">Accounting › Assets › Assets</span> with an <strong>Asset Profile</strong> that says how it depreciates; <span class="oe-path">Compute Assets</span> posts the depreciation for the period.</p><p>For an entry you make the same way every month, such as a loan payment split between interest and principal, save it once in <span class="oe-path">Accounting › Configuration › Accounting › Journal Entry Templates</span> and use <span class="oe-path">Accounting › Accounting › Create Entry from Template</span>.</p></div></field>
+    </record>
+    <record id="channel_books_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_books" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">87</field>
+    </record>
+    <record id="channel_books_q1" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">An invoice is due on the 10th. When does a step with a Days Offset of -3 send its email?</field>
+    </record>
+    <record id="channel_books_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">On the 7th</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">On the 13th</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">On the 10th</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Three days after it's paid</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q2" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Where do you click to bring in this month's bank statement file?</field>
+    </record>
+    <record id="channel_books_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Import File on the Bank card of the Accounting dashboard</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Sales, Orders</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Settings, Technical</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">The customer's contact</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q3" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">A statement line is a $12 monthly bank fee with no bill. How do you reconcile it?</field>
+    </record>
+    <record id="channel_books_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">With the Bank Fees button or the Manual operation tab</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Create a fake customer invoice</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Delete the line</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">Leave it until the end of the year</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q4" model="slide.question">
+        <field name="slide_id" ref="channel_books_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Your accountant has closed last year. What stops anyone changing it?</field>
+    </record>
+    <record id="channel_books_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">A Global Lock Date at the year's last day</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_books_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Archiving the old invoices</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Changing the fiscal year</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_books_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_books_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Nothing, it's automatic</field>
+        <field name="is_correct" eval="False" />
+    </record>
+</odoo>

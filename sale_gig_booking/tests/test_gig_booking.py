@@ -195,7 +195,8 @@ class TestGigBooking(HttpCase):
         self.assertEqual(order.gig_timeline_ids.mapped('moment'), ['First dance'])
 
     def test_timeline_locks_when_the_gig_starts(self):
-        order = self._order(fields.Date.today() - timedelta(days=1))
+        # Two days back: fields.Date.today() is the UTC date, already tomorrow on a Pacific evening.
+        order = self._order(fields.Date.today() - timedelta(days=2))
         self.assertIn('locked', self._client_post(order, time='18:00', moment='Late').text)
         self.assertFalse(order.gig_timeline_ids)
 

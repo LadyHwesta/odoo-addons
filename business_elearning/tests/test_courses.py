@@ -5,7 +5,7 @@ from odoo.tests import TransactionCase, tagged
 from odoo.tools import file_path
 
 MODULE = "business_elearning"
-COURSES = {'channel_sales': (2, 3, 'base.group_user'), 'channel_books': (3, 7, 'account.group_account_invoice'), 'channel_work': (2, 4, 'base.group_user')}  # xmlid: (sections, article lessons, enrolled group)
+COURSES = {'channel_sales': (2, 3, 'base.group_user'), 'channel_work': (2, 4, 'base.group_user')}  # xmlid: (sections, article lessons, enrolled group)
 
 
 @tagged("post_install", "-at_install")
