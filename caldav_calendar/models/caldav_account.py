@@ -355,11 +355,19 @@ class CalDAVAccount(models.Model):
                     '(remote wins) and the local edit is lost.',
                     existing.id, self.display_name,
                 )
-            existing.with_context(caldav_no_sync=True).write(vals)
+            # Only what actually changed: core calendar emails every attendee
+            # "Date updated" whenever a write merely includes `start`, so
+            # rewriting an unchanged event on each pull mailed them every
+            # sync. And never those emails for a change made elsewhere: the
+            # phone or other calendar already told whoever it concerns.
+            vals = existing._caldav_changed_vals(vals)
+            if vals:
+                existing.with_context(caldav_no_sync=True, skip_attendee_notification=True).write(vals)
             target = existing
         else:
             vals['user_id'] = self.user_id.id
-            target = Event.with_context(caldav_no_sync=True).create(vals)
+            vals['partner_ids'] = [(6, 0, self.user_id.partner_id.ids)]
+            target = Event.with_context(caldav_no_sync=True, skip_attendee_notification=True).create(vals)
 
         target._caldav_apply_attendees(master_info['attendee_emails'])
         if master_info['rrule']:

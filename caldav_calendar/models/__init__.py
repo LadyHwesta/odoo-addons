@@ -4,3 +4,4 @@ from . import caldav_pending_delete
 from . import calendar_event
 from . import calendar_recurrence
 from . import res_users
+from . import calendar_attendee
