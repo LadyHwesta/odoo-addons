@@ -3,6 +3,8 @@ import contextlib
 import ipaddress
 import logging
 
+import psycopg2
+
 import requests
 
 from odoo import SUPERUSER_ID, api, fields, models
@@ -197,6 +199,21 @@ class SecurityIpRule(models.Model):
         return address is not None and any(
             address in network for network in self._protected_networks())
 
+    def _lock_for_update(self):
+        """Claim this rule's row for an update, quietly. False when another
+        transaction holds it or has changed it since this one began: the
+        update would fail, and Odoo would log the failed query as an ERROR
+        (which monitoring reports) even though nothing is wrong."""
+        self.ensure_one()
+        try:
+            with self.env.cr.savepoint():
+                self.env.cr.execute(
+                    "SELECT id FROM security_ip_rule WHERE id = %s FOR UPDATE NOWAIT",
+                    [self.id], log_exceptions=False)
+        except (psycopg2.errors.LockNotAvailable, psycopg2.errors.SerializationFailure):
+            return False
+        return True
+
     @api.model
     def _block_ip(self, ip, reason, expires_at=None):
         """Block `ip` (its /64 for IPv6): permanently, or until
@@ -216,6 +233,10 @@ class SecurityIpRule(models.Model):
             ("ip_or_cidr", "=", target), ("action", "=", "block"),
             ("active", "=", True)], limit=1)
         if existing:
+            if not existing._lock_for_update():
+                # A parallel request from the same source is extending this
+                # block right now (bots send many at once): leave it to that one.
+                return existing
             values = {"reason": reason}
             if expires_at is None:
                 values["expires_at"] = False
