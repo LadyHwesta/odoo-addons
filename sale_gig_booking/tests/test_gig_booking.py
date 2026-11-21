@@ -143,6 +143,28 @@ class TestGigBooking(HttpCase):
             website.crm_default_team_id = own_team
         self.assertIn(f'name="team_id" value="{own_team.id}"', self.url_open('/book').text)
 
+    def test_the_website_setting_chooses_the_team_and_its_company(self):
+        """Website Settings > Booking Requests Go To: the lead, and the quote
+        made from it, belong to that team's company."""
+        dj = self.env['res.company'].create({'name': 'DJ Em Bass'})
+        dj_team = self.env['crm.team'].create({'name': 'DJ Bookings', 'company_id': dj.id})
+        website = self.env['website'].get_current_website()
+        website.gig_booking_team_id = dj_team
+        self.assertIn(f'name="team_id" value="{dj_team.id}"', self.url_open('/book').text)
+        lead = self.env['crm.lead'].create({
+            'name': 'Booking request', 'team_id': dj_team.id, 'gig_date': date(2026, 12, 12),
+            'type': 'opportunity', 'partner_id': self.env['res.partner'].create({'name': 'Maya'}).id})
+        self.assertEqual(lead.company_id, dj)
+        self.assertEqual(lead._prepare_opportunity_quotation_context()['default_company_id'], dj.id)
+        settings = self.env['res.config.settings'].create({'website_id': website.id})
+        self.assertEqual(settings.website_gig_booking_team_id, dj_team)
+
+    def test_a_request_without_a_team_company_takes_the_websites(self):
+        team = self.env['crm.team'].create({'name': 'Shared team', 'company_id': False})
+        lead = self.env['crm.lead'].create({
+            'name': 'Booking request', 'team_id': team.id, 'gig_date': date(2026, 12, 12)})
+        self.assertTrue(lead.company_id)
+
 
     # ---- load-in sheet ----
 

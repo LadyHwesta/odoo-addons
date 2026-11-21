@@ -67,6 +67,10 @@ BOOKINGS = ('channel_bookings', "Bookings: From Request to Gig Day",
               "spam like any other Odoo form."),
             callout('fa-clock-o', "Times past midnight", "An end time earlier than the start means the gig "
                     "runs past midnight: 21:00 to 01:00 is a four-hour gig."),
+            callout('fa-building-o', "More than one business?", "Choose where this website's requests go in " +
+                    path("Website", "Configuration", "Settings") + ", <strong>Booking Requests Go To</strong>. "
+                    "The lead and its quote belong to that team's company, so they use that company's settings "
+                    "and agreement terms."),
         ])),
         ("Packages and quotes", ''.join([
             p("From the lead, " + path("New Quotation") + " starts a quote with the gig's details already on "

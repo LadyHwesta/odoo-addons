@@ -27,5 +27,22 @@
             </xpath>
         </field>
     </record>
+    <record id="res_config_settings_view_form_gig_website" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.gig.website</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='website_info_settings']" position="after">
+                <block title="Booking Requests" id="gig_booking_website_settings" invisible="not website_id">
+                    <setting id="gig_booking_team_setting"
+                             help="The sales team this website's Book a Date requests go to. The lead, and any quote made from it, belong to that team's company, so they use that company's settings and agreement terms.">
+                        <field name="website_gig_booking_team_id"
+                               domain="[('company_id', 'in', [website_company_id, False])]"
+                               options="{'no_create': True}"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
 
 </odoo>

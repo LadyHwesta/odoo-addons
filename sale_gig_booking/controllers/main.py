@@ -29,13 +29,16 @@ class GigBookingController(http.Controller):
         return request.render('sale_gig_booking.book_thanks_page')
 
     def _booking_team(self):
-        """The sales team booking requests from this website go to, in the
-        website's own company: its lead team (set in the form editor) when
+        """The sales team booking requests from this website go to: the one
+        chosen in Website Settings (Booking Requests Go To), else, in the
+        website's own company, its lead team (set in the form editor) when
         that's in the same company, else its shop orders team (eCommerce >
         Orders Assignment). Without this, a website belonging to another
         company than the default lead team refused every request (found
         live on djembass.com, 2026-11-16)."""
         website = request.website.sudo()
+        if website.gig_booking_team_id:
+            return website.gig_booking_team_id
         company = website.company_id
         for team in (website.crm_default_team_id, getattr(website, 'salesteam_id', None)):
             if team and (not team.company_id or team.company_id == company):
