@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="gig_booking_slot_view_calendar" model="ir.ui.view">
+        <field name="name">gig.booking.slot.calendar</field>
+        <field name="model">gig.booking.slot</field>
+        <field name="arch" type="xml">
+            <calendar string="Booked Dates" date_start="start" date_stop="stop" color="kind"
+                      mode="month" create="0" delete="0" quick_create="0" event_open_popup="1">
+                <field name="name"/>
+                <field name="kind" filters="1"/>
+                <field name="order_id"/>
+                <field name="event_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="gig_booking_slot_view_list" model="ir.ui.view">
+        <field name="name">gig.booking.slot.list</field>
+        <field name="model">gig.booking.slot</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="start"/>
+                <field name="stop"/>
+                <field name="name"/>
+                <field name="kind"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_gig_booking_slot" model="ir.actions.act_window">
+        <field name="name">Booked Dates</field>
+        <field name="res_model">gig.booking.slot</field>
+        <field name="view_mode">calendar,list</field>
+        <field name="help" type="html">
+            <p>Every confirmed gig, appearance and event of your own, in one calendar.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_gig_booking_slot" name="Booked Dates" action="action_gig_booking_slot"
+              parent="sale.sale_order_menu" sequence="40"/>
+
+</odoo>

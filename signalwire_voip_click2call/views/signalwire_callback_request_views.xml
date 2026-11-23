@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_signalwire_callback_request_form" model="ir.ui.view">
+        <field name="name">signalwire.callback_request.form</field>
+        <field name="model">signalwire.callback_request</field>
+        <field name="arch" type="xml">
+            <form string="Callback">
+                <header>
+                    <button name="action_claim" type="object" string="Claim" class="btn-primary"
+                            invisible="state != 'pending'"/>
+                    <button name="action_complete" type="object" string="Done"
+                            invisible="state == 'completed'"/>
+                    <button name="action_open_target" type="object" string="Open" icon="fa-external-link"
+                            invisible="not related_ref and not partner_id"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,claimed,scheduled,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="phone_number" widget="phone"/>
+                            <field name="related_ref" options="{'no_create': True}"/>
+                            <field name="note"/>
+                        </group>
+                        <group>
+                            <field name="target_user_id"/>
+                            <field name="target_group_id"/>
+                            <field name="source" readonly="1"/>
+                            <field name="claimed_by_user_id" readonly="1"/>
+                            <field name="event_id" readonly="1" invisible="not event_id"/>
+                            <field name="not_before" invisible="not not_before"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_signalwire_callback_request_list" model="ir.ui.view">
+        <field name="name">signalwire.callback_request.list</field>
+        <field name="model">signalwire.callback_request</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'completed'">
+                <field name="create_date" string="Asked"/>
+                <field name="partner_id"/>
+                <field name="phone_number"/>
+                <field name="related_ref" optional="show"/>
+                <field name="target_user_id" optional="show"/>
+                <field name="target_group_id" optional="hide"/>
+                <field name="source" optional="show"/>
+                <field name="state" widget="badge" decoration-warning="state == 'pending'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_signalwire_callback_request_search" model="ir.ui.view">
+        <field name="name">signalwire.callback_request.search</field>
+        <field name="model">signalwire.callback_request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="phone_number"/>
+                <filter name="open" string="Waiting" domain="[('state', '!=', 'completed')]"/>
+                <filter name="mine" string="For me"
+                        domain="['|', ('target_user_id', '=', uid), ('claimed_by_user_id', '=', uid)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_signalwire_callback_request" model="ir.actions.act_window">
+        <field name="name">Callbacks</field>
+        <field name="res_model">signalwire.callback_request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_open': 1}</field>
+    </record>
+
+    <menuitem id="menu_signalwire_callback_request" name="Callbacks"
+              action="action_signalwire_callback_request" parent="signalwire_voip.menu_signalwire_section_phones"
+              sequence="22"/>
+
+</odoo>

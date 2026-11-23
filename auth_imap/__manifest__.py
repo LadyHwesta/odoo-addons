@@ -1,6 +1,6 @@
 {
     'name': 'IMAP Authentication',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.2.1',
     'category': 'Extra Tools',
     'summary': 'Authenticate existing Odoo users against an IMAP mail server',
     'description': """
@@ -30,6 +30,7 @@ standard library.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'images': ['static/description/banner.png'],
     'depends': ['base'],

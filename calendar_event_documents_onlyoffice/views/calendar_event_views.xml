@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_calendar_event_form_documents_onlyoffice" model="ir.ui.view">
+        <field name="name">calendar.event.form.documents.onlyoffice</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar_event_documents.view_calendar_event_form_documents" />
+        <field name="arch" type="xml">
+            <field name="document_ids" position="before">
+                <div class="d-flex gap-2 mb-2">
+                    <button name="action_new_agenda" type="object" string="New Agenda"
+                            icon="fa-file-word-o" class="btn-secondary"
+                            help="Create a Word document for this meeting's agenda and open it in ONLYOFFICE." />
+                    <button name="action_new_minutes" type="object" string="New Minutes"
+                            icon="fa-file-word-o" class="btn-secondary"
+                            help="Create a Word document for this meeting's minutes and open it in ONLYOFFICE." />
+                </div>
+            </field>
+            <xpath expr="//list[@name='documents']/button[@name='action_calendar_download']" position="before">
+                <field name="calendar_can_open_onlyoffice" column_invisible="1" />
+                <button name="action_calendar_open_onlyoffice" type="object" string="Open in ONLYOFFICE"
+                        icon="fa-pencil-square-o" class="btn-link"
+                        invisible="not calendar_can_open_onlyoffice" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

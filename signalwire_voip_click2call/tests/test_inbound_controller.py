@@ -3,6 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from odoo.fields import Datetime
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 
@@ -56,13 +57,25 @@ class TestInboundCallController(HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('<Reject', response.text)
 
-    def test_inbound_call_to_an_unassigned_number_is_rejected(self):
+    def _group_gives_up(self, group):
+        """What a caller gets once a group can't take the call (their wait
+        ran out): the group's voicemail choice."""
+        call = self.env['signalwire.live_call'].create({
+            'call_sid': 'CA-gives-up', 'phone_number_id': self.number.id,
+            'from_number': '+15551234567', 'state': 'queued',
+            'queue_group_id': group.id, 'queued_at': fields.Datetime.now()})
+        return self.url_open(f'/signalwire/voice/queue_timeout/{call.id}', data={
+            'CallSid': 'CA-gives-up', 'From': '+15551234567'})
+
+    def test_inbound_call_to_an_unassigned_number_is_never_refused(self):
         self.number.assigned_user_id = False
 
         response = self.url_open(
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
-        self.assertIn('<Reject', response.text)
+        self.assertNotIn('<Reject', response.text)
+        self.assertIn("couldn't connect your call", response.text)
+        self.assertIn('<Hangup', response.text)
 
     def test_a_desk_phone_rings_alongside_the_softphone(self):
         self.env['signalwire.desk_phone'].create({
@@ -77,7 +90,7 @@ class TestInboundCallController(HttpCase):
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
         body = response.text
-        self.assertEqual(body.count('<Sip>'), 2)
+        self.assertEqual(body.count('<Sip '), 2)
         self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
         self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)
 
@@ -95,10 +108,10 @@ class TestInboundCallController(HttpCase):
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
         body = response.text
-        self.assertEqual(body.count('<Sip>'), 1)
+        self.assertEqual(body.count('<Sip '), 1)
         self.assertIn('sip:deskphone_front@example-abc123.sip.signalwire.com', body)
 
-    def test_inbound_call_to_a_group_routed_number_dials_every_member(self):
+    def test_inbound_call_to_a_group_routed_number_offers_one_member(self):
         teammate = self.env['res.users'].create({
             'name': 'Bob Agent', 'login': 'bob.agent@example.com',
             'voip_username': 'user_bob',
@@ -112,23 +125,21 @@ class TestInboundCallController(HttpCase):
             '/signalwire/voice/inbound', data={'To': '+12084449665', 'From': '+15551234567'})
 
         body = response.text
-        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
-        self.assertIn('sip:user_bob@example-abc123.sip.signalwire.com', body)
-        self.assertIn(f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}', body)
+        # One agent at a time (whoever has been free the longest), via the queue.
+        self.assertEqual(body.count('<Sip '), 1)
+        self.assertIn('/signalwire/voice/queue_result/', body)
 
-    def test_group_fallback_with_no_answer_and_no_voicemail_user_apologizes(self):
+    def test_group_giving_up_with_no_answer_and_no_voicemail_user_apologizes(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
         })
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        response = self._group_gives_up(group)
 
         self.assertIn('<Say>', response.text)
         self.assertNotIn('<Record', response.text)
 
-    def test_group_fallback_with_no_answer_and_a_voicemail_user_records_one(self):
+    def test_group_giving_up_with_no_answer_and_a_voicemail_user_records_one(self):
         voicemail_user = self.env['res.users'].create({
             'name': 'Voicemail Catcher', 'login': 'catcher@example.com'})
         group = self.env['signalwire.call.group'].create({
@@ -136,55 +147,47 @@ class TestInboundCallController(HttpCase):
             'voicemail_mode': 'user', 'voicemail_user_id': voicemail_user.id,
         })
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        response = self._group_gives_up(group)
 
         self.assertIn(
             f'/signalwire/voice/voicemail_complete/{voicemail_user.id}/{self.number.id}',
             response.text)
 
-    def test_group_fallback_with_no_answer_and_a_shared_group_box_records_one(self):
+    def test_group_giving_up_with_no_answer_and_a_shared_group_box_records_one(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
             'voicemail_mode': 'group',
         })
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        response = self._group_gives_up(group)
 
         self.assertIn('<Record', response.text)
         self.assertIn(
             f'/signalwire/voice/group_voicemail_complete/{group.id}/{self.number.id}',
             response.text)
 
-    def test_group_fallback_uses_the_default_greeting_text_by_default(self):
+    def test_group_giving_up_uses_the_default_greeting_text_by_default(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
             'voicemail_mode': 'group',
         })
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        response = self._group_gives_up(group)
 
         self.assertIn('<Say>Please leave a message after the tone.</Say>', response.text)
 
-    def test_group_fallback_uses_the_groups_own_custom_greeting_text(self):
+    def test_group_giving_up_uses_the_groups_own_custom_greeting_text(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
             'voicemail_mode': 'group',
             'voicemail_greeting_text': "You've reached Sales. Leave a message!",
         })
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        response = self._group_gives_up(group)
 
         self.assertIn("<Say>You've reached Sales. Leave a message!</Say>", response.text)
 
-    def test_group_fallback_uses_the_groups_own_uploaded_greeting_recording(self):
+    def test_group_giving_up_uses_the_groups_own_uploaded_greeting_recording(self):
         self.env['ir.config_parameter'].sudo().set_param(
             'web.base.url', 'https://odoo.example.com')
         group = self.env['signalwire.call.group'].create({
@@ -198,9 +201,7 @@ class TestInboundCallController(HttpCase):
         ])
         self.assertTrue(attachment)
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        response = self._group_gives_up(group)
 
         self.assertIn(
             f'<Play>https://odoo.example.com/signalwire/voice/greeting/{attachment.id}</Play>',
@@ -218,63 +219,6 @@ class TestInboundCallController(HttpCase):
 
         self.assertNotIn('<Say', response.text)
         self.assertNotIn('<Record', response.text)
-
-    def test_group_fallback_with_zero_max_attempts_does_not_retry(self):
-        # max_ring_attempts defaults to 0 - a group that never touches
-        # this new setting behaves exactly as it did before it existed.
-        group = self.env['signalwire.call.group'].create({
-            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
-        })
-
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
-
-        self.assertNotIn('<Dial', response.text)
-        self.assertIn('<Say>', response.text)
-
-    def test_group_fallback_retries_the_ring_with_hold_before_giving_up(self):
-        group = self.env['signalwire.call.group'].create({
-            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
-            'max_ring_attempts': 1,
-        })
-
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
-
-        body = response.text
-        self.assertIn('<Say>', body)
-        self.assertIn('<Dial ', body)
-        self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', body)
-        self.assertIn(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}?attempt=1', body)
-
-    def test_group_fallback_uses_the_default_hold_message_text_by_default(self):
-        group = self.env['signalwire.call.group'].create({
-            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
-            'max_ring_attempts': 1,
-        })
-
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer'})
-
-        self.assertIn(
-            '<Say>Please hold while we try to reach someone.</Say>', response.text)
-
-    def test_group_fallback_stops_retrying_once_attempts_are_exhausted(self):
-        group = self.env['signalwire.call.group'].create({
-            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
-            'max_ring_attempts': 1,
-        })
-
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-            data={'DialCallStatus': 'no-answer', 'attempt': '1'})
-
-        self.assertNotIn('<Dial', response.text)
-        self.assertIn('<Say>', response.text)
 
     def test_inbound_call_to_an_ivr_routed_number_gathers_a_digit(self):
         menu = self.env['signalwire.ivr.menu'].create({
@@ -316,8 +260,7 @@ class TestInboundCallController(HttpCase):
             f'/signalwire/voice/ivr/{menu.id}/{self.number.id}/digit', data={'Digits': '2'})
 
         self.assertIn('sip:user_jane@example-abc123.sip.signalwire.com', response.text)
-        self.assertIn(f'/signalwire/voice/group_fallback/{group.id}/{self.number.id}',
-                       response.text)
+        self.assertIn('/signalwire/voice/queue_result/', response.text)
 
     def test_ivr_digit_takes_a_voicemail(self):
         menu = self.env['signalwire.ivr.menu'].create({

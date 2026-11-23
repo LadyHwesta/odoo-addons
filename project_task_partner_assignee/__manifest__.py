@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Project Task Contact Assignee',
+    'name': 'Assign Tasks to Contacts',
     'version': '19.0.1.0.0',
     'category': 'Services/Project',
     'summary': "Assign a task or subtask to a specific contact, not just internal staff",
@@ -31,6 +31,8 @@ the README for the one real access-shape nuance that comes with that
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['project'],
     'data': [

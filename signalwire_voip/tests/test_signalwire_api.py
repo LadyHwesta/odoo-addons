@@ -205,6 +205,23 @@ class TestSignalWireClient(TransactionCase):
                 client.compat_get('Accounts/pid123.json')
         self.assertIn('Unauthorized', str(cm.exception))
 
+    def test_html_error_page_is_shortened_to_its_title(self):
+        # A wrong registry path returns a whole HTML 404 page (seen live
+        # 2026-11-09); the error should name the URL, not carry the CSS.
+        client = self._client()
+        page = ('<!DOCTYPE html>\n<html><head><title>The page you were looking for '
+                "doesn't exist (404)</title><style>body { display: flex; }</style>"
+                '</head><body>...</body></html>')
+        response = _mock_response(status_code=404, json_body=None, text_body=page)
+        response.url = 'https://example.signalwire.com/api/relay/rest/registry/beta/x'
+        with patch('requests.request', return_value=response):
+            with self.assertRaises(SignalWireAPIError) as cm:
+                client.registry_get('x')
+        message = str(cm.exception)
+        self.assertIn("doesn't exist (404)", message)
+        self.assertIn('/registry/beta/x', message)
+        self.assertNotIn('display: flex', message)
+
     def test_network_failure_raises(self):
         client = self._client()
         with patch('requests.request', side_effect=requests.ConnectionError('boom')):

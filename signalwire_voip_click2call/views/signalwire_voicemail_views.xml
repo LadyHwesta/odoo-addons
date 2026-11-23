@@ -103,7 +103,7 @@
     </record>
 
     <menuitem id="menu_signalwire_voicemail" name="Voicemail"
-              action="action_signalwire_voicemail" parent="signalwire_voip.menu_signalwire_root"
-              sequence="17" />
+              action="action_signalwire_voicemail" parent="signalwire_voip.menu_signalwire_section_phones"
+              sequence="20" />
 
 </odoo>

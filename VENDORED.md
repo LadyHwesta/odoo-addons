@@ -1,8 +1,10 @@
 # Vendored OCA modules
 
-Nine modules in this repo come from the **Odoo Community Association**, not from us:
+Fifteen modules in this repo come from the **Odoo Community Association**, not from us:
 `membership/`, `website_membership/`, `membership_prorate/`, `membership_withdrawal/`,
-`contract/`, `contract_sale/`, `base_technical_features/`, `voip_oca/`, `auditlog/`.
+`contract/`, `contract_sale/`, `base_technical_features/`, `voip_oca/`, `auditlog/`,
+`resource_booking/`, `web_calendar_slot_duration/`, `commission_oca/`,
+`account_commission_oca/`, `l10n_us_form_1099/`, `helpdesk_mgmt_timesheet_sale/`.
 The membership four are vendored because the club suite (`club_membership` and
 friends) depends on them and Odoo 19 dropped the core Membership app while OCA's
 proration / withdrawal add-ons aren't on a 19.0 channel yet. `contract` and
@@ -154,3 +156,65 @@ When OCA publishes `membership_prorate` and `membership_withdrawal` on their own
 branch, drop the ports here and depend on the upstream ones instead. The two ports are
 worth submitting back upstream. `contract`/`contract_sale`/`base_technical_features`
 need no porting - just pull a newer 19.0 commit if OCA ships fixes worth having.
+
+## Third-party libraries inside our own modules
+
+| File | Library | Licence |
+| --- | --- | --- |
+| `calendar_public_meeting/static/lib/video-sdk.js` | SignalWire JS SDK v3.30.0 (`dist/index.umd.js`), verbatim | MIT. Full text in `LICENSE-video-sdk.txt` beside it, as MIT requires. |
+
+The same SDK sits in the private `telehealth_booking_signalwire` with its licence text.
+
+### `resource_booking` / `web_calendar_slot_duration`
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `resource_booking` | OCA/calendar `19.0` @ `1d6bd36` (2026-11-11) | **verbatim.** AGPL-3. Booking types, resource combinations and availability; customers pick a slot from their portal. Backs online booking and video appointments (`resource_booking_online`). Needs the `cssselect` Python package. |
+| `web_calendar_slot_duration` | OCA/web `19.0` @ `1f57640` (2026-11-12) | **verbatim.** LGPL-3. Calendar slot length setting, required by `resource_booking`. |
+
+Odoo Community has no booking app (Appointments is Enterprise-only); this is
+OCA's production-stable one, used instead of extending `paramedic_appointment`.
+
+### `commission_oca` / `account_commission_oca`
+
+Source: <https://github.com/OCA/commission>
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `commission_oca` | `19.0` @ `b2ff6a0` (2026-11-11) | **verbatim.** AGPL-3. Agents, commission types and settlements. |
+| `account_commission_oca` | `19.0` @ `b2ff6a0` | **verbatim.** AGPL-3. Commission on paid customer invoices, settlements turned into vendor bills. |
+
+Vendored for Meskis Works' sales and support contractors, who are paid a share of
+what their customers pay (`meskis_agent_commission` in the private repo builds the
+bonuses, statements and hours log on top). Same `readme/`/`pyproject.toml`/`i18n/`
+stripping as the others.
+
+### `l10n_us_form_1099`
+
+Source: <https://github.com/OCA/l10n-usa>
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `l10n_us_form_1099` | `18.0` @ `2e629e9` (2026-11-13) | **ported 18.0 → 19.0.** AGPL-3. Changes: `self._cr` → `self.env.cr` in the report view; action `view_id` `eval="view_…"` → `ref="view_…"` (19.0 no longer resolves bare names in `eval`); the report's search-view Group By `<group expand string>` → `<group>` and `<separator orientation>` → `<separator/>`. |
+
+No 19.0 branch upstream yet, so it's a port, pushed to no OCA fork or PR (see the
+OCA contribution policy). Our `l10n_us_form_1099_nec_summary` builds the year-end
+1099-NEC totals and recipient statements on top of it; OCA's own payment report here
+counts every payment to a 1099 vendor, drafts and incoming ones included, so use the
+summary for filing figures.
+
+### `helpdesk_mgmt_timesheet_sale`
+
+Source: <https://github.com/OCA/helpdesk>
+
+| Module | Upstream | Status |
+| --- | --- | --- |
+| `helpdesk_mgmt_timesheet_sale` | `18.0` @ `eaa6b22` (2026-11-13) | **ported 18.0 → 19.0.** AGPL-3. Change: the ticket's sales-order-line domain built with `odoo.fields.Domain` instead of the deprecated `odoo.osv.expression.AND`. |
+
+Links a Helpdesk ticket's timesheets to a sales order line so ticket time can be
+invoiced; without it, time logged on tickets in 19.0 never reaches an invoice. No
+19.0 branch upstream yet; not pushed to OCA (see the contribution policy). Meskis
+Works' `meskis_support_billing` builds its support-time billing on top of it. Its
+dependency `helpdesk_mgmt_timesheet` needs OCA/timesheet's
+`hr_timesheet_time_control` on the addons path.
+

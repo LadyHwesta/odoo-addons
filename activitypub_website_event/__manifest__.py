@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'ActivityPub - Website Events',
+    'name': 'Fediverse: Events',
     'version': '19.0.1.2.0',
     'category': 'Marketing/Events',
     'summary': 'Federate published events to the Fediverse as Event objects',
@@ -21,7 +21,7 @@ the ``activitypub`` engine.
 * The Event object carries ``startTime`` / ``endTime``, the description as
   ``content``, the venue as a ``Place`` (with latitude / longitude when the
   address is geolocated), the cover image as an ``attachment``, and the
-  event tags as ``Hashtag``s.
+  event tags as ``Hashtag`` objects.
 * ``event.event`` is a mail thread, so Fediverse replies to a federated
   event land in its chatter (see the engine's *Post federated replies to
   chatter* setting).
@@ -30,6 +30,7 @@ Install ``activitypub`` first and configure at least one actor.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'images': ['static/description/banner.png'],
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['activitypub', 'website_event'],

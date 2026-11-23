@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="product_template_form_view_stripe_tax" model="ir.ui.view">
+        <field name="name">product.template.form.stripe.tax</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="account.product_template_form_view" />
+        <field name="arch" type="xml">
+            <div name="taxes_div" position="after">
+                <field name="stripe_tax_code" placeholder="e.g. txcd_10103001"
+                       invisible="type == 'combo'" />
+            </div>
+        </field>
+    </record>
+</odoo>

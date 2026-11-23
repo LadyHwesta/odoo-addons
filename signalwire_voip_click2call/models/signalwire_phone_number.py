@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import logging
 from datetime import timedelta
 
 import pytz
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class SignalWirePhoneNumber(models.Model):
@@ -13,12 +16,12 @@ class SignalWirePhoneNumber(models.Model):
 
     assigned_user_id = fields.Many2one(
         'res.users', string="User", check_company=True,
-        help="Which user's SignalWire softphone an inbound call to "
+        help="Which user's softphone an inbound call to "
              "this number bridges to when Rings is set to \"A User\". "
-             "That user needs a provisioned SignalWire softphone "
+             "That user needs a provisioned softphone "
              "first (their own user form's Preferences tab). Only "
              "users belonging to this number's own company can be "
-             "picked - a single SignalWire account can serve every "
+             "picked - a single phone account can serve every "
              "company in a multi-company database, but each number "
              "still only ever rings its own company's people.")
     route_type = fields.Selection(
@@ -80,6 +83,49 @@ class SignalWirePhoneNumber(models.Model):
         help="Read aloud (text-to-speech) periodically while a caller "
              "is parked, alternating with the hold music above.")
 
+    inbound_connected = fields.Boolean(
+        string="Connected", readonly=True, copy=False,
+        help="Whether this number's incoming calls have been pointed at this "
+             "Odoo (Connect, once per number). After that, routing changes "
+             "take effect as soon as they're saved: Odoo decides where each "
+             "call goes at the moment it rings.")
+    call_flow_summary = fields.Text(
+        string="Where Calls Go", compute='_compute_call_flow_summary')
+    company_closed_early = fields.Boolean(compute='_compute_call_flow_summary')
+
+    def _route_phrase(self, route_type, target):
+        if not target:
+            return _("go nowhere yet (choose where below)")
+        return {
+            'user': _("ring %(name)s", name=target.name),
+            'group': _("ring the %(name)s group", name=target.name),
+            'ivr': _("play the %(name)s menu", name=target.name),
+            'user_voicemail': _("go straight to %(name)s's voicemail", name=target.name),
+            'group_voicemail': _("go straight to the %(name)s group's voicemail", name=target.name),
+        }[route_type]
+
+    def _compute_call_flow_summary(self):
+        for number in self:
+            closed_until = (number.company_id or self.env.company)._signalwire_closed_until()
+            number.company_closed_early = bool(closed_until)
+            day = number._route_phrase(*number._day_route())
+            if not number.calendar_id:
+                number.call_flow_summary = _("Calls %(day)s, at any time.", day=day)
+                continue
+            night = number._route_phrase(*number._after_hours_route())
+            summary = _(
+                "During %(hours)s, calls %(day)s. Outside those hours, calls %(night)s.",
+                hours=number.calendar_id.name, day=day, night=night)
+            if closed_until:
+                summary = _(
+                    "Closed early until %(until)s, so calls %(night)s. Otherwise: %(normal)s",
+                    until=number._format_local(closed_until), night=night, normal=summary)
+            number.call_flow_summary = summary
+
+    def _format_local(self, dt):
+        tz = pytz.timezone(self.env.user.tz or 'UTC')
+        return pytz.UTC.localize(dt).astimezone(tz).strftime('%a %I:%M %p').replace(' 0', ' ')
+
     def _is_within_business_hours(self):
         """True if "now" falls inside this number's own Business
         Hours calendar - always True if none is set (a number with
@@ -92,35 +138,92 @@ class SignalWirePhoneNumber(models.Model):
         self.ensure_one()
         if not self.calendar_id:
             return True
+        if (self.company_id or self.env.company)._signalwire_closed_until():
+            return False
         now = fields.Datetime.now().replace(tzinfo=pytz.UTC)
         intervals = self.calendar_id._attendance_intervals_batch(
             now, now + timedelta(minutes=1))
         return bool(intervals.get(False))
 
+    def _signalwire_next_opening(self):
+        """When this number's phones next open (naive UTC): now if they're
+        open, else the start of the next business-hours period (respecting
+        the calendar's time off and a "closed early" until), looking up to
+        two weeks ahead. Now if no business hours are set."""
+        self.ensure_one()
+        now = fields.Datetime.now()
+        if not self.calendar_id:
+            return now
+        start = max(now, (self.company_id or self.env.company)._signalwire_closed_until() or now)
+        start_utc = start.replace(tzinfo=pytz.UTC)
+        intervals = self.calendar_id._work_intervals_batch(
+            start_utc, start_utc + timedelta(days=14)).get(False)
+        for interval_start, interval_stop, _meta in intervals or []:
+            if interval_stop > start_utc:
+                return max(interval_start, start_utc).astimezone(pytz.UTC).replace(tzinfo=None)
+        return start
+
     def _effective_route(self):
         """(route_type, target) actually in effect right now for this
         number - the day-mode routing fields above, or the after-
         hours ones instead if a Business Hours calendar is set and
-        "now" falls outside it. `target` is a res.users,
-        signalwire.call.group, or signalwire.ivr.menu record
-        (possibly empty, if that side was never configured).
+        "now" falls outside it (or the company closed early). `target`
+        is a res.users, signalwire.call.group, or signalwire.ivr.menu
+        record (possibly empty, if that side was never configured).
         """
         self.ensure_one()
         if self.calendar_id and not self._is_within_business_hours():
-            if self.after_hours_route_type == 'group':
-                return 'group', self.after_hours_call_group_id
-            if self.after_hours_route_type == 'ivr':
-                return 'ivr', self.after_hours_ivr_menu_id
-            if self.after_hours_route_type == 'user_voicemail':
-                return 'user_voicemail', self.after_hours_user_id
-            if self.after_hours_route_type == 'group_voicemail':
-                return 'group_voicemail', self.after_hours_call_group_id
-            return 'user', self.after_hours_user_id
+            return self._after_hours_route()
+        return self._day_route()
+
+    def _day_route(self):
+        self.ensure_one()
         if self.route_type == 'group':
             return 'group', self.call_group_id
         if self.route_type == 'ivr':
             return 'ivr', self.ivr_menu_id
         return 'user', self.assigned_user_id
+
+    def _after_hours_route(self):
+        self.ensure_one()
+        if self.after_hours_route_type == 'group':
+            return 'group', self.after_hours_call_group_id
+        if self.after_hours_route_type == 'ivr':
+            return 'ivr', self.after_hours_ivr_menu_id
+        if self.after_hours_route_type == 'user_voicemail':
+            return 'user_voicemail', self.after_hours_user_id
+        if self.after_hours_route_type == 'group_voicemail':
+            return 'group_voicemail', self.after_hours_call_group_id
+        return 'user', self.after_hours_user_id
+
+    def _signalwire_set_status_callback(self):
+        """Points each connected number's call status callback at this
+        Odoo (also set by Connect). Numbers connected before 19.0.4.14.0
+        get it on upgrade. A failure is logged, never raised: the cleanup
+        job still ends calls, just a few minutes later."""
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        for number in self.filtered('inbound_connected'):
+            try:
+                number.subproject_id.server_id._get_client().compat_post(
+                    f'Accounts/{number.subproject_id.account_sid}/'
+                    f'IncomingPhoneNumbers/{number.sid}.json',
+                    StatusCallback=f'{base_url}/signalwire/voice/status',
+                    StatusCallbackMethod='POST')
+            except Exception as exc:  # noqa: BLE001 - see docstring
+                _logger.warning(
+                    "SignalWire: couldn't set the status callback on %s: %s",
+                    number.name, exc)
+
+    ROUTING_FIELDS = (
+        'route_type', 'assigned_user_id', 'call_group_id', 'ivr_menu_id', 'calendar_id',
+        'after_hours_route_type', 'after_hours_user_id', 'after_hours_call_group_id',
+        'after_hours_ivr_menu_id',
+    )
+
+    def write(self, vals):
+        if any(field in vals for field in self.ROUTING_FIELDS):
+            self._check_not_customer()
+        return super().write(vals)
 
     def action_configure_inbound_routing(self):
         """Points this number's Voice URL at this database's own
@@ -134,27 +237,33 @@ class SignalWirePhoneNumber(models.Model):
         SignalWire obviously can't reach it until this Odoo is
         actually public.
         """
+        # From here it would point a customer's calls at this Odoo.
+        self._check_not_customer()
         self.ensure_one()
-        route_type, target = self._effective_route()
+        route_type, target = self._day_route()
         if not target:
             raise UserError(_(
                 "Set who, which Call Group, or which IVR Menu %(number)s should ring.",
                 number=self.name))
         if route_type == 'user' and not target.voip_username:
             raise UserError(_(
-                "%(user)s doesn't have a SignalWire softphone provisioned yet - "
-                "use \"Provision SignalWire Softphone\" on their user form first.",
+                "%(user)s doesn't have a softphone provisioned yet - "
+                "use \"Set Up Softphone\" on their user form first.",
                 user=target.name))
         if route_type == 'group' and not target.member_ids.filtered('voip_username'):
             raise UserError(_(
-                "%(group)s has no members with a SignalWire softphone provisioned yet.",
+                "%(group)s has no members with a softphone provisioned yet.",
                 group=target.name))
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         client = self.subproject_id.server_id._get_client()
         client.compat_post(
             f'Accounts/{self.subproject_id.account_sid}/'
             f'IncomingPhoneNumbers/{self.sid}.json',
-            VoiceUrl=f'{base_url}/signalwire/voice/inbound')
+            VoiceUrl=f'{base_url}/signalwire/voice/inbound',
+            # Tells us the moment a call ends, however it ended.
+            StatusCallback=f'{base_url}/signalwire/voice/status',
+            StatusCallbackMethod='POST')
+        self.inbound_connected = True
         # A real, pre-existing gap: this call previously returned nothing
         # at all on success - no error, no confirmation, nothing visibly
         # different on screen, so from the user's own point of view
@@ -164,10 +273,11 @@ class SignalWirePhoneNumber(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _("Inbound routing updated"),
+                'title': _("Connected"),
                 'message': _(
-                    "%(number)s now rings %(target)s.",
-                    number=self.name, target=target.display_name),
+                    "Calls to %(number)s now come to this Odoo. From here on, "
+                    "changes to where they go take effect as soon as you save.",
+                    number=self.name),
                 'type': 'success',
                 'sticky': False,
             },

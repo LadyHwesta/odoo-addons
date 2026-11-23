@@ -7,13 +7,10 @@ class ResPartner(models.Model):
 
     sms_blocked = fields.Boolean(
         tracking=True,
-        help="This contact replied STOP to a SignalWire SMS - no "
-             "outbound SMS will be sent to them (send_sms refuses) "
-             "until they reply START/UNSTOP, which clears this "
-             "automatically. Carrier-mandated: see signalwire_sms's "
-             "own README for why this is this module's own "
-             "responsibility, not something SignalWire enforces for "
-             "you.")
+        help="This contact replied STOP to one of our texts, so no "
+             "texts will be sent to them until they reply START or "
+             "UNSTOP, which clears this automatically. Required by "
+             "the phone carriers.")
 
     def _sms_handle_custom_keyword(self, body):
         """Extension point for an inbound SMS body that didn't match

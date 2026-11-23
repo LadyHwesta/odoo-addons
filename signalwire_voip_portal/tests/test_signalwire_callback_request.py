@@ -60,3 +60,10 @@ class TestSignalWireCallbackRequest(TransactionCase):
         self.assertEqual(req.state, 'completed')
         open_activities = req.activity_ids.filtered(lambda a: a.user_id == self.agent)
         self.assertFalse(open_activities)
+
+    def test_dashboard_shows_pending_callbacks(self):
+        self._request()
+        data = self.env['signalwire.dashboard'].get_dashboard_data()
+        tile = next(t for t in data['tiles'] if t['key'] == 'callbacks')
+        self.assertEqual(tile['value'], 1)
+        self.assertEqual(tile['tone'], 'warning')

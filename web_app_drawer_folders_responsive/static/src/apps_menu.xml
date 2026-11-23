@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- A full-width heading row in the app grid where each folder starts. -->
+    <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//AppMenuItem[@t-foreach='apps']" position="replace">
+            <t t-foreach="apps" t-as="app" t-key="app.id">
+                <div t-if="app.drawerFolderStart" class="o_app_drawer_folder_row"
+                     t-esc="app.drawerFolder" />
+                <AppMenuItem
+                    app="app"
+                    currentApp="currentApp"
+                    href="getMenuItemHref(app)"
+                    onClick="onNavBarDropdownItemSelection.bind(this)"
+                />
+            </t>
+        </xpath>
+    </t>
+
+</templates>

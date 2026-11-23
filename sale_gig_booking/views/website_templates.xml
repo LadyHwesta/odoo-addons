@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="book_page" name="Booking Request">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'book'"/>
+            <div id="wrap" class="o_gig_book">
+                <section class="pt48 pb24">
+                    <div class="container">
+                        <h1 class="mb-2">Book a Date</h1>
+                        <p class="lead mb-0">Tell us about your event and we'll send a quote. Your date is held once
+                            the quote is signed and the deposit is paid.</p>
+                    </div>
+                </section>
+                <section class="s_website_form pb48" data-vcss="001" data-snippet="s_website_form">
+                    <div class="container">
+                        <form id="gig_booking_form" action="/website/form/" method="post" enctype="multipart/form-data"
+                              class="o_mark_required" data-mark="*" data-pre-fill="true" data-model_name="crm.lead"
+                              data-success-mode="redirect" data-success-page="/book/thank-you">
+                            <div class="s_website_form_rows row s_col_no_bgcolor">
+                                <div data-name="Field" class="s_website_form_field s_website_form_dnone">
+                                    <input type="hidden" class="form-control s_website_form_input" name="name" value="Booking request"/>
+                                    <input t-if="team" type="hidden" class="form-control s_website_form_input" name="team_id" t-att-value="team.id"/>
+                                </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="char">
+                        <label class="s_website_form_label form-label" for="gig_contact_name">
+                            <span class="s_website_form_label_content">Your Name</span>
+                                    <span class="s_website_form_mark"> *</span>
+                        </label>
+                        <input id="gig_contact_name" class="form-control s_website_form_input" type="text" name="contact_name" data-fill-with="name" required="1"/>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="email">
+                        <label class="s_website_form_label form-label" for="gig_email_from">
+                            <span class="s_website_form_label_content">Email</span>
+                                    <span class="s_website_form_mark"> *</span>
+                        </label>
+                        <input id="gig_email_from" class="form-control s_website_form_input" type="email" name="email_from" data-fill-with="email" required="1"/>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom" data-type="tel">
+                        <label class="s_website_form_label form-label" for="gig_phone">
+                            <span class="s_website_form_label_content">Phone</span>
+                        </label>
+                        <input id="gig_phone" class="form-control s_website_form_input" type="tel" name="phone" data-fill-with="phone"/>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="selection">
+                        <label class="s_website_form_label form-label" for="gig_gig_type">
+                            <span class="s_website_form_label_content">Type of Event</span>
+                                    <span class="s_website_form_mark"> *</span>
+                        </label>
+                        <select id="gig_gig_type" class="form-select s_website_form_input" name="gig_type" required="1">
+                            <option value="">Choose...</option>
+                            <option t-foreach="gig_types" t-as="t" t-att-value="t[0]" t-out="t[1]"/>
+                        </select>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="date">
+                        <label class="s_website_form_label form-label" for="gig_gig_date">
+                            <span class="s_website_form_label_content">Date</span>
+                                    <span class="s_website_form_mark"> *</span>
+                        </label>
+                        <input id="gig_gig_date" class="form-control s_website_form_input" type="date" name="gig_date" required="1"/>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom" data-type="integer">
+                        <label class="s_website_form_label form-label" for="gig_guest_count">
+                            <span class="s_website_form_label_content">Number of Guests</span>
+                        </label>
+                        <input id="gig_guest_count" class="form-control s_website_form_input" type="number" min="0" name="guest_count"/>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="float">
+                        <label class="s_website_form_label form-label" for="gig_gig_start_hour">
+                            <span class="s_website_form_label_content">Start Time</span>
+                                    <span class="s_website_form_mark"> *</span>
+                        </label>
+                        <select id="gig_gig_start_hour" class="form-select s_website_form_input" name="gig_start_hour" required="1">
+                            <option value="">Choose...</option>
+                            <option t-foreach="hours" t-as="h" t-att-value="h[0]" t-out="h[1]"/>
+                        </select>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom s_website_form_required" data-type="float">
+                        <label class="s_website_form_label form-label" for="gig_gig_end_hour">
+                            <span class="s_website_form_label_content">End Time</span>
+                                    <span class="s_website_form_mark"> *</span>
+                        </label>
+                        <select id="gig_gig_end_hour" class="form-select s_website_form_input" name="gig_end_hour" required="1">
+                            <option value="">Choose...</option>
+                            <option t-foreach="hours" t-as="h" t-att-value="h[0]" t-out="h[1]"/>
+                        </select>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom" data-type="char">
+                        <label class="s_website_form_label form-label" for="gig_venue_name">
+                            <span class="s_website_form_label_content">Venue</span>
+                        </label>
+                        <input id="gig_venue_name" class="form-control s_website_form_input" type="text" name="venue_name"/>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 col-md-6 s_website_form_custom" data-type="selection">
+                        <label class="s_website_form_label form-label" for="gig_gig_setting">
+                            <span class="s_website_form_label_content">Indoors or Outdoors</span>
+                        </label>
+                        <select id="gig_gig_setting" class="form-select s_website_form_input" name="gig_setting">
+                            <option value="">Choose...</option>
+                            <option t-foreach="gig_settings" t-as="t" t-att-value="t[0]" t-out="t[1]"/>
+                        </select>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom" data-type="text">
+                        <label class="s_website_form_label form-label" for="gig_venue_address">
+                            <span class="s_website_form_label_content">Venue Address</span>
+                        </label>
+                        <textarea id="gig_venue_address" class="form-control s_website_form_input" name="venue_address" rows="2"></textarea>
+                    </div>
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom" data-type="text">
+                        <label class="s_website_form_label form-label" for="gig_description">
+                            <span class="s_website_form_label_content">Tell us about it</span>
+                        </label>
+                        <textarea id="gig_description" class="form-control s_website_form_input" name="description" rows="4" placeholder="Music you love, music to avoid, the schedule, anything else..."></textarea>
+                    </div>
+                                <div class="mb-0 py-2 col-12 s_website_form_submit" data-name="Submit Button">
+                                    <div class="s_website_form_label"/>
+                                    <a href="#" role="button" class="btn btn-primary btn-lg s_website_form_send">Send Request</a>
+                                    <span id="s_website_form_result"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <template id="book_thanks_page" name="Booking Request Sent">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <section class="pt64 pb64">
+                    <div class="container text-center">
+                        <h1>Thank you!</h1>
+                        <p class="lead">Your request is in. We'll check the date and send you a quote.</p>
+                        <a href="/" class="btn btn-primary mt-3">Back to the home page</a>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

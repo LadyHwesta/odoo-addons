@@ -1,6 +1,6 @@
 {
     'name': 'CalDAV Calendar Sync',
-    'version': '19.0.2.4.0',
+    'version': '19.0.2.5.2',
     'category': 'Productivity/Calendar',
     'summary': 'Two-way calendar synchronization with any RFC 4791 CalDAV server',
     'description': """
@@ -34,6 +34,7 @@ See README.md for known edge cases and other limitations.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
+    'support': 'sales@meskis.net',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'images': ['static/description/banner.png'],
     'depends': ['calendar', 'mail'],

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The website booking form may fill in these lead fields. -->
+    <function model="ir.model.fields" name="formbuilder_whitelist">
+        <value>crm.lead</value>
+        <value eval="['gig_date', 'gig_start_hour', 'gig_end_hour', 'gig_type', 'venue_name',
+                      'venue_address', 'guest_count', 'gig_setting']"/>
+    </function>
+</odoo>

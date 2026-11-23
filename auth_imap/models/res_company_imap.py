@@ -17,7 +17,10 @@ class ResCompanyImap(models.Model):
     _rec_name = 'imap_server'
 
     sequence = fields.Integer(default=10)
-    company = fields.Many2one('res.company', string='Company', required=True, ondelete='cascade')
+    company = fields.Many2one(
+        'res.company', string='Company', required=True, ondelete='cascade',
+        default=lambda self: self.env.company,
+        help="The company whose users sign in through this server.")
     active = fields.Boolean(default=True)
     imap_server = fields.Char(
         string='IMAP Server address', required=True,

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="security_probe_hit_view_list" model="ir.ui.view">
+        <field name="name">security.probe_hit.list</field>
+        <field name="model">security.probe_hit</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="create_date" string="When" />
+                <field name="ip" />
+                <field name="path" />
+                <field name="reason" />
+            </list>
+        </field>
+    </record>
+
+    <record id="security_probe_hit_view_search" model="ir.ui.view">
+        <field name="name">security.probe_hit.search</field>
+        <field name="model">security.probe_hit</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="ip" />
+                <field name="path" />
+                <group>
+                    <filter name="group_by_ip" string="IP"
+                            context="{'group_by': 'ip'}" />
+                    <filter name="group_by_reason" string="Reason"
+                            context="{'group_by': 'reason'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="security_probe_hit_action" model="ir.actions.act_window">
+        <field name="name">Probe Requests</field>
+        <field name="res_model">security.probe_hit</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Requests for addresses only attackers ask for, such as /.env or
+            /wp-login.php, from the last day. Enough of them from one address
+            blocks it; see Security Events.</p>
+        </field>
+    </record>
+</odoo>

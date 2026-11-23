@@ -16,7 +16,7 @@ class SignalWireCallGroup(models.Model):
     """
     _name = 'signalwire.call.group'
     _inherit = ['mail.thread']
-    _description = 'SignalWire Call Group'
+    _description = 'Call Group'
     _check_company_auto = True
 
     name = fields.Char(required=True, tracking=True)
@@ -26,7 +26,7 @@ class SignalWireCallGroup(models.Model):
              "only route to a Call Group in that number's own "
              "company (enforced below), so each branch/company keeps "
              "its own independent set of groups even on a single "
-             "shared SignalWire account.")
+             "shared phone account.")
     member_ids = fields.Many2many('res.users', string="Members")
     voicemail_mode = fields.Selection(
         [('none', "End the Call"), ('user', "A Specific User's Voicemail"),
@@ -69,6 +69,11 @@ class SignalWireCallGroup(models.Model):
              "and following \"If Nobody Answers\" above. 0 (the "
              "default) rings once and falls straight through, exactly "
              "like before this setting existed.")
+    queue_max_wait_minutes = fields.Integer(
+        string="Longest Wait (minutes)", default=0,
+        help="Callers wait in this group's queue until someone is free. After "
+             "this many minutes they're sent to \"If nobody answers\" instead. "
+             "0 means no limit (they can always choose a callback or a message).")
     hold_music = fields.Binary(
         string="Hold Music", attachment=True, copy=False,
         help="Looped between ring attempts while \"Hold and Retry "

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_gig" model="ir.ui.view">
+        <field name="name">sale.order.form.gig</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="gig_has_conflict" invisible="1"/>
+                <field name="is_gig" invisible="1"/>
+                <button name="action_confirm_gig_anyway" type="object" string="Confirm Anyway"
+                        invisible="not gig_has_conflict or state not in ('draft', 'sent')"
+                        confirm="This date clashes with another booking. Confirm anyway?"/>
+                <button name="action_promote_gig" type="object" string="Promote It"
+                        invisible="not is_gig or state != 'sale' or gig_event_id"
+                        help="List this gig on your website as an appearance."/>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning mb-0" role="alert" invisible="not gig_has_conflict or state == 'cancel'">
+                    <strong>Already booked around this time:</strong>
+                    <field name="gig_conflict_summary" class="d-block"/>
+                </div>
+            </xpath>
+            <xpath expr="//notebook/page[@name='order_lines']" position="after">
+                <page string="Gig" name="gig">
+                    <group>
+                        <group>
+                            <field name="gig_date"/>
+                            <field name="gig_start_hour" widget="float_time"/>
+                            <field name="gig_end_hour" widget="float_time"/>
+                            <field name="gig_type"/>
+                        </group>
+                        <group>
+                            <field name="venue_name"/>
+                            <field name="venue_address"/>
+                            <field name="guest_count"/>
+                            <field name="gig_setting"/>
+                            <field name="gig_event_id" invisible="not gig_event_id"/>
+                        </group>
+                    </group>
+                    <group string="Load-in">
+                        <group>
+                            <field name="gig_load_in_hour" widget="float_time"/>
+                            <field name="gig_contact_name"/>
+                            <field name="gig_contact_phone" widget="phone"/>
+                        </group>
+                        <group>
+                            <field name="gig_load_in_notes" nolabel="1" colspan="2"
+                                   placeholder="Parking, entrance, stairs or lift, power, curfew..."/>
+                        </group>
+                    </group>
+                </page>
+                <page string="Timeline" name="gig_timeline" invisible="not is_gig">
+                    <p class="text-muted">The moments of the event, in order. The client can add to it from their
+                        portal until the gig starts.</p>
+                    <field name="gig_timeline_ids">
+                        <list editable="bottom" default_order="sort_hour, sequence, id">
+                            <field name="hour" widget="float_time"/>
+                            <field name="moment"/>
+                            <field name="note"/>
+                            <field name="added_by_client" string="From Client" optional="show"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

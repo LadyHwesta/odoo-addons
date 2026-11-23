@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="form_1099_nec_summary_form" model="ir.ui.view">
+        <field name="name">form.1099.nec.summary.form</field>
+        <field name="model">form.1099.nec.summary</field>
+        <field name="arch" type="xml">
+            <form string="1099-NEC Summary">
+                <header>
+                    <button name="action_compute" type="object" string="Calculate" class="btn-primary" />
+                    <button name="action_print_statements" type="object" string="Print Recipient Statements"
+                            invisible="not line_ids" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="year" options="{'format': false}" />
+                            <field name="company_id" groups="base.group_multi_company" />
+                        </group>
+                        <group>
+                            <field name="threshold" string="Filing Threshold ($)" />
+                        </group>
+                    </group>
+                    <p class="text-muted">Totals what was paid in the year to contacts marked as 1099-NEC vendors: sent, completed payments only, leaving out journals marked as reported on 1099-K. A 1099-NEC is needed at or above the threshold; file it with the IRS (IRIS) and send the recipient their statement by 31 January.</p>
+                    <field name="line_ids">
+                        <list decoration-warning="issues and must_file" decoration-muted="not must_file">
+                            <field name="vendor_id" />
+                            <field name="vat" />
+                            <field name="payment_count" />
+                            <field name="amount" sum="Total" />
+                            <field name="must_file" />
+                            <field name="issues" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_form_1099_nec_summary" model="ir.actions.act_window">
+        <field name="name">1099-NEC Summary</field>
+        <field name="res_model">form.1099.nec.summary</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="menu_form_1099_nec_summary" name="1099-NEC Summary"
+              parent="account.account_reports_management_menu"
+              action="action_form_1099_nec_summary" sequence="60" />
+
+    <record id="account_journal_form_1099k" model="ir.ui.view">
+        <field name="name">account.journal.form.1099k</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="reported_on_1099k" invisible="type not in ('bank', 'cash', 'credit')" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

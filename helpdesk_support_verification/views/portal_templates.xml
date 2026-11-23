@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="portal_my_home_support_key" name="Portal My Home: support key"
+              inherit_id="portal.portal_my_home" priority="45">
+        <div id="portal_common_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/helpdesk_support_verification/static/src/img/support_key.svg'" />
+                <t t-set="title">Support key</t>
+                <t t-set="text">Get a one-time key to read to our support team when you call or write</t>
+                <t t-set="url" t-value="'/my/support-key'" />
+                <t t-set="config_card" t-value="True" />
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_support_key" name="Support key">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True" />
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Support key</t>
+            </t>
+            <div class="o_support_key mt-3" style="max-width: 40rem;">
+                <p>When you contact our support team, we'll ask for a support key to confirm it's really you before we look at your account.</p>
+                <t t-if="key">
+                    <div class="card mb-3">
+                        <div class="card-body text-center">
+                            <div class="text-muted small">Your support key</div>
+                            <div class="o_support_key_value fs-2 fw-bold font-monospace my-2" t-out="key" />
+                            <div class="small">Works once, until <t t-out="expires_at" />.</div>
+                        </div>
+                    </div>
+                    <p>Read it to the support agent when they ask. If it expires, come back and get a new one.</p>
+                </t>
+                <t t-elif="too_many">
+                    <div class="alert alert-warning">You've asked for several keys in the last hour. Please wait a little, then try again.</div>
+                </t>
+                <form method="POST" action="/my/support-key">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <button type="submit" class="btn btn-primary">
+                        <t t-if="key">Get a new key</t><t t-else="">Get a support key</t>
+                    </button>
+                </form>
+                <p class="mt-4 small text-muted">We will never ask for your password. Can't sign in? Our support team can text a code to the mobile number on your account instead.</p>
+            </div>
+        </t>
+    </template>
+</odoo>

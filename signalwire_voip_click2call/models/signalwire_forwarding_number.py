@@ -10,7 +10,7 @@ class SignalWireForwardingNumber(models.Model):
     working from home tomorrow).
     """
     _name = 'signalwire.forwarding.number'
-    _description = 'SignalWire Forwarding Number'
+    _description = 'Forwarding Number'
     _order = 'name'
 
     user_id = fields.Many2one('res.users', required=True, ondelete='cascade')

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="signalwire_voip.VoipDashboard">
+        <div class="o_signalwire_dashboard o_action h-100 overflow-auto">
+            <div class="container-fluid py-3 px-4" style="max-width: 1280px;">
+                <div class="d-flex align-items-center mb-3 gap-2">
+                    <h2 class="mb-0 flex-grow-1">Phone System</h2>
+                    <button type="button" class="btn btn-secondary" t-on-click="() => this.load(true)"
+                            t-att-disabled="state.loading" title="Refresh now">
+                        <i t-attf-class="fa fa-refresh #{state.loading ? 'fa-spin' : ''}" role="img" aria-label="Refresh" />
+                        Refresh
+                    </button>
+                </div>
+
+                <t t-set="data" t-value="state.data" />
+                <t t-if="data">
+                    <!-- Open / closed -->
+                    <div t-if="data.status"
+                         t-attf-class="alert d-flex align-items-center gap-3 #{data.status.closed ? 'alert-warning' : 'alert-success'}"
+                         role="status">
+                        <i t-attf-class="fa fa-2x #{data.status.closed ? 'fa-moon-o' : 'fa-sun-o'}" role="img" aria-hidden="true" />
+                        <div class="flex-grow-1">
+                            <strong t-esc="data.status.title" />
+                            <div class="small" t-esc="data.status.text" />
+                        </div>
+                        <t t-if="data.status.can_toggle">
+                            <button t-if="!data.status.closed" type="button" class="btn btn-warning"
+                                    t-att-disabled="state.switching" t-on-click="() => this.setClosed(true)">
+                                Close for the Rest of Today
+                            </button>
+                            <button t-else="" type="button" class="btn btn-success"
+                                    t-att-disabled="state.switching" t-on-click="() => this.setClosed(false)">
+                                Reopen Now
+                            </button>
+                        </t>
+                    </div>
+
+                    <!-- Tiles -->
+                    <div class="o_signalwire_dashboard_tiles mb-4" t-if="data.tiles.length">
+                        <div t-foreach="data.tiles" t-as="tile" t-key="tile.key"
+                             t-attf-class="o_signalwire_tile card o_signalwire_tile_#{tile.tone} #{tile.action ? 'o_signalwire_tile_clickable' : ''}"
+                             t-on-click="() => this.openTile(tile)"
+                             t-att-role="tile.action ? 'button' : undefined"
+                             t-att-tabindex="tile.action ? 0 : undefined">
+                            <div class="card-body">
+                                <div class="o_signalwire_tile_value" t-esc="tile.value" />
+                                <div class="fw-bold" t-esc="tile.label" />
+                                <div class="small text-muted" t-if="tile.hint" t-esc="tile.hint" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tables -->
+                    <div class="row g-4">
+                        <div t-foreach="data.tables" t-as="table" t-key="table.key" class="col-12 col-xl-6">
+                            <h4 t-esc="table.title" />
+                            <div class="table-responsive" t-if="table.rows.length">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr><th t-foreach="table.columns" t-as="column" t-key="column_index" t-esc="column" /></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="table.rows" t-as="row" t-key="row_index"
+                                            t-att-class="row.open ? 'o_signalwire_row_clickable' : ''"
+                                            t-on-click="() => this.openRow(row)">
+                                            <td t-foreach="row.cells" t-as="cell" t-key="cell_index"
+                                                t-att-class="cell_first ? 'text-nowrap fw-bold ' + (row.tone ? 'o_signalwire_tone_' + row.tone : '') : ''"
+                                                t-esc="cell" />
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-muted" t-else="" t-esc="table.empty" />
+                        </div>
+                    </div>
+                </t>
+                <p t-else="" class="text-muted">Loading...</p>
+            </div>
+        </div>
+    </t>
+</templates>

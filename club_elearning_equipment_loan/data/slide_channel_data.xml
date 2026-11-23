@@ -18,6 +18,7 @@
     <!-- ========= Section 1: Setting up the lending library ========= -->
     <record id="section_setup" model="slide.slide">
         <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="is_published" eval="True" />
         <field name="name">Setting up the lending library</field>
         <field name="is_category" eval="True" />
         <field name="sequence">10</field>
@@ -25,6 +26,7 @@
 
     <record id="lesson_loanable" model="slide.slide">
         <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="is_published" eval="True" />
         <field name="name">Marking equipment loanable</field>
         <field name="slide_category">article</field>
         <field name="sequence">11</field>
@@ -79,6 +81,7 @@
     <!-- ================ Section 2: Running a loan ================ -->
     <record id="section_running" model="slide.slide">
         <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="is_published" eval="True" />
         <field name="name">Running a loan</field>
         <field name="is_category" eval="True" />
         <field name="sequence">20</field>
@@ -86,6 +89,7 @@
 
     <record id="lesson_workflow" model="slide.slide">
         <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="is_published" eval="True" />
         <field name="name">Checking equipment out and in</field>
         <field name="slide_category">article</field>
         <field name="sequence">21</field>
@@ -147,6 +151,7 @@
 
     <record id="lesson_overdue" model="slide.slide">
         <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="is_published" eval="True" />
         <field name="name">Overdue chasing and the portal view</field>
         <field name="slide_category">article</field>
         <field name="sequence">22</field>
@@ -193,6 +198,7 @@
     <!-- ========================= Quiz ========================= -->
     <record id="slide_quiz" model="slide.slide">
         <field name="channel_id" ref="channel_equipment_loan" />
+        <field name="is_published" eval="True" />
         <field name="name">Check your understanding</field>
         <field name="slide_category">quiz</field>
         <field name="sequence">90</field>

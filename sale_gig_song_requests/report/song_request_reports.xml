@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_song_card" model="ir.actions.report">
+        <field name="name">Song Request Card</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sale_gig_song_requests.report_song_card</field>
+        <field name="report_file">sale_gig_song_requests.report_song_card</field>
+        <field name="print_report_name">'Song card - %s' % (object.venue_name or object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- A page to print and stand on the tables: scan, request. -->
+    <template id="song_card_body">
+        <div class="text-center" style="padding-top: 3em">
+            <h1 style="font-size: 3.2em" class="mb-2">Request a song</h1>
+            <p style="font-size: 1.4em" class="mb-4">Scan with your phone camera</p>
+            <img t-if="o.song_request_url" t-att-src="o._song_request_qr_src()"
+                 style="width: 9cm; height: 9cm" alt="QR code for song requests"/>
+            <p class="mt-4 text-muted" style="font-size: 1.1em; word-break: break-all"
+               t-out="o.song_request_url"/>
+            <p class="mt-5" style="font-size: 1.6em"><strong t-out="o.company_id.name"/></p>
+        </div>
+    </template>
+
+    <template id="report_song_card">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                        <t t-call="sale_gig_song_requests.song_card_body"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- The Gig Sheet ends with the request card, ready to stand on a table. -->
+    <template id="report_gig_load_in_music" inherit_id="sale_gig_booking.report_gig_load_in">
+        <xpath expr="//div[@id='gig_music']" position="inside">
+            <div t-if="o.song_requests_enabled and o.song_request_url" style="page-break-before: always">
+                <t t-call="sale_gig_song_requests.song_card_body"/>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

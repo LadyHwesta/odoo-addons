@@ -1,4 +1,4 @@
-# ActivityPub – Website Events
+# Fediverse: Events
 
 Federates `website_event` events to the Fediverse as ActivityStreams
 `Event` objects (the shape [Mobilizon](https://joinmobilizon.org/) and

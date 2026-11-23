@@ -1,77 +1,201 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="signalwire_voip_click2call.ReceptionistPanel">
-        <div class="o_signalwire_receptionist_panel p-3">
-            <h3>Active Calls</h3>
-            <table class="table table-sm" t-if="state.calls.length">
-                <thead>
-                    <tr>
-                        <th>From</th>
-                        <th>Currently Ringing</th>
-                        <th>Status</th>
-                        <th>Route To</th>
-                        <th />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr t-foreach="state.calls" t-as="call" t-key="call.id">
-                        <td t-esc="call.from_number" />
-                        <td t-esc="call.assigned_user_id ? call.assigned_user_id[1] : '-'" />
-                        <td t-esc="call.state" />
-                        <td>
-                            <select
-                                class="form-select form-select-sm"
-                                t-on-change="(ev) => this.setRouteTarget(call.id, parseInt(ev.target.value, 10))"
-                            >
-                                <option value="">Pick a colleague...</option>
-                                <t t-foreach="availableRoster" t-as="user" t-key="user.id">
-                                    <option t-att-value="user.id" t-esc="user.name" />
-                                </t>
-                            </select>
-                        </td>
-                        <td class="d-flex gap-1">
-                            <button
-                                class="btn btn-sm btn-primary"
-                                t-on-click="() => this.routeCall(call)"
-                            >Send</button>
-                            <button
-                                class="btn btn-sm btn-secondary"
-                                t-on-click="() => this.checkFirst(call)"
-                            >Check First</button>
-                            <button
-                                class="btn btn-sm btn-outline-secondary"
-                                t-on-click="() => this.sendToVoicemail(call)"
-                            >Voicemail</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p t-else="" class="text-muted">No active calls right now.</p>
+        <div class="o_sw_reception o_action h-100 overflow-auto">
+            <header class="o_sw_reception_header d-flex flex-wrap align-items-center gap-2 px-3 py-2">
+                <h2 class="h4 mb-0 me-2">Reception</h2>
+                <span t-if="state.closedUntil" class="badge text-bg-warning">
+                    Phones closed until <t t-esc="time(state.closedUntil)" />
+                </span>
+                <span t-else="" class="badge text-bg-success">Phones open</span>
+                <span class="text-muted small">
+                    <t t-esc="state.calls.length" /> call<t t-if="state.calls.length !== 1">s</t>
+                    · <t t-esc="openCallbacks" /> callback<t t-if="openCallbacks !== 1">s</t> waiting
+                    · <t t-esc="availableCount" /> of <t t-esc="state.team.length" /> available
+                </span>
+                <button class="btn btn-primary btn-sm ms-auto" t-on-click="scheduleNew">
+                    <i class="fa fa-calendar-plus-o me-1" />Schedule callback
+                </button>
+            </header>
 
-            <h3 class="mt-4">Team</h3>
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Odoo Status</th>
-                        <th>Phone Status</th>
-                        <th />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr t-foreach="state.roster" t-as="user" t-key="user.id">
-                        <td t-esc="user.name" />
-                        <td t-esc="user.im_status" />
-                        <td t-esc="callStateLabels[user.call_state] || user.call_state" />
-                        <td>
-                            <button
-                                class="btn btn-sm btn-outline-primary"
-                                t-on-click="() => this.messageUser(user.id)"
-                            >Message</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="o_sw_reception_grid p-3">
+                <!-- Left: what needs action -->
+                <div class="d-flex flex-column gap-3">
+                    <section class="o_sw_section" aria-labelledby="sw_calls_title">
+                        <h3 id="sw_calls_title" class="o_sw_section_title">
+                            Calls <span class="badge rounded-pill text-bg-secondary" t-esc="state.calls.length" />
+                        </h3>
+                        <div t-if="!state.calls.length" class="o_sw_empty">No calls right now.</div>
+                        <article t-foreach="state.calls" t-as="call" t-key="call.id"
+                                 t-attf-class="o_sw_call o_sw_call_{{ call.state }}">
+                            <div class="d-flex align-items-start gap-2">
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="fw-bold text-truncate" t-esc="call.caller || call.from_number" />
+                                    <div class="text-muted small">
+                                        <t t-if="call.caller"><t t-esc="call.from_number" /> · </t>
+                                        <t t-if="call.state === 'queued'">In <t t-esc="call.queue" />, <t t-if="call.position === 1">next in line</t><t t-else="">#<t t-esc="call.position" /></t></t>
+                                        <t t-elif="call.state === 'connected' and call.assigned">Connected to <t t-esc="call.assigned" /></t>
+                                        <t t-elif="call.assigned">For <t t-esc="call.assigned" /></t>
+                                        <t t-else="">Waiting</t>
+                                    </div>
+                                </div>
+                                <div class="text-end flex-none">
+                                    <span t-attf-class="o_sw_chip o_sw_chip_{{ call.state }}" t-esc="call.state_label" />
+                                    <div class="text-muted small mt-1" t-esc="waiting(call.started)" />
+                                </div>
+                            </div>
+                            <ul t-if="call.events.length" class="o_sw_call_events list-unstyled mb-0">
+                                <li t-foreach="call.events" t-as="event" t-key="event.id">
+                                    <i class="fa fa-calendar-check-o me-1" />
+                                    <strong t-esc="dayAndTime(event.start)" />
+                                    · <t t-esc="event.name" />
+                                    <t t-if="event.with"> with <t t-esc="event.with" /></t>
+                                </li>
+                            </ul>
+                            <div class="o_sw_call_actions d-flex flex-wrap gap-1">
+                                <select class="form-select form-select-sm o_sw_route_select"
+                                        aria-label="Colleague"
+                                        t-on-change="(ev) => this.setRouteTarget(call.id, ev.target.value)">
+                                    <option value="">Colleague…</option>
+                                    <option t-foreach="state.team" t-as="member" t-key="member.id"
+                                            t-att-value="member.id"
+                                            t-att-selected="state.routeTarget[call.id] === member.id">
+                                        <t t-esc="member.name" /> (<t t-esc="member.status_label" />)
+                                    </option>
+                                </select>
+                                <button class="btn btn-sm btn-primary" t-on-click="() => this.routeCall(call)"
+                                        title="Send the call straight to them">Send</button>
+                                <button class="btn btn-sm btn-secondary" t-on-click="() => this.checkFirst(call)"
+                                        title="Put the caller on hold and ring them first">Check first</button>
+                                <button class="btn btn-sm btn-secondary" t-on-click="() => this.addToQueue(call)"
+                                        title="The caller waits in their personal queue until they're free">Add to queue</button>
+                                <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.sendToVoicemail(call)">Voicemail</button>
+                                <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.scheduleForCall(call)"
+                                        title="Book a callback in the calendar">
+                                    <i class="fa fa-calendar-plus-o" /> Callback
+                                </button>
+                            </div>
+                        </article>
+                    </section>
+
+                    <section class="o_sw_section" aria-labelledby="sw_callbacks_title">
+                        <h3 id="sw_callbacks_title" class="o_sw_section_title">
+                            Callback requests <span class="badge rounded-pill text-bg-secondary" t-esc="state.callbacks.length" />
+                        </h3>
+                        <div t-if="!state.callbacks.length" class="o_sw_empty">Nobody is waiting for a callback.</div>
+                        <div t-foreach="state.callbacks" t-as="req" t-key="req.id"
+                             t-attf-class="o_sw_row o_sw_callback o_sw_callback_{{ req.state }}">
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="d-flex flex-wrap align-items-baseline gap-2">
+                                    <strong class="text-truncate" t-esc="req.caller" />
+                                    <span t-if="req.caller !== req.phone_number" class="text-muted small" t-esc="req.phone_number" />
+                                    <span class="badge text-bg-light border" t-esc="req.source_label" />
+                                </div>
+                                <div class="text-muted small">
+                                    <t t-if="req.state === 'scheduled'">Booked with <t t-esc="req.claimed_by" />, <t t-esc="dayAndTime(req.scheduled_for)" /></t>
+                                    <t t-elif="req.state === 'claimed'"><t t-esc="req.claimed_by" /> is calling back</t>
+                                    <t t-else="">
+                                        <t t-if="req.for">For <t t-esc="req.for" /> · </t>asked <t t-esc="ago(req.requested)" />
+                                    </t>
+                                    <t t-if="req.note"> · <t t-esc="req.note" /></t>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 flex-none">
+                                <t t-if="req.state !== 'scheduled'">
+                                    <button class="btn btn-sm btn-primary" t-on-click="() => this.callBack(req)">
+                                        <i class="fa fa-phone" /> Call now
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.scheduleRequest(req)">Schedule</button>
+                                    <button t-if="req.state === 'pending'" class="btn btn-sm btn-outline-secondary"
+                                            t-on-click="() => this.claim(req)" title="Take it on (adds a to-do for you)">Claim</button>
+                                </t>
+                                <button class="btn btn-sm btn-link" t-on-click="() => this.openRequest(req)"
+                                        title="Details: set what it's about">Details</button>
+                                <button class="btn btn-sm btn-link" t-on-click="() => this.complete(req)">Done</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right: who's waiting, who's around, and the day -->
+                <div class="d-flex flex-column gap-3">
+                    <section class="o_sw_section" aria-labelledby="sw_queues_title">
+                        <h3 id="sw_queues_title" class="o_sw_section_title">
+                            Queues <span class="badge rounded-pill text-bg-secondary" t-esc="queuedCount" />
+                        </h3>
+                        <div t-if="!state.queues.length" class="o_sw_empty">Nobody is waiting.</div>
+                        <div t-foreach="state.queues" t-as="queue" t-key="queue.key" class="o_sw_queue">
+                            <div class="d-flex align-items-baseline gap-2">
+                                <i t-attf-class="fa {{ queue.personal ? 'fa-user' : 'fa-users' }} text-muted" />
+                                <span class="fw-semibold" t-esc="queue.name" />
+                                <span class="text-muted small ms-auto">
+                                    <t t-esc="queue.free" /> of <t t-esc="queue.agents" /> free
+                                </span>
+                            </div>
+                            <ol class="o_sw_queue_callers mb-0">
+                                <li t-foreach="queue.callers" t-as="caller" t-key="caller.id">
+                                    <span class="o_sw_queue_pos" t-esc="caller_index + 1" />
+                                    <span class="text-truncate flex-grow-1" t-esc="caller.caller" />
+                                    <span class="text-muted small flex-none">waiting <t t-esc="waiting(caller.since)" /></span>
+                                </li>
+                            </ol>
+                        </div>
+                    </section>
+
+                    <section class="o_sw_section" aria-labelledby="sw_team_title">
+                        <h3 id="sw_team_title" class="o_sw_section_title">Team</h3>
+                        <div t-if="!state.team.length" class="o_sw_empty">Nobody has a softphone yet.</div>
+                        <div t-foreach="state.team" t-as="member" t-key="member.id" class="o_sw_row o_sw_member">
+                            <span t-attf-class="o_sw_avatar o_sw_status_{{ member.status }}" t-esc="member.initials" aria-hidden="true" />
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="d-flex align-items-baseline gap-2">
+                                    <span class="fw-semibold text-truncate" t-esc="member.name" />
+                                    <span t-attf-class="o_sw_chip o_sw_chip_{{ member.status }}" t-esc="member.status_label" />
+                                </div>
+                                <div class="text-muted small text-truncate">
+                                    <t t-if="member.now">In <t t-esc="member.now.name" /> until <t t-esc="time(member.now.until)" /></t>
+                                    <t t-elif="member.next">Next: <t t-esc="time(member.next.start)" /> <t t-esc="member.next.name" /></t>
+                                    <t t-else="">Free for the rest of the day</t>
+                                </div>
+                            </div>
+                            <div t-if="!member.is_me" class="d-flex gap-1 flex-none">
+                                <button class="btn btn-sm btn-light" t-on-click="() => this.callUser(member)"
+                                        t-att-title="'Call ' + member.name" t-att-aria-label="'Call ' + member.name">
+                                    <i class="fa fa-phone" />
+                                </button>
+                                <button class="btn btn-sm btn-light" t-on-click="() => this.messageUser(member.id)"
+                                        t-att-title="'Message ' + member.name" t-att-aria-label="'Message ' + member.name">
+                                    <i class="fa fa-comment" />
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="o_sw_section" aria-labelledby="sw_today_title">
+                        <h3 id="sw_today_title" class="o_sw_section_title">Today</h3>
+                        <div t-if="!state.agenda.length" class="o_sw_empty">Nothing in the team's calendars today.</div>
+                        <ol t-else="" class="o_sw_agenda list-unstyled mb-0">
+                            <li t-foreach="state.agenda" t-as="event" t-key="event.id"
+                                t-att-class="{
+                                    'o_sw_agenda_item': true,
+                                    'o_sw_agenda_past': isPast(event),
+                                    'o_sw_agenda_now': isNow(event),
+                                    'o_sw_agenda_caller': event.highlight,
+                                }">
+                                <span class="o_sw_agenda_time">
+                                    <t t-if="event.allday">All day</t>
+                                    <t t-else=""><t t-esc="time(event.start)" />–<t t-esc="time(event.stop)" /></t>
+                                </span>
+                                <span class="min-w-0">
+                                    <span class="d-block text-truncate" t-esc="event.name" />
+                                    <span class="d-block text-muted small text-truncate" t-esc="event.with" />
+                                </span>
+                                <span t-if="event.highlight" class="badge text-bg-warning flex-none">Caller</span>
+                            </li>
+                        </ol>
+                    </section>
+                </div>
+            </div>
         </div>
     </t>
 </templates>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_gig_songs" model="ir.ui.view">
+        <field name="name">sale.order.form.gig.songs</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_gig_booking.view_order_form_gig"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='gig']" position="after">
+                <page string="Music" name="gig_music" invisible="not is_gig">
+                    <group>
+                        <group>
+                            <field name="song_requests_enabled"/>
+                            <field name="song_request_url" widget="CopyClipboardChar"
+                                   invisible="not song_requests_enabled"/>
+                        </group>
+                        <group>
+                            <button name="action_print_song_card" type="object" string="Print Song Card"
+                                    icon="fa-qrcode" class="btn-secondary" invisible="not song_requests_enabled"
+                                    help="A card with the QR code for guests to request songs."/>
+                        </group>
+                    </group>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h5>Must play</h5>
+                            <field name="song_must_ids" context="{'default_kind': 'must_play'}">
+                                <list editable="bottom" decoration-muted="state == 'played'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="song"/>
+                                    <field name="artist"/>
+                                    <field name="note" string="Moment"/>
+                                    <field name="acquire_state" widget="badge" readonly="1"
+                                           decoration-success="acquire_state == 'got'"
+                                           decoration-warning="acquire_state == 'unavailable'"/>
+                                    <field name="acquire_note" optional="hide"/>
+                                    <field name="state" column_invisible="1"/>
+                                    <button name="action_played" type="object" icon="fa-check" title="Played"
+                                            invisible="state == 'played'"/>
+                                </list>
+                            </field>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5>Do not play</h5>
+                            <field name="song_never_ids" context="{'default_kind': 'do_not_play'}">
+                                <list editable="bottom">
+                                    <field name="song"/>
+                                    <field name="artist"/>
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+                    <h5 class="mt-3">Guest requests</h5>
+                    <field name="song_guest_ids" context="{'default_kind': 'request'}">
+                        <list editable="bottom" create="0" decoration-muted="state != 'new'"
+                              decoration-danger="on_do_not_play and state == 'new'">
+                            <field name="create_date" string="At" readonly="1"/>
+                            <field name="song"/>
+                            <field name="artist"/>
+                            <field name="requested_by"/>
+                            <field name="on_do_not_play" string="Do-not-play" readonly="1"/>
+                            <field name="acquire_state" widget="badge" readonly="1" optional="show"
+                                   decoration-success="acquire_state == 'got'"
+                                   decoration-warning="acquire_state == 'unavailable'"/>
+                            <field name="state" widget="badge" decoration-success="state == 'played'" readonly="1"/>
+                            <button name="action_played" type="object" icon="fa-check" title="Played"
+                                    invisible="state != 'new'"/>
+                            <button name="action_skipped" type="object" icon="fa-times" title="Skip"
+                                    invisible="state != 'new'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

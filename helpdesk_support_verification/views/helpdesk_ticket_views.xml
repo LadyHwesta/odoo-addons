@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="ticket_view_form_verification" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.verification</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='assign_to_me']" position="before">
+                <button name="action_open_verify" type="object" string="Verify Customer"
+                        class="btn-primary" invisible="verification_state != 'unverified'" />
+                <button name="action_mark_verification_not_needed" type="object"
+                        string="No Account Access Needed" invisible="verification_state != 'unverified'"
+                        confirm="Only for general questions: no account details may be discussed or changed on this ticket. Continue?" />
+            </xpath>
+            <xpath expr="//sheet/widget[@name='web_ribbon'][1]" position="before">
+                <widget name="web_ribbon" title="Not verified" bg_color="text-bg-warning"
+                        invisible="verification_state != 'unverified'" />
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Verification" name="verification">
+                    <group>
+                        <field name="verification_state" readonly="1" />
+                        <field name="verification_method" invisible="not verification_method" />
+                        <field name="verified_by_id" invisible="not verified_by_id" />
+                        <field name="verified_on" invisible="not verified_on" />
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ticket_view_tree_verification" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.list.verification</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='stage_id']" position="after">
+                <field name="verification_state" widget="badge" optional="show"
+                       decoration-warning="verification_state == 'unverified'"
+                       decoration-success="verification_state == 'verified'" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_stage_form_verification" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.stage.form.verification</field>
+        <field name="model">helpdesk.ticket.stage</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.view_helpdesk_ticket_stage_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='closed']" position="after">
+                <field name="requires_verification" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_verify_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.verify.form</field>
+        <field name="model">helpdesk.ticket.verify</field>
+        <field name="arch" type="xml">
+            <form string="Verify Customer">
+                <div class="alert alert-info" invisible="not sent_note">
+                    <field name="sent_note" nolabel="1" />
+                </div>
+                <p>Ask <field name="partner_id" readonly="1" class="d-inline fw-bold" options="{'no_open': True}" /> for the support key from their customer portal, or text them a code. Type what they read to you.</p>
+                <group>
+                    <field name="ticket_id" invisible="1" />
+                    <field name="code" placeholder="e.g. 7KQM-4ZP9-HX2R or 482913" />
+                    <field name="text_destination" invisible="not can_text" />
+                </group>
+                <footer>
+                    <button name="action_verify" type="object" string="Verify" class="btn-primary" />
+                    <button name="action_send_text" type="object" string="Text a Code" invisible="not can_text" />
+                    <button special="cancel" string="Cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

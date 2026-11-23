@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- During the gig: tonight's requests, newest first, one tap to mark. -->
+    <record id="gig_song_request_view_list" model="ir.ui.view">
+        <field name="name">gig.song.request.list</field>
+        <field name="model">gig.song.request</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="state != 'new'" decoration-danger="on_do_not_play and state == 'new'">
+                <field name="create_date" string="At" widget="datetime" options="{'show_date': false}"/>
+                <field name="song"/>
+                <field name="artist"/>
+                <field name="requested_by" optional="show"/>
+                <field name="order_id" optional="show"/>
+                <field name="on_do_not_play" string="Do-not-play" widget="boolean" optional="show"/>
+                <field name="state" widget="badge" decoration-success="state == 'played'"/>
+                <button name="action_played" type="object" string="Played" icon="fa-check"
+                        invisible="state != 'new'"/>
+                <button name="action_skipped" type="object" string="Skip" icon="fa-times"
+                        invisible="state != 'new'"/>
+                <button name="action_reset" type="object" string="Undo" icon="fa-undo"
+                        invisible="state == 'new'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="gig_song_request_view_search" model="ir.ui.view">
+        <field name="name">gig.song.request.search</field>
+        <field name="model">gig.song.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="song"/>
+                <field name="artist"/>
+                <field name="order_id"/>
+                <filter name="new" string="Not played yet" domain="[('state', '=', 'new')]"/>
+                <filter name="today" string="Today"
+                        domain="[('order_id.gig_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="group_order" string="Gig" context="{'group_by': 'order_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_gig_song_request" model="ir.actions.act_window">
+        <field name="name">Song Requests</field>
+        <field name="res_model">gig.song.request</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[('kind', '=', 'request')]</field>
+        <field name="context">{'search_default_today': 1, 'search_default_new': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No requests yet</p>
+            <p>Guests request songs from the QR card on each gig (Print Song Card on the gig's Music tab).</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_gig_song_request" name="Song Requests" parent="sale.sale_order_menu"
+              action="action_gig_song_request" sequence="60"/>
+
+    <!-- Before the gig: get every must-play song and guest request, or say
+         why you can't. -->
+    <record id="gig_song_request_view_list_to_get" model="ir.ui.view">
+        <field name="name">gig.song.request.list.to.get</field>
+        <field name="model">gig.song.request</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="acquire_state == 'got'"
+                  decoration-warning="acquire_state == 'unavailable'">
+                <field name="song"/>
+                <field name="artist"/>
+                <field name="kind" string="From"/>
+                <field name="note" string="Moment" optional="show"/>
+                <field name="requested_by" optional="hide"/>
+                <field name="order_id" optional="show"/>
+                <field name="gig_date" optional="show"/>
+                <field name="acquire_state" widget="badge" decoration-success="acquire_state == 'got'"
+                       decoration-warning="acquire_state == 'unavailable'"/>
+                <field name="acquire_note" optional="show"/>
+                <button name="action_got_it" type="object" string="Got it" icon="fa-check"
+                        invisible="acquire_state == 'got'"/>
+                <button name="action_cant_get" type="object" string="Can't get" icon="fa-ban"
+                        invisible="acquire_state == 'unavailable'"/>
+                <button name="action_reset_acquire" type="object" string="Undo" icon="fa-undo"
+                        invisible="acquire_state == 'to_get'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="gig_song_request_view_form_cant_get" model="ir.ui.view">
+        <field name="name">gig.song.request.form.cant.get</field>
+        <field name="model">gig.song.request</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>
+                    <strong><field name="song" readonly="1" class="d-inline"/></strong>
+                    <span invisible="not artist"> · <field name="artist" readonly="1" class="d-inline"/></span>
+                </p>
+                <group>
+                    <field name="acquire_note" string="Why can't you get it?" required="1"
+                           placeholder="e.g. Only a live version exists; not on any store"/>
+                </group>
+                <p class="text-muted" invisible="kind != 'must_play'">The client sees this note on their must-play list.</p>
+                <field name="kind" invisible="1"/>
+                <footer>
+                    <button name="action_confirm_cant_get" type="object" string="Can't Get" class="btn-primary"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="gig_song_request_view_search_to_get" model="ir.ui.view">
+        <field name="name">gig.song.request.search.to.get</field>
+        <field name="model">gig.song.request</field>
+        <field name="inherit_id" ref="gig_song_request_view_search"/>
+        <field name="arch" type="xml">
+            <filter name="new" position="before">
+                <filter name="to_get" string="To get" domain="[('acquire_state', '=', 'to_get')]"/>
+                <filter name="cant_get" string="Can't get" domain="[('acquire_state', '=', 'unavailable')]"/>
+                <separator/>
+                <filter name="upcoming" string="Upcoming gigs"
+                        domain="[('order_id.gig_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="action_gig_song_to_get" model="ir.actions.act_window">
+        <field name="name">Songs to Get</field>
+        <field name="res_model">gig.song.request</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="gig_song_request_view_list_to_get"/>
+        <field name="domain">[('kind', 'in', ('must_play', 'request'))]</field>
+        <field name="context">{'search_default_to_get': 1, 'search_default_upcoming': 1, 'search_default_group_order': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing to get</p>
+            <p>Must-play songs from your clients and guest requests for upcoming gigs show here until you
+               mark them Got it or Can't get.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_gig_song_to_get" name="Songs to Get" parent="sale.sale_order_menu"
+              action="action_gig_song_to_get" sequence="59"/>
+
+</odoo>

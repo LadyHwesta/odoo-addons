@@ -49,6 +49,7 @@ class SignalWirePortalSupport(CustomerPortal):
             return request.redirect('/my/support/call')
         request.env['signalwire.callback_request'].sudo().create({
             'partner_id': partner.id,
+            'source': 'portal',
             'phone_number': phone_number.strip(),
             'note': (note or '').strip() or False,
         })

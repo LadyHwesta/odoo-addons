@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Built by business_elearning/tools/build_course_data.py: edit there and rebuild. -->
+<odoo noupdate="1">
+
+    <record id="channel_sales" model="slide.channel">
+        <field name="name">Customers and Sales</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Start the day on My Day, keep the pipeline moving, and send quotes customers sign and pay online.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+    <record id="channel_sales_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your day</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_sales_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Starting on My Day</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">My Day</span> is a start screen for the day: today's meetings, to-dos, tasks and tickets, money owed to you and money due, and quotes waiting on customers, each with a link to the full list.</p><div class="oe-diagram"><img src="/business_elearning/static/img/my_day.png" alt="My Day with today's schedule, tickets, tasks due and money" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a print shop's My Day: a proof review, a ticket, a task due tomorrow and $1,830 overdue.</p></div><p>To open it every time you log in, tick <strong>Start on My Day</strong> in your <span class="oe-path">Preferences</span> (your picture, top right). Everything on it is yours: other people see their own day.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span><div><span class="oe-callout-label">Work from the top</span><p>Plan with the left column (schedule and to-dos), then clear the right column (what needs attention) between meetings.</p></div></div></div></field>
+    </record>
+    <record id="channel_sales_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Leads to quotes</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">21</field>
+    </record>
+    <record id="channel_sales_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">The pipeline</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">CRM › Sales › My Pipeline</span> shows every opportunity as a card, in columns from <strong>New</strong> to <strong>Won</strong>. Drag a card to the next column as it moves on. Each column totals the expected revenue.</p><div class="oe-diagram"><img src="/business_elearning/static/img/pipeline.png" alt="The CRM pipeline with opportunities in four columns" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the pipeline: six opportunities from New to Proposition.</p></div><p>Requests from your website's <span class="oe-path">Contact us</span> form arrive here as new leads. The clock on a card is its next activity: schedule a call or a to-do so nothing goes quiet, and it shows on your My Day when it's due.</p></div></field>
+    </record>
+    <record id="channel_sales_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Quotes customers sign and pay online</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>From an opportunity, <span class="oe-path">New Quotation</span> starts a quote for that customer. Add the products, then <span class="oe-path">Send by Email</span>. The customer opens a link, reads the quote, signs it and pays the deposit right there.</p><div class="oe-diagram"><img src="/business_elearning/static/img/quote_portal.png" alt="A quote as the customer sees it, with a Sign &amp; Pay button" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>what the customer sees: the quote, a 50% down payment and Sign &amp; Pay.</p></div><p>Switch it on once in <span class="oe-path">Sales › Configuration › Settings</span>: <strong>Online Signature</strong> and <strong>Online Payment</strong> (with the deposit percentage). Payments need a payment provider, set up in <span class="oe-path">Accounting › Configuration › Online Payments › Payment Providers</span>.</p><div class="oe-callout oe-callout-success"><span class="oe-callout-icon"><i class="fa fa-check" /></span><div><span class="oe-callout-label">Signed and paid</span><p>When the customer signs and pays, the quote becomes a confirmed sales order on its own, and the payment is recorded.</p></div></div></div></field>
+    </record>
+    <record id="channel_sales_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_sales" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">73</field>
+    </record>
+    <record id="channel_sales_q1" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">How do you make My Day open when you log in?</field>
+    </record>
+    <record id="channel_sales_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Tick Start on My Day in your Preferences</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Pin it in the app drawer</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Ask an administrator</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">Bookmark the page</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q2" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">A customer fills in the Contact us form on your website. Where does it go?</field>
+    </record>
+    <record id="channel_sales_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">A new lead in the CRM pipeline</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Your personal inbox only</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">A helpdesk ticket</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">Nowhere until you import it</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q3" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">What does the customer need to do for a quote to become a sales order on its own?</field>
+    </record>
+    <record id="channel_sales_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Sign it and pay the deposit online</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Reply to the email</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Download the PDF</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">Call you</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q4" model="slide.question">
+        <field name="slide_id" ref="channel_sales_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Where are Online Signature and Online Payment switched on?</field>
+    </record>
+    <record id="channel_sales_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Sales, Configuration, Settings</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_sales_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Each quote's Other Info tab</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">CRM, Configuration</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_sales_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_sales_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">The website editor</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work" model="slide.channel">
+        <field name="name">Projects, Helpdesk and Your Website</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Projects that include outside people, customer questions as tickets, and a website that sends you leads.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+    <record id="channel_work_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Projects and tickets</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_work_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Tasks for outside contacts</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>A task can belong to someone outside the company: a freelancer, or the customer themselves. Set <strong>Assigned Contact</strong> on the task, alongside or instead of staff assignees.</p><div class="oe-diagram"><img src="/business_elearning/static/img/task_contact.png" alt="A task assigned to a freelance designer" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>Final artwork, assigned to a freelance designer.</p></div><p>The contact becomes a follower, so messages you send from the task's chatter reach them by email, and their email replies land back on the task.</p></div></field>
+    </record>
+    <record id="channel_work_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Helpdesk tickets</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Helpdesk › Tickets › All Tickets</span> lists customers' questions and problems, each with a number, who has it and its stage.</p><div class="oe-diagram"><img src="/business_elearning/static/img/helpdesk.png" alt="Two helpdesk tickets" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>two tickets: faded banners and a reprint question.</p></div><p>Customers open tickets by email (each team's <strong>Email Alias</strong> in <span class="oe-path">Helpdesk › Configuration › Teams</span>) or from their account on your website. Reply from the ticket's chatter; your reply is emailed to them and the conversation stays on the ticket.</p></div></field>
+    </record>
+    <record id="channel_work_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your website and your system</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">22</field>
+    </record>
+    <record id="channel_work_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your website</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Website</span> opens your site with an <strong>Edit</strong> button: click any text to change it, and drag blocks in from the left. Its <strong>Contact us</strong> form sends leads to CRM.</p><p>Newsletter sign-ups go to <span class="oe-path">Email Marketing › Mailing Lists</span>. Choose a <strong>Welcome Email</strong> on a list and everyone who signs up gets it once.</p></div></field>
+    </record>
+    <record id="channel_work_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Looking after your system</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p><span class="oe-path">Security › Login Attempts</span> shows failed logins; addresses that keep guessing passwords are blocked for good, listed in <span class="oe-path">Security › IP Rules</span>.</p><p>An administrator can put the apps in order and group them into folders in <span class="oe-path">Settings › Users &amp; Companies › App Drawer</span>.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-life-ring" /></span><div><span class="oe-callout-label">Need a hand?</span><p>Your hosting includes support: ask us before changing settings you're unsure about.</p></div></div></div></field>
+    </record>
+    <record id="channel_work_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_work" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">74</field>
+    </record>
+    <record id="channel_work_q1" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">You set a freelancer as a task's Assigned Contact. What happens when you send a message from the task?</field>
+    </record>
+    <record id="channel_work_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">They get it by email, and their reply comes back to the task</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Nothing, contacts can't receive messages</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">It's posted on your website</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q1_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q1" />
+        <field name="sequence">4</field>
+        <field name="text_value">It goes to your helpdesk</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q2" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">How can a customer open a helpdesk ticket?</field>
+    </record>
+    <record id="channel_work_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">By emailing the team's alias, or from their account on your website</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Only by phoning</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Only through CRM</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q2_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q2" />
+        <field name="sequence">4</field>
+        <field name="text_value">By editing your website</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q3" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Someone keeps guessing passwords on your login page. What happens?</field>
+    </record>
+    <record id="channel_work_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Their address is blocked for good</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Your account is deleted</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Nothing</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q3_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q3" />
+        <field name="sequence">4</field>
+        <field name="text_value">The website goes offline</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q4" model="slide.question">
+        <field name="slide_id" ref="channel_work_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Where do you change the words on your website's home page?</field>
+    </record>
+    <record id="channel_work_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Website, then Edit, then click the text</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_work_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Settings, Technical</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Email Marketing</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_work_q4_a4" model="slide.answer">
+        <field name="question_id" ref="channel_work_q4" />
+        <field name="sequence">4</field>
+        <field name="text_value">Helpdesk</field>
+        <field name="is_correct" eval="False" />
+    </record>
+</odoo>

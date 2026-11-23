@@ -31,22 +31,44 @@ class SignalWireSms(models.Model):
     res.partner gets matched, via _log_to_partner_chatter().
     """
     _name = 'signalwire.sms'
-    _description = 'SignalWire SMS'
+    _description = 'SMS'
     _order = 'create_date desc'
     _rec_name = 'body'
 
     phone_number_id = fields.Many2one(
         'signalwire.phone_number', required=True, ondelete='cascade',
-        help="Which of our SignalWire numbers this message was sent "
+        help="Which of our phone numbers this message was sent "
              "from or received on.")
     direction = fields.Selection(
         [('outbound', 'Outbound'), ('inbound', 'Inbound')], required=True)
     from_number = fields.Char(required=True)
     to_number = fields.Char(required=True)
+    other_number = fields.Char(
+        compute='_compute_other_number',
+        help="The other side's number: who sent it, or who it went to.")
     body = fields.Text(required=True)
-    sid = fields.Char(string="SID", help="SignalWire's own ID for this message.")
+    def action_check_status(self):
+        """Asks SignalWire for the current status of the selected sent
+        texts - for ones sent before delivery reports were requested,
+        which otherwise stay "queued"."""
+        for message in self.filtered(lambda m: m.direction == 'outbound' and m.sid):
+            subproject = message.phone_number_id.subproject_id
+            result = subproject.server_id._get_client().compat_get(
+                f'Accounts/{subproject.account_sid}/Messages/{message.sid}.json')
+            status, error = result.get('status'), result.get('error_code')
+            if status:
+                message.state = f'{status} ({error})' if error else status
+        return True
+
+    @api.depends('direction', 'from_number', 'to_number')
+    def _compute_other_number(self):
+        for message in self:
+            message.other_number = (message.from_number if message.direction == 'inbound'
+                                    else message.to_number)
+
+    sid = fields.Char(string="SID", help="The phone provider's ID for this message.")
     state = fields.Char(
-        help="SignalWire's own delivery status for an outbound message "
+        help="The phone service's delivery status for an outbound message "
              "(queued/sent/delivered/failed/...), or \"received\" for "
              "an inbound one.")
     partner_id = fields.Many2one(
@@ -132,9 +154,15 @@ class SignalWireSms(models.Model):
                 if message.partner_id:
                     message.partner_id.sms_blocked = True
             elif keyword in START_KEYWORDS:
-                message._send_keyword_reply(number.sms_stop_reply_text)
+                handled = False
                 if message.partner_id:
                     message.partner_id.sms_blocked = False
+                    # "YES" is both a carrier START word and the answer to a
+                    # double opt-in question, so give that flow its turn
+                    # first; it used to never see a "YES".
+                    handled = message.partner_id._sms_handle_custom_keyword(keyword)
+                if not handled:
+                    message._send_keyword_reply(number.sms_start_reply_text)
             elif keyword in HELP_KEYWORDS:
                 message._send_keyword_reply(number.sms_help_reply_text)
             elif message.partner_id:

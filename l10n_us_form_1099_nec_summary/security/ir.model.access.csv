@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_form_1099_nec_summary,form.1099.nec.summary,model_form_1099_nec_summary,account.group_account_manager,1,1,1,1
+access_form_1099_nec_summary_line,form.1099.nec.summary.line,model_form_1099_nec_summary_line,account.group_account_manager,1,1,1,1

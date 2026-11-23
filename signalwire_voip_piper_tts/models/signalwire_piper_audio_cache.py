@@ -25,7 +25,7 @@ class SignalWirePiperAudioCache(models.Model):
     the call-handling controller at all.
     """
     _name = 'signalwire.piper.audio.cache'
-    _description = 'SignalWire Piper TTS Audio Cache'
+    _description = 'Piper TTS Audio Cache'
 
     voice = fields.Char(required=True)
     speaker_id = fields.Integer(

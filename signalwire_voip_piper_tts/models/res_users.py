@@ -11,18 +11,18 @@ class ResUsers(models.Model):
 
     signalwire_voicemail_piper_voice = fields.Selection(
         PIPER_VOICES, string="Voicemail Voice",
-        help="Speak your voicemail greeting using a self-hosted Piper "
+        help="Speak your voicemail greeting using a natural-sounding "
              "voice instead of the plain built-in one - only applies "
              "to the text-to-speech greeting, not a custom uploaded "
              "recording. Requires your admin to have configured "
-             "Piper's own server URL. Leave blank to keep the plain "
+             "the voice server's URL. Leave blank to keep the plain "
              "voice.")
     signalwire_voicemail_piper_speaker_id = fields.Selection(
         LIBRITTS_R_SPEAKERS, string="Speaker",
         help="Only used for LibriTTS-R, which has 904 different "
              "speakers, each named after the LibriVox reader whose "
              "recordings trained it - leave blank for its own default "
-             "speaker. This is Piper's own real per-speaker metadata, "
+             "speaker. These are the voice's own speaker names, "
              "not a curated pick - nobody's actually listened to all "
              "904, so a name here is not a guarantee of quality. "
              "Ignored for LJSpeech, which only has one voice.")

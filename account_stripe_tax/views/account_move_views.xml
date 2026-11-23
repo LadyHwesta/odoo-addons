@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_move_form_stripe_tax" model="ir.ui.view">
+        <field name="name">account.move.form.stripe.tax</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <group name="accounting_info_group" position="inside">
+                <field name="stripe_tax_transaction_id" invisible="not stripe_tax_transaction_id" />
+                <field name="stripe_tax_reversal_id" invisible="not stripe_tax_reversal_id" />
+            </group>
+            <header position="inside">
+                <button name="action_stripe_tax_record" type="object" string="Record in Stripe Tax"
+                        invisible="not stripe_tax_pending or state != 'posted'"
+                        groups="account.group_account_invoice" />
+            </header>
+        </field>
+    </record>
+</odoo>

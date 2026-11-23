@@ -2,16 +2,10 @@
 <templates xml:space="preserve">
 
     <t t-name="signalwire_voip_piper_tts.PiperPreviewWidget" owl="1">
-        <div class="o_piper_preview d-flex align-items-start gap-2 mt-1 w-100" t-if="voice">
-            <textarea
-                class="o_piper_preview_text form-control flex-grow-1"
-                rows="2"
-                placeholder="Type something to preview in this voice..."
-                t-model="state.text"
-            />
+        <div class="o_piper_preview d-flex align-items-center gap-2 mt-1" t-if="voice">
             <button
                 type="button"
-                class="btn btn-secondary text-nowrap flex-shrink-0"
+                class="btn btn-secondary text-nowrap"
                 t-att-disabled="!canPreview"
                 t-on-click="onPreviewClick"
             >
@@ -19,6 +13,8 @@
                 <i t-else="" class="fa fa-play" role="img" aria-label="Preview" title="Preview" />
                 Preview
             </button>
+            <span class="text-muted small" t-if="text">Reads the text above aloud in this voice.</span>
+            <span class="text-muted small" t-else="">Type the text above to preview it.</span>
         </div>
     </t>
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The call to action on the event page: the host's link instead of
+         Odoo's registration, and no "Registrations Closed" notice. -->
+    <template id="registration_template_appearance" inherit_id="website_event.registration_template"
+              name="Appearance: link to the host">
+        <xpath expr="//a[1]" position="before">
+            <div t-if="event.is_appearance" class="o_wevent_appearance_cta d-flex flex-column gap-2">
+                <a t-if="event.appearance_url and event.appearance_entry != 'free'"
+                   t-att-href="event.appearance_url" target="_blank" rel="noopener"
+                   t-attf-class="btn btn-primary {{cta_additional_classes}}">
+                    <t t-out="event.appearance_button_label or 'More info'"/>
+                    <i class="fa fa-external-link ms-1" role="img" aria-label="Opens the host's site"/>
+                </a>
+                <div t-if="event.appearance_entry == 'free'" class="alert alert-success mb-0 small text-center" role="status">
+                    Free entry
+                </div>
+                <small t-if="event.sudo().appearance_host_id" class="text-muted text-center">
+                    Hosted by <span t-out="event.sudo().appearance_host_id.display_name"/>
+                </small>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-if='not event.event_registrations_open']" position="attributes">
+            <attribute name="t-if">not event.event_registrations_open and not event.is_appearance</attribute>
+        </xpath>
+    </template>
+
+    <!-- The host's flyers and materials, under the description. -->
+    <template id="event_description_full_appearance" inherit_id="website_event.event_description_full"
+              name="Appearance: marketing materials">
+        <xpath expr="//div[@t-field='event.description']" position="after">
+            <section t-if="event.is_appearance and event.sudo().appearance_material_ids"
+                     class="o_wevent_appearance_materials mt-4" aria-labelledby="o_wevent_appearance_materials_title">
+                <h5 id="o_wevent_appearance_materials_title">From the host</h5>
+                <div class="d-flex flex-wrap gap-3">
+                    <t t-foreach="event.appearance_material_ids.sudo()" t-as="material">
+                        <a t-if="(material.mimetype or '').startswith('image/')"
+                           t-att-href="'/web/content/%s' % material.id" target="_blank"
+                           class="o_wevent_appearance_material">
+                            <img t-att-src="'/web/image/%s/256x256' % material.id" t-att-alt="material.name"
+                                 class="img-thumbnail" loading="lazy"/>
+                        </a>
+                        <a t-else="" t-att-href="'/web/content/%s?download=true' % material.id"
+                           class="btn btn-outline-secondary btn-sm align-self-start">
+                            <i class="fa fa-download me-1"/><t t-out="material.name"/>
+                        </a>
+                    </t>
+                </div>
+            </section>
+        </xpath>
+    </template>
+
+    <!-- Events list: a badge instead of "Registrations Closed". -->
+    <template id="events_list_appearance" inherit_id="website_event.events_list"
+              name="Appearance: list badge">
+        <xpath expr="//span[contains(@t-if, 'not event.event_registrations_open and (not opt_events_list_cards')]"
+               position="attributes">
+            <attribute name="t-if">not event.event_registrations_open and not event.is_appearance and (not opt_events_list_cards or not opt_events_list_columns)</attribute>
+        </xpath>
+        <xpath expr="//h5[contains(@t-attf-class, 'card-title')]" position="attributes">
+            <attribute name="t-attf-class">card-title my-2 #{not event.website_published and 'text-danger'} #{not opt_events_list_columns and not event.event_registrations_open and not event.is_appearance and 'text-muted'}</attribute>
+        </xpath>
+        <xpath expr="//h5[contains(@t-attf-class, 'card-title')]" position="before">
+            <span t-if="event.is_appearance and event.appearance_badge"
+                  class="badge o_wevent_appearance_badge" t-out="event.appearance_badge"/>
+        </xpath>
+        <xpath expr="//div[hasclass('align-items-end', 'text-center')]/t[@t-if='not event.event_registrations_open']" position="before">
+            <t t-if="event.is_appearance">
+                <small t-if="event.sudo().appearance_host_id" class="text-muted fw-bold w-100" t-out="event.sudo().appearance_host_id.display_name"/>
+                <button type="button" class="btn btn-primary mt-auto">
+                    <t t-out="event.appearance_button_label or 'Event Info'"/> <i class="fa fa-chevron-right"/>
+                </button>
+            </t>
+        </xpath>
+        <xpath expr="//div[hasclass('align-items-end', 'text-center')]/t[@t-if='not event.event_registrations_open']" position="attributes">
+            <attribute name="t-if"/>
+            <attribute name="t-elif">not event.event_registrations_open</attribute>
+        </xpath>
+        <xpath expr="//footer[contains(@t-if, 'not event.event_registrations_open and opt_events_list_columns')]" position="attributes">
+            <attribute name="t-if">not event.event_registrations_open and not event.is_appearance and opt_events_list_columns and opt_events_list_cards</attribute>
+        </xpath>
+    </template>
+
+</odoo>

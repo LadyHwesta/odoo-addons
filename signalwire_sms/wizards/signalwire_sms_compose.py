@@ -5,12 +5,12 @@ from odoo.exceptions import UserError
 
 class SignalWireSmsCompose(models.TransientModel):
     _name = 'signalwire.sms.compose'
-    _description = 'Send an SMS via SignalWire'
+    _description = 'Send a Text Message'
 
     partner_id = fields.Many2one('res.partner', required=True)
     phone_number_id = fields.Many2one(
         'signalwire.phone_number', string="From", required=True,
-        help="Which of our SignalWire numbers to send from.")
+        help="Which of our phone numbers to send from.")
     to = fields.Char(required=True)
     body = fields.Text(required=True)
 
@@ -30,6 +30,6 @@ class SignalWireSmsCompose(models.TransientModel):
     def action_send(self):
         self.ensure_one()
         if not self.phone_number_id:
-            raise UserError(_("Choose which SignalWire number to send from."))
+            raise UserError(_("Choose which number to send from."))
         self.phone_number_id.send_sms(self.to, self.body)
         return {'type': 'ir.actions.act_window_close'}

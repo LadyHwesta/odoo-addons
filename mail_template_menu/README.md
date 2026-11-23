@@ -48,6 +48,6 @@ existing checkbox.
   need this module at all - any user can already click the clock icon
   in a chatter composer ("Send Later") to schedule an email, with no
   special permission required.
-- Pairs well with `account_invoice_reminder` (same repo), which lets a
+- Pairs well with `account_invoice_payment_reminder` (same repo), which lets a
   non-technical user tweak the wording of automated invoice reminder
   emails through this same menu instead of hand-editing QWeb.

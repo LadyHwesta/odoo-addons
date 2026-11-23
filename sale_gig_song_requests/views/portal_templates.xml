@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- On the client's order in the portal: a way in to their music lists. -->
+    <template id="sale_order_portal_content_music" inherit_id="sale.sale_order_portal_content">
+        <xpath expr="//div[@id='informations']" position="after">
+            <div t-if="sale_order.is_gig" id="gig_music" class="card mb-4">
+                <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title mb-1">Music for your event</h5>
+                        <p class="card-text text-muted mb-0">
+                            Songs you must hear, and songs you never want to hear.
+                            <t t-set="n_songs" t-value="len(sale_order.song_must_ids) + len(sale_order.song_never_ids)"/>
+                            <t t-if="n_songs"><strong t-out="n_songs"/> on your lists so far.</t>
+                        </p>
+                    </div>
+                    <a class="btn btn-secondary" t-att-href="sale_order.get_portal_url(suffix='/music')">
+                        <t t-if="sale_order._song_lists_open()">Edit your music lists</t>
+                        <t t-else="">See your music lists</t>
+                    </a>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="portal_music_list">
+        <ul class="list-group mb-2">
+            <li t-if="not lines" class="list-group-item text-muted">Nothing yet.</li>
+            <li t-foreach="lines" t-as="line" class="list-group-item d-flex align-items-center gap-2">
+                <div class="flex-grow-1">
+                    <strong t-out="line.song"/>
+                    <span t-if="line.artist" class="text-muted"> · <t t-out="line.artist"/></span>
+                    <div t-if="line.note" class="small text-muted" t-out="line.note"/>
+                    <div t-if="line.acquire_state == 'unavailable'" class="small text-warning-emphasis">
+                        <strong>Can't get this one:</strong> <t t-out="line.acquire_note"/>
+                    </div>
+                </div>
+                <form t-if="open" method="post" class="m-0">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="access_token" t-att-value="access_token"/>
+                    <button type="submit" name="remove" t-att-value="line.id" class="btn btn-sm btn-link text-danger"
+                            t-attf-aria-label="Remove #{line.song}">Remove</button>
+                </form>
+            </li>
+        </ul>
+        <form t-if="open" method="post" class="row g-2 mb-4">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="access_token" t-att-value="access_token"/>
+            <input type="hidden" name="kind" t-att-value="kind"/>
+            <div class="col-md-4">
+                <input type="text" name="song" class="form-control" placeholder="Song" maxlength="120"
+                       required="required" t-attf-aria-label="Song (#{title})"/>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="artist" class="form-control" placeholder="Artist" maxlength="120"
+                       aria-label="Artist"/>
+            </div>
+            <div class="col-md-3">
+                <input t-if="kind == 'must_play'" type="text" name="note" class="form-control" maxlength="80"
+                       placeholder="Moment, e.g. First dance" aria-label="Moment"/>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Add</button>
+            </div>
+        </form>
+    </template>
+
+    <template id="portal_music_page" name="Music for Your Event">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="False"/>
+            <div class="py-3">
+                <a t-att-href="order.get_portal_url()" class="small">← Back to <t t-out="order.name"/></a>
+                <h2 class="mt-2 mb-1">Music for your event</h2>
+                <p class="text-muted">
+                    <span t-out="order.venue_name or ''"/>
+                    <t t-if="order.gig_date"> · <span t-field="order.gig_date" t-options="{'widget': 'date', 'format': 'EEEE d MMMM yyyy'}"/></t>
+                </p>
+                <div t-if="error" class="alert alert-warning" role="alert" t-out="error"/>
+                <div t-if="not open" class="alert alert-info">
+                    These lists are locked now that the event has started.
+                </div>
+
+                <h4 class="mt-4">Must play</h4>
+                <p class="text-muted small">Songs you want to hear. Add the moment if it matters: first dance, grand entrance, last song.</p>
+                <t t-call="sale_gig_song_requests.portal_music_list">
+                    <t t-set="lines" t-value="must"/>
+                    <t t-set="kind" t-value="'must_play'"/>
+                    <t t-set="title" t-value="'must play'"/>
+                </t>
+
+                <h4 class="mt-4">Do not play</h4>
+                <p class="text-muted small">Songs you never want to hear, even if a guest asks for them.</p>
+                <t t-call="sale_gig_song_requests.portal_music_list">
+                    <t t-set="lines" t-value="never"/>
+                    <t t-set="kind" t-value="'do_not_play'"/>
+                    <t t-set="title" t-value="'do not play'"/>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

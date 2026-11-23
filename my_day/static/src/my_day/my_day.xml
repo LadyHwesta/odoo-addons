@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="my_day.MySection">
+        <section class="o_my_day_section card mb-3">
+            <div class="card-header d-flex align-items-center gap-2 bg-transparent">
+                <i t-attf-class="fa {{ section.icon }} text-muted" aria-hidden="true"/>
+                <h2 class="h6 mb-0 flex-grow-1" t-out="section.title"/>
+                <span t-if="section.count" class="badge rounded-pill text-bg-light" t-out="section.count"/>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li t-if="!section.items.length" class="list-group-item text-muted small py-3" t-out="section.empty"/>
+                <t t-foreach="section.items" t-as="item" t-key="item.model + '-' + item.id">
+                    <li t-if="!isDone(item)"
+                        t-attf-class="list-group-item list-group-item-action d-flex align-items-center gap-3 o_my_day_item {{ item.now ? 'o_my_day_now' : '' }}"
+                        role="button" t-on-click="() => this.open(item)">
+                        <span t-attf-class="o_my_day_when small text-nowrap {{ item.overdue ? 'text-danger fw-bold' : 'text-muted' }}"
+                              t-out="item.when"/>
+                        <div class="flex-grow-1 text-truncate">
+                            <div class="text-truncate" t-out="item.name"/>
+                            <div t-if="item.meta or item.company" class="small text-muted text-truncate">
+                                <t t-out="item.meta"/>
+                                <span t-if="item.company" class="badge text-bg-secondary fw-normal ms-1" t-out="item.company"/>
+                            </div>
+                        </div>
+                        <button t-if="item.url" class="btn btn-sm btn-outline-primary text-nowrap"
+                                t-on-click="(ev) => this.joinCall(item, ev)">
+                            <i class="fa fa-video-camera me-1"/>Join
+                        </button>
+                        <button t-foreach="item.buttons or []" t-as="button" t-key="button_index"
+                                t-attf-class="btn btn-sm btn-outline-{{ button.style }} text-nowrap"
+                                t-on-click="(ev) => this.press(item, button, ev)"
+                                t-attf-aria-label="{{ button.label }}: {{ item.name }}">
+                            <i t-attf-class="fa {{ button.icon }} me-1"/><t t-out="button.label"/>
+                        </button>
+                    </li>
+                </t>
+            </ul>
+            <div t-if="section.note or section.more" class="card-footer bg-transparent d-flex justify-content-between small">
+                <span class="text-muted" t-out="section.note or ''"/>
+                <a t-if="section.more" href="#" t-on-click.prevent="() => this.openMore(section)" t-out="section.more.label"/>
+            </div>
+        </section>
+    </t>
+
+    <t t-name="my_day.MyDay">
+        <div class="o_my_day o_action h-100 overflow-auto">
+            <div t-if="state.day" class="container-fluid py-4" style="max-width: 1280px">
+                <header class="d-flex flex-wrap align-items-end gap-3 mb-4">
+                    <div class="flex-grow-1">
+                        <div class="text-muted text-uppercase small o_my_day_date" t-out="state.day.date"/>
+                        <h1 class="mb-0" t-out="state.day.greeting"/>
+                    </div>
+                    <div t-if="state.day.companies.length > 1" class="d-flex flex-wrap gap-1 align-items-center">
+                        <span class="small text-muted me-1">Showing</span>
+                        <button t-foreach="state.day.companies" t-as="company" t-key="company.id"
+                                t-attf-class="btn btn-sm rounded-pill {{ company.on ? 'btn-primary' : 'btn-outline-secondary' }}"
+                                t-att-aria-pressed="company.on ? 'true' : 'false'"
+                                t-on-click="() => this.toggleCompany(company)">
+                            <i t-if="company.branch" class="fa fa-code-fork me-1" title="Branch"/>
+                            <t t-out="company.name"/>
+                        </button>
+                    </div>
+                    <button class="btn btn-light" t-on-click="() => this.load()" title="Refresh">
+                        <i class="fa fa-refresh"/>
+                    </button>
+                </header>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <h2 class="o_my_day_column text-muted small text-uppercase mb-2">Plan the day</h2>
+                        <t t-foreach="plan" t-as="section" t-key="section.key">
+                            <t t-call="my_day.MySection"/>
+                        </t>
+                    </div>
+                    <div class="col-lg-6">
+                        <h2 class="o_my_day_column text-muted small text-uppercase mb-2">Needs attention</h2>
+                        <t t-foreach="attention" t-as="section" t-key="section.key">
+                            <t t-call="my_day.MySection"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

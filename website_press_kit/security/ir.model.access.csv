@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_website_press_kit_designer,website.press.kit designer,model_website_press_kit,website.group_website_designer,1,1,1,1
+access_website_press_kit_photo_designer,website.press.kit.photo designer,model_website_press_kit_photo,website.group_website_designer,1,1,1,1
+access_website_press_kit_link_designer,website.press.kit.link designer,model_website_press_kit_link,website.group_website_designer,1,1,1,1

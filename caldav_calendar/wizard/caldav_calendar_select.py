@@ -9,9 +9,12 @@ class CalDAVCalendarSelect(models.TransientModel):
 
     account_id = fields.Many2one('caldav.account', required=True)
     line_ids = fields.One2many('caldav.calendar.select.line', 'wizard_id')
+    # Required on the form only: the wizard is created before anyone has
+    # chosen, so required=True here made every discovery fail (a NOT NULL
+    # column; found live 2026-11-16).
     selected_line_id = fields.Many2one(
         'caldav.calendar.select.line', string='Calendar',
-        domain="[('wizard_id', '=', id)]", required=True)
+        domain="[('wizard_id', '=', id)]")
 
     def action_confirm(self):
         self.ensure_one()

@@ -22,4 +22,10 @@
               parent="menu_security_root"
               action="security_login_attempt_action"
               sequence="3" />
+
+    <menuitem id="menu_security_probe_hits"
+              name="Probe Requests"
+              parent="menu_security_root"
+              action="security_probe_hit_action"
+              sequence="4" />
 </odoo>

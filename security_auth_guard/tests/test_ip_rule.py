@@ -3,6 +3,7 @@ import copy
 from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
+import psycopg2
 import requests
 
 from odoo import fields
@@ -178,3 +179,34 @@ class TestCloudflareRefresh(TransactionCase):
                 self.assertEqual(self._stored(), before)
                 self.assertFalse(
                     self.env["security.ip_rule"]._is_protected("1.2.3.4"))
+
+
+@tagged("post_install", "-at_install")
+class TestParallelBlocks(TransactionCase):
+    """Bots send many requests at once: a block being extended by one of
+    them must not make another log an ERROR (which monitoring reports)."""
+
+    def _rule(self):
+        return self.env["security.ip_rule"].sudo().create({
+            "ip_or_cidr": "203.0.113.7", "action": "block", "reason": "Probing",
+            "expires_at": fields.Datetime.now() - timedelta(hours=1)})
+
+    def test_a_free_row_is_claimed(self):
+        self.assertTrue(self._rule()._lock_for_update())
+
+    def test_a_row_held_elsewhere_is_left_alone_quietly(self):
+        rule = self._rule()
+        execute = type(self.env.cr).execute
+
+        def busy(cr, query, params=None, log_exceptions=True):
+            if "FOR UPDATE" in str(query):
+                self.assertFalse(log_exceptions)
+                raise psycopg2.errors.LockNotAvailable("could not obtain lock")
+            return execute(cr, query, params, log_exceptions)
+
+        with patch.object(type(self.env.cr), "execute", busy):
+            self.assertFalse(rule._lock_for_update())
+            same = self.env["security.ip_rule"]._block_ip(
+                "203.0.113.7", "Probing again", expires_at=fields.Datetime.now() + timedelta(hours=24))
+        self.assertEqual(same, rule)
+        self.assertEqual(rule.reason, "Probing")  # the parallel request extends it, not this one

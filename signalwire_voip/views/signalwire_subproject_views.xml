@@ -28,6 +28,7 @@
                         </group>
                         <group>
                             <field name="account_sid" readonly="1" />
+                            <field name="signing_key" password="True" groups="base.group_system" />
                         </group>
                     </group>
                     <notebook>
@@ -63,7 +64,7 @@
     </record>
 
     <record id="action_signalwire_subproject" model="ir.actions.act_window">
-        <field name="name">Subprojects</field>
+        <field name="name">Sub-accounts</field>
         <field name="res_model">signalwire.subproject</field>
         <field name="view_mode">list,form</field>
     </record>

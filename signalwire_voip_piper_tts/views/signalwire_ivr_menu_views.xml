@@ -6,13 +6,13 @@
         <field name="model">signalwire.ivr.menu</field>
         <field name="inherit_id" ref="signalwire_voip_click2call.view_signalwire_ivr_menu_form" />
         <field name="arch" type="xml">
-            <field name="greeting_text" position="after">
+            <group name="ivr_voice" position="inside">
                 <field name="piper_voice" />
                 <field name="piper_speaker_id"
                        invisible="piper_voice != 'en_US-libritts_r-medium'" />
                 <widget name="piper_preview" colspan="2" invisible="not piper_voice"
                         options="{'voice_field': 'piper_voice', 'speaker_field': 'piper_speaker_id', 'text_field': 'greeting_text'}" />
-            </field>
+            </group>
         </field>
     </record>
 

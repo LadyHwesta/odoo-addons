@@ -2,7 +2,7 @@
 <odoo>
 
     <record id="group_signalwire_portal_calling" model="res.groups">
-        <field name="name">SignalWire Portal Calling</field>
+        <field name="name">Portal Calling</field>
         <field name="comment">
             Auto-granted to a portal contact's own login when their
             signalwire_portal_support_tier is set to anything other

@@ -21,6 +21,13 @@ patch(PhoneField.prototype, {
         this.signalwireOrm = useService("orm");
     },
     async onPhoneClick(ev) {
+        // The record the call is started from: its company picks the caller ID.
+        if (this.agent?.agent && this.props.record.resId) {
+            this.agent.signalwireCallRecord = {
+                model: this.props.record.resModel,
+                id: this.props.record.resId,
+            };
+        }
         if (
             !this.agent.agent ||
             this.props.record.resModel !== "res.partner" ||

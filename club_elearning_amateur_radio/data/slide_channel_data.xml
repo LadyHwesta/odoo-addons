@@ -17,6 +17,7 @@
     <!-- ================ Section 1: Call sign lookup ================ -->
     <record id="section_lookup" model="slide.slide">
         <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="is_published" eval="True" />
         <field name="name">Call sign lookup</field>
         <field name="is_category" eval="True" />
         <field name="sequence">10</field>
@@ -24,6 +25,7 @@
 
     <record id="lesson_lookup" model="slide.slide">
         <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="is_published" eval="True" />
         <field name="name">Looking up a call sign from the FCC</field>
         <field name="slide_category">article</field>
         <field name="sequence">11</field>
@@ -80,6 +82,7 @@
 
     <record id="lesson_fills" model="slide.slide">
         <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="is_published" eval="True" />
         <field name="name">What gets filled versus left alone</field>
         <field name="slide_category">article</field>
         <field name="sequence">12</field>
@@ -130,6 +133,7 @@
     <!-- ================ Section 2: Staying current ================ -->
     <record id="section_current" model="slide.slide">
         <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="is_published" eval="True" />
         <field name="name">Staying current</field>
         <field name="is_category" eval="True" />
         <field name="sequence">20</field>
@@ -137,6 +141,7 @@
 
     <record id="lesson_sweep" model="slide.slide">
         <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="is_published" eval="True" />
         <field name="name">The daily expiry sweep and settings</field>
         <field name="slide_category">article</field>
         <field name="sequence">21</field>
@@ -194,6 +199,7 @@
     <!-- ========================= Quiz ========================= -->
     <record id="slide_quiz" model="slide.slide">
         <field name="channel_id" ref="channel_amateur_radio" />
+        <field name="is_published" eval="True" />
         <field name="name">Check your understanding</field>
         <field name="slide_category">quiz</field>
         <field name="sequence">90</field>

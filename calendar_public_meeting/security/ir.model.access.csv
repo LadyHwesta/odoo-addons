@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_calendar_public_viewer_user,calendar.public.viewer user,model_calendar_public_viewer,base.group_user,1,0,0,0
+access_calendar_public_viewer_system,calendar.public.viewer system,model_calendar_public_viewer,base.group_system,1,1,1,1
+access_calendar_public_message_user,calendar.public.message user,model_calendar_public_message,base.group_user,1,0,0,0
+access_calendar_public_message_system,calendar.public.message system,model_calendar_public_message,base.group_system,1,1,1,1
+access_calendar_public_seat_system,calendar.public.seat system,model_calendar_public_seat,base.group_system,1,1,1,1

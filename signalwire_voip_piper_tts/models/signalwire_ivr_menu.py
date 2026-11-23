@@ -31,16 +31,16 @@ class SignalWireIvrMenu(models.Model):
     piper_voice = fields.Selection(
         PIPER_VOICES, string="Voice",
         help="Speak this menu's greeting (and its own \"no selection\"/"
-             "\"invalid option\" messages) using a self-hosted Piper "
+             "\"invalid option\" messages) using a natural-sounding "
              "voice instead of the plain built-in one - requires "
-             "signalwire.server.piper_url to be configured. Leave "
+             "the voice server to be set up. Leave "
              "blank to keep the plain voice.")
     piper_speaker_id = fields.Selection(
         LIBRITTS_R_SPEAKERS, string="Speaker",
         help="Only used for LibriTTS-R, which has 904 different "
              "speakers, each named after the LibriVox reader whose "
              "recordings trained it - leave blank for its own default "
-             "speaker. This is Piper's own real per-speaker metadata "
+             "speaker. These are the voice's own speaker names "
              "(LibriTTS-R's own speakers.tsv from OpenSLR), not a "
              "curated pick - nobody's actually listened to all 904, "
              "so a name here is not a guarantee of quality. Ignored "

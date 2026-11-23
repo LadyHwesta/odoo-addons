@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "Security Auth Guard",
-    "version": "19.0.1.2.0",
+    "name": 'Security Auth Guard',
+    "version": "19.0.1.3.1",
     "category": "Tools",
     "summary": "Persisted brute-force login reporting, permanent IP "
                "blocking, and a unified security event log",
@@ -38,6 +38,8 @@ checked at runtime, never a hard dependency.
 """,
     "author": "Tiesa",
     "license": "LGPL-3",
+    'support': 'sales@meskis.net',
+    'images': ['static/description/banner.png'],
     "website": "https://github.com/LadyHwesta/odoo-addons",
     "depends": ["base", "mail", "web"],
     "data": [
@@ -47,6 +49,7 @@ checked at runtime, never a hard dependency.
         "views/security_event_views.xml",
         "views/security_ip_rule_views.xml",
         "views/security_login_attempt_views.xml",
+        "views/security_probe_hit_views.xml",
         "views/res_config_settings_views.xml",
         "views/security_menus.xml",
     ],

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- What a guest sees after scanning the QR card: one short form. -->
+    <template id="song_request_page" name="Request a Song">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Request a song</t>
+            <div id="wrap" class="o_gig_song_request">
+                <div class="container py-5" style="max-width: 34rem">
+                    <h1 class="h2 mb-1">Request a song</h1>
+                    <p class="text-muted mb-4">
+                        <span t-out="order.venue_name or order.company_id.name"/>
+                        <t t-if="order.gig_date"> · <span t-field="order.gig_date" t-options="{'widget': 'date', 'format': 'EEEE d MMMM'}"/></t>
+                    </p>
+
+                    <t t-if="not open">
+                        <div class="alert alert-info">Song requests are closed for this event. Thanks for dancing!</div>
+                    </t>
+                    <t t-else="">
+                        <div t-if="sent" class="alert alert-success" role="status">
+                            Got it! Your request is on the list.
+                        </div>
+                        <div t-if="error" class="alert alert-warning" role="alert" t-out="error"/>
+                        <t t-set="form" t-value="form or {}"/>
+                        <form t-attf-action="/gig/#{token}/songs" method="post" data-captcha="song_request"
+                              class="d-flex flex-column gap-3">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div>
+                                <label class="form-label fw-bold" for="song">Song</label>
+                                <input type="text" class="form-control form-control-lg" id="song" name="song"
+                                       required="required" maxlength="120" autocomplete="off"
+                                       t-att-value="form.get('song')"/>
+                            </div>
+                            <div>
+                                <label class="form-label" for="artist">Artist</label>
+                                <input type="text" class="form-control" id="artist" name="artist"
+                                       maxlength="120" autocomplete="off" t-att-value="form.get('artist')"/>
+                            </div>
+                            <div>
+                                <label class="form-label" for="name">Your name <span class="text-muted">(optional)</span></label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       maxlength="60" autocomplete="given-name" t-att-value="form.get('name')"/>
+                            </div>
+                            <div class="d-none" aria-hidden="true">
+                                <label for="website_url">Leave this empty</label>
+                                <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off"/>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-lg w-100">Send request</button>
+                            </div>
+                        </form>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

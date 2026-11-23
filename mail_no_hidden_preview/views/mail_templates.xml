@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- mail.notification_preview is a hidden div (display:none, 0px font)
+         with the message preview and 140 invisible padding characters,
+         t-called at the top of mail.mail_notification_layout and
+         mail.mail_notification_light. Replacing the div leaves the template
+         empty, so both layouts simply start with the message. -->
+    <template id="notification_preview_no_hidden_text" inherit_id="mail.notification_preview"
+              name="Mail: no hidden preview text">
+        <xpath expr="//div" position="replace" />
+    </template>
+
+</odoo>

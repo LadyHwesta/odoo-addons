@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, patch
 
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 
@@ -124,6 +125,14 @@ class TestInboundControllerPiper(HttpCase):
             f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
             f'{attachment_id}</Play>', response.text)
 
+    def _press_in_queue(self, group, number, digit):
+        call = self.env['signalwire.live_call'].create({
+            'call_sid': 'CA-queue', 'phone_number_id': number.id,
+            'from_number': '+15551234567', 'state': 'queued',
+            'queue_group_id': group.id, 'queued_at': fields.Datetime.now()})
+        return self.url_open(f'/signalwire/voice/queue_choice/{call.id}', data={
+            'Digits': digit, 'CallSid': 'CA-queue', 'From': '+15551234567'})
+
     def test_group_voicemail_greeting_plays_cached_piper_audio(self):
         group = self.env['signalwire.call.group'].create({
             'name': 'Sales', 'voicemail_mode': 'group',
@@ -137,9 +146,8 @@ class TestInboundControllerPiper(HttpCase):
         attachment_id = self._cached_attachment_id(
             'en_US-libritts_r-medium', 'Please leave a message after the tone.')
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        # A caller waiting in the group's queue presses 2 for a message.
+        response = self._press_in_queue(group, number, '2')
 
         self.assertIn(
             f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'
@@ -163,10 +171,10 @@ class TestInboundControllerPiper(HttpCase):
             f'{attachment_id}</Play>', response.text)
         self.assertNotIn('<Say>Hang tight, almost there.</Say>', response.text)
 
-    def test_group_fallback_hold_retry_plays_cached_piper_audio(self):
+    def test_group_queue_hold_plays_cached_piper_audio(self):
         group = self.env['signalwire.call.group'].create({
-            'name': 'Sales', 'member_ids': [(6, 0, [self.user.id])],
-            'max_ring_attempts': 1,
+            # Nobody free, so the caller waits and hears the hold message.
+            'name': 'Sales',
             'hold_piper_voice': 'en_US-ljspeech-medium',
             'hold_message_text': 'One moment please.',
         })
@@ -223,9 +231,8 @@ class TestInboundControllerPiper(HttpCase):
         attachment_id = self._cached_attachment_id(
             'en_US-ljspeech-medium', "You've reached Sales. Leave a message!")
 
-        response = self.url_open(
-            f'/signalwire/voice/group_fallback/{group.id}/{number.id}',
-            data={'DialCallStatus': 'no-answer'})
+        # A caller waiting in the group's queue presses 2 for a message.
+        response = self._press_in_queue(group, number, '2')
 
         self.assertIn(
             f'<Play>https://odoo.example.com/signalwire/voice/piper_audio/'

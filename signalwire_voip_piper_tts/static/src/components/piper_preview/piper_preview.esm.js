@@ -8,11 +8,11 @@ import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 
 import { Component, useState } from "@odoo/owl";
 
-// Lets a form preview a self-hosted Piper voice/speaker against typed
-// sample text without saving the record or placing a real call.
-// Deliberately never writes anything back to the record - the sample
-// text here is a throwaway scratch box, seeded once from the real
-// greeting field for convenience, not kept in sync with it.
+// Lets a form hear its own greeting text in a self-hosted Piper
+// voice/speaker without saving the record or placing a real call. It
+// reads the record's real text field as it stands (unsaved edits
+// included) and never writes anything back. It used to keep its own
+// scratch copy of the text, which put the greeting on screen twice.
 export class PiperPreviewWidget extends Component {
     static template = "signalwire_voip_piper_tts.PiperPreviewWidget";
     static props = {
@@ -24,11 +24,12 @@ export class PiperPreviewWidget extends Component {
 
     setup() {
         this.notification = useService("notification");
+        this.state = useState({ loading: false });
+    }
+
+    get text() {
         const { record, textField } = this.props;
-        this.state = useState({
-            text: (textField && record.data[textField]) || "",
-            loading: false,
-        });
+        return ((textField && record.data[textField]) || "").trim();
     }
 
     get voice() {
@@ -40,7 +41,7 @@ export class PiperPreviewWidget extends Component {
     }
 
     get canPreview() {
-        return Boolean(this.voice) && Boolean(this.state.text.trim()) && !this.state.loading;
+        return Boolean(this.voice) && Boolean(this.text) && !this.state.loading;
     }
 
     async onPreviewClick() {
@@ -51,7 +52,7 @@ export class PiperPreviewWidget extends Component {
         try {
             const formData = new FormData();
             formData.append("csrf_token", odoo.csrf_token);
-            formData.append("text", this.state.text);
+            formData.append("text", this.text);
             formData.append("voice", this.voice);
             if (this.speakerId) {
                 formData.append("speaker_id", this.speakerId);

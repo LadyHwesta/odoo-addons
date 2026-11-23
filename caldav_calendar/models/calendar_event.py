@@ -387,15 +387,49 @@ class CalendarEvent(models.Model):
             return dt.astimezone(pytz.utc).replace(tzinfo=None)
         return dt  # floating time, best-effort: treat as UTC
 
-    def _caldav_apply_attendees(self, emails):
+    def _caldav_changed_vals(self, vals):
+        """The part of `vals` that differs from this event as it stands."""
         self.ensure_one()
-        if not emails:
-            return
+        changed = {}
+        for name, value in vals.items():
+            field = self._fields.get(name)
+            if field is None:
+                continue
+            current = self[name]
+            if field.type == 'many2one':
+                current = current.id
+            elif field.type == 'html':
+                current, value = str(current or ''), str(value or '')
+            elif field.type in ('char', 'text'):
+                current, value = current or '', value or ''
+            if current != value:
+                changed[name] = value
+        return changed
+
+    def _caldav_apply_attendees(self, emails):
+        """Set the attendees from the emails in the remote copy.
+
+        An email is matched to the calendar owner's own contact first, then
+        to a user's contact, and only then to any contact: one address is
+        often on several contacts (a person and their companies), and
+        picking the wrong one took the owner off their own event, so it
+        vanished from their Odoo calendar while staying on their phone. The
+        owner always stays on events synced from their own calendar.
+        """
+        self.ensure_one()
         Partner = self.env['res.partner']
-        partners = self.env['res.partner']
+        owner = self.caldav_account_id.user_id or self.user_id
+        owner_emails = {e.lower() for e in (owner.partner_id.email, owner.login, owner.email) if e}
+        partners = owner.partner_id
         for email in emails:
-            partner = Partner.search([('email', '=ilike', email)], limit=1)
+            if email.lower() in owner_emails:
+                continue
+            user = self.env['res.users'].sudo().search(
+                ['|', ('email', '=ilike', email), ('login', '=ilike', email)], limit=1)
+            partner = user.partner_id or Partner.search([('email', '=ilike', email)], limit=1)
             if not partner:
                 partner = Partner.create({'name': email, 'email': email})
             partners |= partner
-        self.with_context(caldav_no_sync=True).write({'partner_ids': [(6, 0, partners.ids)]})
+        if set(partners.ids) != set(self.partner_ids.ids):
+            self.with_context(caldav_no_sync=True, skip_attendee_notification=True).write(
+                {'partner_ids': [(6, 0, partners.ids)]})

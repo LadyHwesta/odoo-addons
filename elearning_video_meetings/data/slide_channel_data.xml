@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="channel_video_meetings" model="slide.channel">
+        <field name="name">Video Meetings</field>
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Meetings with video calls: inviting people, the meeting's documents, the call controls, and Gallery and Speaker view.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('base.group_user')])]" />
+    </record>
+
+    <record id="section_1" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Setting up the meeting</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="lesson_add_video" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Adding a video call to a meeting</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Any meeting in the <strong>Calendar</strong> app can have a video call. Everyone joins from their web browser: nothing to install, and people from outside your organization don't need an Odoo login.</p><ol class="oe-steps"><li><p>Open <strong>Calendar</strong> and click <strong>New</strong>, or open an existing meeting.</p></li><li><p>Add the <strong>Attendees</strong>. Someone outside your organization can be added by typing their name and email: they become a contact.</p></li><li><p>Next to <strong>Video Link</strong>, click <strong>+ Odoo meeting</strong>. The meeting gets its own link.</p></li><li><p>Save. The invitation each attendee receives includes the link.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">Joining</span><p>When it's time, click <strong>Join Video Call</strong> in the meeting's pop-up on the calendar, or the join icon next to the Video Link on the meeting. Guests click the link in their invitation.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_documents" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">The meeting's documents</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Agendas, minutes and papers belong on the meeting's <strong>Documents</strong> tab. Whoever can open the meeting can open them.</p><ol class="oe-steps"><li><p>On the meeting, open the <strong>Documents</strong> tab and click <strong>Add a line</strong> to upload a file.</p></li><li><p>With <strong>Send Documents with Invitations</strong> ticked (it is by default), attendees get the files with their invitation and with updates.</p></li><li><p>Files attached with the chatter's paperclip, or sent in a reply to the invitation, are added to the Documents tab too.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lock" /></span><div><span class="oe-callout-label">Private documents</span><p>Switch on <strong>Private</strong> for a document that isn't for everyone, such as notes for your board only. It stays on the meeting for your team, but isn't emailed and isn't listed in the video call. Making a document private also stops any link already shared from working.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="section_2" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">In the call</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="lesson_controls" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">The call controls</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">21</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>The controls sit along the bottom of the call. Hover over any of them to see its name.</p><ul><li><strong>Mute</strong> / <strong>Unmute</strong> your microphone.</li><li><strong>Turn camera on</strong> / <strong>Stop camera</strong>. <strong>Blur Background</strong> is in the video settings next to it.</li><li><strong>Share Screen</strong>: choose a window or your whole screen. <strong>Stop Sharing Screen</strong> ends it.</li><li><strong>Raise Hand</strong> to ask to speak without interrupting.</li><li><strong>Fullscreen</strong> fills your screen with the call.</li><li><strong>Disconnect</strong> leaves the call. Others carry on.</li></ul><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span><div><span class="oe-callout-label">Before a big meeting</span><p>Join a few minutes early and check your microphone and camera: your browser asks for permission the first time.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="lesson_views" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Gallery view and Speaker view</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">22</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>Like Zoom and Teams, a call can show everyone or whoever is talking:</p><ul><li><strong>Gallery view</strong> (the default): everyone in tiles.</li><li><strong>Speaker view</strong>: whoever is talking fills the screen.</li></ul><ol class="oe-steps"><li><p>Click the <strong>Speaker view</strong> or <strong>Gallery view</strong> button in the call controls to switch. Your choice is remembered on your computer.</p></li><li><p>When someone shares their screen, it fills the screen while they share. When they stop, the call goes back to the view you chose.</p></li><li><p>Click someone's video to keep them big (pin them). Click it again to unpin.</p></li></ol></div>
+        </field>
+    </record>
+
+    <record id="lesson_docs_in_call" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Opening documents during the call</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html">
+            <div class="oe-course-content"><p>When the call starts, the meeting's documents are pinned in the call's chat as download links, so everyone can open them on their own device, guests included.</p><ol class="oe-steps"><li><p>Open the call's chat with the chat button in the call.</p></li><li><p>The pinned message lists each document. Click one to download it.</p></li><li><p>Added a document during the meeting? The pinned list updates by itself.</p></li></ol><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lock" /></span><div><span class="oe-callout-label">Private stays private</span><p>Private documents are never listed in the call.</p></div></div></div>
+        </field>
+    </record>
+
+    <record id="slide_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_video_meetings" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check your understanding</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="quiz_q1" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">How do you add a video call to a meeting?</field>
+    </record>
+    <record id="quiz_q1_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Click + Odoo meeting next to Video Link</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q1_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Install a video app</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q1_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Send attendees a Discuss message</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q2" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">Someone outside your organization is invited. What do they need to join?</field>
+    </record>
+    <record id="quiz_q2_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Just the link in their invitation and a web browser</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q2_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">An Odoo login</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q2_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">A Zoom account</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q3" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">A document is for your board only. What should you do?</field>
+    </record>
+    <record id="quiz_q3_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">Switch on Private for that document</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q3_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">Untick Send Documents with Invitations for every meeting</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q3_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">Rename it</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+    <record id="quiz_q4" model="slide.question">
+        <field name="slide_id" ref="slide_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">Someone stops sharing their screen. What does the call show next?</field>
+    </record>
+    <record id="quiz_q4_a1" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">The view you chose: Gallery or Speaker</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="quiz_q4_a2" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Only the person who was sharing, until you reload</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="quiz_q4_a3" model="slide.answer">
+        <field name="question_id" ref="quiz_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">A blank screen</field>
+        <field name="is_correct" eval="False" />
+    </record>
+
+</odoo>

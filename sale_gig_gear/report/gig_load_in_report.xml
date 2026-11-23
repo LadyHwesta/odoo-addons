@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The gear list on the load-in sheet, with boxes to tick on the day. -->
+    <template id="report_gig_load_in_gear" inherit_id="sale_gig_booking.report_gig_load_in">
+        <xpath expr="//div[@id='gig_gear']" position="inside">
+            <t t-if="o.gig_gear_line_ids">
+                <h4>Gear <small class="text-muted" t-out="o.gig_gear_progress"/></h4>
+                <table class="table table-sm mb-3">
+                    <thead>
+                        <tr><th style="width: 6%"/><th style="width: 8%">Qty</th><th>Item</th><th>Note</th></tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="category" t-value="None"/>
+                        <t t-foreach="o._gig_gear_sheet_lines()" t-as="line">
+                            <tr t-if="line.category != category" class="table-light">
+                                <td colspan="4"><strong t-field="line.category"/></td>
+                            </tr>
+                            <t t-set="category" t-value="line.category"/>
+                            <tr>
+                                <td style="font-size: 1.2em" t-out="'☑' if line.packed else '☐'"/>
+                                <td t-out="line.quantity"/>
+                                <td t-out="line.gear_id.name"/>
+                                <td class="text-muted" t-out="line.note or line.gear_id.note or ''"/>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

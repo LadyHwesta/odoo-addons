@@ -46,3 +46,12 @@ class TestElearningMembership(TransactionCase):
         self.assertTrue(found)
         for image in found:
             self.assertTrue(file_path(image))
+
+    def test_every_lesson_is_published(self):
+        """A lesson starts unpublished, so each one must say so in the data,
+        or learners see the course but none of its pages."""
+        data = self.env["ir.model.data"].search(
+            [("module", "=", "club_elearning_membership"), ("model", "=", "slide.slide")])
+        lessons = self.env["slide.slide"].browse(data.mapped("res_id"))
+        self.assertTrue(lessons)
+        self.assertFalse(lessons.filtered(lambda s: not s.is_published).mapped("name"))

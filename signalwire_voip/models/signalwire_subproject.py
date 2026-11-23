@@ -15,23 +15,61 @@ class SignalWireSubproject(models.Model):
     """
     _name = 'signalwire.subproject'
     _inherit = ['mail.thread']
-    _description = 'SignalWire Subproject'
+    _description = 'Sub-account'
     _rec_name = 'name'
 
     name = fields.Char(required=True, tracking=True)
-    server_id = fields.Many2one('signalwire.server', required=True, ondelete='restrict')
+    server_id = fields.Many2one(
+        'signalwire.server', string="Phone Account", required=True, ondelete='restrict')
     partner_id = fields.Many2one('res.partner', tracking=True)
+
+    @api.model
+    def _signalwire_sync_reseller_group(self):
+        """Administrators see the Customers section only while a sub-account
+        belongs to a customer (anyone but this database's own companies)."""
+        group = self.env.ref('signalwire_voip.group_signalwire_reseller', raise_if_not_found=False)
+        admins = self.env.ref('base.group_system', raise_if_not_found=False)
+        if not (group and admins):
+            return
+        ours = self.env['res.company'].sudo().search([]).partner_id
+        resells = bool(self.sudo().search_count([('partner_id', '!=', False), ('partner_id', 'not in', ours.ids)]))
+        if resells and group not in admins.implied_ids:
+            admins.sudo().implied_ids = [(4, group.id)]
+        elif not resells and group in admins.implied_ids:
+            admins.sudo().implied_ids = [(3, group.id)]
+            group.sudo().user_ids = [(5, 0, 0)]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        self._signalwire_sync_reseller_group()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'partner_id' in vals:
+            self._signalwire_sync_reseller_group()
+        return result
+
+    def unlink(self):
+        result = super().unlink()
+        self._signalwire_sync_reseller_group()
+        return result
     account_sid = fields.Char(
         string="Account SID", readonly=True, copy=False,
-        help="SignalWire's own ID for this subproject, assigned on "
-             "provisioning - this is what gets used in place of a "
-             "subproject-specific auth token everywhere else in this "
-             "module (see signalwire.server's own docstring).")
+        help="The phone provider's ID for this sub-account, assigned when "
+             "it's set up.")
     state = fields.Selection(
         [('draft', 'Draft'), ('active', 'Active'), ('closed', 'Closed')],
         default='draft', tracking=True, required=True)
     phone_number_ids = fields.One2many('signalwire.phone_number', 'subproject_id')
     active = fields.Boolean(default=True)
+    signing_key = fields.Char(
+        string="Signing Key", groups="base.group_system", copy=False,
+        help="This sub-account's own Signing Key, if the phone provider "
+             "signs its calls and texts with it rather than the main account's. "
+             "Find it in the provider's dashboard with this sub-account "
+             "selected, under API credentials.")
 
     def action_provision(self):
         """Create the actual subproject at SignalWire. One REST call
@@ -64,10 +102,10 @@ class SignalWireSubproject(models.Model):
         client.compat_post(f'Accounts/{self.account_sid}.json', Status='closed')
         self.state = 'closed'
         self.message_post(body=_(
-            "Requested closure via the API, but SignalWire's own API did "
-            "not confirm this actually took effect when last tested - "
-            "double check this subproject's status in the SignalWire "
-            "dashboard and close it there by hand if it's still active."))
+            "Asked the phone provider to close this sub-account, but its "
+            "API doesn't confirm closures. Check the sub-account in the "
+            "provider's dashboard and close it there by hand if it's "
+            "still active."))
 
     def purchase_number(self, phone_number):
         """Buy `phone_number` (an E.164 string from
@@ -80,7 +118,7 @@ class SignalWireSubproject(models.Model):
         self.ensure_one()
         if self.state != 'active':
             raise UserError(_(
-                "%(name)s isn't an active subproject yet.", name=self.name))
+                "%(name)s isn't an active sub-account yet.", name=self.name))
         client = self.server_id._get_client()
         result = client.compat_post(
             f'Accounts/{self.account_sid}/IncomingPhoneNumbers.json',

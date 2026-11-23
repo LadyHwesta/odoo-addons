@@ -2,9 +2,14 @@
 import re
 import secrets
 import unicodedata
+from datetime import timedelta
 
 from odoo import _, api, models, fields
 from odoo.exceptions import UserError
+
+# No real call rings longer than this (the dial timeout is 20 seconds).
+RINGING_GIVES_UP_AFTER = timedelta(minutes=2)
+ON_CALL_GIVES_UP_AFTER = timedelta(hours=4)
 
 
 class ResUsers(models.Model):
@@ -31,13 +36,13 @@ class ResUsers(models.Model):
         return info
 
     signalwire_sip_endpoint_id = fields.Char(
-        string="SignalWire SIP Endpoint ID", copy=False,
-        help="SignalWire's own ID for this user's SIP Endpoint - "
+        string="SIP Endpoint ID", copy=False,
+        help="The phone provider's ID for this user's SIP Endpoint - "
              "needed to release it later. Set automatically by "
-             "\"Provision SignalWire Softphone\", not editable by hand.")
+             "\"Set Up Softphone\", not editable by hand.")
     signalwire_server_id = fields.Many2one(
-        'signalwire.server', copy=False,
-        help="Which project this user's SIP Endpoint (if any) lives on.")
+        'signalwire.server', string="Phone Account", copy=False,
+        help="Which phone account this user's softphone (if any) lives on.")
 
     signalwire_forwarding_number_ids = fields.One2many(
         'signalwire.forwarding.number', 'user_id', string="Saved Numbers")
@@ -45,7 +50,7 @@ class ResUsers(models.Model):
         'signalwire.desk_phone', 'user_id', string="Desk Phones",
         help="Physical SIP desk phones registered to this user - each "
              "rings alongside the softphone on an inbound call, using "
-             "its own separate SignalWire SIP Endpoint.")
+             "its own separate SIP endpoint.")
     signalwire_active_forward_id = fields.Many2one(
         'signalwire.forwarding.number', string="Forward Calls To",
         domain="[('user_id', '=', id)]",
@@ -61,16 +66,16 @@ class ResUsers(models.Model):
              "teammates with their own softphone already provisioned "
              "actually get rung - see this module's own README.")
     signalwire_voicemail_enabled = fields.Boolean(
-        default=True,
+        string="Take Voicemail", default=True,
         help="Take a voicemail if nothing above answers - the "
              "guaranteed last resort so a caller is never just "
              "dropped. Recordings get attached to the matched "
              "contact's chatter, if any, and always schedule a "
              "\"return this call\" activity for this user either way.")
     signalwire_voicemail_transcribe = fields.Boolean(
-        default=True,
-        help="Also ask SignalWire to transcribe each voicemail (a "
-             "paid add-on on their end, billed per recording) so the "
+        string="Transcribe Voicemail", default=True,
+        help="Also transcribe each voicemail (a paid extra, billed "
+             "per recording) so the "
              "text shows up right in the voicemail systray, letting "
              "you decide whether it's worth listening to in full "
              "before you do. Turn off to only ever get the audio.")
@@ -79,7 +84,7 @@ class ResUsers(models.Model):
         help="An uploaded audio file played to callers instead of the "
              "text-to-speech greeting below. Leave unset to use the "
              "text greeting instead.")
-    signalwire_voicemail_greeting_filename = fields.Char(copy=False)
+    signalwire_voicemail_greeting_filename = fields.Char(string="Greeting File Name", copy=False)
     signalwire_voicemail_greeting_text = fields.Text(
         string="Greeting (spoken)",
         # Not _()-wrapped - a field default runs inside _auto_init's
@@ -97,13 +102,47 @@ class ResUsers(models.Model):
         string="Play Beep Before Recording", default=True)
     signalwire_call_state = fields.Selection(
         [('idle', "Available"), ('ringing', "Ringing"), ('on_call', "On a Call")],
-        default='idle', copy=False,
+        string="Call State", default='idle', copy=False,
         help="Reported live by this user's own softphone whenever its "
              "call state changes (see voip_agent_receptionist_status."
              "esm.js) - what the live receptionist panel shows "
              "alongside Odoo's own online/away/offline status "
              "(im_status), which only reflects browser activity, not "
              "whether this user is actually on a phone call.")
+    signalwire_presence = fields.Selection(
+        [('available', "Available"), ('away', "Away"), ('mobile', "Mobile")],
+        string="Phone Presence", default='available', required=True, copy=False,
+        help="Available: calls ring as usual. Away (set after a few idle "
+             "minutes, or with Alt+Shift+W; Control+Shift+W on a Mac): calls skip you and go straight to "
+             "what happens when you don't answer, and call groups skip you. "
+             "Mobile: calls ring the softphone in the mobile app and your "
+             "mobile number together.")
+    signalwire_presence_at = fields.Datetime(string="Presence Since", copy=False)
+    signalwire_mobile_forward_id = fields.Many2one(
+        'signalwire.forwarding.number', string="Mobile Number",
+        domain="[('user_id', '=', id)]",
+        help="Rung alongside the mobile app's softphone while you're set to "
+             "Mobile. You hear \"press 1 to take this call\" first, so your "
+             "phone's own voicemail can't pick the call up.")
+    signalwire_auto_away_minutes = fields.Integer(
+        string="Away After (minutes)", default=10,
+        help="Set to Away after this many minutes without using Odoo; using "
+             "it again sets you back to Available. 0 turns this off.")
+    signalwire_call_state_at = fields.Datetime(
+        string="Call State Since", copy=False,
+        help="When the softphone last reported its call state. A ringing "
+             "state older than a couple of minutes is shown as Available: "
+             "no call rings that long, so the hang-up report was lost.")
+    signalwire_has_softphone = fields.Boolean(
+        string="Softphone", compute='_compute_signalwire_extension')
+    signalwire_desk_phone_count = fields.Integer(
+        string="Desk Phones", compute='_compute_signalwire_extension')
+
+    @api.depends('signalwire_sip_endpoint_id', 'signalwire_desk_phone_ids')
+    def _compute_signalwire_extension(self):
+        for user in self:
+            user.signalwire_has_softphone = bool(user.signalwire_sip_endpoint_id)
+            user.signalwire_desk_phone_count = len(user.signalwire_desk_phone_ids)
 
     @property
     def SELF_READABLE_FIELDS(self):
@@ -118,12 +157,15 @@ class ResUsers(models.Model):
         # so, confirmed live via with_user() against a real non-admin
         # user (an AccessError, not a silent no-op this time).
         return super().SELF_READABLE_FIELDS + [
+            'signalwire_phone_account_name', 'signalwire_sip_endpoint_id',
             'signalwire_forwarding_number_ids', 'signalwire_desk_phone_ids',
             'signalwire_active_forward_id', 'signalwire_ring_group_ids',
             'signalwire_voicemail_enabled', 'signalwire_voicemail_transcribe',
             'signalwire_voicemail_greeting', 'signalwire_voicemail_greeting_filename',
             'signalwire_voicemail_greeting_text', 'signalwire_voicemail_max_length',
             'signalwire_voicemail_beep', 'signalwire_call_state',
+            'signalwire_presence', 'signalwire_mobile_forward_id',
+            'signalwire_auto_away_minutes',
         ]
 
     @property
@@ -134,22 +176,119 @@ class ResUsers(models.Model):
             'signalwire_voicemail_greeting', 'signalwire_voicemail_greeting_filename',
             'signalwire_voicemail_greeting_text', 'signalwire_voicemail_max_length',
             'signalwire_voicemail_beep',
-            'signalwire_call_state',
+            'signalwire_call_state', 'signalwire_call_state_at',
+            'signalwire_presence', 'signalwire_presence_at',
+            'signalwire_mobile_forward_id', 'signalwire_auto_away_minutes',
         ]
 
+    def _signalwire_effective_call_state(self):
+        """The reported call state, except a ringing that's gone on longer
+        than any real call rings: the softphone's hang-up report never
+        arrived (tab closed mid-ring, network drop), so it's Available."""
+        self.ensure_one()
+        state = self.signalwire_call_state or 'idle'
+        at = self.signalwire_call_state_at
+        now = fields.Datetime.now()
+        if state == 'ringing' and (not at or at < now - RINGING_GIVES_UP_AFTER):
+            return 'idle'
+        if state == 'on_call' and at and at < now - ON_CALL_GIVES_UP_AFTER:
+            # A call that ended without anyone telling us (a lost status
+            # report): nobody stays "on a call" all day.
+            return 'idle'
+        return state
+
+    @api.model
+    def get_signalwire_presence_info(self):
+        """What the softphone's presence service needs at start-up."""
+        user = self.env.user
+        return {
+            'presence': user.signalwire_presence,
+            'auto_away_minutes': user.signalwire_auto_away_minutes,
+            'has_softphone': bool(user.voip_username),
+            'has_mobile_number': bool(user.signalwire_mobile_forward_id),
+        }
+
+    @api.model
+    def set_signalwire_presence(self, presence):
+        """Called from the browser (idle timer, Alt+Shift+A, the status
+        menu). api.model, like set_signalwire_call_state: the RPC layer
+        would otherwise take `presence` as record ids. Only ever changes
+        the calling user's own presence."""
+        if presence not in dict(self._fields['signalwire_presence'].selection):
+            return False
+        user = self.env.user
+        if user.signalwire_presence != presence:
+            user.write({
+                'signalwire_presence': presence,
+                'signalwire_presence_at': fields.Datetime.now(),
+            })
+            self.env['bus.bus']._sendone(
+                user.partner_id, 'signalwire_presence/updated', {'presence': presence})
+            group = self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist')
+            self.env['bus.bus']._sendone(group, 'signalwire_live_call/updated', {})
+            if presence != 'away':
+                # Back from Away as Available or Mobile: free again.
+                user._signalwire_on_free()
+        return presence
+
+    def _signalwire_ringable(self):
+        """Something would ring for this person right now: the same rules
+        as the controller's _sip_targets (Away: nothing; desk phones only
+        while Available; the mobile number only while Mobile)."""
+        self.ensure_one()
+        if self.signalwire_presence == 'away':
+            return False
+        if self.voip_username:
+            return True
+        if self.signalwire_presence == 'available':
+            return bool(self.signalwire_desk_phone_ids.filtered('voip_username'))
+        return bool(self.signalwire_mobile_forward_id.phone_number)
+
+    def _signalwire_is_free(self):
+        self.ensure_one()
+        return (self.signalwire_presence != 'away'
+                and self._signalwire_effective_call_state() == 'idle')
+
+    def _signalwire_on_free(self):
+        """This user just became free to take a call (hung up, or came back
+        from Away): offer them the longest-waiting queued caller, else alert
+        them to callbacks waiting for them or their call groups."""
+        self.ensure_one()
+        if not self._signalwire_ringable():
+            return
+        # A caller waiting in line comes first; if they're offered one,
+        # they're no longer free and the callback alerts wait until after.
+        if self.env['signalwire.live_call'].sudo()._queue_dispatch_for(self):
+            return
+        self.env['signalwire.callback_request'].sudo().search([
+            ('state', '=', 'pending'),
+            '|', ('target_user_id', '=', self.id),
+            ('target_group_id.member_ids', 'in', self.id),
+        ])._alert_free_users(users=self)
+
+    @api.model
     def set_signalwire_call_state(self, state):
-        """Called from the softphone's own JS - deliberately not
-        api.model, since it's always about "my own" state (self is
-        the calling user, enforced by only ever writing to self.id
-        below regardless of what record this gets called on).
+        """Called from the softphone's own JS as
+        orm.call("res.users", "set_signalwire_call_state", [state]).
+
+        Must be api.model: without it, the RPC layer takes the first
+        argument as record ids, so the state never arrived and every
+        call failed with a TypeError (swallowed by the JS, logged as an
+        ERROR on the server). It only ever writes the calling user's own
+        state (self.env.user), whatever record it's called on.
         """
         valid_states = dict(self._fields['signalwire_call_state'].selection)
         if state not in valid_states:
             return
-        self.env.user.signalwire_call_state = state
+        self.env.user.write({
+            'signalwire_call_state': state,
+            'signalwire_call_state_at': fields.Datetime.now(),
+        })
         group = self.env.ref('signalwire_voip_click2call.group_signalwire_receptionist')
         self.env['bus.bus']._sendone(
             group, 'signalwire_live_call/updated', {})
+        if state == 'idle' and self.env.user.signalwire_presence != 'away':
+            self.env.user._signalwire_on_free()
 
     @api.model
     def get_signalwire_turn_credentials(self):
@@ -182,13 +321,14 @@ class ResUsers(models.Model):
         needs its own real guard.
         """
         if not self.env.user.has_group('signalwire_voip_click2call.group_signalwire_receptionist'):
-            raise UserError(_("You don't have access to the SignalWire receptionist panel."))
+            raise UserError(_("You don't have access to the receptionist panel."))
         users = self.search([('company_id', 'in', self.env.companies.ids)])
         return [
             {
                 'id': u.id, 'name': u.name, 'partner_id': u.partner_id.id,
-                'im_status': u.im_status, 'call_state': u.signalwire_call_state,
+                'im_status': u.im_status, 'call_state': u._signalwire_effective_call_state(),
                 'voip_username': u.voip_username, 'has_softphone': bool(u.voip_username),
+                'presence': u.signalwire_presence,
             }
             for u in users
         ]
@@ -247,6 +387,14 @@ class ResUsers(models.Model):
             lambda p: ''.join(filter(str.isdigit, p.phone or ''))[-10:] == digits
         )[:1]
 
+    signalwire_phone_account_name = fields.Char(
+        string="Phone Account", compute='_compute_signalwire_phone_account_name',
+        help="The phone account this softphone lives in.")
+
+    def _compute_signalwire_phone_account_name(self):
+        for user in self:
+            user.signalwire_phone_account_name = user.sudo().signalwire_server_id.name or False
+
     def _signalwire_sip_username(self):
         """A SIP username built from this user's own real name, not a
         bare `user{id}` - readable in a raw SIP trace, on a hardware
@@ -279,11 +427,11 @@ class ResUsers(models.Model):
         self.ensure_one()
         if self.signalwire_sip_endpoint_id:
             raise UserError(_(
-                "%(user)s already has a SignalWire softphone provisioned.",
+                "%(user)s already has a softphone provisioned.",
                 user=self.name))
-        server = self.env['signalwire.server'].search([], limit=1)
+        server = self.env['signalwire.server']._for_company(self.company_id)
         if not server:
-            raise UserError(_("No SignalWire project is configured yet."))
+            raise UserError(_("No phone account is configured yet."))
 
         pbx = self.env['voip.pbx'].search([('name', '=', server.name)], limit=1)
         if not pbx:
@@ -306,7 +454,7 @@ class ResUsers(models.Model):
         self.ensure_one()
         if not self.signalwire_sip_endpoint_id:
             raise UserError(_(
-                "%(user)s has no SignalWire softphone provisioned.", user=self.name))
+                "%(user)s has no softphone provisioned.", user=self.name))
         self.signalwire_server_id._get_client().relay_delete(
             f'endpoints/sip/{self.signalwire_sip_endpoint_id}')
         self.write({

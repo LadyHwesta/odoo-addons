@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="action_report_1099_nec_statement" model="ir.actions.report">
+        <field name="name">1099-NEC Recipient Statement</field>
+        <field name="model">form.1099.nec.summary.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_us_form_1099_nec_summary.report_1099_nec_statement</field>
+        <field name="report_file">l10n_us_form_1099_nec_summary.report_1099_nec_statement</field>
+        <field name="print_report_name">'1099-NEC %s %s' % (object.year, object.vendor_id.name)</field>
+    </record>
+
+    <!--
+        A substitute recipient statement (Copy B). It carries the payer, the
+        recipient, box 1 and the legends the IRS asks substitute statements
+        to show; check it against the current Publication 1179 each year.
+    -->
+    <template id="report_1099_nec_statement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="line">
+                <t t-call="web.basic_layout">
+                    <t t-set="company" t-value="line.company_id" />
+                    <t t-set="vendor" t-value="line.vendor_id" />
+                    <div class="page" style="font-size: 12px;">
+                        <h2 style="margin-bottom: 0;">Form 1099-NEC</h2>
+                        <div>Nonemployee Compensation, calendar year <strong t-out="line.year" /></div>
+                        <div style="margin-bottom: 16px;"><strong>Copy B, for recipient.</strong> This is important tax information and is being furnished to the IRS. If you are required to file a return, a negligence penalty or other sanction may be imposed on you if this income is taxable and the IRS determines that it has not been reported.</div>
+                        <table class="table table-bordered" style="width: 100%;">
+                            <tr>
+                                <td style="width: 50%;">
+                                    <div class="text-muted">Payer's name and address</div>
+                                    <div t-out="company.name" />
+                                    <div t-out="company.street" />
+                                    <div t-if="company.street2" t-out="company.street2" />
+                                    <div><t t-out="company.city" />, <t t-out="company.state_id.code" /> <t t-out="company.zip" /></div>
+                                    <div t-if="company.phone">Phone: <t t-out="company.phone" /></div>
+                                </td>
+                                <td>
+                                    <div class="text-muted">Payer's TIN</div>
+                                    <div t-out="company.vat or ''" />
+                                    <div class="text-muted" style="margin-top: 8px;">Recipient's TIN</div>
+                                    <div t-out="line._masked_tin()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="text-muted">Recipient's name and address</div>
+                                    <div t-out="vendor.name" />
+                                    <div t-out="vendor.street" />
+                                    <div t-if="vendor.street2" t-out="vendor.street2" />
+                                    <div><t t-out="vendor.city" />, <t t-out="vendor.state_id.code" /> <t t-out="vendor.zip" /></div>
+                                </td>
+                                <td>
+                                    <div class="text-muted">1 Nonemployee compensation</div>
+                                    <div style="font-size: 18px;"><strong t-out="'$%s' % '{:,.2f}'.format(line.amount)" /></div>
+                                    <div class="text-muted" style="margin-top: 8px;">4 Federal income tax withheld</div>
+                                    <div>$0.00</div>
+                                </td>
+                            </tr>
+                        </table>
+                        <p class="text-muted" style="margin-top: 16px;">Instructions for recipients: see the IRS's Instructions for Recipient on Form 1099-NEC, at www.irs.gov/Form1099NEC. You received this form instead of Form W-2 because the payer did not consider you an employee and did not withhold income tax or Social Security and Medicare tax.</p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

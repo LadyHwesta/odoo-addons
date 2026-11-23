@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gig_booking_slot_salesman,gig.booking.slot salesman,model_gig_booking_slot,sales_team.group_sale_salesman,1,0,0,0
+access_gig_timeline_line_salesman,gig.timeline.line salesman,model_gig_timeline_line,sales_team.group_sale_salesman,1,1,1,1

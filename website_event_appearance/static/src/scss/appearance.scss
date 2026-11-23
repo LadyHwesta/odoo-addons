@@ -1,0 +1,15 @@
+// Appearances: events someone else runs.
+.o_wevent_appearance_badge {
+    align-self: flex-start;
+    width: fit-content;
+    background-color: $primary;
+    color: color-contrast($primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.o_wevent_appearance_material img {
+    width: 9rem;
+    height: 9rem;
+    object-fit: cover;
+}

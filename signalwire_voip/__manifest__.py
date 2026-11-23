@@ -1,44 +1,49 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SignalWire VoIP',
-    'version': '19.0.1.5.0',
+    'name': 'VoIP',
+    'version': '19.0.1.13.0',
     'category': 'Productivity/VOIP',
-    'summary': 'Core SignalWire connector - projects, subprojects, phone numbers',
+    'summary': 'Phone service: accounts, sub-accounts and phone numbers',
     'description': """
-SignalWire VoIP
-===============
+VoIP
+====
 
-Core connector for `SignalWire <https://signalwire.com/>`_, a Twilio-
-API-compatible communications platform - foundation for reselling VoIP
-service, click-to-call, and SMS built on top of it in separate modules.
+The foundation of the phone system: the connection to your phone
+provider, sub-accounts, and phone numbers (search, buy, release).
+Calling, voicemail and text messages are added by the other VoIP
+modules.
 
-This module alone provides:
+- **Phone Accounts**: the connection settings and a connection test.
+- **Sub-accounts**: one per customer, keeping their numbers and calls
+  separate.
+- **Phone Numbers**: search, buy and release numbers.
 
-- ``signalwire.server``: one project's connection settings (Space,
-  Project ID, API Token) and a connection test.
-- ``signalwire.subproject``: a provisioned container for one resold
-  customer (a SignalWire "subproject"/subaccount) - subprojects share
-  the parent project's balance, so this is about resource isolation
-  (a customer's own numbers, calls, recordings), not separate billing.
-- ``signalwire.phone_number``: search, purchase, and release phone
-  numbers within a subproject.
-
-See ``README.md`` for what's been live-verified against a real
-SignalWire account and what hasn't yet.
+Provider setup notes are in ``README.md``.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['mail'],
     'data': [
+        'security/signalwire_reseller_security.xml',
         'security/ir.model.access.csv',
         'security/signalwire_phone_number_security.xml',
         'wizards/signalwire_phone_number_search_views.xml',
         'views/signalwire_server_views.xml',
         'views/signalwire_subproject_views.xml',
         'views/signalwire_phone_number_views.xml',
+        'views/signalwire_e911_views.xml',
+        'data/ir_cron_e911.xml',
+        'views/signalwire_dashboard_views.xml',
         'views/menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'signalwire_voip/static/src/dashboard/voip_dashboard.esm.js',
+            'signalwire_voip/static/src/dashboard/voip_dashboard.xml',
+            'signalwire_voip/static/src/dashboard/voip_dashboard.scss',
+        ],
+    },
     'installable': True,
     'application': False,
 }

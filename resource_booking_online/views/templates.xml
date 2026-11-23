@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <template id="book_index" name="Book an Appointment">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Book an appointment</t>
+            <div id="wrap">
+                <div class="container py-5" style="max-width: 720px;">
+                    <h1 class="mb-4">Book an appointment</h1>
+                    <p t-if="not types" class="text-muted">There are no appointments to book online
+                        right now. Please get in touch instead.</p>
+                    <div class="list-group">
+                        <a t-foreach="types" t-as="booking_type" class="list-group-item list-group-item-action py-3"
+                           t-attf-href="/book/#{booking_type.id}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong t-out="booking_type.name" />
+                                <span class="text-muted small">
+                                    <t t-out="booking_type.duration"
+                                       t-options="{'widget': 'float_time'}" />
+                                    <t t-if="booking_type.video_appointment"> · video</t>
+                                </span>
+                            </div>
+                            <p t-if="booking_type.online_description" class="mb-0 mt-1 small text-muted"
+                               t-out="booking_type.online_description" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="book_type" name="Book an Appointment: Your Details">
+        <t t-call="website.layout">
+            <t t-set="additional_title" t-value="type.name" />
+            <div id="wrap">
+                <div class="container py-5" style="max-width: 640px;">
+                    <h1 class="h2 mb-1" t-out="type.name" />
+                    <p class="text-muted">
+                        <t t-out="type.duration" t-options="{'widget': 'float_time'}" />
+                        <t t-if="type.video_appointment"> · by video: the link comes with your
+                            confirmation</t>
+                    </p>
+                    <p t-if="type.online_description" t-out="type.online_description" />
+                    <div t-if="error" class="alert alert-warning" role="alert" t-out="error" />
+                    <form method="post" class="border rounded p-3">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <div class="d-none" aria-hidden="true">
+                            <label for="o_book_website">Leave this empty</label>
+                            <input id="o_book_website" name="website" tabindex="-1" autocomplete="off" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="o_book_name">Your name</label>
+                            <input class="form-control" id="o_book_name" name="name" required="1"
+                                   maxlength="100" t-att-value="name" autocomplete="name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="o_book_email">Email</label>
+                            <input class="form-control" id="o_book_email" name="email" type="email"
+                                   required="1" maxlength="254" t-att-value="email" autocomplete="email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="o_book_phone">Phone (optional)</label>
+                            <input class="form-control" id="o_book_phone" name="phone" type="tel"
+                                   maxlength="40" t-att-value="phone" autocomplete="tel" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Next: pick a time</button>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

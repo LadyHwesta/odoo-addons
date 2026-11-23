@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- A Gigs tab on products sold for gigs. Gig Gear adds its list here. -->
+    <record id="product_template_form_gig" model="ir.ui.view">
+        <field name="name">product.template.form.gig</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page string="Gigs" name="gigs" invisible="not sale_ok" groups="sales_team.group_sale_salesman">
+                    <group name="gig_billing">
+                        <field name="gig_bill_hours"/>
+                        <field name="gig_booked_todo" placeholder="e.g. Get the venue's equipment list&#10;Ask the client for the house sound system details and research it before the gig."/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

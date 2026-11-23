@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_financial_report.menu_oca_reports" model="ir.ui.menu">
+        <field name="name">Financial Reports</field>
+    </record>
+
+    <record id="journal_dashboard_import_label" model="ir.ui.view">
+        <field name="name">account.journal.dashboard.import.label</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account_statement_import_file.journal_dashboard_view_inherit" />
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='import_account_statement']/span" position="replace">
+                <span>Import File</span>
+            </xpath>
+            <xpath expr="//a[@name='import_account_statement']" position="replace">
+                <a type="object" name="import_account_statement">Import Statement</a>
+            </xpath>
+        </field>
+    </record>
+</odoo>

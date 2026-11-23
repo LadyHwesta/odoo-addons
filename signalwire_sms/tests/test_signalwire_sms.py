@@ -89,3 +89,18 @@ class TestSignalWireSms(TransactionCase):
             message._forward_to_customer_webhook()  # should not raise
 
         self.assertIn('boom', message.webhook_status)
+
+    def test_dashboard_counts_todays_texts(self):
+        from unittest.mock import MagicMock, patch
+        self._sms('inbound')
+        self._sms('inbound')
+        self._sms('outbound', from_number='+12084449665', to_number='+15556102107')
+        client = MagicMock()
+        client.compat_get.return_value = {'calls': []}
+        with patch('odoo.addons.signalwire_voip.models.signalwire_server.'
+                   'SignalWireServer._get_client', return_value=client):
+            data = self.env['signalwire.dashboard'].get_dashboard_data(refresh=True)
+        tile = next(t for t in data['tiles'] if t['key'] == 'texts_today')
+        self.assertEqual(tile['value'], 2)
+        self.assertEqual(tile['hint'], '1 sent')
+        self.assertEqual(tile['action']['res_model'], 'signalwire.sms')

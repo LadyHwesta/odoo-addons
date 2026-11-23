@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_gig_load_in" model="ir.actions.report">
+        <field name="name">Gig Sheet</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sale_gig_booking.report_gig_load_in</field>
+        <field name="report_file">sale_gig_booking.report_gig_load_in</field>
+        <field name="print_report_name">'Gig - %s - %s' % (object.venue_name or object.partner_id.name, object.gig_date or '')</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Everything about one gig: when, where, who to ask, what was booked,
+         the timeline. The gear module adds its checklist at #gig_gear and
+         the song module its request card as a last page at #gig_music. -->
+    <template id="report_gig_load_in">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.internal_layout">
+                    <t t-set="times" t-value="o._gig_sheet_times()"/>
+                    <div class="page">
+                        <h2 class="mb-1">
+                            <span t-out="o.venue_name or o.partner_id.name"/>
+                        </h2>
+                        <p class="lead mb-3">
+                            <span t-field="o.gig_date" t-options="{'widget': 'date', 'format': 'EEEE d MMMM yyyy'}"/>
+                            <span t-if="o.gig_type"> · <span t-field="o.gig_type"/></span>
+                            <span class="text-muted"> · <span t-field="o.name"/></span>
+                        </p>
+
+                        <table class="table table-sm table-borderless mb-3" id="gig_when_where">
+                            <tr>
+                                <th style="width: 22%">Load-in</th>
+                                <td><strong t-out="times['load_in'] or '-'"/></td>
+                                <th style="width: 22%">Set</th>
+                                <td><strong t-out="times['start'] or '-'"/> to <strong t-out="times['end'] or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <th>Venue</th>
+                                <td colspan="3">
+                                    <span t-field="o.venue_name"/>
+                                    <div t-if="o.venue_address" t-field="o.venue_address" class="text-muted"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>On-site contact</th>
+                                <td>
+                                    <span t-out="o.gig_contact_name or '-'"/>
+                                    <div t-if="o.gig_contact_phone" t-out="o.gig_contact_phone"/>
+                                </td>
+                                <th>Client</th>
+                                <td>
+                                    <span t-out="o.partner_id.name"/>
+                                    <div t-if="o.partner_id.phone" t-out="o.partner_id.phone"/>
+                                    <div t-if="o.partner_id.email" t-out="o.partner_id.email"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Booking</th>
+                                <td><span t-field="o.name"/> · <span t-field="o.state"/></td>
+                                <th>Total</th>
+                                <td><span t-field="o.amount_total"/></td>
+                            </tr>
+                            <tr t-if="o.user_id">
+                                <th>Booked by</th>
+                                <td colspan="3">
+                                    <span t-out="o.user_id.name"/>
+                                    <t t-if="o.user_id.phone"> · <t t-out="o.user_id.phone"/></t>
+                                </td>
+                            </tr>
+                            <tr t-if="o.guest_count or o.gig_setting">
+                                <th>Guests</th>
+                                <td t-out="o.guest_count or '-'"/>
+                                <th>Setting</th>
+                                <td><span t-field="o.gig_setting"/></td>
+                            </tr>
+                        </table>
+
+                        <div id="gig_booked" class="mb-3">
+                            <h4>Booked</h4>
+                            <ul class="mb-0">
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <li t-if="not line.display_type">
+                                        <t t-if="line.product_uom_qty != 1"><span t-out="line.product_uom_qty" t-options="{'widget': 'float', 'precision': 0}"/> × </t>
+                                        <span t-out="line.name"/>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+
+                        <div id="gig_timeline" t-if="o.gig_timeline_ids" class="mb-3">
+                            <h4>Timeline</h4>
+                            <table class="table table-sm">
+                                <tr t-foreach="o.gig_timeline_ids" t-as="line">
+                                    <td style="width: 12%; font-variant-numeric: tabular-nums"><strong t-out="line._hhmm()"/></td>
+                                    <td>
+                                        <span t-out="line.moment"/>
+                                        <div t-if="line.note" class="text-muted" t-out="line.note"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="gig_notes" t-if="o.gig_load_in_notes" class="mb-3">
+                            <h4>Load-in notes</h4>
+                            <div t-field="o.gig_load_in_notes"/>
+                        </div>
+
+                        <div id="gig_gear"/>
+                        <div id="gig_music"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

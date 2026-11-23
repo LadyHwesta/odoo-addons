@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SignalWire Voicemail to Helpdesk/CRM',
+    'name': 'VoIP Voicemail to Helpdesk/CRM',
     'version': '19.0.1.0.0',
     'category': 'Productivity/VOIP',
     'summary': "Create or attach a helpdesk ticket, or a CRM lead, straight from a voicemail",
     'description': """
-SignalWire Voicemail to Helpdesk/CRM
-====================================
+VoIP Voicemail to Helpdesk/CRM
+==============================
 
 Adds three actions to a voicemail record:
 

@@ -91,6 +91,26 @@ class CalDAVAccount(models.Model):
             return None
         return value if value > 0 else None
 
+    def action_open_settings(self):
+        """Edit or Add from the Preferences list: this account's own form in
+        a pop-up. Runs with the person's own rights, so only their own
+        accounts (record rule)."""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': self.name or 'CalDAV Calendar',
+            'res_model': 'caldav.account',
+            'view_mode': 'form',
+            'res_id': self.id or False,
+            'target': 'new',
+            'context': {'default_user_id': self.env.uid},
+        }
+
+    def action_remove(self):
+        """Remove from the Preferences list. Events already synced stay in
+        Odoo; they just stop syncing."""
+        self.unlink()
+        return True
+
     def action_caldav_test_connection(self):
         self.ensure_one()
         try:
@@ -128,6 +148,20 @@ class CalDAVAccount(models.Model):
             raise UserError(self.env._('Calendar discovery failed: %s', exc))
         if not calendars:
             raise UserError(self.env._('No calendars were found on this server for this account.'))
+        if len(calendars) == 1:
+            # Nothing to choose: use it, and say so.
+            vals = {'url': calendars[0]['url'], 'sync_status': 'active'}
+            if not self.name or self.name == 'Calendar':
+                vals['name'] = calendars[0]['display_name']
+            self.write(vals)
+            return {
+                'type': 'ir.actions.client', 'tag': 'display_notification',
+                'params': {
+                    'title': self.env._('Calendar found'),
+                    'message': self.env._('Syncing "%s".', calendars[0]['display_name']),
+                    'type': 'success',
+                },
+            }
         wizard = self.env['caldav.calendar.select'].create({
             'account_id': self.id,
             'line_ids': [(0, 0, {
@@ -135,6 +169,7 @@ class CalDAVAccount(models.Model):
                 'url': cal['url'],
             }) for cal in calendars],
         })
+        wizard.selected_line_id = wizard.line_ids[:1]
         return {
             'type': 'ir.actions.act_window',
             'name': self.env._('Select CalDAV Calendar'),
@@ -320,11 +355,19 @@ class CalDAVAccount(models.Model):
                     '(remote wins) and the local edit is lost.',
                     existing.id, self.display_name,
                 )
-            existing.with_context(caldav_no_sync=True).write(vals)
+            # Only what actually changed: core calendar emails every attendee
+            # "Date updated" whenever a write merely includes `start`, so
+            # rewriting an unchanged event on each pull mailed them every
+            # sync. And never those emails for a change made elsewhere: the
+            # phone or other calendar already told whoever it concerns.
+            vals = existing._caldav_changed_vals(vals)
+            if vals:
+                existing.with_context(caldav_no_sync=True, skip_attendee_notification=True).write(vals)
             target = existing
         else:
             vals['user_id'] = self.user_id.id
-            target = Event.with_context(caldav_no_sync=True).create(vals)
+            vals['partner_ids'] = [(6, 0, self.user_id.partner_id.ids)]
+            target = Event.with_context(caldav_no_sync=True, skip_attendee_notification=True).create(vals)
 
         target._caldav_apply_attendees(master_info['attendee_emails'])
         if master_info['rrule']:

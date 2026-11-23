@@ -7,7 +7,7 @@
     </record>
 
     <menuitem id="menu_signalwire_receptionist_panel" name="Receptionist Panel"
-              parent="signalwire_voip.menu_signalwire_root"
+              parent="signalwire_voip.menu_signalwire_section_phones"
               action="action_signalwire_receptionist_panel"
               groups="group_signalwire_receptionist" sequence="1" />
 

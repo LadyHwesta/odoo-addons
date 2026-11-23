@@ -9,15 +9,30 @@
                 <header>
                     <button name="action_test_connection" type="object"
                             string="Test Connection" class="btn-primary" />
+                    <button name="action_import_numbers" type="object"
+                            string="Import Numbers"
+                            help="Load the numbers this account already owns, e.g. when this Odoo is connected to a sub-account set up elsewhere." />
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="name" /></h1>
                     </div>
                     <group>
-                        <field name="space" placeholder="example.signalwire.com" />
+                        <field name="space" placeholder="yourcompany.example.com" />
                         <field name="project_id" />
                         <field name="api_token" password="True" />
+                    </group>
+                    <group string="Webhook Security">
+                        <group>
+                            <field name="signing_key" password="True"
+                                   placeholder="API Credentials &gt; Signing Key" />
+                            <field name="webhook_signature_mode" widget="radio" />
+                        </group>
+                        <group>
+                            <field name="webhook_last_valid" />
+                            <field name="webhook_last_invalid" />
+                            <field name="webhook_last_invalid_path" invisible="not webhook_last_invalid" />
+                        </group>
                     </group>
                 </sheet>
             </form>
@@ -36,7 +51,7 @@
     </record>
 
     <record id="action_signalwire_server" model="ir.actions.act_window">
-        <field name="name">SignalWire Projects</field>
+        <field name="name">Phone Accounts</field>
         <field name="res_model">signalwire.server</field>
         <field name="view_mode">list,form</field>
     </record>

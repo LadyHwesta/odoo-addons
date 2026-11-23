@@ -2,6 +2,7 @@
 from unittest.mock import MagicMock, patch
 
 from odoo.exceptions import UserError
+from odoo.service.model import call_kw
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -215,6 +216,17 @@ class TestResUsersSignalWireSip(TransactionCase):
         plain_user.with_user(plain_user).set_signalwire_call_state('ringing')
 
         self.assertEqual(plain_user.signalwire_call_state, 'ringing')
+
+    def test_set_signalwire_call_state_works_the_way_the_softphone_calls_it(self):
+        # The JS sends orm.call("res.users", "set_signalwire_call_state",
+        # [state]): through call_kw, exactly like the browser's RPC.
+        plain_user = self.env['res.users'].create({
+            'name': 'Plain Agent 4', 'login': 'plain.agent4@example.com'})
+
+        call_kw(self.env['res.users'].with_user(plain_user),
+                'set_signalwire_call_state', ['on_call'], {})
+
+        self.assertEqual(plain_user.signalwire_call_state, 'on_call')
 
     def test_voip_get_info_uses_the_ringback_tone_for_dialtone(self):
         info = self.user._voip_get_info()

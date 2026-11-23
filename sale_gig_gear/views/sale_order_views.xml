@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_gig_gear" model="ir.ui.view">
+        <field name="name">sale.order.form.gig.gear</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_gig_booking.view_order_form_gig"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='gig']" position="after">
+                <page string="Gear" name="gig_gear" invisible="not is_gig">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <strong><field name="gig_gear_progress" class="mb-0"/></strong>
+                        <span class="badge text-bg-danger" invisible="not gig_gear_short">More than you own</span>
+                        <button name="action_gig_load_gear" type="object" string="Add Gear from Packages"
+                                class="btn-secondary btn-sm ms-auto"
+                                help="Adds the gear the booked packages need. Nothing you added is removed."/>
+                        <button name="action_gig_unpack_all" type="object" string="Untick All"
+                                class="btn-link btn-sm" invisible="not gig_gear_line_ids"/>
+                    </div>
+                    <field name="gig_gear_line_ids">
+                        <list editable="bottom" decoration-muted="packed" decoration-danger="short and not packed">
+                            <field name="sequence" widget="handle"/>
+                            <field name="packed" widget="boolean_toggle" nolabel="1"/>
+                            <field name="gear_id"/>
+                            <field name="category" optional="show"/>
+                            <field name="quantity"/>
+                            <field name="owned" optional="hide"/>
+                            <field name="short" column_invisible="1"/>
+                            <field name="note" optional="show"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
