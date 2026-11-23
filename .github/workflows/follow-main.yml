@@ -1,0 +1,20 @@
+# Keeps the 19.0 branch identical to main. Odoo looks for a module's
+# version branch (19.0), and new servers install from it, so it must never
+# fall behind. Fast-forward only: if 19.0 ever gets a commit of its own,
+# this run fails (GitHub emails the owner) instead of overwriting it.
+name: Keep 19.0 level with main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  follow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fast-forward 19.0 to main
+        run: git push origin HEAD:refs/heads/19.0
