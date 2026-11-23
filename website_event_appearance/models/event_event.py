@@ -2,6 +2,15 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
+# On an appearance's form, only these tabs stay: the appearance details and
+# your own notes. Every other tab (Communication, Questions, Entertainment,
+# Logistics, Volunteers, Vendor Map, ...) is about running an event, which the
+# host does; tabs added by modules installed later are hidden too.
+APPEARANCE_FORM_PAGES = {'appearance', 'event_notes'}
+# Fields about registrations and badges, which don't apply either.
+APPEARANCE_HIDDEN_FIELDS = ('seats_limited', 'seats_max', 'badge_format', 'badge_image',
+                            'ticket_instructions')
+
 ENTRY_LABELS = {
     'tickets': "Get tickets",
     'registration': "Register",
@@ -60,6 +69,42 @@ class EventEvent(models.Model):
             if url and not url.startswith(('https://', 'http://')):
                 raise ValidationError(_("The link for %(event)s should start with https://",
                                         event=event.name))
+
+    @api.model
+    def _get_view(self, view_id=None, view_type='form', **options):
+        arch, view = super()._get_view(view_id, view_type, **options)
+        if view_type == 'form' and arch.xpath("//field[@name='is_appearance']"):
+            self._appearance_hide_unused(arch)
+        return arch, view
+
+    @api.model
+    def _appearance_hide_unused(self, arch):
+        """Hide what only matters when we run the event ourselves, whatever
+        module added it: the tabs, the smart buttons (attendees, sales, ...)
+        and the registration and badge fields."""
+        def hide(node):
+            current = (node.get('invisible') or '').strip()
+            if current in ('1', 'True', 'true'):
+                return
+            node.set('invisible', f"({current}) or is_appearance"
+                     if current and current not in ('0', 'False', 'false') else 'is_appearance')
+
+        for page in arch.xpath("//sheet/notebook/page"):
+            if page.get('name') not in APPEARANCE_FORM_PAGES:
+                hide(page)
+        for button in arch.xpath("//div[@name='button_box']/*"):
+            # Keep "Go to Website": the public page is the point of an appearance.
+            if button.get('widget') != 'website_redirect_button':
+                hide(button)
+        for name in APPEARANCE_HIDDEN_FIELDS:
+            for node in arch.xpath(f"//field[@name='{name}'] | //label[@for='{name}']"):
+                parent = node.getparent()
+                # The "Limit Registrations" line and the ticket-instructions block
+                # are a label plus a wrapper: hide the wrapper too.
+                if node.tag == 'field' and parent.tag in ('div', 'group') and parent.get('name') != 'button_box' \
+                        and name in ('seats_limited', 'ticket_instructions'):
+                    hide(parent)
+                hide(node)
 
     @api.depends('is_appearance')
     def _compute_event_registrations_open(self):

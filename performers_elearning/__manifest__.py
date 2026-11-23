@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning: Performers Training',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'category': 'Website/eLearning',
     'summary': "eLearning courses for the Performers Suite: bookings, gear and music, getting booked again",
     'description': """

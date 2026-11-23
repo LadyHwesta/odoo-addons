@@ -208,6 +208,10 @@ PROMOTION = ('channel_promotion', "Getting Booked Again",
             p("On the " + path("Appearance") + " tab: the host, how people get in (tickets sold by the host, "
               "registration with the host, free entry, or just more information), the host's link and the "
               "button's label, and the host's flyer and materials to show on the page."),
+            p("Ticking <strong>Appearance</strong> hides everything that's only for running an event yourself: "
+              "the Tickets, Communication and Questions tabs, entertainment, logistics and the attendee "
+              "buttons. " + path("Notes & Documents") + " stays for your own notes, and "
+              "<strong>Go to Website</strong> shows the public page."),
             shot(M, 'appearance_form.png', "An event set up as an appearance", "an appearance at a festival."),
             callout('fa-bullhorn', "Promote It", "On a booked public gig, <strong>Promote It</strong> creates a "
                     "draft appearance from the gig: add the host's link and flyer, then publish it."),
@@ -355,7 +359,7 @@ def write(module, courses):
     target = os.path.join(ROOT, module, 'data', 'slide_channel_data.xml')
     with open(target, 'w') as f:
         f.write('<?xml version="1.0" encoding="utf-8" ?>\n<!-- Built by performers_elearning/tools/'
-                'build_course_data.py: edit there and rebuild. -->\n<odoo noupdate="1">\n\n' + body + '</odoo>\n')
+                'build_course_data.py: edit there and rebuild. -->\n<odoo noupdate="0">\n\n' + body + '</odoo>\n')
     print(target)
 
 

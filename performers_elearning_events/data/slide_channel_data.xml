@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Built by performers_elearning/tools/build_course_data.py: edit there and rebuild. -->
-<odoo noupdate="1">
+<odoo noupdate="0">
 
     <record id="channel_own_events" model="slide.channel">
         <field name="name">Your Own Events: Paying Talent and the Door</field>

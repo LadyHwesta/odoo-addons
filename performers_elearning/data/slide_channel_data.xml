@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Built by performers_elearning/tools/build_course_data.py: edit there and rebuild. -->
-<odoo noupdate="1">
+<odoo noupdate="0">
 
     <record id="channel_bookings" model="slide.channel">
         <field name="name">Bookings: From Request to Gig Day</field>
@@ -411,7 +411,7 @@
         <field name="name">Gigs at other people's events</field>
         <field name="slide_category">article</field>
         <field name="sequence">11</field>
-        <field name="html_content" type="html"><div class="oe-course-content"><p>An event someone else runs, where you're performing, is an <strong>Appearance</strong>: tick it on the event. Your website lists it with your own events, with a badge ("Performing"), but nothing is sold or registered in Odoo.</p><p>On the <span class="oe-path">Appearance</span> tab: the host, how people get in (tickets sold by the host, registration with the host, free entry, or just more information), the host's link and the button's label, and the host's flyer and materials to show on the page.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/appearance_form.png" alt="An event set up as an appearance" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>an appearance at a festival.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-bullhorn" /></span><div><span class="oe-callout-label">Promote It</span><p>On a booked public gig, <strong>Promote It</strong> creates a draft appearance from the gig: add the host's link and flyer, then publish it.</p></div></div></div></field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>An event someone else runs, where you're performing, is an <strong>Appearance</strong>: tick it on the event. Your website lists it with your own events, with a badge ("Performing"), but nothing is sold or registered in Odoo.</p><p>On the <span class="oe-path">Appearance</span> tab: the host, how people get in (tickets sold by the host, registration with the host, free entry, or just more information), the host's link and the button's label, and the host's flyer and materials to show on the page.</p><p>Ticking <strong>Appearance</strong> hides everything that's only for running an event yourself: the Tickets, Communication and Questions tabs, entertainment, logistics and the attendee buttons. <span class="oe-path">Notes &amp; Documents</span> stays for your own notes, and <strong>Go to Website</strong> shows the public page.</p><div class="oe-diagram"><img src="/performers_elearning/static/img/appearance_form.png" alt="An event set up as an appearance" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>an appearance at a festival.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-bullhorn" /></span><div><span class="oe-callout-label">Promote It</span><p>On a booked public gig, <strong>Promote It</strong> creates a draft appearance from the gig: add the host's link and flyer, then publish it.</p></div></div></div></field>
     </record>
     <record id="channel_promotion_s2" model="slide.slide">
         <field name="channel_id" ref="channel_promotion" />

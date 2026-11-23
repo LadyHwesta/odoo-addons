@@ -23,8 +23,12 @@ alongside your own events, but nothing is sold or registered in Odoo.
 For an appearance, `event_registrations_open` is always false, so Odoo's
 own Register button, tickets and "Registrations Closed" notices don't
 show, and the registration routes (`/registration/new`,
-`/registration/confirm`) answer 404 even if posted directly. The Tickets
-tab is hidden on the form. Everything else about the event (dates, venue,
+`/registration/confirm`) answer 404 even if posted directly. On the form,
+only the Appearance and Notes & Documents tabs show: Tickets,
+Communication, Questions and any tab another module adds for running an
+event (entertainment, logistics, volunteers, ...) are hidden, as are the
+attendee and sales buttons (Go to Website stays), the registration limit and the badge and
+ticket-instruction fields. Everything else about the event (dates, venue,
 map, description, tags, website) works as usual.
 
 ## Built for

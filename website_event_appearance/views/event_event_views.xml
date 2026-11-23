@@ -11,9 +11,6 @@
                 <field name="appearance_host_id" invisible="not is_appearance"
                        placeholder="The venue, promoter or organisation"/>
             </field>
-            <xpath expr="//notebook/page[@name='tickets']" position="attributes">
-                <attribute name="invisible">is_appearance</attribute>
-            </xpath>
             <xpath expr="//notebook/page[@name='tickets']" position="before">
                 <page string="Appearance" name="appearance" invisible="not is_appearance">
                     <div class="alert alert-info" role="alert">

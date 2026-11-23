@@ -68,3 +68,21 @@ class TestAppearance(HttpCase):
         self.appearance.write({'appearance_entry': 'free', 'appearance_url': False})
         self.assertFalse(self.appearance.appearance_button_label)
         self.assertIn('Free entry', self.url_open(f'/event/{self.appearance.id}/register').text)
+
+    def test_form_shows_only_what_an_appearance_needs(self):
+        """Tabs, buttons and fields for running an event are hidden on an
+        appearance's form, including tabs from other modules."""
+        from lxml import etree
+        arch = etree.fromstring(self.env['event.event'].get_views([(False, 'form')])['views']['form']['arch'])
+        pages = {page.get('name'): page.get('invisible') or '' for page in arch.xpath('//sheet/notebook/page')}
+        self.assertEqual(pages['appearance'], 'not is_appearance')
+        self.assertNotIn('is_appearance', pages['event_notes'])
+        for name, invisible in pages.items():
+            if name not in ('appearance', 'event_notes'):
+                self.assertIn('is_appearance', invisible, f"tab {name} should be hidden on an appearance")
+        self.assertTrue(arch.xpath("//div[@name='button_box']/field[@widget='website_redirect_button']"))
+        for button in arch.xpath("//div[@name='button_box']/*[not(@widget='website_redirect_button')]"):
+            self.assertTrue(button.get('invisible') == '1' or 'is_appearance' in (button.get('invisible') or ''))
+        for name in ('seats_limited', 'ticket_instructions', 'badge_format'):
+            self.assertIn('is_appearance', arch.xpath(f"//field[@name='{name}']")[0].get('invisible'))
+        self.assertNotIn('is_appearance', arch.xpath("//field[@name='note']")[0].get('invisible') or '')
