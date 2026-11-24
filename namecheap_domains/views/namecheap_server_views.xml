@@ -65,6 +65,8 @@
                 <field name="renew_cost" readonly="1" />
                 <field name="sell_register_price" />
                 <field name="sell_renew_price" />
+                <field name="transfer_cost" readonly="1" optional="hide" />
+                <field name="sell_transfer_price" optional="show" />
             </list>
         </field>
     </record>

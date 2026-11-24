@@ -31,22 +31,28 @@ class NamecheapTldPrice(models.Model):
     tld = fields.Char(required=True, help='Without the leading dot, e.g. "com".')
     register_cost = fields.Float(string="Namecheap Cost (1yr register)")
     renew_cost = fields.Float(string="Namecheap Cost (1yr renew)")
+    transfer_cost = fields.Float(
+        string="Namecheap Cost (transfer)",
+        help="Transferring a domain in, which adds a year to it.")
     sell_register_price = fields.Float(
         string="Sell Price (register)", compute='_compute_sell_prices', store=True)
     sell_renew_price = fields.Float(
         string="Sell Price (renew)", compute='_compute_sell_prices', store=True)
+    sell_transfer_price = fields.Float(
+        string="Sell Price (transfer)", compute='_compute_sell_prices', store=True)
     active = fields.Boolean(default=True)
 
     _tld_server_uniq = models.Constraint(
         'unique(server_id, tld)',
         "There's already a cached price for this TLD on this server.")
 
-    @api.depends('register_cost', 'renew_cost', 'server_id.markup_percentage')
+    @api.depends('register_cost', 'renew_cost', 'transfer_cost', 'server_id.markup_percentage')
     def _compute_sell_prices(self):
         for price in self:
             markup = 1 + (price.server_id.markup_percentage or 0.0) / 100.0
             price.sell_register_price = price.register_cost * markup
             price.sell_renew_price = price.renew_cost * markup
+            price.sell_transfer_price = price.transfer_cost * markup
 
     @api.model
     def _sync_from_namecheap(self, server):
@@ -70,11 +76,11 @@ class NamecheapTldPrice(models.Model):
         client = server._get_client()
         result = client.call(
             'namecheap.users.getPricing', timeout=PRICING_TIMEOUT, ProductType='domain')
-        costs = {}  # tld -> {'register': x, 'renew': y}
+        costs = {}  # tld -> {'register': x, 'renew': y, 'transfer': z}
         for product_type in result.iter('ProductType'):
             for product_category in product_type.iter('ProductCategory'):
                 key = product_category.get('Name')
-                if key not in ('register', 'renew'):
+                if key not in ('register', 'renew', 'transfer'):
                     continue
                 for product in product_category.iter('Product'):
                     tld = (product.get('Name') or '').lower()
@@ -96,6 +102,7 @@ class NamecheapTldPrice(models.Model):
             vals = {
                 'register_cost': values.get('register', 0.0),
                 'renew_cost': values.get('renew', 0.0),
+                'transfer_cost': values.get('transfer', 0.0),
             }
             if tld in existing:
                 existing[tld].write(vals)

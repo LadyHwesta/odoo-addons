@@ -140,10 +140,13 @@ Worth a live pass once that exists.
   with real money.
 - **USD only.** The pricing cache assumes one currency; multi-currency
   storefronts aren't in scope.
-- **Domain transfers not built.** `namecheap.domains.transfer.create`
-  exists and is possible for a specific allowlist of TLDs, but wasn't
-  scoped for this build - a real follow-up if the business wants to
-  accept transfers-in later.
+- **Transfers in: API calls only here.** `namecheap.server` has
+  `transfer_domain` (`domains.transfer.create`), `get_transfer_status`
+  (`transfer.getStatus`, classified completed / cancelled / in progress),
+  `resubmit_transfer` (`transfer.updateStatus`) and `get_domain_dates`
+  (`domains.getInfo`), and the price sheet keeps transfer costs and sell
+  prices. Shapes from Namecheap's official Go SDK, not yet run against
+  Namecheap. Selling transfers is up to a module on top (e.g. a shop).
 
 ## Testing
 

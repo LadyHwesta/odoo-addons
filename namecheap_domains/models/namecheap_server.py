@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from datetime import datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -147,6 +148,83 @@ class NamecheapServer(models.Model):
         self._get_client().call(
             'namecheap.domains.dns.setCustom',
             SLD=sld, TLD=tld, NameServers=','.join(nameservers))
+
+    # -- Transfers in -------------------------------------------------------
+    # Commands and fields as in Namecheap's official Go SDK
+    # (github.com/namecheap/go-namecheap-sdk, namecheap/domains_transfer_*.go,
+    # read 2026-11-24): Namecheap's own docs pages refuse automated fetching.
+
+    def transfer_domain(self, domain_name, years, epp_code):
+        """Start a transfer in (domains.transfer.create). Namecheap charges the
+        account's balance and adds `years` to the domain. Its contacts come
+        across with it, so none are sent.
+
+        :return: dict with transfer_id, status_id, order_id, charged (float)
+        :raises NamecheapAPIError: e.g. an extension that can't be
+            transferred through the API, or an insufficient balance.
+        """
+        self.ensure_one()
+        result = self._get_client().call(
+            'namecheap.domains.transfer.create', DomainName=domain_name, Years=years,
+            EPPCode=epp_code, AddFreeWhoisguard='yes', WGenable='yes')
+        node = result.find('DomainTransferCreateResult')
+        if node is None or not node.get('TransferID'):
+            raise UserError(_("Namecheap didn't return a transfer for %(domain)s.",
+                              domain=domain_name))
+        return {
+            'transfer_id': int(node.get('TransferID')),
+            'status_id': int(node.get('StatusID') or 0),
+            'order_id': int(node.get('OrderID') or 0),
+            'charged': float(node.get('ChargedAmount') or 0.0),
+        }
+
+    def get_transfer_status(self, transfer_id):
+        """Where a transfer stands (domains.transfer.getStatus).
+
+        :return: (state, status text), state one of 'completed', 'cancelled'
+            or 'in_progress', classified as the SDK does: Namecheap's status
+            texts vary, but end in "complete" or "cancel".
+        """
+        self.ensure_one()
+        result = self._get_client().call(
+            'namecheap.domains.transfer.getStatus', TransferID=transfer_id)
+        node = result.find('DomainTransferGetStatusResult')
+        status = (node.get('Status') if node is not None else '') or ''
+        lowered = status.strip().lower()
+        if 'complete' in lowered:
+            state = 'completed'
+        elif 'cancel' in lowered:
+            state = 'cancelled'
+        else:
+            state = 'in_progress'
+        return state, status.strip()
+
+    def resubmit_transfer(self, transfer_id):
+        """Try a stuck transfer again (domains.transfer.updateStatus, Resubmit),
+        e.g. once the domain has been unlocked at the old registrar."""
+        self.ensure_one()
+        self._get_client().call(
+            'namecheap.domains.transfer.updateStatus', TransferID=transfer_id,
+            Resubmit='true')
+
+    def get_domain_dates(self, domain_name):
+        """(created, expires) as dates, from domains.getInfo; dates come as
+        M/D/YYYY."""
+        self.ensure_one()
+        result = self._get_client().call('namecheap.domains.getInfo', DomainName=domain_name)
+        details = result.find('DomainGetInfoResult/DomainDetails')
+
+        def parse(tag):
+            text = (details.findtext(tag) if details is not None else '') or ''
+            text = text.strip().split(' ')[0]
+            for fmt in ('%m/%d/%Y', '%m/%d/%y', '%Y-%m-%d'):
+                try:
+                    return datetime.strptime(text, fmt).date()
+                except ValueError:
+                    continue
+            return False
+
+        return parse('CreatedDate'), parse('ExpiredDate')
 
     def _get_available_balance(self):
         """Namecheap's real account balance right now, in whatever
