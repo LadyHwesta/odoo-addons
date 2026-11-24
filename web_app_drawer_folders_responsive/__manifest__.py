@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'App Drawer Folders: Full-Screen Grid',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Hidden/Tools',
     'summary': "Folder headings in web_responsive's full-screen app grid",
     'author': 'Tiesa',

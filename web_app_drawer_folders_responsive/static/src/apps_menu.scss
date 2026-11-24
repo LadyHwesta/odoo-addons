@@ -10,3 +10,13 @@
     font-size: 0.8rem;
     opacity: 0.85;
 }
+
+// Installed as an app (PWA), Odoo makes the navbar sticky, so the full-screen
+// app grid inside it can only paint as high as the navbar itself. OCA's
+// web_responsive lifts the open navbar to 1000, but Odoo's own sticky bars
+// (a form's status bar, report headers) sit at $zindex-sticky (1020) and
+// still showed through the open grid (crm, 2026-11-24). $zindex-fixed (1030)
+// clears them and stays under dialogs ($zindex-modal).
+.o_apps_menu_opened .o_main_navbar {
+    z-index: $zindex-fixed !important;
+}
