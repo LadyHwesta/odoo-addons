@@ -329,12 +329,17 @@ class MyDay(models.AbstractModel):
         }
 
     def _my_day_section_leads(self, today):
-        """My open leads and opportunities, next step due first; plus new
-        leads in my sales teams that nobody has picked up."""
+        """My open leads and opportunities (the pipeline's working stages:
+        New, Qualified, Proposition...), next step due first; plus new leads
+        in my sales teams that nobody has picked up."""
         Lead = self._my_day_model('crm.lead')
         if Lead is None:
             return None
-        open_ = [('won_status', '!=', 'won')] + self._my_day_company_domain(Lead)
+        # Live ones only: not archived (lost leads are archived), not won, and not
+        # in a stage folded away in the pipeline (a parking column like "Archived").
+        open_ = [('active', '=', True), ('won_status', '!=', 'won'),
+                 '|', ('stage_id', '=', False), '&', ('stage_id.is_won', '=', False), ('stage_id.fold', '=', False),
+                 ] + self._my_day_company_domain(Lead)
         mine = open_ + [('user_id', '=', self.env.uid)]
         leads = Lead.search(mine, order='priority desc, id desc', limit=100)
         far = today + timedelta(days=36500)

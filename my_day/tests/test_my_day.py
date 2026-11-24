@@ -121,6 +121,11 @@ class TestMyDay(TransactionCase):
                                  user_id=self.user.id)
         fresh = Lead.create({'name': 'Website enquiry', 'user_id': False, 'team_id': team.id})
         Lead.create({'name': 'Other team', 'user_id': False})
+        Lead.create({'name': 'Gone quiet', 'user_id': self.user.id, 'team_id': team.id, 'active': False})
+        parked = self.env['crm.stage'].create({'name': 'Archived', 'fold': True, 'sequence': 90})
+        Lead.create({'name': 'Parked', 'user_id': self.user.id, 'team_id': team.id, 'stage_id': parked.id})
+        won = self.env['crm.stage'].search([('is_won', '=', True)], limit=1)
+        Lead.create({'name': 'Signed', 'user_id': self.user.id, 'team_id': team.id, 'stage_id': won.id})
         section = self._section(self.MyDay.get_day(), 'leads')
         names = [i['name'] for i in section['items']]
         self.assertEqual(names, ['Corporate party', 'Wedding in June', 'Website enquiry'])

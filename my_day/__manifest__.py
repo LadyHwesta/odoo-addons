@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'My Day',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.1.1',
     'category': 'Productivity',
     'summary': "A start screen to plan and work through your day, across your companies and branches",
     'description': """

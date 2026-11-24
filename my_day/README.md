@@ -37,7 +37,9 @@ see it:
   with the SLA deadline when Helpdesk SLA is installed, and how many are
   unassigned in your teams.
 
-- **Leads** (CRM): your open leads and opportunities, those with a next
+- **Leads** (CRM): your open leads and opportunities in the pipeline's
+  working stages (not archived or lost, not won, not in a folded stage),
+  those with a next
   step overdue or due first (date in red when late), with the contact,
   stage and expected revenue; then the newest unassigned leads in your
   sales teams, with **Take**, and how many are waiting.
