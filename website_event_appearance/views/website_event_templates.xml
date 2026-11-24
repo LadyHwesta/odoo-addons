@@ -5,7 +5,10 @@
          Odoo's registration, and no "Registrations Closed" notice. -->
     <template id="registration_template_appearance" inherit_id="website_event.registration_template"
               name="Appearance: link to the host">
-        <xpath expr="//a[1]" position="before">
+        <!-- Before the box's first element, whatever it is: a website's own
+             edited copy of this box may have no link at all (djembass.com's
+             did, and it stopped crm's Odoo update on 2026-11-23). -->
+        <xpath expr="/*/*[1]" position="before">
             <div t-if="event.is_appearance" class="o_wevent_appearance_cta d-flex flex-column gap-2">
                 <a t-if="event.appearance_url and event.appearance_entry != 'free'"
                    t-att-href="event.appearance_url" target="_blank" rel="noopener"

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Event Appearances',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.1.1',
     'category': 'Marketing/Events',
     'summary': "List events you're performing at, run by someone else: link to their tickets, show their flyer",
     'description': """
