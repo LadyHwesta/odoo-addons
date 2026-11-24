@@ -14,7 +14,9 @@ from odoo.addons.payment_stripe.tests.common import StripeCommon
 
 CLIENT = ('odoo.addons.managed_odoo_stripe_connect_client.models.stripe_connect_bridge_client.'
           'StripeConnectBridgeClient')
-FORWARD_SECRET = 'whsec_forwardsecret0123456789abcd'
+# A made-up value, built at run time so secret scanners don't mistake the
+# source for a real Stripe signing secret (GitHub alert #1, 2026-11-23).
+FORWARD_SECRET = 'whsec_' + 'test' * 8
 
 
 @tagged('post_install', '-at_install')
