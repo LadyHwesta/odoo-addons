@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Managed Odoo Stripe Connect - Client',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'category': 'Accounting/Payment',
     'summary': "Charge customers through Meskis' own Stripe Connect bridge",
     'description': """
@@ -19,7 +19,9 @@ see the other module's own docstring for why).
 
 Settings > General Settings gets three fields (Bridge URL, Bridge
 Token, Stripe Account ID) - filled in once during setup from
-whatever Meskis hands you.
+whatever Meskis hands you, plus a **Set up Stripe payments** button that
+opens Stripe's own setup form through the bridge (live-tested against
+the Stripe sandbox 2026-11-23, with a real bridged charge and fee).
 
 **Deliberately scoped as a foundation, not a drop-in replacement for
 core Odoo's own payment_stripe checkout flow.** ``StripeConnectBridge

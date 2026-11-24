@@ -86,3 +86,16 @@ class TestResCompanyStripeConnectBridge(TransactionCase):
         client = company._get_stripe_connect_bridge_client()
         self.assertIsInstance(client, StripeConnectBridgeClient)
         self.assertEqual(client.bridge_token, 'tok-abc123')
+
+
+class TestSetUpStripePaymentsButton(TransactionCase):
+
+    def test_button_opens_a_fresh_onboarding_link_from_the_bridge(self):
+        self.env.company.write({'stripe_connect_bridge_url': 'https://meskis.net',
+                                'stripe_connect_bridge_token': 'tok-abc123'})
+        settings = self.env['res.config.settings'].create({})
+        with patch('requests.post', return_value=_mock_response(
+                json_body={'url': 'https://connect.stripe.com/setup/abc'})):
+            action = settings.action_stripe_connect_onboarding()
+        self.assertEqual(action, {'type': 'ir.actions.act_url',
+                                  'url': 'https://connect.stripe.com/setup/abc', 'target': 'new'})
