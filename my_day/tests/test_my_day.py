@@ -89,6 +89,88 @@ class TestMyDay(TransactionCase):
         self.assertTrue(section['items'][0]['overdue'])
 
 
+    def test_background_built_in_own_picture_and_none(self):
+        day = self.MyDay.get_day()
+        self.assertEqual(day['background'], '')
+        self.assertEqual(len(day['backgrounds']), 6)
+        url = self.MyDay.set_background('lagoon')
+        self.assertEqual(url, '/my_day/static/src/img/bg_lagoon.jpg')
+        self.assertEqual(self.MyDay.get_day()['background'], url)
+        png = ('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk'
+               '+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')
+        url = self.MyDay.set_background('custom', png)
+        self.assertIn(f'/web/image/res.users/{self.user.id}/my_day_background_image', url)
+        self.assertEqual(self.MyDay.set_background('none'), '')
+
+    def test_sections_have_their_colour_keys(self):
+        keys = [key for _column, key in self.env['my.day']._my_day_sections()]
+        for key in ('sms', 'security', 'leads'):
+            self.assertIn(key, keys)
+
+    def test_leads_mine_first_then_new_in_my_team(self):
+        if 'crm.lead' not in self.env:
+            self.skipTest('CRM not installed')
+        self.user.group_ids |= self.env.ref('sales_team.group_sale_salesman')
+        team = self.env['crm.team'].create({'name': 'Gig sales'})
+        self.env['crm.team.member'].create({'crm_team_id': team.id, 'user_id': self.user.id})
+        Lead = self.env['crm.lead']
+        todo = self.env.ref('mail.mail_activity_data_todo')
+        later = Lead.create({'name': 'Wedding in June', 'user_id': self.user.id, 'team_id': team.id})
+        urgent = Lead.create({'name': 'Corporate party', 'user_id': self.user.id, 'team_id': team.id})
+        urgent.activity_schedule(activity_type_id=todo.id, date_deadline=self.today - timedelta(days=1),
+                                 user_id=self.user.id)
+        fresh = Lead.create({'name': 'Website enquiry', 'user_id': False, 'team_id': team.id})
+        Lead.create({'name': 'Other team', 'user_id': False})
+        section = self._section(self.MyDay.get_day(), 'leads')
+        names = [i['name'] for i in section['items']]
+        self.assertEqual(names, ['Corporate party', 'Wedding in June', 'Website enquiry'])
+        self.assertTrue(section['items'][0]['overdue'])
+        self.assertEqual(section['items'][2]['badge'], 'Unassigned')
+        self.assertIn('1', section['note'])
+        self.env['my.day'].with_user(self.user).browse(fresh.id).take_lead()
+        self.assertEqual(fresh.user_id, self.user)
+        self.assertNotIn('Unassigned', [i.get('badge') for i in self._section(self.MyDay.get_day(), 'leads')['items']])
+        self.assertTrue(later)
+
+    def test_threat_status_only_for_security_officers(self):
+        if 'security.event' not in self.env:
+            self.skipTest('login protection not installed')
+        self.assertIsNone(self._section(self.MyDay.get_day(), 'security'))
+        self.user.group_ids |= self.env.ref('security_auth_guard.group_security_officer')
+        Event = self.env['security.event'].sudo()
+        Event.search([('state', '=', 'new')]).write({'state': 'reviewed'})
+        section = self._section(self.MyDay.get_day(), 'security')
+        self.assertEqual(section['status']['level'], 'ok')
+        Event.create({'event_type': 'ip_blocked', 'severity': 'warning', 'source_ip': '203.0.113.9'})
+        Event.create({'event_type': 'anomaly', 'severity': 'critical', 'detail': 'Bank account changed'})
+        section = self._section(self.MyDay.get_day(), 'security')
+        self.assertEqual(section['status']['level'], 'critical')
+        self.assertTrue(section['items'][0]['overdue'], "critical first")
+        self.assertEqual(section['items'][0]['buttons'][0]['method'], 'action_mark_reviewed')
+
+    def test_texts_mine_and_unassigned_to_answer(self):
+        if 'signalwire.sms' not in self.env or 'handled' not in self.env['signalwire.sms']._fields:
+            self.skipTest('texting not installed')
+        server = self.env['signalwire.server'].create({
+            'name': 'Test', 'space': 'example.signalwire.com', 'project_id': 'p', 'api_token': 't'})
+        sub = self.env['signalwire.subproject'].create({
+            'name': 'Team', 'server_id': server.id, 'account_sid': 's', 'state': 'active'})
+        number = self.env['signalwire.phone_number'].create({'name': '+12084449665', 'sid': 'pn', 'subproject_id': sub.id})
+        other = new_test_user(self.env, 'day.other', groups='base.group_user')
+        Sms = self.env['signalwire.sms']
+        common = {'phone_number_id': number.id, 'direction': 'inbound', 'from_number': '+15556102107',
+                  'to_number': '+12084449665', 'state': 'received'}
+        Sms.create({**common, 'body': 'Mine', 'user_id': self.user.id})
+        Sms.create({**common, 'body': 'Nobody yet', 'user_id': False})
+        Sms.create({**common, 'body': 'Theirs', 'user_id': other.id})
+        Sms.create({**common, 'body': 'Answered', 'user_id': self.user.id, 'handled': True})
+        Sms.create({**common, 'body': 'We sent this', 'direction': 'outbound'})
+        section = self._section(self.MyDay.get_day(), 'sms')
+        self.assertEqual(sorted(i['meta'] for i in section['items']), ['Mine', 'Nobody yet'])
+        nobody = next(i for i in section['items'] if i['meta'] == 'Nobody yet')
+        self.assertEqual([b['method'] for b in nobody['buttons']], ['action_take', 'action_reply', 'action_mark_handled'])
+
+
 @tagged('post_install', '-at_install')
 class TestMyDayCompanies(TransactionCase):
     """Money per company, within the companies selected in the switcher."""

@@ -104,3 +104,57 @@ class TestSignalWireSms(TransactionCase):
         self.assertEqual(tile['value'], 2)
         self.assertEqual(tile['hint'], '1 sent')
         self.assertEqual(tile['action']['res_model'], 'signalwire.sms')
+
+
+@tagged('post_install', '-at_install')
+class TestSmsAssignment(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        server = cls.env['signalwire.server'].create({
+            'name': 'Test SignalWire', 'space': 'example.signalwire.com',
+            'project_id': 'pid123', 'api_token': 'tok456',
+        })
+        subproject = cls.env['signalwire.subproject'].create({
+            'name': 'Internal Team', 'server_id': server.id, 'account_sid': 'sub-abc', 'state': 'active',
+        })
+        cls.number = cls.env['signalwire.phone_number'].create({
+            'name': '+12084449665', 'sid': 'pn-123', 'subproject_id': subproject.id,
+        })
+
+    _sms = TestSignalWireSms._sms
+
+    def test_sent_texts_are_handled_and_received_ones_wait(self):
+        self.assertTrue(self._sms('outbound').handled)
+        self.assertFalse(self._sms('inbound').handled)
+
+    def test_a_text_to_a_number_that_rings_one_person_goes_to_them(self):
+        if 'route_type' not in self.number._fields:
+            self.skipTest("the phone app's routing isn't installed")
+        user = self.env['res.users'].create({'name': 'Front Desk', 'login': 'front.desk.sms'})
+        self.number.write({'route_type': 'user', 'assigned_user_id': user.id})
+        self.assertEqual(self._sms('inbound').user_id, user)
+        self.number.route_type = 'group'
+        self.assertFalse(self._sms('inbound').user_id)
+
+    def test_take_reply_and_done(self):
+        message = self._sms('inbound')
+        self.assertFalse(message.user_id)
+        message.action_take()
+        self.assertEqual(message.user_id, self.env.user)
+        action = message.action_reply()
+        self.assertTrue(message.handled)
+        self.assertEqual(action['context']['default_to'], '+15556102107')
+        other = self._sms('inbound')
+        other.action_mark_handled()
+        self.assertTrue(other.handled)
+
+    def test_keywords_the_system_answers_are_handled(self):
+        with patch.object(type(self.env['signalwire.sms']), '_send_keyword_reply'):
+            message = self._sms('inbound', body='STOP')
+            message._handle_inbound_keywords()
+        self.assertTrue(message.handled)
+        message = self._sms('inbound', body='Can I move my appointment?')
+        message._handle_inbound_keywords()
+        self.assertFalse(message.handled)

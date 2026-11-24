@@ -56,8 +56,9 @@ SALES = ('channel_sales', "Customers and Sales",
     'base.group_user', [
     ("Your day", [
         ("Starting on My Day", ''.join([
-            p(path("My Day") + " is a start screen for the day: today's meetings, to-dos, tasks and tickets, "
-              "money owed to you and money due, and quotes waiting on customers, each with a link to the full list."),
+            p(path("My Day") + " is a start screen for the day: today's meetings, to-dos, calls and texts to "
+              "answer, tickets, leads, tasks, money owed to you and money due, and quotes waiting on customers, "
+              "each with a link to the full list."),
             shot(M, 'my_day.png', "My Day with today's schedule, tickets, tasks due and money",
                  "a print shop's My Day: a proof review, a ticket, a task due tomorrow and $1,830 overdue."),
             p("To open it every time you log in, tick <strong>Start on My Day</strong> in your " +
@@ -65,6 +66,13 @@ SALES = ('channel_sales', "Customers and Sales",
               "see their own day."),
             callout('fa-lightbulb-o', "Work from the top", "Plan with the left column (schedule and to-dos), "
                     "then clear the right column (what needs attention) between meetings."),
+            p("<strong>Leads</strong> shows your open leads, the ones with a next step due first, then new leads "
+              "in your sales team that nobody has picked up yet: " + path("Take") + " makes one yours. "
+              "<strong>Texts</strong> works the same way for messages to the business's numbers: take one, "
+              + path("Reply") + ", or mark it " + path("Done") + "."),
+            p("Whoever looks after security also sees <strong>Threat status</strong>: green when all is "
+              "clear, amber when there's something to review, red when it needs you now."),
+            p("Make it yours with the picture button at the top: pick a background, or upload your own photo."),
         ])),
     ]),
     ("Leads to quotes", [

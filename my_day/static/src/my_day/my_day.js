@@ -6,6 +6,22 @@ import { browser } from "@web/core/browser/browser";
 
 const PICKED_KEY = "my_day.companies";
 
+/** Each section's colour; sections other modules add get one from the rest. */
+const SECTION_COLORS = {
+    schedule: "#2f6fdb",
+    todo: "#7c4dcc",
+    phone: "#0f8f84",
+    sms: "#0e86a8",
+    security: "#c0392b",
+    helpdesk: "#e0731a",
+    leads: "#d6407a",
+    tasks: "#4c5bd4",
+    money: "#1e8a4c",
+    quotes: "#b7791f",
+    events: "#b6389c",
+};
+const SPARE_COLORS = ["#2a9d8f", "#8a5cd6", "#d1495b", "#3d7dd8", "#c77d1c", "#5a8f29", "#b04aa0", "#1f8fb3"];
+
 /**
  * My Day: the plan for today on the left, what needs attention on the
  * right. The data comes from my.day.get_day(), within the companies
@@ -19,7 +35,7 @@ export class MyDay extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-        this.state = useState({ day: null, done: {} });
+        this.state = useState({ day: null, done: {}, picking: false });
         onWillStart(() => this.load());
     }
 
@@ -51,6 +67,48 @@ export class MyDay extends Component {
         }
         browser.localStorage.setItem(PICKED_KEY, JSON.stringify(picked));
         await this.load();
+    }
+
+    sectionColor(section) {
+        if (section.color || SECTION_COLORS[section.key]) {
+            return section.color || SECTION_COLORS[section.key];
+        }
+        let hash = 0;
+        for (const char of section.key) {
+            hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+        }
+        return SPARE_COLORS[hash % SPARE_COLORS.length];
+    }
+
+    get backgroundStyle() {
+        const url = this.state.day?.background;
+        return url ? `background-image: url('${url}')` : "";
+    }
+
+    async pickBackground(key) {
+        this.state.day.background = await this.orm.call("my.day", "set_background", [key]);
+        this.state.day.background_key = key;
+        this.state.picking = false;
+    }
+
+    /** Your own picture: read it in the browser, save it on your user. */
+    uploadBackground(ev) {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) {
+            return;
+        }
+        if (!file.type.startsWith("image/")) {
+            this.notification.add(_t("Pick a picture file (JPEG or PNG)."), { type: "warning" });
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const image = String(reader.result).split(",")[1];
+            this.state.day.background = await this.orm.call("my.day", "set_background", ["custom", image]);
+            this.state.day.background_key = "custom";
+            this.state.picking = false;
+        };
+        reader.readAsDataURL(file);
     }
 
     get plan() {
@@ -111,6 +169,10 @@ export class MyDay extends Component {
             const number = typeof result === "string" && result ? result : button.dial;
             this.dial(number);
             this.state.done[this.key(item)] = true;
+        } else if (button.after === "action") {
+            if (result && typeof result === "object") {
+                await this.action.doAction(result, { onClose: () => this.load() });
+            }
         } else if (button.after === "remove") {
             this.state.done[this.key(item)] = true;
             this.notification.add(_t("%(action)s: %(name)s", { action: button.label, name: item.name }), {

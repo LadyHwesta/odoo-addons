@@ -281,8 +281,10 @@ LISTINGS = {
     'my_day': dict(
         name='My Day', glyph='sun',
         tagline='A start screen to plan and work through your day, across your companies and branches',
-        intro=['Today\'s calendar and your to-dos on one side; what needs attention on the other: tasks '
-               'coming due, money owed and due, quotes waiting on customers, this week\'s events.',
+        intro=['Today\'s calendar, your to-dos, and calls and texts to answer on one side; what needs '
+               'attention on the other: threat status for security officers, tickets, leads, tasks coming due, '
+               'money owed and due, quotes waiting on customers, this week\'s events.',
+               'Each section has its own colour, and everyone can pick a background picture or use their own.',
                'It follows the company switcher, so with several companies or branches selected you see '
                'them all, each item marked by company. Make it the first screen after login.'],
         features=[('Plan the day', 'Today\'s meetings with a Join button, to-dos you can tick off, voicemails and callbacks.'),

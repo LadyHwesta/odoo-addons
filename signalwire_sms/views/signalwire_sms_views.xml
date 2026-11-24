@@ -5,7 +5,7 @@
         <field name="name">signalwire.sms.list</field>
         <field name="model">signalwire.sms</field>
         <field name="arch" type="xml">
-            <list create="0" edit="0">
+            <list create="0" edit="0" decoration-bf="direction == 'inbound' and not handled">
                 <header>
                     <button name="action_check_status" type="object" string="Check Status"
                             help="Ask the phone service whether the selected sent texts were delivered." />
@@ -18,10 +18,42 @@
                 <field name="other_number" string="Their Number" />
                 <field name="body" string="Message" />
                 <field name="state" string="Status" widget="badge" optional="show" />
+                <field name="user_id" widget="many2one_avatar_user" optional="show" />
+                <field name="handled" optional="show" />
+                <button name="action_take" type="object" string="Take" icon="fa-hand-paper-o"
+                        invisible="user_id or handled or direction != 'inbound'" />
+                <button name="action_reply" type="object" string="Reply" icon="fa-reply"
+                        invisible="direction != 'inbound'" />
+                <button name="action_mark_handled" type="object" string="Done" icon="fa-check"
+                        invisible="handled" />
                 <field name="phone_number_id" string="Our Number" optional="hide" />
                 <field name="from_number" optional="hide" />
                 <field name="to_number" optional="hide" />
             </list>
+        </field>
+    </record>
+
+    <record id="view_signalwire_sms_search" model="ir.ui.view">
+        <field name="name">signalwire.sms.search</field>
+        <field name="model">signalwire.sms</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="body" string="Message" />
+                <field name="partner_id" string="Contact" />
+                <field name="from_number" string="Their Number"
+                       filter_domain="['|', ('from_number', 'ilike', self), ('to_number', 'ilike', self)]" />
+                <field name="user_id" />
+                <filter name="to_answer" string="To Answer"
+                        domain="[('direction', '=', 'inbound'), ('handled', '=', False)]" />
+                <filter name="mine" string="Assigned to Me" domain="[('user_id', '=', uid)]" />
+                <filter name="unassigned" string="Unassigned" domain="[('user_id', '=', False)]" />
+                <separator />
+                <filter name="inbound" string="Received" domain="[('direction', '=', 'inbound')]" />
+                <filter name="outbound" string="Sent" domain="[('direction', '=', 'outbound')]" />
+                <group>
+                    <filter name="group_user" string="Assigned To" context="{'group_by': 'user_id'}" />
+                </group>
+            </search>
         </field>
     </record>
 

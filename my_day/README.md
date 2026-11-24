@@ -18,14 +18,29 @@ version for review.
   your group, or claimed by you), with **Call back** (dials through your
   softphone and marks it done) and **Done**. Clicking a callback opens what
   it's about (set by the receptionist on the callback), else the contact.
+- **Texts** (with the SignalWire SMS module): texts to the business's own
+  numbers waiting for an answer, yours and the unassigned ones, with
+  **Take**, **Reply** (opens the reply form, from the number it came in
+  on) and **Done**. A text to a number that rings one person is assigned
+  to that person; texts to call-group or menu numbers stay unassigned.
+  Sent texts and the STOP/START/HELP replies the system answers itself
+  count as handled.
 
 **Needs attention** (right), each only if the app is installed and you may
 see it:
 
+- **Threat status** (with Login Protection, `security_auth_guard`), for
+  security officers only: a green / amber / red status in words, counts of
+  new critical and other events, blocked addresses and this week's events,
+  and the new events themselves, critical first, with **Reviewed**.
 - **Helpdesk tickets** (OCA Helpdesk): your open tickets, priority first,
   with the SLA deadline when Helpdesk SLA is installed, and how many are
   unassigned in your teams.
 
+- **Leads** (CRM): your open leads and opportunities, those with a next
+  step overdue or due first (date in red when late), with the contact,
+  stage and expected revenue; then the newest unassigned leads in your
+  sales teams, with **Take**, and how many are waiting.
 - **Tasks due**: your open tasks with a deadline this week or already past.
 - **Money** (for people who handle invoices): overdue customer invoices and
   vendor bills due within a week, as an amount and count **per company**.
@@ -34,6 +49,16 @@ see it:
   (`sale_gig_booking`) is installed.
 
 Click anything to open it; each section has a link to its full list.
+
+## Colour and backgrounds
+
+Each section has its own colour (icon, header tint, count). Sections other
+modules add get one too, or set their own with a `color` key.
+
+The picture button at the top picks a background: none, one of six
+built-in scenes (drawn by `tools/make_backgrounds.py`), or your own photo.
+The choice is per user (also in Preferences); on a picture the page sits on
+frosted panels so it stays readable.
 
 ## Companies and branches
 

@@ -2,11 +2,18 @@
 <templates xml:space="preserve">
 
     <t t-name="my_day.MySection">
-        <section class="o_my_day_section card mb-3">
-            <div class="card-header d-flex align-items-center gap-2 bg-transparent">
-                <i t-attf-class="fa {{ section.icon }} text-muted" aria-hidden="true"/>
+        <section class="o_my_day_section card mb-3" t-attf-style="--my-day-accent: {{ sectionColor(section) }}">
+            <div class="card-header d-flex align-items-center gap-2">
+                <span class="o_my_day_icon" aria-hidden="true"><i t-attf-class="fa {{ section.icon }}"/></span>
                 <h2 class="h6 mb-0 flex-grow-1" t-out="section.title"/>
-                <span t-if="section.count" class="badge rounded-pill text-bg-light" t-out="section.count"/>
+                <span t-if="section.count" class="badge rounded-pill o_my_day_count" t-out="section.count"/>
+            </div>
+            <div t-if="section.status" t-attf-class="o_my_day_status o_my_day_status_{{ section.status.level }} d-flex flex-wrap align-items-center gap-2 px-3 py-2">
+                <span class="o_my_day_status_label fw-bold">
+                    <i t-attf-class="fa {{ section.status.level === 'ok' ? 'fa-check-circle' : section.status.level === 'critical' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle' }} me-1"/>
+                    <t t-out="section.status.label"/>
+                </span>
+                <span t-foreach="section.status.facts" t-as="fact" t-key="fact_index" class="small o_my_day_fact" t-out="fact"/>
             </div>
             <ul class="list-group list-group-flush">
                 <li t-if="!section.items.length" class="list-group-item text-muted small py-3" t-out="section.empty"/>
@@ -18,7 +25,8 @@
                               t-out="item.when"/>
                         <div class="flex-grow-1 text-truncate">
                             <div class="text-truncate" t-out="item.name"/>
-                            <div t-if="item.meta or item.company" class="small text-muted text-truncate">
+                            <div t-if="item.meta or item.company or item.badge" class="small text-muted text-truncate">
+                                <span t-if="item.badge" class="badge o_my_day_badge me-1" t-out="item.badge"/>
                                 <t t-out="item.meta"/>
                                 <span t-if="item.company" class="badge text-bg-secondary fw-normal ms-1" t-out="item.company"/>
                             </div>
@@ -44,9 +52,10 @@
     </t>
 
     <t t-name="my_day.MyDay">
-        <div class="o_my_day o_action h-100 overflow-auto">
+        <div t-attf-class="o_my_day o_action h-100 overflow-auto {{ state.day and state.day.background ? 'o_my_day_has_bg' : '' }}"
+             t-att-style="backgroundStyle">
             <div t-if="state.day" class="container-fluid py-4" style="max-width: 1280px">
-                <header class="d-flex flex-wrap align-items-end gap-3 mb-4">
+                <header class="o_my_day_header d-flex flex-wrap align-items-end gap-3 mb-4">
                     <div class="flex-grow-1">
                         <div class="text-muted text-uppercase small o_my_day_date" t-out="state.day.date"/>
                         <h1 class="mb-0" t-out="state.day.greeting"/>
@@ -61,19 +70,45 @@
                             <t t-out="company.name"/>
                         </button>
                     </div>
-                    <button class="btn btn-light" t-on-click="() => this.load()" title="Refresh">
-                        <i class="fa fa-refresh"/>
-                    </button>
+                    <div class="d-flex gap-1 position-relative">
+                        <button class="btn btn-light" t-on-click="() => this.state.picking = !this.state.picking"
+                                title="Background" aria-label="Choose a background"
+                                t-att-aria-expanded="state.picking ? 'true' : 'false'">
+                            <i class="fa fa-picture-o"/>
+                        </button>
+                        <button class="btn btn-light" t-on-click="() => this.load()" title="Refresh" aria-label="Refresh">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                        <div t-if="state.picking" class="o_my_day_picker card shadow p-3">
+                            <div class="small text-muted text-uppercase mb-2">Background</div>
+                            <div class="o_my_day_swatches">
+                                <button t-attf-class="o_my_day_swatch o_my_day_swatch_none {{ state.day.background_key === 'none' ? 'o_my_day_swatch_on' : '' }}"
+                                        t-att-aria-pressed="state.day.background_key === 'none' ? 'true' : 'false'" t-on-click="() => this.pickBackground('none')"
+                                        title="None">None</button>
+                                <button t-foreach="state.day.backgrounds" t-as="bg" t-key="bg.key"
+                                        t-attf-class="o_my_day_swatch {{ state.day.background_key === bg.key ? 'o_my_day_swatch_on' : '' }}"
+                                        t-att-aria-pressed="state.day.background_key === bg.key ? 'true' : 'false'"
+                                        t-attf-style="background-image: url('{{ bg.url }}')" t-att-title="bg.label"
+                                        t-att-aria-label="bg.label" t-on-click="() => this.pickBackground(bg.key)">
+                                    <span t-out="bg.label"/>
+                                </button>
+                            </div>
+                            <label t-attf-class="btn btn-sm mt-2 mb-0 w-100 {{ state.day.background_key === 'custom' ? 'btn-outline-primary' : 'btn-outline-secondary' }}">
+                                <i class="fa fa-upload me-1"/>Use my own picture
+                                <input type="file" accept="image/*" class="d-none" t-on-change="uploadBackground"/>
+                            </label>
+                        </div>
+                    </div>
                 </header>
                 <div class="row g-4">
                     <div class="col-lg-6">
-                        <h2 class="o_my_day_column text-muted small text-uppercase mb-2">Plan the day</h2>
+                        <h2 class="o_my_day_column small text-uppercase mb-2"><span>Plan the day</span></h2>
                         <t t-foreach="plan" t-as="section" t-key="section.key">
                             <t t-call="my_day.MySection"/>
                         </t>
                     </div>
                     <div class="col-lg-6">
-                        <h2 class="o_my_day_column text-muted small text-uppercase mb-2">Needs attention</h2>
+                        <h2 class="o_my_day_column small text-uppercase mb-2"><span>Needs attention</span></h2>
                         <t t-foreach="attention" t-as="section" t-key="section.key">
                             <t t-call="my_day.MySection"/>
                         </t>

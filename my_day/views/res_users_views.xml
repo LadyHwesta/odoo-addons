@@ -8,6 +8,9 @@
         <field name="arch" type="xml">
             <group name="other_preferences" position="inside">
                 <field name="my_day_home" readonly="0"/>
+                <field name="my_day_background" readonly="0"/>
+                <field name="my_day_background_image" readonly="0" widget="image" class="oe_avatar"
+                       invisible="my_day_background != 'custom'"/>
             </group>
         </field>
     </record>

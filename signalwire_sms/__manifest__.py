@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP Text Messages',
-    'version': '19.0.2.4.2',
+    'version': '19.0.2.5.0',
     'category': 'Productivity/VOIP',
     'summary': 'Two-way text messages with your contacts, logged on their chatter',
     'description': """

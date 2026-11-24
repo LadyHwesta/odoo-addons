@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'My Day',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Productivity',
     'summary': "A start screen to plan and work through your day, across your companies and branches",
     'description': """
 My Day
 ======
 
-A start screen for the working day: today's calendar and your to-dos on one
-side, what needs attention on the other (tasks coming due, money owed and
-due, quotes waiting on customers, this week's events). It follows the
+A start screen for the working day: today's calendar, your to-dos, calls and
+texts to answer on one side, what needs attention on the other (threat
+status for security officers, tickets, leads, tasks coming due, money owed
+and due, quotes waiting on customers, this week's events). Each section has
+its own colour, and everyone can pick a background picture or upload their
+own. It follows the
 company switcher, so with several companies or branches selected you see
 them all, marked by company. Tick "Start on My Day" in your preferences to
 open it after login.

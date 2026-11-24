@@ -84,6 +84,46 @@ class SignalWireSms(models.Model):
              "integration, not something they need to act on from "
              "Odoo's side.")
 
+    user_id = fields.Many2one(
+        'res.users', string="Assigned To", index=True,
+        help="Who answers this text. An incoming text to a number that rings "
+             "one person goes to that person; others stay unassigned until "
+             "someone takes them.")
+    handled = fields.Boolean(
+        index=True,
+        help="Answered or dealt with. Sent texts, and STOP/START/HELP "
+             "replies the system answers itself, count as handled.")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('direction') == 'outbound':
+                vals.setdefault('handled', True)
+            elif vals.get('direction') == 'inbound' and 'user_id' not in vals and vals.get('phone_number_id'):
+                vals['user_id'] = self.env['signalwire.phone_number'].browse(
+                    vals['phone_number_id'])._sms_default_user().id
+        return super().create(vals_list)
+
+    def action_take(self):
+        """Assign the texts to me."""
+        self.write({'user_id': self.env.uid})
+        return True
+
+    def action_mark_handled(self):
+        self.write({'handled': True})
+        return True
+
+    def action_reply(self):
+        """Reply from the number the text came in on; replying handles it."""
+        self.ensure_one()
+        self.write({'handled': True, 'user_id': self.user_id.id or self.env.uid})
+        return {
+            'type': 'ir.actions.act_window', 'res_model': 'signalwire.sms.compose',
+            'name': _("Reply by Text"), 'view_mode': 'form', 'target': 'new',
+            'context': {'default_partner_id': self.partner_id.id, 'default_to': self.other_number,
+                        'default_phone_number_id': self.phone_number_id.id},
+        }
+
     def _log_to_partner_chatter(self):
         """Best-effort match this message to a res.partner by the
         *other* party's number, and log it as a chatter message there.
@@ -149,6 +189,8 @@ class SignalWireSms(models.Model):
                 continue
             keyword = (message.body or '').strip().lower()
             number = message.phone_number_id
+            if keyword in STOP_KEYWORDS | START_KEYWORDS | HELP_KEYWORDS:
+                message.handled = True  # the system answers these itself
             if keyword in STOP_KEYWORDS:
                 message._send_keyword_reply(number.sms_stop_reply_text)
                 if message.partner_id:
@@ -165,8 +207,8 @@ class SignalWireSms(models.Model):
                     message._send_keyword_reply(number.sms_start_reply_text)
             elif keyword in HELP_KEYWORDS:
                 message._send_keyword_reply(number.sms_help_reply_text)
-            elif message.partner_id:
-                message.partner_id._sms_handle_custom_keyword(keyword)
+            elif message.partner_id and message.partner_id._sms_handle_custom_keyword(keyword):
+                message.handled = True
 
     def _send_keyword_reply(self, body):
         self.ensure_one()

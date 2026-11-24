@@ -1,13 +1,64 @@
 .o_my_day {
     background-color: $o-webclient-background-color;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 
     .o_my_day_date,
     .o_my_day_column {
         letter-spacing: 0.06em;
     }
-    .o_my_day_section .card-header {
-        border-bottom-color: $border-color;
+    .o_my_day_column span {
+        color: $text-muted;
     }
+
+    // Each section carries its colour (--my-day-accent): a tinted header,
+    // the icon in a coloured chip, and the count.
+    .o_my_day_section {
+        --my-day-accent: #{$primary};
+        overflow: hidden;
+
+        .card-header {
+            background-color: color-mix(in srgb, var(--my-day-accent) 9%, transparent);
+            border-bottom: 1px solid color-mix(in srgb, var(--my-day-accent) 22%, transparent);
+        }
+    }
+    .o_my_day_icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 50%;
+        color: #fff;
+        background-color: var(--my-day-accent);
+        flex: none;
+    }
+    .o_my_day_count {
+        color: var(--my-day-accent);
+        background-color: color-mix(in srgb, var(--my-day-accent) 14%, transparent);
+    }
+    .o_my_day_badge {
+        color: var(--my-day-accent);
+        background-color: color-mix(in srgb, var(--my-day-accent) 12%, transparent);
+        font-weight: 500;
+    }
+
+    // Threat status: green, amber or red, in words as well as colour.
+    .o_my_day_status {
+        --status: #1e8a4c;
+        background-color: color-mix(in srgb, var(--status) 12%, transparent);
+        border-bottom: 1px solid color-mix(in srgb, var(--status) 25%, transparent);
+    }
+    .o_my_day_status_warning { --status: #c77d1c; }
+    .o_my_day_status_critical { --status: #c0392b; }
+    .o_my_day_status_label { color: var(--status); }
+    .o_my_day_fact + .o_my_day_fact::before {
+        content: "·";
+        margin-right: 0.5rem;
+        color: $text-muted;
+    }
+
     .o_my_day_when {
         min-width: 4.5rem;
         font-variant-numeric: tabular-nums;
@@ -17,6 +68,80 @@
     }
     // Happening now: a mark in the margin, not a colour change.
     .o_my_day_now {
-        box-shadow: inset 3px 0 0 $primary;
+        box-shadow: inset 3px 0 0 var(--my-day-accent);
+    }
+
+    // On a background picture, the page sits on frosted panels so it stays readable.
+    &.o_my_day_has_bg {
+        .o_my_day_header,
+        .o_my_day_column span,
+        .o_my_day_section {
+            background-color: color-mix(in srgb, #{$o-view-background-color} 90%, transparent);
+            backdrop-filter: blur(8px);
+        }
+        .o_my_day_header {
+            border-radius: $border-radius-lg;
+            padding: 0.75rem 1rem;
+        }
+        .o_my_day_section .list-group-item {
+            background-color: transparent;
+        }
+        .o_my_day_column span {
+            display: inline-block;
+            border-radius: 1rem;
+            padding: 0.15rem 0.7rem;
+        }
+    }
+
+    // Above the cards (their frosted glass makes each one its own layer).
+    .o_my_day_header {
+        position: relative;
+        z-index: 5;
+    }
+    .o_my_day_picker {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 0.4rem);
+        z-index: 10;
+        width: 23rem;
+    }
+    .o_my_day_swatches {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.4rem;
+    }
+    .o_my_day_swatch {
+        height: 3.6rem;
+        border: 1px solid $border-color;
+        border-radius: $border-radius;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: flex-end;
+        padding: 0;
+        overflow: hidden;
+
+        span {
+            width: 100%;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.3rem;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.35);
+            text-align: left;
+        }
+        &.o_my_day_swatch_on {
+            outline: 2px solid $primary;
+            outline-offset: 2px;
+        }
+        &:focus-visible {
+            outline: 2px solid $primary;
+            outline-offset: 2px;
+        }
+    }
+    .o_my_day_swatch_none {
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        background-color: $o-webclient-background-color;
     }
 }

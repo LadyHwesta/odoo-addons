@@ -25,6 +25,14 @@ class SignalWirePhoneNumber(models.Model):
              "logging/portal page. Self-service - a customer can set "
              "this themselves from their own portal page.")
     sms_ids = fields.One2many('signalwire.sms', 'phone_number_id', string="Messages")
+
+    def _sms_default_user(self):
+        """Who an incoming text to this number goes to: the number's user
+        when it rings one person (the phone app's routing), else nobody."""
+        self.ensure_one()
+        if self.number_use == 'own' and 'route_type' in self._fields and self.route_type == 'user':
+            return self.assigned_user_id
+        return self.env['res.users']
     sms_count = fields.Integer(compute='_compute_sms_count')
     sms_stop_reply_text = fields.Text(
         string="STOP Reply", default=DEFAULT_STOP_REPLY,

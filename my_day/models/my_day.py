@@ -81,9 +81,10 @@ class MyDay(models.AbstractModel):
     @api.model
     def _my_day_sections(self):
         """Section keys, in order. Left column first, then right."""
-        return [('plan', 'schedule'), ('plan', 'todo'), ('plan', 'phone'),
-                ('attention', 'helpdesk'), ('attention', 'tasks'), ('attention', 'money'),
-                ('attention', 'quotes'), ('attention', 'events')]
+        return [('plan', 'schedule'), ('plan', 'todo'), ('plan', 'phone'), ('plan', 'sms'),
+                ('attention', 'security'), ('attention', 'helpdesk'), ('attention', 'leads'),
+                ('attention', 'tasks'), ('attention', 'money'), ('attention', 'quotes'),
+                ('attention', 'events')]
 
     @api.model
     def get_day(self, company_ids=None):
@@ -113,7 +114,20 @@ class MyDay(models.AbstractModel):
             'companies': [{'id': c.id, 'name': c.name, 'branch': bool(c.parent_id), 'on': c in picked}
                           for c in switcher],
             'sections': sections,
+            'background': self.env.user._my_day_background_url(),
+            'background_key': self.env.user.sudo().my_day_background,
+            'backgrounds': self.env['res.users']._my_day_backgrounds(),
         }
+
+    @api.model
+    def set_background(self, key, image=False):
+        """The current user's background: a built-in key, 'custom' with an
+        uploaded image (base64), or 'none'."""
+        values = {'my_day_background': key}
+        if image:
+            values['my_day_background_image'] = image
+        self.env.user.write(values)
+        return self.env.user._my_day_background_url()
 
     # ---- plan ----
 
@@ -232,7 +246,136 @@ class MyDay(models.AbstractModel):
             return format_time(self.env, value, tz=tz, time_format='short')
         return format_date(self.env, local.date(), date_format='d MMM')
 
+    def _my_day_section_sms(self, today):
+        """Texts to our own numbers waiting for an answer: mine, and the
+        ones nobody has taken yet."""
+        Sms = self._my_day_model('signalwire.sms')
+        if Sms is None or 'handled' not in Sms._fields:
+            return None
+        domain = [('direction', '=', 'inbound'), ('handled', '=', False),
+                  ('phone_number_id.number_use', '=', 'own'),
+                  '|', ('user_id', '=', self.env.uid), ('user_id', '=', False)]
+        tz = self._my_day_tz().zone
+        items = []
+        for sms in Sms.search(domain, order='create_date', limit=LIMIT):
+            who = sms.partner_id.name or sms.from_number
+            text = (sms.body or '').strip().replace('\n', ' ')
+            buttons = [self._my_day_button(_("Take"), 'fa-hand-paper-o', 'signalwire.sms', 'action_take',
+                                           after='reload')] if not sms.user_id else []
+            buttons += [
+                self._my_day_button(_("Reply"), 'fa-reply', 'signalwire.sms', 'action_reply',
+                                    after='action', style='primary'),
+                self._my_day_button(_("Done"), 'fa-check', 'signalwire.sms', 'action_mark_handled',
+                                    style='success'),
+            ]
+            items.append(self._my_day_item(
+                sms, name=_("Text from %s", who),
+                meta=(text[:90] + ('…' if len(text) > 90 else '')),
+                when=self._my_day_when(sms.create_date, today, tz),
+                badge=_("Unassigned") if not sms.user_id else '',
+                record={'model': 'res.partner', 'id': sms.partner_id.id} if sms.partner_id else False,
+                buttons=buttons))
+        return {
+            'title': _("Texts"), 'icon': 'fa-commenting-o', 'count': Sms.search_count(domain), 'items': items,
+            'empty': _("No texts waiting for an answer."),
+            'more': self._my_day_more(_("All texts to answer"), 'signalwire.sms', domain, _("Texts to Answer")),
+        }
+
     # ---- needs attention ----
+
+    def _my_day_section_security(self, today):
+        """Threat status, for the people who look after security."""
+        Event = self._my_day_model('security.event')
+        if Event is None:
+            return None
+        new = [('state', '=', 'new')]
+        counts = dict.fromkeys(('critical', 'warning', 'info'), 0)
+        for severity, count in Event._read_group(new, ['severity'], ['__count']):
+            counts[severity] = count
+        level = 'critical' if counts['critical'] else 'warning' if counts['warning'] else 'ok'
+        facts = [_("%s critical", counts['critical']), _("%s to review", counts['warning'] + counts['info'])]
+        Rule = self._my_day_model('security.ip_rule')
+        if Rule is not None:
+            now = fields.Datetime.now()
+            blocked = Rule.search_count([('action', '=', 'block'), '|', ('expires_at', '=', False),
+                                         ('expires_at', '>', now)])
+            facts.append(_("1 address blocked") if blocked == 1 else _("%s addresses blocked", blocked))
+        week = Event.search_count([('create_date', '>=', fields.Datetime.now() - timedelta(days=7))])
+        facts.append(_("1 event this week") if week == 1 else _("%s events this week", week))
+        rank = {'critical': 0, 'warning': 1, 'info': 2}
+        events = Event.search(new, order='create_date desc', limit=50).sorted(
+            lambda e: (rank.get(e.severity, 3), -e.id))[:LIMIT]
+        types = dict(Event._fields['event_type']._description_selection(self.env))
+        tz = self._my_day_tz().zone
+        items = []
+        for event in events:
+            detail = (event.detail or '').strip().replace('\n', ' ')
+            items.append(self._my_day_item(
+                event, name=" · ".join(filter(None, [types.get(event.event_type), event.source_ip])),
+                meta=" · ".join(filter(None, [event.login, detail[:90]])),
+                when=self._my_day_when(event.create_date, today, tz), overdue=event.severity == 'critical',
+                buttons=[self._my_day_button(_("Reviewed"), 'fa-check', 'security.event', 'action_mark_reviewed',
+                                             style='success')]))
+        return {
+            'title': _("Threat status"), 'icon': 'fa-shield', 'count': sum(counts.values()), 'items': items,
+            'status': {
+                'level': level,
+                'label': {'ok': _("All clear"), 'warning': _("Something to review"),
+                          'critical': _("Needs you now")}[level],
+                'facts': facts,
+            },
+            'empty': _("Nothing new to review."),
+            'more': self._my_day_more(_("All new events"), 'security.event', new, _("Security Events")),
+        }
+
+    def _my_day_section_leads(self, today):
+        """My open leads and opportunities, next step due first; plus new
+        leads in my sales teams that nobody has picked up."""
+        Lead = self._my_day_model('crm.lead')
+        if Lead is None:
+            return None
+        open_ = [('won_status', '!=', 'won')] + self._my_day_company_domain(Lead)
+        mine = open_ + [('user_id', '=', self.env.uid)]
+        leads = Lead.search(mine, order='priority desc, id desc', limit=100)
+        far = today + timedelta(days=36500)
+        leads = leads.sorted(lambda lead: (lead.activity_date_deadline or far, -int(lead.priority or 0)))[:LIMIT]
+        items = []
+        for lead in leads:
+            due = lead.activity_date_deadline
+            when = (_("New") if not due else _("Today") if due == today
+                    else format_date(self.env, due, date_format='d MMM'))
+            amount = format_amount(self.env, lead.expected_revenue, lead.company_currency) \
+                if lead.expected_revenue and lead.company_currency else ''
+            who = lead.partner_id.name or lead.contact_name or lead.partner_name or ''
+            items.append(self._my_day_item(
+                lead, name=lead.name, when=when, overdue=bool(due and due < today),
+                meta=" · ".join(filter(None, [who, lead.stage_id.name, amount]))))
+        Team = self.env['crm.team']
+        teams = Team.search(['|', ('user_id', '=', self.env.uid), ('crm_team_member_ids.user_id', '=', self.env.uid)]) \
+            if Team.has_access('read') else Team
+        unassigned = open_ + [('user_id', '=', False), ('team_id', 'in', teams.ids)]
+        new_leads = Lead.search(unassigned, order='create_date desc', limit=3) if teams else Lead
+        tz = self._my_day_tz().zone
+        for lead in new_leads:
+            items.append(self._my_day_item(
+                lead, name=lead.name, when=self._my_day_when(lead.create_date, today, tz),
+                meta=lead.partner_id.name or lead.contact_name or lead.email_from or '',
+                badge=_("Unassigned"),
+                buttons=[self._my_day_button(_("Take"), 'fa-hand-paper-o', 'my.day', 'take_lead',
+                                             after='reload', style='primary')]))
+        waiting = Lead.search_count(unassigned) if teams else 0
+        return {
+            'title': _("Leads"), 'icon': 'fa-star', 'count': Lead.search_count(mine), 'items': items,
+            'empty': _("No open leads assigned to you."),
+            'note': _("%s unassigned in your teams", waiting) if waiting else '',
+            'more': self._my_day_more(_("All my leads"), 'crm.lead', mine, _("My Leads")),
+        }
+
+    def take_lead(self):
+        """Assign the lead (its id is this record's) to me. Runs with my
+        own rights, so only someone allowed to edit it can take it."""
+        self.env['crm.lead'].browse(self.ids).write({'user_id': self.env.uid})
+        return True
 
     def _my_day_section_helpdesk(self, today):
         Ticket = self._my_day_model('helpdesk.ticket')
