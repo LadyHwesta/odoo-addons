@@ -62,3 +62,30 @@ class StripeConnectBridgeClient:
         return self._post('stripe_connect_bridge/charge', {
             'amount': amount_minor_units, 'currency': currency, 'reference': reference,
         })
+
+    def checkout_config(self):
+        """The platform's publishable key, this instance's Stripe account id and
+        the secret its forwarded payment events are signed with."""
+        return self._post('stripe_connect_bridge/checkout_config', {})
+
+    def relay(self, method, endpoint, data=None, stripe_version=None, idempotency_key=None):
+        """Send one of payment_stripe's Stripe calls through the bridge.
+
+        :return: (HTTP status, body) exactly as Stripe answered, so the caller
+                 can treat it like a direct Stripe response.
+        """
+        try:
+            response = requests.post(
+                f'{self.bridge_url}/stripe_connect_bridge/relay',
+                headers={'Authorization': f'Bearer {self.bridge_token}'},
+                json={'method': method, 'endpoint': endpoint, 'data': data or {},
+                      'stripe_version': stripe_version, 'idempotency_key': idempotency_key},
+                timeout=self.timeout)
+        except requests.RequestException as exc:
+            raise StripeConnectBridgeError(
+                f"Could not reach Meskis' Stripe Connect bridge: {exc}") from exc
+        try:
+            body = response.json()
+        except ValueError:
+            body = {'error': {'message': f'Bridge error {response.status_code}'}}
+        return response.status_code, body

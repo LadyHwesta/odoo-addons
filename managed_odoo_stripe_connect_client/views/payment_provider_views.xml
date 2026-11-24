@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_provider_form" model="ir.ui.view">
+        <field name="name">Stripe Provider Form: payments through Meskis</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment_stripe.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <div name="stripe_onboarding_group" position="attributes">
+                <attribute name="invisible" separator=" or " add="stripe_connect_bridged"/>
+            </div>
+            <group name="stripe_credentials" position="before">
+                <div name="stripe_connect_bridge" invisible="code != 'stripe'"
+                     groups="base.group_system" colspan="2" class="mb-3">
+                    <field name="stripe_connect_bridged" invisible="1"/>
+                    <div invisible="stripe_connect_bridged">
+                        <button string="Take payments through Meskis" type="object"
+                                name="action_stripe_connect_use_bridge" class="btn-primary"/>
+                        <div class="text-muted mt-1">
+                            Runs card payments on your own Stripe account through Meskis.
+                            No keys to copy: finish "Set up Stripe payments" in Settings first.
+                        </div>
+                    </div>
+                    <div invisible="not stripe_connect_bridged">
+                        <div class="alert alert-info mb-2" role="status">
+                            Payments run on your own Stripe account through Meskis. Payment
+                            updates arrive automatically.
+                        </div>
+                        <button string="Stop taking payments through Meskis" type="object"
+                                name="action_stripe_connect_stop_bridge" class="btn-secondary"
+                                confirm="Card payments on this website stop until this provider is set up again. Continue?"/>
+                    </div>
+                </div>
+            </group>
+            <group name="stripe_credentials" position="attributes">
+                <attribute name="invisible" separator=" or " add="stripe_connect_bridged"/>
+            </group>
+            <field name="stripe_secret_key" position="attributes">
+                <attribute name="required">code == 'stripe' and state != 'disabled' and not stripe_connect_bridged</attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Stripe.js must load on the business's own Stripe account. -->
+    <template id="inline_form" inherit_id="payment_stripe.inline_form">
+        <xpath expr="//div[@name='o_stripe_element_container']" position="attributes">
+            <attribute name="t-att-data-stripe-account">provider_sudo._stripe_connect_account_for_js() or None</attribute>
+        </xpath>
+    </template>
+
+    <template id="express_checkout_form" inherit_id="payment_stripe.express_checkout_form">
+        <xpath expr="//div[@name='o_express_checkout_container']" position="attributes">
+            <attribute name="t-att-data-stripe-account">provider_sudo._stripe_connect_account_for_js() or None</attribute>
+        </xpath>
+    </template>
+
+</odoo>

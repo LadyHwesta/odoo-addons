@@ -2,3 +2,4 @@
 from . import stripe_connect_bridge_client
 from . import res_company
 from . import res_config_settings
+from . import payment_provider

@@ -47,26 +47,35 @@ couple of methods, errors normalized into `StripeConnectBridgeError`.
 instance built from the three Settings fields above, raising a clear
 `UserError` if they're not filled in yet.
 
-## Deliberately a foundation, not a drop-in `payment_stripe` replacement
+## Checkout through Meskis
 
-Core Odoo's own `payment_stripe` checkout flow makes several different
-Stripe API calls across one purchase (customer creation, setup
-intents, the inline card-entry UI, then finally the actual charge) -
-transparently proxying *all* of that through the bridge would need a
-much larger, fully generic relay, and wasn't built here. What exists
-now covers the one call that actually matters for monetization - the
-real charge, with the fee correctly applied - callable from anywhere
-in the customer's own Odoo (a custom sale-order confirmation step, an
-invoice "Pay via Stripe Connect" button, etc.).
+The customer keeps core `payment_stripe`'s own checkout: website orders,
+invoice payments, saved cards, manual capture, refunds and Apple/Google Pay.
+On their Stripe provider (Accounting/Website > Payment Providers > Stripe),
+**Take payments through Meskis** asks the bridge for the platform's
+publishable key, their Stripe account id and a forwarding secret, and fills
+the provider in. It then holds no Stripe secret key of its own.
 
-**Not yet wired into an actual self-service checkout page.** Building
-one (collecting a card via Stripe.js/Elements, then calling
-`create_payment_intent`) is real follow-on work - flagged here plainly
-rather than implied to already exist.
+- Every Stripe call core makes goes to the bridge (`_send_api_request`
+  override), which makes it with the platform key on this account only and
+  adds Meskis' fee to every charge.
+- Stripe.js loads with `stripeAccount` set (payment_stripe's own
+  `StripeOptions` hook), so cards are taken on the customer's own account.
+- Stripe's payment updates reach the usual `/payment/stripe/webhook`,
+  passed on by the bridge and signed with the forwarding secret, so core's
+  own signature check accepts them.
+- Test mode isn't offered: the bridge's key decides live or test. A
+  provider in test mode is left disabled when switched over, to be enabled
+  on purpose.
+- **Stop taking payments through Meskis** switches back and disables the
+  provider.
+
+Not covered: Stripe terminals in the Point of Sale (`pos_stripe`), which use
+a provider secret key directly.
 
 ## Testing
 
-7 tests, `requests` mocked at the boundary - onboarding-link and
+22 tests, `requests` mocked at the boundary - onboarding-link and
 charge calls, error propagation (both Stripe-side error bodies and
 network failures), URL-joining edge cases, and the company-level
 client-getter's own configured/unconfigured behavior.

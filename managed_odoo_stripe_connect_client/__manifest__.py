@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Managed Odoo Stripe Connect - Client',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Accounting/Payment',
     'summary': "Charge customers through Meskis' own Stripe Connect bridge",
     'description': """
@@ -23,24 +23,26 @@ whatever Meskis hands you, plus a **Set up Stripe payments** button that
 opens Stripe's own setup form through the bridge (live-tested against
 the Stripe sandbox 2026-11-23, with a real bridged charge and fee).
 
-**Deliberately scoped as a foundation, not a drop-in replacement for
-core Odoo's own payment_stripe checkout flow.** ``StripeConnectBridge
-Client.create_payment_intent()`` charges a customer through the
-bridge correctly (with Meskis' own fee applied automatically), but
-core ``payment_stripe``'s own multi-step flow (customer creation,
-setup intents, inline card-entry UI) isn't transparently proxied
-through it - only the actual charge is covered here. Wiring this into
-a real self-service checkout page (collecting a card via Stripe.js/
-Elements, then calling this client) is real follow-on work, not done
-yet - see README.md.
+Stripe providers get **Take payments through Meskis**: core
+``payment_stripe``'s own checkout then runs through the bridge (every
+Stripe call relayed, Stripe.js loaded on the customer's own account,
+payment updates forwarded) with no Stripe secret key on this database.
+See README.md.
 """,
     'author': 'Tiesa',
     'license': 'LGPL-3',
     'website': 'https://github.com/LadyHwesta/odoo-addons',
-    'depends': ['base_setup'],
+    'depends': ['base_setup', 'payment_stripe'],
     'data': [
         'views/res_config_settings_views.xml',
+        'views/payment_provider_views.xml',
+        'views/payment_stripe_templates.xml',
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'managed_odoo_stripe_connect_client/static/src/interactions/stripe_options.js',
+        ],
+    },
     'installable': True,
     'application': False,
 }

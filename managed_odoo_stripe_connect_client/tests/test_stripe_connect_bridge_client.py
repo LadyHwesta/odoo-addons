@@ -99,3 +99,19 @@ class TestSetUpStripePaymentsButton(TransactionCase):
             action = settings.action_stripe_connect_onboarding()
         self.assertEqual(action, {'type': 'ir.actions.act_url',
                                   'url': 'https://connect.stripe.com/setup/abc', 'target': 'new'})
+
+
+class TestRelay(TransactionCase):
+
+    def test_relay_sends_the_call_and_returns_stripes_status_and_body(self):
+        client = StripeConnectBridgeClient('https://meskis.net', 'tok-abc123')
+        with patch('requests.post', return_value=_mock_response(
+                status_code=402, json_body={'error': {'message': 'declined'}})) as post:
+            status, body = client.relay('POST', 'payment_intents', data={'amount': 100},
+                                        stripe_version='2019-05-16', idempotency_key='k')
+        self.assertEqual((status, body), (402, {'error': {'message': 'declined'}}))
+        args, kwargs = post.call_args
+        self.assertEqual(args[0], 'https://meskis.net/stripe_connect_bridge/relay')
+        self.assertEqual(kwargs['json'], {
+            'method': 'POST', 'endpoint': 'payment_intents', 'data': {'amount': 100},
+            'stripe_version': '2019-05-16', 'idempotency_key': 'k'})
