@@ -70,6 +70,10 @@ the provider in. It then holds no Stripe secret key of its own.
 - **Stop taking payments through Meskis** switches back and disables the
   provider.
 
+The bridge's checkout config also carries Meskis' fee %, kept on the company
+(`stripe_connect_fee_percent`) and refreshed daily by a scheduled action; the
+donor-covered fees glue (`managed_odoo_stripe_connect_donation`) uses it.
+
 Not covered: Stripe terminals in the Point of Sale (`pos_stripe`), which use
 a provider secret key directly.
 

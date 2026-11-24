@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The donor's choice, unticked by default. The amount shown is a preview:
+         the server works out the real one (controllers/portal.py). -->
+    <template id="donation_information" inherit_id="website_payment.donation_information"
+              name="Donation: donor covers the fees">
+        <xpath expr="//textarea[@id='donation_comment']/.." position="before">
+            <t t-set="cover_company" t-value="website.company_id.sudo()"/>
+            <div t-if="cover_company.donation_cover_fees" class="col-lg-12 px-0">
+                <t t-set="cover_rates" t-value="cover_company._donation_cover_fee_rates()"/>
+                <div class="form-check mt-3 o_donation_cover_fees"
+                     t-att-data-fee-percent="cover_rates[0]"
+                     t-att-data-fee-fixed="cover_rates[1]"
+                     t-att-data-currency-symbol="currency.symbol"
+                     t-att-data-currency-position="currency.position"
+                     t-att-data-currency-digits="currency.decimal_places">
+                    <input class="form-check-input" type="checkbox" id="o_donation_cover_fees"
+                           name="o_donation_cover_fees"/>
+                    <label class="form-check-label" for="o_donation_cover_fees">
+                        I'll cover the processing fees
+                        <span class="o_donation_cover_fees_amount text-muted"/>
+                        so the full gift goes to <t t-out="cover_company.name"/>
+                    </label>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

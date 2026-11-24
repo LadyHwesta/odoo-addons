@@ -27,6 +27,7 @@ PURPLE_A, PURPLE_B, INK = '#7f5bbf', '#4c2e78', '#4a2f7a'
 
 # Feather-style 24x24 glyphs (stroke drawings).
 GLYPHS = {
+    'heart_plus': '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.8 1-1.1a5.5 5.5 0 0 0 0-7.8z"/><path d="M12 9.5v6M9 12.5h6"/>',
     'mail_check': '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/><path d="M15 18l2 2 4-4"/>',
     'folders': '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/>',
     'folder_web': '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="14" r="3.2"/><path d="M8.8 14h6.4"/>',
@@ -259,6 +260,24 @@ LISTINGS = {
                    'checked in by mistake.')],
         setup=['Install it (it needs POS - Event) and open your Point of Sale.',
                'Scan a ticket on the register screen, or use Actions > Check In.']),
+    'website_donation_cover_fees': dict(
+        name='Donor Covers the Fees', glyph='heart_plus',
+        tagline='Let donors add the card fees to their gift, so the whole gift arrives',
+        intro=['Card payments cost a percentage plus a few cents, so a $25 online gift arrives as '
+               'a little less. Many donors are glad to make up the difference if asked.',
+               'This adds an unticked "I\'ll cover the processing fees" box to the website\'s '
+               'Donation block, showing the exact extra amount. If the donor ticks it, the payment '
+               'is grossed up so that, after the fees, the full gift is left.'],
+        features=[('The exact amount, up front', 'The box shows "+$1.06" for the gift chosen, and '
+                   'updates as the amount changes.'),
+                  ('Unticked by default', 'Donors choose; nobody pays extra without noticing.'),
+                  ('Worked out on the server', 'The browser only previews; the amount charged is '
+                   'calculated again when the payment starts.'),
+                  ('Gift and fees kept apart', 'Each payment records the gift and the fees covered '
+                   'separately, for receipts and reports.'),
+                  ('Your rates', 'Set the processing percentage and fixed amount in Website settings.')],
+        setup=['Install it (it needs Website Payment).',
+               'Website > Configuration > Settings > Donors Can Cover the Fees: check the rates.']),
     'my_day': dict(
         name='My Day', glyph='sun',
         tagline='A start screen to plan and work through your day, across your companies and branches',

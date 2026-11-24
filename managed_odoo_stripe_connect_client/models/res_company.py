@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from .stripe_connect_bridge_client import StripeConnectBridgeClient
@@ -21,6 +21,26 @@ class ResCompany(models.Model):
         string="Stripe Account ID", groups="base.group_system",
         help="Your own Stripe Connect account id (acct_...), also "
              "given to you during setup.")
+
+    stripe_connect_fee_percent = fields.Float(
+        string="Meskis Fee (%)", readonly=True, groups="base.group_system",
+        help="Meskis' fee on each payment, as the bridge reported it. Refreshed daily; used "
+             "when a donor covers the fees.")
+
+    def _stripe_connect_refresh_fee(self):
+        """Ask the bridge for the current fee. Quiet on failure: the last known
+        value stays."""
+        for company in self.filtered(
+                lambda c: c.stripe_connect_bridge_url and c.stripe_connect_bridge_token):
+            try:
+                config = company._get_stripe_connect_bridge_client().checkout_config()
+            except Exception:  # bridge down: keep the last value
+                continue
+            company.stripe_connect_fee_percent = config.get('application_fee_percent') or 0.0
+
+    @api.model
+    def _cron_stripe_connect_refresh_fee(self):
+        self.sudo().search([])._stripe_connect_refresh_fee()
 
     def _get_stripe_connect_bridge_client(self):
         self.ensure_one()

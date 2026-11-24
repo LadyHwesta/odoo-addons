@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Managed Odoo Stripe Connect - Client',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Accounting/Payment',
     'summary': "Charge customers through Meskis' own Stripe Connect bridge",
     'description': """
@@ -34,6 +34,7 @@ See README.md.
     'website': 'https://github.com/LadyHwesta/odoo-addons',
     'depends': ['base_setup', 'payment_stripe'],
     'data': [
+        'data/ir_cron.xml',
         'views/res_config_settings_views.xml',
         'views/payment_provider_views.xml',
         'views/payment_stripe_templates.xml',

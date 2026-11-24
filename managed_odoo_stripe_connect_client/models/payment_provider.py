@@ -38,7 +38,10 @@ class PaymentProvider(models.Model):
         if self.code != 'stripe':
             raise UserError(_("Only the Stripe provider can take payments through Meskis."))
         config = self.company_id._get_stripe_connect_bridge_client().checkout_config()
-        self.company_id.stripe_connect_account_id = config['stripe_account_id']
+        self.company_id.write({
+            'stripe_connect_account_id': config['stripe_account_id'],
+            'stripe_connect_fee_percent': config.get('application_fee_percent') or 0.0,
+        })
         vals = {}
         if self.state == 'test':
             # Live or test is the bridge's to decide; never switch a test
