@@ -46,6 +46,7 @@ COURSES = [
     ('odoo-addons', 'elearning_video_meetings', 'channel_video_meetings', 'general', 'video'),
     ('odoo-addons', 'telehealth_booking_elearning', 'channel_telehealth', 'general', 'monitor_pulse'),
     ('odoo-addons', 'accounting_elearning', 'channel_books', 'general', 'book_coin'),
+    ('odoo-addons', 'accounting_elearning_bank', 'channel_bank', 'general', 'bank'),
     ('odoo-addons', 'club_elearning_amateur_radio', 'channel_amateur_radio', 'club', 'tower'),
     ('odoo-addons', 'club_elearning_membership', 'channel_membership', 'club', 'member_card'),
     ('odoo-addons', 'club_elearning_equipment_loan', 'channel_equipment_loan', 'club', 'crate'),
@@ -144,6 +145,11 @@ def bunting(y0, sag, flags, offset=0):
 
 
 PICTURES = {
+    'bank': [
+        C([(14, 36), (50, 14), (86, 36)]), L((16, 40), (84, 40)),
+        S((26, 44), (26, 76)), S((42, 44), (42, 76)), S((58, 44), (58, 76)), S((74, 44), (74, 76)),
+        L((18, 80), (82, 80)), L((12, 88), (88, 88)),
+        AO(50, 29, 5), H(50, 29)],
     'funnel': [
         C([(18, 24), (82, 24), (58, 54), (58, 76), (42, 84), (42, 54)]),
         S((24, 31), (76, 31)), S((42, 54), (58, 54)),

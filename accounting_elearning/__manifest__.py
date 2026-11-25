@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning: Getting Paid and Keeping the Books',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'category': 'Website/eLearning',
     'summary': "eLearning course on accounting in Odoo Community with OCA's accounting apps: "
                "reminders, statements, bank import and reconciliation, reports, lock dates",
@@ -23,7 +23,7 @@ Members only, by invitation, for invoicing users.
     'website': 'https://meskis.net',
     'license': 'LGPL-3',
     'depends': [
-        'website_slides', 'account_invoice_payment_reminder', 'mail_template_menu', 'partner_statement',
+        'website_slides', 'website_slides_publication_digest', 'account_invoice_payment_reminder', 'mail_template_menu', 'partner_statement',
         'account_statement_import_sheet_file', 'account_reconcile_oca', 'account_financial_report',
         'account_tax_balance', 'account_fiscal_year', 'account_lock_date_update',
         'account_asset_management', 'account_move_template',

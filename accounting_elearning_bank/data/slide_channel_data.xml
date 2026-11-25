@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Built by accounting_elearning_bank/tools/build_course_data.py: edit there and rebuild. -->
+<odoo noupdate="0">
+
+    <record id="channel_bank" model="slide.channel">
+        <field name="name">Your Bank in Odoo: Set Up Right, Reconcile Every Month</field>
+        <field name="image_1920" type="base64" file="accounting_elearning_bank/static/img/cover_bank.png" />
+        <field name="channel_type">training</field>
+        <field name="description" type="html"><p>Set each bank account up once so most of the statement books itself, then turn every monthly statement into books that match the bank to the cent.</p></field>
+        <field name="visibility">members</field>
+        <field name="enroll">invite</field>
+        <field name="is_published" eval="True" />
+        <field name="enroll_group_ids" eval="[(6, 0, [ref('account.group_account_invoice')])]" />
+    </record>
+    <record id="channel_bank_s1" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">How Odoo sees your bank</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">10</field>
+    </record>
+    <record id="channel_bank_s1_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">The statement is the truth</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">11</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>If you've kept books in a check register, you're used to entering a payment and then ticking it off when it clears. Odoo works the other way round: <strong>the bank's statement comes in, and you explain each line on it</strong>. That's what reconciling is.</p><p>Every line you import is booked to your bank account straight away, so Odoo's bank balance always follows the real one. What each line <em>was</em> (a customer paying, a purchase, a transfer, your own money) is the part you, or a rule, fill in.</p><div class="oe-diagram"><div class="oe-flow"><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-university" /></span>Bank statement</div><span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-upload" /></span>Import the file</div><span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-link" /></span>Explain each line</div><span class="oe-flow-arrow"><i class="fa fa-long-arrow-right" /></span><div class="oe-flow-step"><span class="oe-flow-step-icon"><i class="fa fa-check" /></span>Books match the bank</div></div></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-info-circle" /></span><div><span class="oe-callout-label">Why it's worth it</span><p>When every line is explained, your profit and loss, what customers still owe you and what you owe suppliers are all true, because the bank has confirmed each one.</p></div></div></div></field>
+    </record>
+    <record id="channel_bank_s1_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Where money waits</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">12</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Until a line is explained, Odoo parks it in a holding account. Knowing the four of them makes every screen in this course easier to read:</p><ul><li><strong>Bank Suspense</strong>: a bank line nobody has explained yet. It should be empty once you've reconciled.</li><li><strong>Outstanding Receipts</strong>: a payment you recorded on an invoice (<span class="oe-path">Register Payment</span>), waiting for the bank line that brings the money in.</li><li><strong>Outstanding Payments</strong>: the same for money you've recorded paying out.</li><li><strong>Liquidity Transfer</strong>: money moving between two of your own accounts, waiting until both statements show it.</li></ul><p>Reconciling a line moves it out of the holding account and onto what it really was: the invoice it paid, the bill it settled, an expense, or your own money going in or out.</p><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-lightbulb-o" /></span><div><span class="oe-callout-label">Read a balance like a to-do list</span><p>Anything left in these holding accounts is something not yet matched. After a month is reconciled, Bank Suspense and Liquidity Transfer should both be zero.</p></div></div></div></field>
+    </record>
+    <record id="channel_bank_s2" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Set up from day one</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">22</field>
+    </record>
+    <record id="channel_bank_s2_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">One journal per bank account</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">23</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>In Odoo a bank account is a <strong>journal</strong> of the type Bank. Give each real account its own: checking, savings, a business credit card. Each one has its own statement and its own balance, so mixing two in one journal can never match.</p><p>In <span class="oe-path">Accounting › Configuration › Accounting › Journals</span> open your bank or click <strong>New</strong>. Name it so you can't mix it up (bank name and account type), enter the <strong>Bank Account Number</strong>, and set <strong>Bank Feeds</strong> to <strong>Import File</strong>.</p><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/journal_form.png" alt="A bank journal form" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a checking account set up as a bank journal. the sample business in these screenshots is Juniper Hollow Design, with a second business name, Juniper Hollow Photo, banking at Cedar Valley Credit Union. All made up.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-exchange" /></span><div><span class="oe-callout-label">Savings that tops up checking</span><p>Some banks keep deposits in savings and move money into checking whenever a card purchase posts. Give savings its own journal too: each top-up then shows on both statements, and a rule books both halves to Liquidity Transfer (see <em>Rules for the regulars</em>).</p></div></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-calendar" /></span><div><span class="oe-callout-label">Start on a clean date</span><p>The easiest start is the day the account opens, at zero. If it already had money in it when you started using Odoo, book that opening balance once with a journal entry against your Capital account, dated the day before your first statement line, so Odoo's balance starts where the bank's did.</p></div></div></div></field>
+    </record>
+    <record id="channel_bank_s2_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your bank's file layout</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">24</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Download your statement from online banking as a <strong>CSV</strong> file: the PDF statement is for reading, the CSV is for importing. Ask for one file per account.</p><p>Each bank lays its file out a little differently, so tell Odoo once which column is which in <span class="oe-path">Accounting › Configuration › Accounting › Statement Sheet Mappings</span>:</p><ul><li><strong>Timestamp Format</strong>: how dates are written, for example <code>%m/%d/%y</code> for 10/14/26.</li><li><strong>Amount column</strong>: the signed amount (money out is negative). A $ sign and thousands commas are fine.</li><li><strong>Unique transaction ID column</strong>: the bank's own ID for each line. With it, importing the same file twice skips the lines you already have.</li><li><strong>Description Column</strong>: the short name you'll see when reconciling, and <strong>Notes Column</strong> for the bank's longer detail.</li></ul><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/sheet_mapping_columns.png" alt="The columns of a statement file layout" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the columns of a credit union's CSV layout.</p></div><div class="oe-callout oe-callout-warning"><span class="oe-callout-icon"><i class="fa fa-exclamation-triangle" /></span><div><span class="oe-callout-label">Leave Balance Column empty if your bank leaves gaps</span><p>Some banks fill the running balance on only some rows. Odoo would then take a wrong ending balance from the file. Without it you check the ending balance against the statement yourself, which is the real test anyway.</p></div></div><p>Then pick the layout on each bank journal as its default, and the import fills it in for you.</p></div></field>
+    </record>
+    <record id="channel_bank_s2_l3" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Rules for the regulars</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">25</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Lines that look the same every month don't need you. In <span class="oe-path">Accounting › Configuration › Accounting › Reconciliation Models</span> a rule says: when a line's label contains these words, book it to this account.</p><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/reconcile_rules.png" alt="A list of reconciliation rules" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>rules for top-ups and the owner's own money (Automated), plus buttons for the odd ones out (Manual).</p></div><ul><li><strong>Automated</strong> rules book matching lines as soon as they're imported.</li><li><strong>Manual</strong> rules become buttons on the reconcile screen, for lines you want to look at first, such as cash withdrawals or bank fees.</li></ul><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/rule_form.png" alt="A reconciliation rule" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>every line on checking whose label contains <em>Transfer From Share 01</em> is a top-up from savings, booked to Liquidity Transfer.</p></div><p>Copy the words from your own statement's labels: the part that's always the same, such as <em>Transfer From Share 01</em> or the name on your personal account. Limit a rule to the journals it belongs to, and check its first month's results.</p></div></field>
+    </record>
+    <record id="channel_bank_s2_l4" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Your own money, and your business names</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">26</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>When you own the business yourself, money moves between you and it. Keep that out of your profit and loss:</p><ul><li>Money you put in from your personal account goes to <strong>Capital</strong> (owner contribution).</li><li>Money you take out goes to <strong>Owner Draws</strong>. If your chart has no such account, add one in <span class="oe-path">Accounting › Configuration › Accounting › Chart of Accounts</span> with the type Equity.</li><li>A cash withdrawal you can't tie to a receipt is usually a draw. Ask your tax preparer what fits your situation.</li></ul><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-user" /></span><div><span class="oe-callout-label">A customer paid into your personal account?</span><p>Register the payment on the invoice as usual. It then waits in Outstanding Receipts, because no business bank line will ever arrive for it. Clear it with a journal entry from Outstanding Receipts to Owner Draws (the money is yours now), and match the two in <span class="oe-path">Accounting › Accounting › Reconcile</span>. Never book it against the bank account itself: the business bank never saw that money, and its balance would stop matching.</p></div></div><p>If you trade under more than one business name, Odoo can treat each one as a <strong>branch</strong> of your company: one business and one bank, but a separate profit and loss per name. Switch to the branch in the company menu at the top right and enter its bills there. The main company's bank lines can still be matched to them.</p><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/branch_bill.png" alt="A vendor bill for a branch" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a bill entered under the branch, Juniper Hollow Photo, and paid from the main company's checking.</p></div></div></field>
+    </record>
+    <record id="channel_bank_s3" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">When the statement arrives</field>
+        <field name="is_category" eval="True" />
+        <field name="sequence">36</field>
+    </record>
+    <record id="channel_bank_s3_l1" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Download and import</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">37</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><ol><li>In online banking, export each account as CSV for exactly the statement's dates.</li><li>On the <span class="oe-path">Accounting › Dashboard</span>, click <strong>Import File</strong> on that account's card (on some installs it says <strong>Import (OCA)</strong>).</li><li>Your bank's layout is already chosen. Upload the file and click <strong>Import and Start to Reconcile</strong>, or <strong>Import and View</strong> to look at the statement first.</li></ol><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/dashboard_cards.png" alt="The Accounting dashboard bank cards" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>after importing: the rules have done most of it, and each card says how many lines still need you.</p></div><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/import_wizard.png" alt="The statement import window" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>importing a statement file.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-shopping-basket" /></span><div><span class="oe-callout-label">Enter the bills first</span><p>For purchases, enter the vendor bill with its receipt attached before you reconcile (in the right business name, if you have branches). Then each card purchase is a one-click match.</p></div></div></div></field>
+    </record>
+    <record id="channel_bank_s3_l2" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Match line by line</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">38</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>Click <strong>Reconcile <em>N</em> Items</strong> on the card. The statement lines are on the left. For the selected line, the right side shows its bank line, the part still waiting in Bank Suspense, your rule buttons, and the tabs.</p><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/reconcile_line.png" alt="The reconcile screen" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>a card purchase still in Bank Suspense. Typing the vendor's name in the Reconcile tab's search finds its bill.</p></div><ol><li>In the <strong>Reconcile</strong> tab, search for the customer or vendor and click the invoice, bill or payment the line belongs to.</li><li>Or click a rule button, such as Bank Fees, for a line with no invoice behind it.</li><li>Or use <strong>Manual operation</strong> to choose the account yourself.</li><li>When nothing is left in Bank Suspense, <strong>Reconcile</strong> lights up. Click it.</li></ol><div class="oe-diagram"><img src="/accounting_elearning_bank/static/img/reconcile_matched.png" alt="A line matched to its bill" class="img-fluid" /><p class="oe-diagram-caption"><span class="oe-diagram-caption-tag">Screenshot</span>the bill has replaced Bank Suspense, so Reconcile is ready.</p></div><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-flag" /></span><div><span class="oe-callout-label">Not sure?</span><p>Click <strong>To Check</strong> and move on: the line keeps its place, and you or your bookkeeper can come back to it.</p></div></div></div></field>
+    </record>
+    <record id="channel_bank_s3_l3" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Prove it matches</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">39</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>A month is done when Odoo agrees with the bank, not just when the list is empty:</p><ul><li>Each bank card's <strong>Balance</strong> on the dashboard equals the ending balance on that account's statement.</li><li><strong>Bank Suspense</strong> is zero: nothing left unexplained.</li><li><strong>Liquidity Transfer</strong> is zero: every transfer shows on both accounts.</li><li><strong>Outstanding Receipts</strong> and <strong>Outstanding Payments</strong> hold only payments too recent to be on this statement.</li></ul><p>Check the accounts in <span class="oe-path">Accounting › Reporting</span> with a trial balance dated the statement's last day. Then set a lock date for the month so nothing changes it by accident: see <em>Fiscal years and lock dates</em> in the course <em>Getting Paid and Keeping the Books</em>.</p></div></field>
+    </record>
+    <record id="channel_bank_s3_l4" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">When it doesn't match</field>
+        <field name="slide_category">article</field>
+        <field name="sequence">40</field>
+        <field name="html_content" type="html"><div class="oe-course-content"><p>When the dashboard balance and the statement disagree, the difference is almost always one of these:</p><ul><li><strong>Something posted straight to the bank account</strong> without a statement line, such as a journal entry. Open the bank account in <span class="oe-path">Accounting › Configuration › Accounting › Chart of Accounts</span>, look at its journal items, and find the ones with no statement line. Move each to the account it really belongs to (often Outstanding Receipts or Owner Draws).</li><li><strong>A file imported for the wrong dates</strong>, so a line is missing or belongs to next month. Compare the dates in Odoo with the statement's.</li><li><strong>The same transaction twice</strong>, from a file without transaction IDs. Delete the extra statement line.</li><li><strong>A top-up booked on one account only</strong>. Liquidity Transfer then isn't zero: import the other account's statement too.</li></ul><div class="oe-callout"><span class="oe-callout-icon"><i class="fa fa-search" /></span><div><span class="oe-callout-label">Find the amount</span><p>Search the journal items for the exact difference. A single amount that explains the gap is usually one entry in the wrong place.</p></div></div></div></field>
+    </record>
+    <record id="channel_bank_quiz" model="slide.slide">
+        <field name="channel_id" ref="channel_bank" />
+        <field name="is_published" eval="True" />
+        <field name="name">Check what you've learned</field>
+        <field name="slide_category">quiz</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="channel_bank_q1" model="slide.question">
+        <field name="slide_id" ref="channel_bank_quiz" />
+        <field name="sequence">1</field>
+        <field name="question">Your bank's statement shows a card purchase. What do you do with it in Odoo?</field>
+    </record>
+    <record id="channel_bank_q1_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q1" />
+        <field name="sequence">1</field>
+        <field name="text_value">Nothing: Odoo ticks it off when the payment clears</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q1_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q1" />
+        <field name="sequence">2</field>
+        <field name="text_value">Explain it: match it to its bill, or book it with a rule or an account</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bank_q1_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q1" />
+        <field name="sequence">3</field>
+        <field name="text_value">Delete it and enter the purchase by hand</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q2" model="slide.question">
+        <field name="slide_id" ref="channel_bank_quiz" />
+        <field name="sequence">2</field>
+        <field name="question">After you've reconciled a month, which account should be zero?</field>
+    </record>
+    <record id="channel_bank_q2_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q2" />
+        <field name="sequence">1</field>
+        <field name="text_value">Bank Suspense</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bank_q2_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q2" />
+        <field name="sequence">2</field>
+        <field name="text_value">Capital</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q2_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q2" />
+        <field name="sequence">3</field>
+        <field name="text_value">Owner Draws</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q3" model="slide.question">
+        <field name="slide_id" ref="channel_bank_quiz" />
+        <field name="sequence">3</field>
+        <field name="question">Your savings tops up checking whenever a purchase posts. How should those top-ups be booked?</field>
+    </record>
+    <record id="channel_bank_q3_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q3" />
+        <field name="sequence">1</field>
+        <field name="text_value">As income on checking</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q3_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q3" />
+        <field name="sequence">2</field>
+        <field name="text_value">To Liquidity Transfer on both accounts</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bank_q3_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q3" />
+        <field name="sequence">3</field>
+        <field name="text_value">As an owner draw from savings</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q4" model="slide.question">
+        <field name="slide_id" ref="channel_bank_quiz" />
+        <field name="sequence">4</field>
+        <field name="question">A customer paid an invoice into your personal account. Where does that payment end up?</field>
+    </record>
+    <record id="channel_bank_q4_a1" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q4" />
+        <field name="sequence">1</field>
+        <field name="text_value">Booked against the business bank account</field>
+        <field name="is_correct" eval="False" />
+    </record>
+    <record id="channel_bank_q4_a2" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q4" />
+        <field name="sequence">2</field>
+        <field name="text_value">Owner Draws, cleared from Outstanding Receipts</field>
+        <field name="is_correct" eval="True" />
+    </record>
+    <record id="channel_bank_q4_a3" model="slide.answer">
+        <field name="question_id" ref="channel_bank_q4" />
+        <field name="sequence">3</field>
+        <field name="text_value">Left in Outstanding Receipts for good</field>
+        <field name="is_correct" eval="False" />
+    </record>
+</odoo>

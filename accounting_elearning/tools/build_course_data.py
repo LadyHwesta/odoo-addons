@@ -90,6 +90,9 @@ BOOKS = ('channel_books', "Getting Paid and Keeping the Books",
             callout('fa-table', "Set the mapping up once", "Each bank's file is laid out a little "
                     "differently. Describe yours in " + path("Accounting", "Configuration", "Accounting",
                     "Statement Sheet Mappings") + " the first time, and pick it every month after."),
+            callout('fa-graduation-cap', "Setting up a bank account?", "The course <strong>Your Bank in Odoo: "
+                    "Set Up Right, Reconcile Every Month</strong> walks through it from the start: one journal "
+                    "per account, your bank's file layout, and rules that book the regular lines for you."),
         ])),
         ("Reconciling", ''.join([
             p("Reconciling means saying what each line on the statement was. Click <strong>Reconcile</strong> on "
@@ -102,6 +105,10 @@ BOOKS = ('channel_books', "Getting Paid and Keeping the Books",
               "the <strong>Manual operation</strong> tab to choose the account yourself."),
             callout('fa-question-circle', "Not sure?", "Mark it <strong>To Check</strong> and carry on; your "
                     "bookkeeper can find those later."),
+            callout('fa-graduation-cap', "Every month, step by step", "The course <strong>Your Bank in Odoo: "
+                    "Set Up Right, Reconcile Every Month</strong> covers the whole routine: transfers between "
+                    "your own accounts, your own money going in and out, checking the books match the "
+                    "statement, and what to do when they don't."),
         ])),
     ]),
     ("Reports and closing", [
