@@ -347,7 +347,8 @@ class MyDay(models.AbstractModel):
         items = []
         for lead in leads:
             due = lead.activity_date_deadline
-            when = (_("New") if not due else _("Today") if due == today
+            # The next step's date; blank when none is planned.
+            when = ('' if not due else _("Today") if due == today
                     else format_date(self.env, due, date_format='d MMM'))
             amount = format_amount(self.env, lead.expected_revenue, lead.company_currency) \
                 if lead.expected_revenue and lead.company_currency else ''
