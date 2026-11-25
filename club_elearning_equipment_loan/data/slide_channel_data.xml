@@ -3,6 +3,7 @@
 
     <record id="channel_equipment_loan" model="slide.channel">
         <field name="name">Equipment Loans</field>
+        <field name="image_1920" type="base64" file="club_elearning_equipment_loan/static/img/cover_equipment_loan.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html">
             <p>Running the club's loaner equipment library - from marking

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Membership Management",
-    "version": "19.0.1.2.1",
+    "version": "19.0.1.2.2",
     "category": "Website/eLearning",
     "summary": "eLearning course: dues, evacuation zones, and club reporting",
     "description": """

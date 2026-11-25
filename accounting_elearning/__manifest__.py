@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning: Getting Paid and Keeping the Books',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Website/eLearning',
     'summary': "eLearning course on accounting in Odoo Community with OCA's accounting apps: "
                "reminders, statements, bank import and reconciliation, reports, lock dates",

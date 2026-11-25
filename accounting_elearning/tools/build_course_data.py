@@ -159,6 +159,7 @@ def course_xml(module, course, quiz):
     xmlid, name, description, group, sections = course
     out = [f'''    <record id="{xmlid}" model="slide.channel">
         <field name="name">{escape(name)}</field>
+        <field name="image_1920" type="base64" file="{module}/static/img/cover_{xmlid.removeprefix('channel_')}.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>{escape(description)}</p></field>
         <field name="visibility">members</field>

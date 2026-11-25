@@ -4,6 +4,7 @@
 
     <record id="channel_bookings" model="slide.channel">
         <field name="name">Bookings: From Request to Gig Day</field>
+        <field name="image_1920" type="base64" file="performers_elearning/static/img/cover_bookings.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>Take a booking request to a signed, paid, never-double-booked gig, and walk into the day with everything on one sheet.</p></field>
         <field name="visibility">members</field>
@@ -205,6 +206,7 @@
     </record>
     <record id="channel_gear_music" model="slide.channel">
         <field name="name">Gear and Music</field>
+        <field name="image_1920" type="base64" file="performers_elearning/static/img/cover_gear_music.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>Pack the right gear for every gig, and handle the client's music lists and guests' song requests.</p></field>
         <field name="visibility">members</field>
@@ -391,6 +393,7 @@
     </record>
     <record id="channel_promotion" model="slide.channel">
         <field name="name">Getting Booked Again</field>
+        <field name="image_1920" type="base64" file="performers_elearning/static/img/cover_promotion.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>List the gigs you play at other people's events, and give promoters a press kit page.</p></field>
         <field name="visibility">members</field>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Video Meetings",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Website/eLearning",
     "summary": "eLearning course: meetings with video calls, documents, and the call controls",
     "description": """

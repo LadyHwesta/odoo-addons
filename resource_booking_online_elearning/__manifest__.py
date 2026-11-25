@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Online Booking",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Website/eLearning",
     "summary": "eLearning course: letting customers book appointments, including by video",
     "description": """

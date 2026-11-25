@@ -3,6 +3,7 @@
 
     <record id="channel_online_booking" model="slide.channel">
         <field name="name">Online Booking</field>
+        <field name="image_1920" type="base64" file="resource_booking_online_elearning/static/img/cover_online_booking.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>Letting customers book appointments, by video too: resources, booking types, the Book an Appointment page, and managing bookings.</p></field>
         <field name="visibility">members</field>

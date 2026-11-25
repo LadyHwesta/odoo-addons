@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning: Basic Business Training',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.2',
     'category': 'Website/eLearning',
     'summary': "eLearning courses for a small business on Odoo: sales, projects, helpdesk and "
                "the website, plus the accounting course",

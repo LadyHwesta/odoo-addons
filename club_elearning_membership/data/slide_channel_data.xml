@@ -3,6 +3,7 @@
 
     <record id="channel_membership" model="slide.channel">
         <field name="name">Membership Management</field>
+        <field name="image_1920" type="base64" file="club_elearning_membership/static/img/cover_membership.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html">
             <p>Running the club's membership side - dues, the Club app,

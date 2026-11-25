@@ -3,6 +3,7 @@
 
     <record id="channel_team_folders" model="slide.channel">
         <field name="name">Documents, Team Folders, and ONLYOFFICE</field>
+        <field name="image_1920" type="base64" file="dms_elearning_team_folder/static/img/cover_team_folders.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html">
             <p>Where documents should live, connecting ONLYOFFICE, running team

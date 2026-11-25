@@ -59,8 +59,9 @@ SALES = ('channel_sales', "Customers and Sales",
             p(path("My Day") + " is a start screen for the day: today's meetings, to-dos, calls and texts to "
               "answer, tickets, leads, tasks, money owed to you and money due, and quotes waiting on customers, "
               "each with a link to the full list."),
-            shot(M, 'my_day.png', "My Day with today's schedule, tickets, tasks due and money",
-                 "a print shop's My Day: a proof review, a ticket, a task due tomorrow and $1,830 overdue."),
+            shot(M, 'my_day.png', "My Day with today's schedule, a voicemail, a text to answer, leads and a task due",
+                 "a print shop's My Day on the Meadow background: a proof review, a voicemail and a text to "
+                 "answer, two leads and a task due tomorrow."),
             p("To open it every time you log in, tick <strong>Start on My Day</strong> in your " +
               path("Preferences") + " (your picture, top right). Everything on it is yours: other people "
               "see their own day."),
@@ -169,6 +170,7 @@ def course_xml(module, course, quiz):
     xmlid, name, description, group, sections = course
     out = [f'''    <record id="{xmlid}" model="slide.channel">
         <field name="name">{escape(name)}</field>
+        <field name="image_1920" type="base64" file="{module}/static/img/cover_{xmlid.removeprefix('channel_')}.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>{escape(description)}</p></field>
         <field name="visibility">members</field>

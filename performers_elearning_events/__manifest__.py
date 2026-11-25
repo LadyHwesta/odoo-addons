@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning: Performer Events Training',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.1.1',
     'category': 'Website/eLearning',
     'summary': "eLearning course for Performer Events: paying performers and staff, and the door",
     'description': """

@@ -3,6 +3,7 @@
 
     <record id="channel_amateur_radio" model="slide.channel">
         <field name="name">License &amp; Callsign Tracking</field>
+        <field name="image_1920" type="base64" file="club_elearning_amateur_radio/static/img/cover_amateur_radio.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html">
             <p>Looking up a member's FCC licence, and keeping it current

@@ -3,6 +3,7 @@
 
     <record id="channel_video_meetings" model="slide.channel">
         <field name="name">Video Meetings</field>
+        <field name="image_1920" type="base64" file="elearning_video_meetings/static/img/cover_video_meetings.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>Meetings with video calls: inviting people, the meeting's documents, the call controls, and Gallery and Speaker view.</p></field>
         <field name="visibility">members</field>

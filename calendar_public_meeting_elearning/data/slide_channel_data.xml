@@ -3,6 +3,7 @@
 
     <record id="channel_public_meetings" model="slide.channel">
         <field name="name">Public Meetings</field>
+        <field name="image_1920" type="base64" file="calendar_public_meeting_elearning/static/img/cover_public_meetings.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>Running a meeting the public can watch: the Watch Link, speaking, and who watched.</p></field>
         <field name="visibility">members</field>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Telehealth Video Visits",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Website/eLearning",
     "summary": "eLearning course: booking and running telehealth video visits, Basic and Premium",
     "description": """

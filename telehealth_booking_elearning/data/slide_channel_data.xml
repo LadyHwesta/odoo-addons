@@ -3,6 +3,7 @@
 
     <record id="channel_telehealth" model="slide.channel">
         <field name="name">Telehealth Video Visits</field>
+        <field name="image_1920" type="base64" file="telehealth_booking_elearning/static/img/cover_telehealth.png" />
         <field name="channel_type">training</field>
         <field name="description" type="html"><p>Booking and running video visits: Basic and Premium video, the patient's link, and health information.</p></field>
         <field name="visibility">members</field>
