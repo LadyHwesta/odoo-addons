@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eLearning: Public Meetings",
-    "version": "19.0.1.1.1",
+    "version": "19.0.1.1.2",
     "category": "Website/eLearning",
     "summary": "eLearning course: running a meeting the public can watch",
     "description": """
@@ -17,7 +17,7 @@ installed.
     "author": "Meskis Works",
     "license": "LGPL-3",
     "website": "https://meskis.net",
-    "depends": ["website_slides", "calendar_public_meeting"],
+    "depends": ["website_slides", "website_slides_publication_digest", "calendar_public_meeting"],
     "data": ["data/slide_channel_data.xml"],
     "assets": {
         "web.assets_frontend": [

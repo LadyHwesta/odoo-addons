@@ -34,7 +34,9 @@ class TestPublicationDigest(TransactionCase):
         # An update re-saving published lessons queues nothing more.
         lessons.with_context(install_mode=True).write({'is_published': True})
         self.assertFalse(self._announcements())
-        self.assertEqual(len(self.env['slide.publication.queue'].search([])), 3)
+        # Only this course's queue: course modules installed alongside may
+        # have left their own lessons waiting for the digest.
+        self.assertEqual(len(self.env['slide.publication.queue'].search([('channel_id', '=', self.channel.id)])), 3)
         self.env['slide.slide']._cron_send_publication_digests()
         digest = self._announcements()
         self.assertEqual(len(digest), 1)

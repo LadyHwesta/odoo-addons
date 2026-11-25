@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning: Performers Training',
-    'version': '19.0.1.1.1',
+    'version': '19.0.1.1.2',
     'category': 'Website/eLearning',
     'summary': "eLearning courses for the Performers Suite: bookings, gear and music, getting booked again",
     'description': """
@@ -23,7 +23,7 @@ For salespeople (members only, by invitation).
     'author': 'Meskis Works',
     'website': 'https://meskis.net',
     'license': 'LGPL-3',
-    'depends': ['website_slides', 'sale_gig_gear', 'sale_gig_song_requests', 'website_press_kit',
+    'depends': ['website_slides', 'website_slides_publication_digest', 'sale_gig_gear', 'sale_gig_song_requests', 'website_press_kit',
                 'website_event_appearance'],
     'data': ['data/slide_channel_data.xml'],
     'assets': {
