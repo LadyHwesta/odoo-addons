@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mailing_list_view_form_signup_page" model="ir.ui.view">
+        <field name="name">mailing.list.form.signup.page</field>
+        <field name="model">mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.mailing_list_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Signup Page" name="signup_page">
+                    <field name="signup_page_slug" placeholder="e.g. news" invisible="not is_public"/>
+                    <div colspan="2" class="text-muted" invisible="is_public">
+                        Tick "Show In Preferences" to give this list a signup page.
+                    </div>
+                    <field name="signup_page_title" invisible="not signup_page_slug"/>
+                    <field name="signup_page_intro" invisible="not signup_page_slug"
+                           placeholder="e.g. News about new suites and features, now and then. No filler."/>
+                    <field name="signup_page_url" widget="url" invisible="not signup_page_slug"/>
+                    <field name="signup_page_qr_url" widget="url" text="Download the QR code" invisible="not signup_page_slug"/>
+                    <div colspan="2" class="text-muted" invisible="not signup_page_slug">
+                        For an event, open the page on your own phone or tablet with
+                        <code>?kiosk=1</code> at the end of the address, so people can sign up
+                        one after another. For a printed table sign, use Print › Signup Sign.
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

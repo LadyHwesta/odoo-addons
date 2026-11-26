@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="signup_page" name="Mailing List Signup Page">
+        <t t-call="website.layout">
+            <!-- Kiosk mode: nothing to wander off to between signups. -->
+            <t t-set="no_header" t-value="kiosk"/>
+            <t t-set="no_footer" t-value="kiosk"/>
+            <t t-set="additional_title" t-value="mailing_list.signup_page_title or mailing_list.name"/>
+            <div id="wrap" class="o_mailing_signup_page">
+                <section class="py-5">
+                    <div class="container" style="max-width: 32rem;">
+                        <t t-if="thanks">
+                            <div class="text-center py-4">
+                                <h1 class="mb-3">Thank you!</h1>
+                                <p class="lead">
+                                    You're on the list.
+                                    <t t-if="mailing_list.welcome_mailing_id">A welcome email is on its way to your inbox.</t>
+                                </p>
+                                <t t-if="kiosk">
+                                    <a class="btn btn-primary btn-lg w-100 mt-4 o_signup_next" t-att-href="form_url">Next person</a>
+                                    <p class="small text-muted mt-3">This page gets ready for the next person in a few seconds.</p>
+                                    <script>
+                                        setTimeout(function () {
+                                            window.location.replace(document.querySelector('.o_signup_next').href);
+                                        }, 6000);
+                                    </script>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <h1 class="text-center mb-3" t-out="mailing_list.signup_page_title or mailing_list.name"/>
+                            <p t-if="mailing_list.signup_page_intro" class="lead text-center mb-4"
+                               style="white-space: pre-line;" t-out="mailing_list.signup_page_intro"/>
+                            <div t-if="error" class="alert alert-danger" role="alert" t-out="error"/>
+                            <form method="post" t-att-action="form_url" data-captcha="mailing_list_signup">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input t-if="kiosk" type="hidden" name="kiosk" value="1"/>
+                                <div class="mb-3">
+                                    <label for="o_signup_name" class="form-label">Your name <span class="text-muted">(optional)</span></label>
+                                    <input id="o_signup_name" type="text" name="name" class="form-control form-control-lg"
+                                           maxlength="128" t-att-value="name"
+                                           t-att-autocomplete="'off' if kiosk else 'name'"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="o_signup_email" class="form-label">Email</label>
+                                    <input id="o_signup_email" type="email" name="email" required="required"
+                                           class="form-control form-control-lg" maxlength="254"
+                                           inputmode="email" autocapitalize="none" spellcheck="false"
+                                           t-att-value="email"
+                                           t-att-autocomplete="'off' if kiosk else 'email'"/>
+                                </div>
+                                <!-- Left empty by people (they never see it); bots fill it in. -->
+                                <div class="d-none" aria-hidden="true">
+                                    <label for="o_signup_nickname">Leave this empty</label>
+                                    <input id="o_signup_nickname" type="text" name="nickname" tabindex="-1" autocomplete="off"/>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg w-100">Keep me posted</button>
+                                <p class="small text-muted text-center mt-3 mb-0">
+                                    Every email has a one-click unsubscribe link.
+                                </p>
+                            </form>
+                        </t>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>

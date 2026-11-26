@@ -27,6 +27,7 @@ PURPLE_A, PURPLE_B, INK = '#7f5bbf', '#4c2e78', '#4a2f7a'
 
 # Feather-style 24x24 glyphs (stroke drawings).
 GLYPHS = {
+    'qr': '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
     'heart_plus': '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.8 1-1.1a5.5 5.5 0 0 0 0-7.8z"/><path d="M12 9.5v6M9 12.5h6"/>',
     'mail_check': '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/><path d="M15 18l2 2 4-4"/>',
     'folders': '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/>',
@@ -367,6 +368,22 @@ LISTINGS = {
                    'can leave with one click.')],
         setup=['Write the welcome email as a mailing in Email Marketing.',
                'On the mailing list, choose it as the Welcome Email.']),
+    'mailing_list_signup_page': dict(
+        name='Mailing List Signup Page', glyph='qr',
+        tagline='A phone-friendly signup page, a QR code sign, and a kiosk mode for events',
+        intro=['Give a public mailing list its own simple signup page. Print a sign with its QR code '
+               'for a table at an event, or put the QR code on your business cards.',
+               'Kiosk mode lets people sign up one after another on your own phone or tablet.'],
+        features=[('Made for phones', 'A title, a short introduction, a name and an email field, '
+                   'and one big button.'),
+                  ('QR code and table sign', 'Download the QR code, or print a sign with it from '
+                   'the mailing list.'),
+                  ('Kiosk mode', 'Each signup is forgotten as soon as it is done, and earlier '
+                   'addresses are never suggested to the next person.'),
+                  ('Welcome email', 'New signups get the list\'s welcome email from Mailing List '
+                   'Welcome, once per address.')],
+        setup=['Make the mailing list public and give it a Signup Page Address, such as news.',
+               'Share the page, print the sign, or open the page with ?kiosk=1 at an event.']),
     'security_auth_guard': dict(
         name='Security Auth Guard', glyph='shield',
         tagline='Login attempts on record, and repeat attackers blocked for good',
