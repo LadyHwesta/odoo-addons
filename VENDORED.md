@@ -173,7 +173,7 @@ The same SDK sits in the private `telehealth_booking_signalwire` with its licenc
 | `web_calendar_slot_duration` | OCA/web `19.0` @ `1f57640` (2026-11-12) | **verbatim.** LGPL-3. Calendar slot length setting, required by `resource_booking`. |
 
 Odoo Community has no booking app (Appointments is Enterprise-only); this is
-OCA's production-stable one, used instead of extending `paramedic_appointment`.
+OCA's production-stable one, used instead of extending `practice_appointment` (then `paramedic_appointment`).
 
 ### `commission_oca` / `account_commission_oca`
 
