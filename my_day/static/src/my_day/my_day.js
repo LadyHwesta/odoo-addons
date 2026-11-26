@@ -3,6 +3,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { browser } from "@web/core/browser/browser";
+import { user } from "@web/core/user";
 
 const PICKED_KEY = "my_day.companies";
 
@@ -109,6 +110,15 @@ export class MyDay extends Component {
             this.state.picking = false;
         };
         reader.readAsDataURL(file);
+    }
+
+    /** Preferences, on the My Day tab; My Day reloads when it closes. */
+    async customize() {
+        const action = await this.orm.call("res.users", "action_get", []);
+        action.res_id = user.userId; // as the user menu does: your own record
+        await this.action.doAction(action, {
+            onClose: () => this.load(),
+        });
     }
 
     get plan() {

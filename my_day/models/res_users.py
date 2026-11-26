@@ -20,14 +20,34 @@ class ResUsers(models.Model):
     my_day_background_image = fields.Image(
         string="My Day Picture", max_width=2560, max_height=1600, attachment=True,
         help="Your own picture for My Day's background.")
+    my_day_section_ids = fields.One2many(
+        'my.day.section.setting', 'user_id', string="My Day Sections",
+        domain=[('available', '=', True)],
+        help="The sections you can see on My Day: show or hide each one, drag to reorder, "
+             "and choose its column and options.")
 
     @property
     def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['my_day_home', 'my_day_background', 'my_day_background_image']
+        return super().SELF_READABLE_FIELDS + ['my_day_home', 'my_day_background', 'my_day_background_image',
+                                               'my_day_section_ids']
 
     @property
     def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['my_day_home', 'my_day_background', 'my_day_background_image']
+        # my_day_section_ids: my.day.section.setting itself keeps each person
+        # to their own rows and options (these writes run as superuser).
+        return super().SELF_WRITEABLE_FIELDS + ['my_day_home', 'my_day_background', 'my_day_background_image',
+                                                'my_day_section_ids']
+
+    @api.model
+    def action_get(self):
+        """Preferences: list every My Day section this person can see now,
+        including ones added since they last opened My Day."""
+        try:
+            with self.env.cr.savepoint():
+                self.env['my.day']._my_day_refresh_settings()
+        except Exception:  # noqa: BLE001 - Preferences must always open
+            pass
+        return super().action_get()
 
     def _my_day_action(self):
         """My Day as Home Action takes it: the generic action model."""

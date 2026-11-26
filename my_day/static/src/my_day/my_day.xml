@@ -76,6 +76,10 @@
                                 t-att-aria-expanded="state.picking ? 'true' : 'false'">
                             <i class="fa fa-picture-o"/>
                         </button>
+                        <button class="btn btn-light" t-on-click="() => this.customize()"
+                                title="Choose sections" aria-label="Choose which sections to show">
+                            <i class="fa fa-sliders"/>
+                        </button>
                         <button class="btn btn-light" t-on-click="() => this.load()" title="Refresh" aria-label="Refresh">
                             <i class="fa fa-refresh"/>
                         </button>

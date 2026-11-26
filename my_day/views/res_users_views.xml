@@ -12,6 +12,32 @@
                 <field name="my_day_background_image" readonly="0" widget="image" class="oe_avatar"
                        invisible="my_day_background != 'custom'"/>
             </group>
+            <page name="calendar" position="after">
+                <page name="my_day" string="My Day">
+                    <group>
+                        <field name="my_day_home" readonly="0"/>
+                    </group>
+                    <p class="text-muted">
+                        The sections you can see, in the order they appear: drag to reorder,
+                        untick Show to hide one, and pick its column. Plan the day is the left
+                        column, Needs attention the right.
+                    </p>
+                    <field name="my_day_section_ids" readonly="0" nolabel="1">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="sequence" widget="handle"/>
+                            <field name="visible" widget="boolean_toggle"/>
+                            <field name="name" readonly="1" width="190px"/>
+                            <field name="column" width="160px"/>
+                            <field name="limit" width="70px"/>
+                            <field name="has_days" column_invisible="1"/>
+                            <field name="days" string="Days" width="70px" invisible="not has_days"/>
+                            <field name="has_team" column_invisible="1"/>
+                            <field name="include_team" string="Team" width="70px" invisible="not has_team"/>
+                            <field name="option_help" readonly="1"/>
+                        </list>
+                    </field>
+                </page>
+            </page>
         </field>
     </record>
 

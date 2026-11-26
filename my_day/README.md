@@ -31,8 +31,10 @@ see it:
 
 - **Threat status** (with Login Protection, `security_auth_guard`), for
   security officers only: a green / amber / red status in words, counts of
-  new critical and other events, blocked addresses and this week's events,
-  and the new events themselves, critical first, with **Reviewed**.
+  new critical and warning events, blocked addresses and this week's
+  automatic blocks, and the events that need attention, critical first,
+  with **Reviewed**. Blocks that worked (Info events) are only counted,
+  never listed.
 - **Helpdesk tickets** (OCA Helpdesk): your open tickets, priority first,
   with the SLA deadline when Helpdesk SLA is installed, and how many are
   unassigned in your teams.
@@ -76,6 +78,26 @@ Tick **Start on My Day** in **Preferences** to open it after login. An
 administrator can set it for anyone on the user's form (Preferences tab).
 It sets Odoo's own Home Action for the user.
 
+## Choose your own sections
+
+Everyone sets up their own My Day: the sliders button at the top of My Day
+(or **My Preferences → My Day**) lists every section they're allowed to see.
+For each one they choose:
+
+- **Show**: hide a section they don't need.
+- **Order**: drag the rows.
+- **Column**: Plan the day (left) or Needs attention (right).
+- **Items**: how many it lists (1-30; the schedule defaults to 30, to-dos to 24, the rest to 8).
+- **Days**, on some sections: how far ahead to look (to-dos: also list what's due in the next N days,
+  default 0; tasks, bills and events: default 7).
+- **Team**, on some sections: include call groups' voicemails and callbacks, texts nobody has taken,
+  new unassigned leads, or the count of unassigned tickets in your teams (default on).
+
+A section someone loses access to drops off their list and keeps their choices for when it comes back.
+People only ever change their own rows, and only these options (`my.day.section.setting`; Preferences
+save with elevated rights, so the model enforces this itself, not record rules alone). Administrators
+can see and change everyone's.
+
 ## Adding a section
 
 Extend `my.day._my_day_sections()` with `(column, key)` and add a method
@@ -84,3 +106,8 @@ Extend `my.day._my_day_sections()` with `(column, key)` and add a method
 apply. Items come from `_my_day_item()`; give them `buttons` made with
 `_my_day_button()` (run a method, then remove the item, dial the number it
 returns, or reload) and a `record` to open when it isn't the item itself. Run it with the user's own rights, within `self.env.companies`.
+
+The person's choices apply to it automatically (show, order, column). For the
+item count use `self._my_day_limit('<key>')`; to offer **Days** or **Team**,
+extend `_my_day_section_options()` with `{'<key>': {'days': (default, label)}}`
+or `'team'`, and read them with `_my_day_days()` / `_my_day_team()`.

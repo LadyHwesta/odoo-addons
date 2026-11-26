@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 from odoo import fields
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase, new_test_user, tagged
 
 
@@ -146,10 +147,18 @@ class TestMyDay(TransactionCase):
         Event.search([('state', '=', 'new')]).write({'state': 'reviewed'})
         section = self._section(self.MyDay.get_day(), 'security')
         self.assertEqual(section['status']['level'], 'ok')
-        Event.create({'event_type': 'ip_blocked', 'severity': 'warning', 'source_ip': '203.0.113.9'})
+        # Blocks that worked are counted, never listed for review.
+        Event.create([{'event_type': 'probe_blocked', 'severity': 'info', 'source_ip': '203.0.113.8'}
+                      for _i in range(5)])
+        section = self._section(self.MyDay.get_day(), 'security')
+        self.assertEqual(section['status']['level'], 'ok')
+        self.assertFalse(section['items'])
+        self.assertIn("5 automatic blocks this week", section['status']['facts'])
+        Event.create({'event_type': 'login_cooldown', 'severity': 'warning', 'source_ip': '203.0.113.9'})
         Event.create({'event_type': 'anomaly', 'severity': 'critical', 'detail': 'Bank account changed'})
         section = self._section(self.MyDay.get_day(), 'security')
         self.assertEqual(section['status']['level'], 'critical')
+        self.assertEqual(len(section['items']), 2)
         self.assertTrue(section['items'][0]['overdue'], "critical first")
         self.assertEqual(section['items'][0]['buttons'][0]['method'], 'action_mark_reviewed')
 
@@ -320,3 +329,102 @@ class TestMyDaySections(TransactionCase):
         stranger = self.env['res.company'].create({'name': 'Not In Switcher'})
         ignored = MyDay.get_day(company_ids=[stranger.id])
         self.assertTrue(all(c['on'] for c in ignored['companies']), "only switcher companies can be picked")
+
+
+@tagged('post_install', '-at_install')
+class TestMyDayChoices(TransactionCase):
+    """Each person chooses their own sections and options (Preferences > My Day)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = new_test_user(cls.env, 'day.chooser', groups='base.group_user', tz='UTC', name='Sam Chooser')
+        cls.other = new_test_user(cls.env, 'day.other2', groups='base.group_user', tz='UTC', name='Alex Other')
+        cls.MyDay = cls.env['my.day'].with_user(cls.user)
+        cls.today = fields.Date.context_today(cls.MyDay)
+        partner = cls.env['res.partner'].create({'name': 'Somebody'})
+        todo = cls.env.ref('mail.mail_activity_data_todo')
+        common = {'res_model_id': cls.env['ir.model']._get_id('res.partner'), 'res_id': partner.id,
+                  'activity_type_id': todo.id, 'user_id': cls.user.id}
+        cls.env['mail.activity'].create([
+            {**common, 'summary': f'Today {i}', 'date_deadline': cls.today} for i in range(5)])
+        cls.env['mail.activity'].create(
+            {**common, 'summary': 'In three days', 'date_deadline': cls.today + timedelta(days=3)})
+
+    def _section(self, key):
+        return next((s for s in self.MyDay.get_day()['sections'] if s['key'] == key), None)
+
+    def _rows(self, user=None):
+        return self.env['my.day.section.setting'].search([('user_id', '=', (user or self.user).id)])
+
+    def _row(self, key, user=None):
+        return self._rows(user).filtered(lambda r: r.key == key)
+
+    def _prefs(self, commands, user=None):
+        """Save Preferences the way the dialog does: as the person, on their own user."""
+        user = user or self.user
+        user.with_user(user).write({'my_day_section_ids': commands})
+
+    def test_rows_appear_with_the_defaults(self):
+        self.MyDay.get_day()
+        todo = self._row('todo')
+        self.assertEqual((todo.column, todo.limit, todo.days, todo.visible), ('plan', 24, 0, True))
+        self.assertTrue(todo.has_days)
+        self.assertEqual(todo.name, 'To-dos')
+        self.assertEqual(self._row('schedule').column, 'plan')
+        self.assertFalse(self._row('schedule').has_days)
+
+    def test_hide_move_and_limit(self):
+        self.MyDay.get_day()
+        self._prefs([(1, self._row('schedule').id, {'visible': False}),
+                     (1, self._row('todo').id, {'column': 'attention', 'limit': 2})])
+        day = self.MyDay.get_day()
+        keys = [s['key'] for s in day['sections']]
+        self.assertNotIn('schedule', keys)
+        todo = next(s for s in day['sections'] if s['key'] == 'todo')
+        self.assertEqual(todo['column'], 'attention')
+        self.assertEqual(len(todo['items']), 2)
+
+    def test_order_follows_the_person(self):
+        self.MyDay.get_day()
+        self._prefs([(1, self._row('todo').id, {'sequence': 1}), (1, self._row('schedule').id, {'sequence': 2})])
+        keys = [s['key'] for s in self.MyDay.get_day()['sections']]
+        self.assertLess(keys.index('todo'), keys.index('schedule'))
+
+    def test_days_ahead_option(self):
+        self.assertNotIn('In three days', [i['name'] for i in self._section('todo')['items']])
+        self._prefs([(1, self._row('todo').id, {'days': 3})])
+        self.assertIn('In three days', [i['name'] for i in self._section('todo')['items']])
+
+    def test_nobody_changes_someone_elses_my_day(self):
+        self.env['my.day'].with_user(self.other).get_day()
+        self.MyDay.get_day()
+        theirs = self._row('todo', self.other)
+        with self.assertRaises(AccessError):
+            self._prefs([(1, theirs.id, {'visible': False})])
+        self.assertTrue(theirs.visible)
+
+    def test_only_the_options_can_change(self):
+        self.MyDay.get_day()
+        with self.assertRaises(AccessError):
+            self._prefs([(1, self._row('todo').id, {'key': 'security'})])
+        with self.assertRaises(AccessError):
+            self._prefs([(2, self._row('todo').id)])
+        with self.assertRaises(AccessError):
+            self.env['my.day.section.setting'].with_user(self.user).create(
+                {'user_id': self.user.id, 'key': 'x', 'column': 'plan'})
+
+    def test_numbers_are_kept_sensible(self):
+        self.MyDay.get_day()
+        with self.assertRaises(ValidationError):
+            self._prefs([(1, self._row('todo').id, {'limit': 0})])
+
+    def test_preferences_list_only_what_the_person_can_see(self):
+        # The user menu calls it on the model, with no record (core's own is @api.model).
+        self.env['res.users'].with_user(self.user).action_get()
+        keys = set(self.user.with_user(self.user).my_day_section_ids.mapped('key'))
+        self.assertIn('todo', keys)
+        if 'security.event' in self.env:
+            # Only security officers see Threat status.
+            self.assertNotIn('security', keys)
+            self.assertFalse(self._row('security').available)

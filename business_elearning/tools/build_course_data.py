@@ -74,6 +74,10 @@ SALES = ('channel_sales', "Customers and Sales",
             p("Whoever looks after security also sees <strong>Threat status</strong>: green when all is "
               "clear, amber when there's something to review, red when it needs you now."),
             p("Make it yours with the picture button at the top: pick a background, or upload your own photo."),
+            p("The sliders button next to it opens your preferences on the <strong>My Day</strong> tab. There "
+              "you choose which sections to show, drag them into your own order, pick each one's column and "
+              "how many items it lists, and set options like how many days ahead it looks. Sections only "
+              "appear there if you're allowed to see them."),
         ])),
     ]),
     ("Leads to quotes", [

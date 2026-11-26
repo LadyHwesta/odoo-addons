@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Each person sees and changes only their own My Day. -->
+    <record id="rule_my_day_section_setting_own" model="ir.rule">
+        <field name="name">My Day sections: own only</field>
+        <field name="model_id" ref="model_my_day_section_setting"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_my_day_section_setting_admin" model="ir.rule">
+        <field name="name">My Day sections: administrators, everyone's</field>
+        <field name="model_id" ref="model_my_day_section_setting"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_system'))]"/>
+    </record>
+</odoo>
