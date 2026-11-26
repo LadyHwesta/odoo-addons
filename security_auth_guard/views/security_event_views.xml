@@ -40,7 +40,8 @@
         <field name="model">security.event</field>
         <field name="arch" type="xml">
             <list decoration-danger="severity == 'critical'"
-                  decoration-warning="severity == 'warning'">
+                  decoration-warning="severity == 'warning'"
+                  decoration-muted="severity == 'info'">
                 <field name="create_date" />
                 <field name="event_type" />
                 <field name="severity" widget="badge" />
@@ -58,6 +59,12 @@
             <search>
                 <field name="source_ip" />
                 <field name="login" />
+                <filter name="attention" string="Needs Attention"
+                        help="New warnings and critical events: what a person should look at."
+                        domain="[('state', '=', 'new'), ('severity', 'in', ('warning', 'critical'))]" />
+                <filter name="automatic" string="Handled Automatically"
+                        domain="[('severity', '=', 'info')]" />
+                <separator />
                 <filter name="new" string="New" domain="[('state', '=', 'new')]" />
                 <filter name="critical" string="Critical"
                         domain="[('severity', '=', 'critical')]" />
@@ -66,15 +73,59 @@
                             context="{'group_by': 'event_type'}" />
                     <filter name="group_by_severity" string="Severity"
                             context="{'group_by': 'severity'}" />
+                    <filter name="group_by_day" string="Day"
+                            context="{'group_by': 'create_date:day'}" />
                 </group>
             </search>
         </field>
     </record>
 
+    <record id="security_event_view_graph" model="ir.ui.view">
+        <field name="name">security.event.graph</field>
+        <field name="model">security.event</field>
+        <field name="arch" type="xml">
+            <graph string="Security Events" type="bar" stacked="1">
+                <field name="create_date" interval="day" />
+                <field name="event_type" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="security_event_view_pivot" model="ir.ui.view">
+        <field name="name">security.event.pivot</field>
+        <field name="model">security.event</field>
+        <field name="arch" type="xml">
+            <pivot string="Security Events">
+                <field name="create_date" interval="week" type="row" />
+                <field name="event_type" type="col" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Only what needs a person; automatic blocks are one filter away and
+         charted under Blocks Over Time. -->
     <record id="security_event_action" model="ir.actions.act_window">
         <field name="name">Security Events</field>
         <field name="res_model">security.event</field>
-        <field name="view_mode">list,form</field>
-        <field name="context">{'search_default_new': 1}</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="context">{'search_default_attention': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing needs your attention</p>
+            <p>Blocked scanners and login attackers are handled automatically;
+            see them under Security › Blocks Over Time.</p>
+        </field>
+    </record>
+
+    <record id="security_event_blocks_action" model="ir.actions.act_window">
+        <field name="name">Blocks Over Time</field>
+        <field name="res_model">security.event</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="domain">[('event_type', 'in', ('probe_blocked', 'ip_blocked', 'request_refused'))]</field>
+        <field name="context">{'search_default_automatic': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No automatic blocks yet</p>
+            <p>Each bar is a day: scanners blocked, login attackers blocked, and
+            blocked addresses that came back and were refused again.</p>
+        </field>
     </record>
 </odoo>

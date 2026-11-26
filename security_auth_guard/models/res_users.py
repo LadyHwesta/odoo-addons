@@ -87,14 +87,28 @@ class ResUsers(models.Model):
         # Its own transaction: core raises AccessDenied right after this,
         # which can roll back the request's transaction (see _login).
         with own_transaction(self.env) as env:
+            login = env["res.users"]._security_last_failed_login(ip)
+            real_user = bool(login) and bool(env["res.users"].sudo().with_context(
+                active_test=False).search_count([("login", "=", login)]))
             env["security.event"].create({
                 "event_type": "login_cooldown",
-                "severity": "warning",
+                # Guessing at one of our real logins needs a person to look;
+                # bots trying made-up names are handled by the cooldown itself.
+                "severity": "warning" if real_user else "info",
                 "source_ip": ip,
+                "login": login or False,
                 "detail": f"Login cooldown triggered after {failures} "
-                          f"failures from {ip}.",
+                          f"failures from {ip}"
+                          + (f" trying the login {login!r}" if login else "")
+                          + (" (an existing user)." if real_user else "."),
             })
             env["res.users"]._security_maybe_escalate(ip)
+
+    def _security_last_failed_login(self, ip):
+        """The login name the latest failed attempt from `ip` used."""
+        attempt = self.env["security.login_attempt"].sudo().search(
+            [("ip", "=", ip), ("success", "=", False)], order="id desc", limit=1)
+        return attempt.login or ""
 
     def _security_maybe_escalate(self, ip):
         ICP = self.env["ir.config_parameter"].sudo()
@@ -119,7 +133,8 @@ class ResUsers(models.Model):
             return
         Event.create({
             "event_type": "ip_blocked",
-            "severity": "critical",
+            # Handled automatically: counted and charted, not listed for review.
+            "severity": "info",
             "source_ip": ip,
             "detail": f"Auto-blocked {rule.ip_or_cidr} after {count} "
                       f"cooldown triggers in {window_hours}h.",

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": 'Security Dashboard',
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Productivity/Dashboard",
     "summary": "A threat level, failed logins, blocks and events waiting "
                "for review, in the Dashboards app",

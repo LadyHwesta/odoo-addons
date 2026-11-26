@@ -142,7 +142,8 @@ class SecurityProbeHit(models.Model):
         # Every probe from here on is refused before it's counted, so this
         # runs once per block.
         Event.create({
-            "event_type": "probe_blocked", "severity": "warning",
+            # Handled automatically: counted and charted, not listed for review.
+            "event_type": "probe_blocked", "severity": "info",
             "source_ip": ip,
             "detail": f"Blocked {rule.ip_or_cidr} {how_long} after {count} "
                       f"requests for attack addresses in "

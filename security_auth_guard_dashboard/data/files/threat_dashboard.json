@@ -701,7 +701,7 @@
    "formulaId": "5",
    "name": "Automatic blocks, 24h",
    "model": "security.event",
-   "domain": "[(\"event_type\", \"=\", \"ip_blocked\"), (\"severity\", \"=\", \"critical\"), (\"create_date\", \">=\", (datetime.datetime.now() - relativedelta(hours=24)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
+   "domain": "[(\"event_type\", \"in\", [\"ip_blocked\", \"probe_blocked\"]), (\"create_date\", \">=\", (datetime.datetime.now() - relativedelta(hours=24)).strftime(\"%Y-%m-%d %H:%M:%S\"))]",
    "context": {},
    "columns": [],
    "rows": [],

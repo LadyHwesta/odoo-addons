@@ -69,6 +69,23 @@ to. A Security app menu (gated to the new `group_security_officer` group,
 granted to admins by default) shows a dashboard, filterable by severity/
 type, with a one-click "Block This IP" escalation from any event.
 
+**What needs attention, and what doesn't.** Every event has a severity:
+
+| Severity | Means | Examples |
+|---|---|---|
+| Info | Handled automatically: a block that worked | a scanner blocked (`probe_blocked`), a login attacker blocked (`ip_blocked`), a blocked address coming back and refused again (`request_refused`, once per 5 minutes per address), a login cooldown for a made-up login name |
+| Warning | A person should look | a login cooldown while someone keeps guessing at one of your real logins |
+| Critical | Act on it | `anomaly`: a bank account changed outside business hours (financial monitor), a proxy hiding real visitor addresses |
+
+**Security › Security Events** opens on **Needs Attention** (new warnings and
+criticals). **Security › Blocks Over Time** charts the automatic blocks per
+day, with a pivot for totals. Info events are deleted after 90 days
+(Settings › Security Events; at least 31, -1 keeps them); events that need
+attention are never deleted. Before 19.0.1.4.0 every block was a Warning and
+a returning address looked like a new block: on a public site that buried
+the few events that matter under hundreds of routine ones, and upgrading
+converts the old events.
+
 ## Probe blocking
 
 Scanners ask every site for the same handful of addresses: secrets and

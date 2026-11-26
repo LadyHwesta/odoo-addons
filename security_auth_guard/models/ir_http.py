@@ -89,11 +89,13 @@ class IrHttp(models.AbstractModel):
         with own_transaction(request.env) as env:
             Event = env["security.event"]
             since = fields.Datetime.now() - timedelta(minutes=EVENT_DEDUP_MINUTES)
-            if Event._count_from_source("ip_blocked", ip, since):
+            if Event._count_from_source("request_refused", ip, since):
                 return
+            # An address that's already blocked knocking again: the block is
+            # working, so it's only counted (Info), not listed for review.
             Event.create({
-                "event_type": "ip_blocked",
-                "severity": "warning",
+                "event_type": "request_refused",
+                "severity": "info",
                 "source_ip": ip,
                 "detail": f"Request(s) from {ip} refused by an active "
                           f"security.ip_rule.",

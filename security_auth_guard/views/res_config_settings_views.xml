@@ -36,6 +36,11 @@
                             <field name="probe_permanent_after" />
                         </setting>
                     </block>
+                    <block title="Security Events" name="security_auth_guard_event_settings">
+                        <setting id="info_event_retention_days_setting" help="Automatic blocks (Info events) are kept this many days for the Blocks Over Time chart, then deleted. At least 31. Use -1 to keep them forever. Events that need attention are never deleted.">
+                            <field name="info_event_retention_days" />
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

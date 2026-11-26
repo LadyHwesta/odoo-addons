@@ -45,6 +45,12 @@ class ResConfigSettings(models.TransientModel):
         default=DEFAULT_PROBE_PERMANENT_AFTER,
         help="The block that reaches this number within 30 days is "
              "permanent. -1 keeps every probe block temporary.")
+    info_event_retention_days = fields.Integer(
+        string="Keep automatic-block events (days)",
+        config_parameter="security_auth_guard.info_event_retention_days",
+        default=90,
+        help="Info events (blocks that worked) older than this are deleted. "
+             "-1 keeps them forever.")
     alert_phone_number = fields.Char(
         string="Critical alert SMS number",
         config_parameter="security_auth_guard.alert_phone_number",

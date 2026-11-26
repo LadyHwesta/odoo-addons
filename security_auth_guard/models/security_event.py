@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -19,8 +21,13 @@ class SecurityEvent(models.Model):
         [("login_cooldown", "Login Cooldown Triggered"),
          ("ip_blocked", "IP Blocked"),
          ("probe_blocked", "Probe Blocked"),
+         ("request_refused", "Blocked Address Refused"),
          ("anomaly", "Anomaly")],
         required=True, tracking=True)
+    # Info = handled automatically (a block that worked): counted and
+    # charted (Blocks Over Time), not listed for review, and deleted after
+    # security_auth_guard.info_event_retention_days. Warning/Critical = needs
+    # a person: what the Security Events list opens on.
     severity = fields.Selection(
         [("info", "Info"), ("warning", "Warning"), ("critical", "Critical")],
         default="warning", required=True, tracking=True)
@@ -101,6 +108,21 @@ class SecurityEvent(models.Model):
             # Best-effort - a notification failure must never block the
             # security event itself from being recorded.
             pass
+
+    @api.autovacuum
+    def _gc_info_events(self):
+        """Handled-automatically events only matter as totals over time, so
+        they don't pile up forever (600 in a few weeks on a public site).
+        Every window that counts events (30 days at most) is shorter than
+        the default 90."""
+        days = int(self.env["ir.config_parameter"].sudo().get_param(
+            "security_auth_guard.info_event_retention_days", 90) or 90)
+        if days < 0:
+            return
+        self.sudo().search([
+            ("severity", "=", "info"),
+            ("create_date", "<", fields.Datetime.now() - timedelta(days=max(days, 31))),
+        ]).unlink()
 
     @api.model_create_multi
     def create(self, vals_list):

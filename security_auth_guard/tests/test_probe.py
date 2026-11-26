@@ -62,6 +62,8 @@ class TestProbeBlocking(TransactionCase):
         self.assertAlmostEqual(hours, 24, delta=0.1)
         event = self.Event.search([("source_ip", "=", "203.0.113.11")])
         self.assertEqual(event.event_type, "probe_blocked")
+        # A block that worked: counted and charted, not listed for review.
+        self.assertEqual(event.severity, "info")
         self.assertIn("for 24h", event.detail)
 
     def test_one_event_per_block_however_many_probes(self):
