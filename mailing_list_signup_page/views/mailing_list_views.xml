@@ -19,7 +19,7 @@
                     <div colspan="2" class="text-muted" invisible="not signup_page_slug">
                         For an event, open the page on your own phone or tablet with
                         <code>?kiosk=1</code> at the end of the address, so people can sign up
-                        one after another. For a printed table sign, use Print › Signup Sign.
+                        one after another. For a printed table sign, use the ⚙ menu next to the list's name: Print › Signup Sign.
                     </div>
                 </group>
             </xpath>

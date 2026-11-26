@@ -23,7 +23,7 @@ up on the page gets it, once per address.
 
 ## At an event
 
-- **A table sign:** on the mailing list, **Print → Signup Sign** gives a PDF
+- **A table sign:** on the mailing list, the ⚙ menu next to its name has **Signup Sign** under Print. It gives a PDF
   with the title, a large QR code and the address to type.
 - **Kiosk mode:** open the page on your own phone or tablet with `?kiosk=1`
   at the end, for example `/join/news?kiosk=1`. Each person enters their name
