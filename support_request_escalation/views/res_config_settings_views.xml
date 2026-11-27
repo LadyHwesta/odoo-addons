@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_support_request" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.support.request</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Support Requests" string="Support Requests" name="support_request_escalation"
+                     groups="base.group_system">
+                    <block title="Your Odoo provider" name="support_provider_settings">
+                        <setting id="support_provider_name_setting"
+                                 help="How people here see who escalated requests go to.">
+                            <field name="support_provider_name" placeholder="e.g. Your Odoo partner"/>
+                        </setting>
+                        <setting id="support_provider_email_setting"
+                                 help="Escalated requests are emailed here; replies come back into the request. Leave empty to keep support in-house.">
+                            <field name="support_provider_email" placeholder="support@example.com"/>
+                            <div class="text-muted" invisible="not support_provider_from_server">
+                                Set for this server by your hosting provider; change it here to use your own.
+                            </div>
+                        </setting>
+                        <setting id="support_provider_note_setting"
+                                 help="Shown to a coordinator before they send a request, e.g. how help outside a support plan is billed.">
+                            <field name="support_provider_note"/>
+                        </setting>
+                    </block>
+                    <block title="Who handles requests" name="support_coordinator_settings">
+                        <setting id="support_coordinators_setting"
+                                 help="Give the Support Coordinator role (Settings › Users, Support Requests) to whoever should triage requests. Administrators have it already.">
+                            <button name="%(base.action_res_users)d" type="action" string="Users"
+                                    icon="oi-arrow-right" class="btn-link"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

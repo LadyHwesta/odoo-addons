@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="privilege_support_request" model="res.groups.privilege">
+        <field name="name">Support Requests</field>
+        <field name="category_id" ref="base.module_category_productivity"/>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- Everyone can report a problem and follow their own requests; the
+         coordinators see every request, solve or escalate them. -->
+    <record id="group_support_coordinator" model="res.groups">
+        <field name="name">Support Coordinator</field>
+        <field name="privilege_id" ref="privilege_support_request"/>
+        <field name="implied_by_ids" eval="[Command.link(ref('base.group_system'))]"/>
+        <field name="comment">Receives everyone's support requests, solves them or escalates them
+            to the Odoo provider's support.</field>
+    </record>
+
+    <record id="rule_support_request_own" model="ir.rule">
+        <field name="name">Support requests: your own and the ones you follow</field>
+        <field name="model_id" ref="model_support_request"/>
+        <field name="domain_force">['|', ('requester_id', '=', user.id), ('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_support_request_coordinator" model="ir.rule">
+        <field name="name">Support requests: coordinators see all</field>
+        <field name="model_id" ref="model_support_request"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_support_coordinator'))]"/>
+    </record>
+    <record id="rule_support_request_company" model="ir.rule">
+        <field name="name">Support requests: allowed companies</field>
+        <field name="model_id" ref="model_support_request"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

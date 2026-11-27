@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_support_request_user,support.request user,model_support_request,base.group_user,1,1,1,0
+access_support_request_coordinator,support.request coordinator,model_support_request,group_support_coordinator,1,1,1,1
+access_support_request_escalate,support.request.escalate coordinator,model_support_request_escalate,group_support_coordinator,1,1,1,1

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="support_request_escalate_view_form" model="ir.ui.view">
+        <field name="name">support.request.escalate.form</field>
+        <field name="model">support.request.escalate</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>
+                    This emails the request to <strong><field name="provider_name" class="d-inline"/></strong>
+                    (<field name="provider_email" class="d-inline"/>), with its details and the page it came
+                    from. Their replies come back here, and everyone following the request sees them.
+                </p>
+                <div class="alert alert-info" role="alert" invisible="not provider_note">
+                    <field name="provider_note"/>
+                </div>
+                <field name="request_id" invisible="1"/>
+                <field name="note" placeholder="Anything you already tried, or that they should know (optional)"/>
+                <footer>
+                    <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

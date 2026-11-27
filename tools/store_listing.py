@@ -28,6 +28,7 @@ PURPLE_A, PURPLE_B, INK = '#7f5bbf', '#4c2e78', '#4a2f7a'
 # Feather-style 24x24 glyphs (stroke drawings).
 GLYPHS = {
     'qr': '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
+    'lifebuoy': '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M14.8 9.2l3.6-3.6M5.6 18.4l3.6-3.6"/>',
     'heart_plus': '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.8 1-1.1a5.5 5.5 0 0 0 0-7.8z"/><path d="M12 9.5v6M9 12.5h6"/>',
     'mail_check': '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/><path d="M15 18l2 2 4-4"/>',
     'folders': '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/>',
@@ -384,6 +385,21 @@ LISTINGS = {
                    'Welcome, once per address.')],
         setup=['Make the mailing list public and give it a Signup Page Address, such as news.',
                'Share the page, print the sign, or open the page with ?kiosk=1 at an event.']),
+    'support_request_escalation': dict(
+        name='Support Requests', glyph='lifebuoy',
+        tagline='Report a problem from anywhere in Odoo, solve it in-house or escalate it to your provider',
+        intro=['Anyone can report a problem from the user menu, with the page they were on filled in for '
+               'them. The people who look after support solve it in-house, or send it to their Odoo '
+               'provider by email, and the provider\'s replies come back into the request.'],
+        features=[('Report a problem', 'In the user menu, everywhere: what is wrong, what they were trying '
+                   'to do, how urgent it is.'),
+                  ('Triage in-house', 'Support coordinators get a to-do, take the request, and solve it or '
+                   'pass it on.'),
+                  ('Escalate by email', 'One click sends the request and its details to the provider; '
+                   'their replies land back on the request.'),
+                  ('Private', 'People see their own requests; coordinators see them all.')],
+        setup=['Settings: Support Requests: enter your provider\'s name and support email.',
+               'Give the Support Coordinator role to whoever should handle requests.']),
     'security_auth_guard': dict(
         name='Security Auth Guard', glyph='shield',
         tagline='Login attempts on record, and repeat attackers blocked for good',
