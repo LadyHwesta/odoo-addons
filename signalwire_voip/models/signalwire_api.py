@@ -8,6 +8,10 @@ import requests
 _logger = logging.getLogger(__name__)
 
 TIMEOUT = 30
+# List reads: as many records a page as the APIs allow, and a ceiling on
+# pages so a broken next-page link can't loop forever.
+PAGE_SIZE = 1000
+MAX_PAGES = 200
 
 
 class SignalWireAPIError(Exception):
@@ -95,6 +99,33 @@ class SignalWireClient:
         """
         return self._request('get', self._compat_url(path), params=params)
 
+    def compat_get_all(self, path, list_key, **params):
+        """Every record of a Compatibility API list, following its
+        ``next_page_uri`` page by page: one page holds at most PageSize
+        records (50 unless asked), so a single page silently misses the
+        rest. ``list_key`` is the list's key in the response, e.g.
+        ``'calls'`` for ``.../Calls.json``.
+        """
+        params.setdefault('PageSize', PAGE_SIZE)
+        result = self.compat_get(path, **params)
+        records = list(result.get(list_key) or [])
+        for _page in range(MAX_PAGES):
+            next_uri = result.get('next_page_uri')
+            if not next_uri:
+                return records
+            result = self._request('get', self._absolute_url(next_uri, '/api/laml'))
+            records.extend(result.get(list_key) or [])
+        raise SignalWireAPIError(f'More than {MAX_PAGES} pages of {path}: stopped reading.')
+
+    def _absolute_url(self, uri, api_prefix):
+        """A next-page link as the API gives it: a full URL, a path from
+        the space's root, or (Twilio style) a path without the API prefix."""
+        if uri.startswith('http'):
+            return uri
+        if not uri.startswith('/api/'):
+            uri = api_prefix + (uri if uri.startswith('/') else '/' + uri)
+        return f'https://{self.space}{uri}'
+
     def compat_post(self, path, **data):
         return self._request('post', self._compat_url(path), data=data)
 
@@ -145,6 +176,20 @@ class SignalWireClient:
         ``{"uri": ..., "<resource>": [...]}``.
         """
         return self._request('get', self._video_url(path), params=params)
+
+    def video_get_all(self, path, **params):
+        """Every item of a Video API list, following ``links.next`` page by
+        page (``{"links": {"next": ...}, "data": [...]}``)."""
+        params.setdefault('page_size', PAGE_SIZE)
+        result = self.video_get(path, **params)
+        items = list(result.get('data') or [])
+        for _page in range(MAX_PAGES):
+            next_uri = (result.get('links') or {}).get('next')
+            if not next_uri:
+                return items
+            result = self._request('get', self._absolute_url(next_uri, '/api/video'))
+            items.extend(result.get('data') or [])
+        raise SignalWireAPIError(f'More than {MAX_PAGES} pages of {path}: stopped reading.')
 
     def video_post(self, path, **json_body):
         return self._request('post', self._video_url(path), json=json_body)

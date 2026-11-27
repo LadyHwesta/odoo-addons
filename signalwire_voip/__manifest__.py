@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'VoIP',
-    'version': '19.0.1.13.0',
+    'version': '19.0.1.13.1',
     'category': 'Productivity/VOIP',
     'summary': 'Phone service: accounts, sub-accounts and phone numbers',
     'description': """

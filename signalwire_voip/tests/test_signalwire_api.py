@@ -227,3 +227,48 @@ class TestSignalWireClient(TransactionCase):
         with patch('requests.request', side_effect=requests.ConnectionError('boom')):
             with self.assertRaises(SignalWireAPIError):
                 client.compat_get('Accounts/pid123.json')
+
+
+@tagged('post_install', '-at_install')
+class TestPagedLists(TransactionCase):
+    """Billing reads every page, never only the first."""
+
+    def _client(self):
+        return SignalWireClient(
+            space='example.signalwire.com', project_id='pid123', api_token='tok456')
+
+    def test_compat_get_all_follows_next_page_uri(self):
+        pages = [
+            _mock_response(json_body={'calls': [{'sid': 'C1'}, {'sid': 'C2'}],
+                                      'next_page_uri': '/api/laml/2010-04-01/Accounts/a/Calls.json?Page=1&PageToken=x'}),
+            _mock_response(json_body={'calls': [{'sid': 'C3'}],
+                                      'next_page_uri': '/2010-04-01/Accounts/a/Calls.json?Page=2&PageToken=y'}),
+            _mock_response(json_body={'calls': [{'sid': 'C4'}], 'next_page_uri': None}),
+        ]
+        with patch('requests.request', side_effect=pages) as req:
+            calls = self._client().compat_get_all('Accounts/a/Calls.json', 'calls', StartTime='x')
+        self.assertEqual([c['sid'] for c in calls], ['C1', 'C2', 'C3', 'C4'])
+        first, second, third = req.call_args_list
+        self.assertEqual(first.kwargs['params']['PageSize'], 1000)
+        self.assertEqual(second.args[1],
+                         'https://example.signalwire.com/api/laml/2010-04-01/Accounts/a/Calls.json?Page=1&PageToken=x')
+        # Twilio-style links leave out the API prefix.
+        self.assertEqual(third.args[1],
+                         'https://example.signalwire.com/api/laml/2010-04-01/Accounts/a/Calls.json?Page=2&PageToken=y')
+
+    def test_video_get_all_follows_links_next(self):
+        pages = [
+            _mock_response(json_body={'data': [{'id': 's1'}],
+                                      'links': {'next': 'https://example.signalwire.com/api/video/room_sessions?page_token=p2'}}),
+            _mock_response(json_body={'data': [{'id': 's2'}], 'links': {}}),
+        ]
+        with patch('requests.request', side_effect=pages):
+            sessions = self._client().video_get_all('room_sessions', started_at='x')
+        self.assertEqual([s['id'] for s in sessions], ['s1', 's2'])
+
+    def test_a_link_that_never_ends_is_stopped(self):
+        looping = _mock_response(json_body={'calls': [{'sid': 'C'}], 'next_page_uri': '/api/laml/x?Page=1'})
+        with patch('requests.request', return_value=looping), \
+                patch('odoo.addons.signalwire_voip.models.signalwire_api.MAX_PAGES', 3), \
+                self.assertRaises(SignalWireAPIError):
+            self._client().compat_get_all('Accounts/a/Calls.json', 'calls')
